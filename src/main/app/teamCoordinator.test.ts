@@ -99,7 +99,12 @@ function setup(options: { transcripts?: Set<string> } = {}) {
     revokeSession: () => undefined,
     launchSpec: () => ({ name: 'eclipse', command: 'node', args: [], env: {} }),
   } as unknown as McpBridgeServer
-  const worktrees = { remove: async () => undefined } as unknown as WorktreeService
+  const removedWorktrees: string[] = []
+  const worktrees = {
+    remove: async (request: { worktreePath: string }) => {
+      removedWorktrees.push(request.worktreePath)
+    },
+  } as unknown as WorktreeService
 
   const turnRelay = startTeamTurnRelay({
     tasks,
@@ -131,10 +136,15 @@ function setup(options: { transcripts?: Set<string> } = {}) {
       await turnRelay.idle()
     }
   }
+  const emitLeader = (event: LeaderSessionEvent) => {
+    for (const listener of sessionListeners) listener(event)
+  }
   return {
     tasks,
     fx,
     coordinator,
+    emitLeader,
+    removedWorktrees,
     launches,
     killed,
     alive,
@@ -260,5 +270,43 @@ describe('avisos ao Líder fora de turno', () => {
     expect(pending).toHaveLength(1)
     expect(pending[0]).toContain(queued.id)
     expect(pending[0]).toContain('sessão perdida')
+  })
+})
+
+describe('status da tarefa', () => {
+  it('turno do Líder começando põe a tarefa em andamento', async () => {
+    const h = setup()
+    const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('a_fazer')
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'idle' })
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('a_fazer')
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'working' })
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('em_andamento')
+  })
+
+  it('usuário marca Lançado: fecha o Líder, arquiva e não remove a worktree', async () => {
+    const h = setup()
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'lancado')
+    expect(task).toMatchObject({ status: 'archived', workflowStatus: 'lancado' })
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+    expect(h.killed).toEqual(['pty-1'])
+    expect(h.removedWorktrees).toEqual([])
+  })
+
+  it('tirar de Lançado sem a worktree no disco é recusado', async () => {
+    const h = setup()
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'lancado')
+    await expect(h.coordinator.setTaskStatus(h.fx.task.id, 'em_revisao')).rejects.toMatchObject({
+      code: 'unavailable',
+    })
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('lancado')
+  })
+
+  it('usuário troca entre status abertos sem abrir nem fechar agentes', async () => {
+    const h = setup()
+    const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'pronto_lancar')
+    expect(task).toMatchObject({ status: 'open', workflowStatus: 'pronto_lancar' })
+    expect(h.launches).toHaveLength(0)
   })
 })

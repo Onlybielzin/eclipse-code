@@ -15,6 +15,16 @@
   --blue: #7fb2f0;
   --blue-soft: #1a2a3d;
   --violet: #a99cf5;
+  /* Familia de status (Paperclip): ambar fila, azul vivo, rosa pergunta, violeta revisao,
+     teal pronto, verde final, vermelho bloqueado, cinza cancelado. */
+  --st-amber: #f0b24a;
+  --st-blue: #7fb2f0;
+  --st-pink: #f28dc2;
+  --st-violet: #a99cf5;
+  --st-teal: #4fd1c5;
+  --st-green: #4cc79a;
+  --st-red: #f08a80;
+  --st-gray: #7d8a84;
   --term: #0b0e0d;
   --app-bg: #0e1211;
   --f-ui: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
@@ -201,11 +211,39 @@ code {
 
 /* ===== lista de tarefas ===== */
 .grp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: 0;
+  font-family: var(--f-ui);
   font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 12px 14px 4px;
+  cursor: pointer;
+  text-align: left;
+}
+.grp:hover {
+  color: var(--fg);
+}
+.grp-chev {
+  width: 10px;
+  flex: none;
+  letter-spacing: 0;
+}
+.grp-count {
+  font-family: var(--f-mono);
+  letter-spacing: 0;
+  color: var(--muted);
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 0 6px;
+  font-size: 10.5px;
+  line-height: 16px;
 }
 .row {
   display: flex;
@@ -261,47 +299,119 @@ code {
   font-weight: 700;
   font-style: normal;
 }
-.st-submitted {
-  border: 1.5px dashed var(--muted);
+/* Subtarefa (estados A2A) na mesma familia do status da tarefa. */
+.st-submitted,
+.ts-todo {
+  border: 1.5px solid var(--st-amber);
 }
-.st-working {
-  border: 1.5px solid var(--blue);
-  background: conic-gradient(var(--blue) 0 50%, transparent 50%);
+.st-working,
+.ts-progress {
+  border: 1.5px solid var(--st-blue);
+  background: conic-gradient(var(--st-blue) 0 50%, transparent 50%);
+  box-shadow: inset 0 0 0 1.5px var(--app-bg);
 }
-.st-input {
-  background: var(--warn);
-  color: #1a1200;
+.st-input,
+.ts-question {
+  border: 1.5px solid var(--st-pink);
+  color: var(--st-pink);
 }
-.st-input::after {
+.st-input::after,
+.ts-question::after {
   content: '?';
 }
-.st-completed {
-  background: var(--accent);
+.st-completed,
+.ts-launched {
+  border: 1.5px solid var(--st-green);
+  background: var(--st-green);
   color: #06140e;
 }
-.st-completed::after {
+.st-completed::after,
+.ts-launched::after {
   content: '\2713';
 }
 .st-failed {
-  background: var(--bad);
-  color: #200;
+  border: 1.5px solid var(--st-red);
+  color: var(--st-red);
 }
 .st-failed::after {
   content: '!';
 }
 .st-canceled {
-  border: 1.5px solid var(--muted);
-  background: linear-gradient(45deg, transparent 45%, var(--muted) 45% 55%, transparent 55%);
+  border: 1.5px solid var(--st-gray);
+  background: linear-gradient(45deg, transparent 44%, var(--st-gray) 44% 56%, transparent 56%);
 }
-.st-lead {
-  border: 1.5px solid var(--violet);
-  box-shadow: inset 0 0 0 3px var(--app-bg);
-  background: var(--violet);
+.ts-review {
+  border: 1.5px solid var(--st-violet);
 }
-.st-solo {
-  border: 1.5px solid var(--muted);
-  box-shadow: inset 0 0 0 3px var(--app-bg);
-  background: var(--muted);
+.ts-review::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--st-violet);
+}
+.ts-ready {
+  border: 1.5px solid var(--st-teal);
+  color: var(--st-teal);
+}
+.ts-ready::after {
+  content: '\2191';
+  font-size: 10px;
+}
+
+/* ===== menu de status da tarefa ===== */
+.status-pick {
+  display: inline-flex;
+  flex: none;
+}
+.status-btn {
+  display: inline-grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  padding: 2px;
+  margin: -2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.status-btn:hover,
+.status-btn[aria-expanded='true'] {
+  background: #223029;
+}
+.status-menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 190px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+  display: flex;
+  flex-direction: column;
+}
+.status-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: var(--fg);
+  font-family: var(--f-ui);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.status-opt:hover,
+.status-opt:focus-visible {
+  background: #223029;
+  outline: none;
+}
+.status-opt.cur {
+  background: #1d2a25;
+  font-weight: 700;
 }
 
 /* ===== centro ===== */
@@ -408,8 +518,8 @@ code {
   color: var(--blue);
 }
 .b-input {
-  background: var(--warn-soft);
-  color: var(--warn);
+  background: #3a1a2c;
+  color: var(--st-pink);
 }
 .b-failed {
   background: var(--bad-soft);

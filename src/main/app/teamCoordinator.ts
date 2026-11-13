@@ -20,7 +20,10 @@
  *       dela com entrega confirmada.
  *   C6. Um providerSessionId que falhou no --resume nao e tentado de novo: a sessao fica com
  *       providerSessionId null e o Lider abre sessao nova.
+ *   C7. Lancar pela tela usa o mesmo fluxo do arquivar (fecha agentes, nao remove worktree).
+ *       Tirar de lancado so reabre se a worktree da tarefa ainda existe.
  */
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   DomainError,
@@ -37,6 +40,7 @@ import {
   type Task,
   type TaskId,
   type TaskKind,
+  type TaskWorkflowStatus,
   type TurnResult,
   type UserQuestion,
 } from '@shared/domain'
@@ -176,6 +180,11 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
           )
         } else if (event.type === 'exit') {
           this.onLeaderExit(event.sessionId, event.exit.exitCode, event.exit.signal)
+        } else if (event.type === 'activity' && event.activity === 'working') {
+          // Turno do Lider (ou do avulso) comecou: a tarefa esta em andamento.
+          this.safely('marcar tarefa em andamento', () =>
+            this.tasks.markTaskWorkStarted(this.tasks.getSession(event.sessionId).taskId),
+          )
         }
       }),
       this.members.onActivity((draft) => {
@@ -277,6 +286,24 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       })
     }
     return archived
+  }
+
+  /**
+   * Status escolhido pelo usuario no menu da lista. 'lancado' passa pelo archiveTask
+   * (fecha agentes; worktree fica). Sair de 'lancado' reabre a tarefa arquivada (C7).
+   */
+  async setTaskStatus(taskId: TaskId, status: TaskWorkflowStatus): Promise<Task> {
+    const task = this.tasks.getTask(taskId)
+    if (task.workflowStatus === status) return task
+    if (status === 'lancado') return this.archiveTask(taskId, { removeWorktree: false })
+    if (task.status === 'archived' && task.worktreePath && !existsSync(task.worktreePath)) {
+      throw new DomainError(
+        'unavailable',
+        'a worktree desta tarefa foi removida; crie uma tarefa nova para continuar',
+        { taskId, worktreePath: task.worktreePath },
+      )
+    }
+    return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
   }
 
   // -------------------------------------------------------------------------

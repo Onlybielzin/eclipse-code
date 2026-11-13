@@ -39,7 +39,7 @@ export function createFakeTaskService(): FakeTaskService {
   const seq = 0
   const now = () => 1_000 + seq
   const listeners = new Set<(e: DomainEventEnvelope) => void>()
-  const task: Task = {
+  let task: Task = {
     id: 'task1',
     projectId: 'proj1',
     contextId: 'ctx1',
@@ -51,6 +51,7 @@ export function createFakeTaskService(): FakeTaskService {
     leadRoleId: 'lead',
     soloProvider: null,
     status: 'open',
+    workflowStatus: 'em_andamento',
     createdAt: 1,
     updatedAt: 1,
     archivedAt: null,
@@ -107,6 +108,15 @@ export function createFakeTaskService(): FakeTaskService {
       if (id === task.id) return task
       if (id === otherTask.id) return otherTask
       throw new DomainError('not_found', 'tarefa')
+    },
+    concludeTask(id) {
+      if (id !== task.id) throw new DomainError('not_found', 'tarefa')
+      if (questions.some((q) => q.taskId === id && q.status === 'open')) {
+        throw new DomainError('conflict', 'pergunta aberta')
+      }
+      task = { ...task, workflowStatus: 'em_revisao' }
+      emit({ type: 'task.upserted', task })
+      return task
     },
     listRoles: () => roles,
     getRole(id) {

@@ -10,6 +10,7 @@ import {
   MAX_QUESTION_OPTIONS,
   PROVIDERS,
   TASK_KINDS,
+  TASK_WORKFLOW_STATUSES,
   type ChangedFile,
   type Delivery,
   type JsonObject,
@@ -35,6 +36,7 @@ export const absolutePathSchema = z
 
 export const providerSchema = z.enum(PROVIDERS)
 export const taskKindSchema = z.enum(TASK_KINDS)
+export const taskWorkflowStatusSchema = z.enum(TASK_WORKFLOW_STATUSES)
 export const deliveryStateSchema = z.enum(DELIVERY_STATES)
 
 export const jsonObjectSchema: z.ZodType<JsonObject> = z.record(

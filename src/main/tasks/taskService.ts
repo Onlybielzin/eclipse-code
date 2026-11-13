@@ -14,6 +14,9 @@
  *   I3. Evento so depois do commit, com revisao global crescente.
  *   I4. Tarefa arquivada nao aceita subtarefa nova, sessao nova nem pergunta nova.
  *   I5. Uma subtarefa tem no maximo uma sessao de membro (seq de atividade e por sessao).
+ *   I6. Status de trabalho da tarefa (W1-W3 em domain.ts): so muda aqui, na mesma transacao
+ *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
+ *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado; lancado <=> arquivada.
  */
 import { basename, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -22,6 +25,8 @@ import {
   MAX_ACTIVITY_TEXT_CHARS,
   canTransitionSubtask,
   isFinalSubtaskState,
+  isUserOnlyTaskWorkflowStatus,
+  TASK_WORKFLOW_STATUS_LABELS,
   type ActivityEvent,
   type ActivityEventDraft,
   type ActivityPayload,
@@ -47,6 +52,8 @@ import {
   type SubtaskState,
   type Task,
   type TaskId,
+  type TaskWorkflowActor,
+  type TaskWorkflowStatus,
   type Turn,
   type TurnId,
   type TurnResult,
@@ -75,6 +82,7 @@ import {
   questionItemsSchema,
 } from '@shared/schemas'
 import { assembleFinalText, failureMessage, resolveTurn } from '@shared/subtaskRules'
+import { nextTaskWorkflowStatus, type TaskWorkflowSignal } from '@shared/taskWorkflow'
 import { roleNameKey, type SqliteTaskStore } from './sqliteTaskStore'
 
 export const systemClock: Clock = { now: () => Date.now() }
@@ -419,6 +427,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         leadRoleId,
         soloProvider: record.soloProvider,
         status: 'open',
+        workflowStatus: 'a_fazer',
         createdAt: now,
         updatedAt: now,
         archivedAt: null,
@@ -454,11 +463,85 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         if (question.taskId === id) this.closeQuestion(question, 'dismissed', null)
       }
       const now = this.clock.now()
-      const archived: Task = { ...task, status: 'archived', archivedAt: now, updatedAt: now }
+      const archived: Task = {
+        ...this.getTask(id),
+        status: 'archived',
+        workflowStatus: 'lancado',
+        archivedAt: now,
+        updatedAt: now,
+      }
       this.store.updateTask(archived)
       this.emit({ type: 'task.upserted', task: archived })
       return archived
     })
+  }
+
+  // -------------------------------------------------------------------------
+  // Status de trabalho da tarefa (I6)
+  // -------------------------------------------------------------------------
+
+  setTaskWorkflowStatus(id: TaskId, to: TaskWorkflowStatus, actor: TaskWorkflowActor): Task {
+    return this.write(() => {
+      const task = this.getTask(id)
+      if (actor !== 'user') {
+        if (isUserOnlyTaskWorkflowStatus(to)) {
+          throw new DomainError(
+            'forbidden',
+            `só o usuário marca "${TASK_WORKFLOW_STATUS_LABELS[to]}"`,
+            { taskId: id, to },
+          )
+        }
+        if (task.workflowStatus === 'lancado') {
+          throw new DomainError('invalid_transition', 'tarefa lançada não muda por automação', {
+            taskId: id,
+          })
+        }
+      }
+      if (task.workflowStatus === to) return task
+      // Lancar arquiva (W3): fecha subtarefas e perguntas pelo mesmo caminho do arquivar.
+      if (to === 'lancado') return this.markTaskArchived(id)
+      const now = this.clock.now()
+      const next: Task =
+        task.status === 'archived'
+          ? { ...task, status: 'open', archivedAt: null, workflowStatus: to, updatedAt: now }
+          : { ...task, workflowStatus: to, updatedAt: now }
+      this.store.updateTask(next)
+      this.emit({ type: 'task.upserted', task: next })
+      return next
+    })
+  }
+
+  markTaskWorkStarted(id: TaskId): Task {
+    return this.write(() => this.applyTaskSignal(id, 'work_started'))
+  }
+
+  concludeTask(id: TaskId): Task {
+    return this.write(() => {
+      const task = this.getTask(id)
+      if (task.workflowStatus === 'lancado') {
+        throw new DomainError('invalid_transition', 'a tarefa já foi lançada', { taskId: id })
+      }
+      const open = this.store.countOpenQuestions(id)
+      if (open > 0) {
+        throw new DomainError(
+          'conflict',
+          'há pergunta ao usuário sem resposta; espere a resposta antes de concluir',
+          { taskId: id, openQuestions: open },
+        )
+      }
+      return this.applyTaskSignal(id, 'leader_concluded')
+    })
+  }
+
+  /** Aplica a regra automatica (taskWorkflow.ts). Chamar sempre dentro de write(). */
+  private applyTaskSignal(id: TaskId, signal: TaskWorkflowSignal): Task {
+    const task = this.getTask(id)
+    const to = nextTaskWorkflowStatus(task.workflowStatus, signal)
+    if (to === null) return task
+    const next: Task = { ...task, workflowStatus: to, updatedAt: this.clock.now() }
+    this.store.updateTask(next)
+    this.emit({ type: 'task.upserted', task: next })
+    return next
   }
 
   // -------------------------------------------------------------------------
@@ -564,6 +647,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     }
     this.store.updateSubtask(next)
     this.emit({ type: 'subtask.upserted', subtask: next })
+    if (to === 'working') this.applyTaskSignal(subtask.taskId, 'work_started')
     return next
   }
 
@@ -1023,6 +1107,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       }
       this.store.insertQuestion(question)
       this.emit({ type: 'question.upserted', question })
+      this.applyTaskSignal(task.id, 'question_opened')
       return question
     })
   }
@@ -1085,6 +1170,9 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     }
     this.store.updateQuestion(next)
     this.emit({ type: 'question.upserted', question: next })
+    if (this.store.countOpenQuestions(question.taskId) === 0) {
+      this.applyTaskSignal(question.taskId, 'questions_cleared')
+    }
     return next
   }
 

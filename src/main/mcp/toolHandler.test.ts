@@ -31,6 +31,7 @@ describe('autorizacao pelo papel do token', () => {
       'subtarefas_ver',
       'subtarefas_esperar',
       'pergunta_repassar',
+      'tarefa_concluir',
     ] as const) {
       await expect(handler.callTool(member, name, {})).rejects.toMatchObject({ code: 'forbidden' })
     }
@@ -53,6 +54,35 @@ describe('autorizacao pelo papel do token', () => {
     await expect(
       handler.callTool(member, 'entregar', { estado: 'feito', resumo: 'x' }),
     ).rejects.toMatchObject({ code: 'invalid_input' })
+  })
+})
+
+describe('tarefa_concluir', () => {
+  it('Lider conclui: a tarefa vai para Em revisão', async () => {
+    const { handler, tasks } = setup()
+    const result = await handler.callTool(leader, 'tarefa_concluir', { resumo: 'Login pronto' })
+    expect(tasks.getTask('task1').workflowStatus).toBe('em_revisao')
+    expect(result.text).toContain('Em revisão')
+    expect(result.data).toMatchObject({ tarefa_id: 'task1', status: 'em_revisao' })
+  })
+
+  it('membro é recusado e a tarefa não muda', async () => {
+    const { handler, tasks } = setup()
+    await expect(
+      handler.callTool(member, 'tarefa_concluir', { resumo: 'acabei tudo' }),
+    ).rejects.toMatchObject({ code: 'forbidden' })
+    expect(tasks.getTask('task1').workflowStatus).toBe('em_andamento')
+  })
+
+  it('pede resumo e não aceita escolher status', async () => {
+    const { handler, tasks } = setup()
+    await expect(handler.callTool(leader, 'tarefa_concluir', {})).rejects.toMatchObject({
+      code: 'invalid_input',
+    })
+    await expect(
+      handler.callTool(leader, 'tarefa_concluir', { resumo: 'x', status: 'lancado' }),
+    ).rejects.toMatchObject({ code: 'invalid_input' })
+    expect(tasks.getTask('task1').workflowStatus).toBe('em_andamento')
   })
 })
 

@@ -3,6 +3,7 @@ import type { Subtask, Task, UserQuestion } from '@shared/domain'
 import {
   composeLeaderPrompt,
   composeMemberFirstPrompt,
+  LEADER_FINISH_RULE,
   composeQuestionNotice,
   renderPromptTemplate,
 } from './prompts'
@@ -19,6 +20,7 @@ const task: Task = {
   leadRoleId: 'r1',
   soloProvider: null,
   status: 'open',
+  workflowStatus: 'a_fazer',
   createdAt: 0,
   updatedAt: 0,
   archivedAt: null,
@@ -53,11 +55,24 @@ describe('prompts', () => {
 
   it('Líder: prompt do papel renderizado; sem papel usa a dica das ferramentas', () => {
     expect(composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere {{tarefa}}.' })).toBe(
-      'Lidere Login novo.',
+      `Lidere Login novo.\n\n${LEADER_FINISH_RULE}`,
     )
     const semPapel = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
     expect(semPapel).toContain('subtarefa_criar')
     expect(semPapel).toContain('Tarefa: Login novo')
+  })
+
+  it('Líder: sempre recebe a regra de chamar tarefa_concluir ao terminar', () => {
+    const comPapel = composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere.' })
+    expect(comPapel).toContain('tarefa_concluir')
+    expect(comPapel).toContain('Em revisão')
+    // Papel que ja fala da ferramenta nao recebe a regra repetida.
+    const proprio = composeLeaderPrompt({
+      task,
+      cwd: '/wt/login',
+      template: 'Lidere {{tarefa}} e chame tarefa_concluir no fim.',
+    })
+    expect(proprio).not.toContain(LEADER_FINISH_RULE)
   })
 
   it('membro: instruções, origem e a regra de entrega com STATUS', () => {

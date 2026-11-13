@@ -1,6 +1,27 @@
-import type { Subtask, SubtaskState, Task, UserQuestion } from '@shared/domain'
+import {
+  TASK_WORKFLOW_STATUS_LABELS,
+  TASK_WORKFLOW_STATUSES,
+  type Subtask,
+  type SubtaskState,
+  type Task,
+  type TaskWorkflowStatus,
+  type UserQuestion,
+} from '@shared/domain'
 
-/** Classe CSS do icone de estado (mesmas da maquete). */
+/**
+ * Classe CSS do icone de status da tarefa. Mesma familia do Paperclip: circulo com borda
+ * da cor do status e preenchimento/simbolo por status.
+ */
+export const TASK_STATUS_ICON_CLASS: Record<TaskWorkflowStatus, string> = {
+  a_fazer: 'ts-todo',
+  em_andamento: 'ts-progress',
+  pergunta: 'ts-question',
+  em_revisao: 'ts-review',
+  pronto_lancar: 'ts-ready',
+  lancado: 'ts-launched',
+}
+
+/** Classe CSS do icone de estado da subtarefa (mesma familia visual do status da tarefa). */
 export const STATE_ICON_CLASS: Record<SubtaskState, string> = {
   submitted: 'st-submitted',
   working: 'st-working',
@@ -43,20 +64,23 @@ export function openQuestions(questions: readonly UserQuestion[]): UserQuestion[
 }
 
 export interface TaskGroup {
+  status: TaskWorkflowStatus
   label: string
   tasks: Task[]
 }
 
-/** Tarefas de time em "Em andamento"; avulsas em "Avulsos". Mais recentes primeiro. */
+/**
+ * Agrupa por status de trabalho, na ordem de TASK_WORKFLOW_STATUSES. Grupo vazio some.
+ * Time e avulso ficam juntos no grupo do status. Dentro do grupo, mais recentes primeiro.
+ */
 export function groupTasks(tasks: readonly Task[]): TaskGroup[] {
-  const open = tasks.filter((t) => t.status === 'open')
-  const byRecent = (a: Task, b: Task) => b.createdAt - a.createdAt
-  const team = open.filter((t) => t.kind === 'team').sort(byRecent)
-  const solo = open.filter((t) => t.kind === 'solo').sort(byRecent)
-  const groups: TaskGroup[] = []
-  if (team.length > 0) groups.push({ label: 'Em andamento', tasks: team })
-  if (solo.length > 0) groups.push({ label: 'Avulsos', tasks: solo })
-  return groups
+  const byRecent = (a: Task, b: Task) => b.updatedAt - a.updatedAt || b.createdAt - a.createdAt
+  return TASK_WORKFLOW_STATUSES.flatMap((status) => {
+    const list = tasks.filter((t) => t.workflowStatus === status).sort(byRecent)
+    return list.length > 0
+      ? [{ status, label: TASK_WORKFLOW_STATUS_LABELS[status], tasks: list }]
+      : []
+  })
 }
 
 /** Substitui por id, ou acrescenta no fim. */

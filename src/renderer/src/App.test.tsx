@@ -51,12 +51,12 @@ afterEach(() => {
 })
 
 describe('tela de 3 colunas', () => {
-  it('mostra tarefas, Avulsos, subtarefas e o contador "precisa de você"', async () => {
+  it('mostra tarefas por status, subtarefas e o contador "precisa de você"', async () => {
     await renderApp()
     const list = screen.getByRole('region', { name: 'Tarefas' })
     expect(within(list).getByText('Em andamento')).toBeTruthy()
-    expect(within(list).getByText('Avulsos')).toBeTruthy()
     expect(within(list).getByText('conversa solta')).toBeTruthy()
+    expect(within(list).getByTestId('task-solo1').textContent).toContain('avulso')
     expect(screen.getByTestId('need-you').textContent).toBe('1 precisa de você')
 
     const right = screen.getByRole('region', { name: 'Subtarefas' })
@@ -183,7 +183,7 @@ describe('tela de 3 colunas', () => {
         { projectId: 'p1', title: 'relatório por oferta', kind: 'team', useWorktree: true },
       ]),
     )
-    await waitFor(() => expect(api.callsTo('leader.ensure')).toContainEqual({ taskId: 't-new-3' }))
+    await waitFor(() => expect(api.callsTo('leader.ensure')).toContainEqual({ taskId: 't-new-4' }))
     expect(screen.queryByRole('form', { name: 'Nova tarefa' })).toBeNull()
   })
 
@@ -207,5 +207,86 @@ describe('tela de 3 colunas', () => {
         },
       ]),
     )
+  })
+})
+
+describe('status da tarefa na lista', () => {
+  function list() {
+    return screen.getByRole('region', { name: 'Tarefas' })
+  }
+  function groupLabels() {
+    return within(list())
+      .getAllByRole('group')
+      .map((g) => g.getAttribute('aria-label'))
+  }
+
+  it('agrupa na ordem dos status, com contador, sem grupo vazio e Lançado recolhido', async () => {
+    await renderApp()
+    expect(groupLabels()).toEqual(['A fazer', 'Em andamento', 'Lançado'])
+    expect(within(list()).queryByText('Em revisão')).toBeNull()
+    expect(within(screen.getByTestId('group-a_fazer')).getByText('1')).toBeTruthy()
+    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByTestId('task-old1')).toBeNull()
+
+    fireEvent.click(screen.getByTestId('group-lancado'))
+    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByTestId('task-old1').textContent).toContain('checkout antigo')
+
+    fireEvent.click(screen.getByTestId('group-em_andamento'))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+  })
+
+  it('ícone abre menu com os 6 status e a troca vai ao main e move a tarefa de grupo', async () => {
+    await renderApp()
+    const row = screen.getByTestId('task-t1')
+    fireEvent.click(within(row).getByRole('button', { name: /Status de feat-orfer-e-up/ }))
+    const menu = screen.getByRole('menu', { name: 'Trocar status de feat-orfer-e-up' })
+    const options = within(menu).getAllByRole('menuitemradio')
+    expect(options.map((o) => o.textContent)).toEqual([
+      'A fazer',
+      'Em andamento',
+      'Pergunta para você',
+      'Em revisão',
+      'Pronto pra lançar',
+      'Lançado',
+    ])
+    expect(options[1]?.getAttribute('aria-checked')).toBe('true')
+    // Abrir o menu nao seleciona a tarefa nem muda nada.
+    expect(api.callsTo('tasks.setStatus')).toEqual([])
+
+    fireEvent.click(within(menu).getByText('Em revisão'))
+    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() =>
+      expect(api.callsTo('tasks.setStatus')).toEqual([{ taskId: 't1', status: 'em_revisao' }]),
+    )
+    await waitFor(() => expect(groupLabels()).toEqual(['A fazer', 'Em revisão', 'Lançado']))
+    expect(
+      within(screen.getByRole('group', { name: 'Em revisão' })).getByText('feat-orfer-e-up'),
+    ).toBeTruthy()
+  })
+
+  it('escolher o status atual ou apertar Esc não chama o main', async () => {
+    await renderApp()
+    const button = within(screen.getByTestId('task-t1')).getByRole('button', {
+      name: /Status de/,
+    })
+    fireEvent.click(button)
+    fireEvent.click(within(screen.getByRole('menu')).getByText('Em andamento'))
+    expect(screen.queryByRole('menu')).toBeNull()
+    fireEvent.click(button)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(api.callsTo('tasks.setStatus')).toEqual([])
+  })
+
+  it('marcar Lançado arquiva e o centro mostra a tarefa lançada', async () => {
+    await renderApp()
+    fireEvent.click(
+      within(screen.getByTestId('task-t1')).getByRole('button', { name: /Status de/ }),
+    )
+    fireEvent.click(within(screen.getByRole('menu')).getByText('Lançado'))
+    await waitFor(() => expect(within(middle()).getByTestId('task-launched')).toBeTruthy())
+    expect(groupLabels()).toEqual(['A fazer', 'Lançado'])
+    expect(within(screen.getByTestId('group-lancado')).getByText('2')).toBeTruthy()
   })
 })

@@ -24,6 +24,7 @@ export function createIpcHandlers(
     'tasks.create': (input) => coordinator.createTask(input),
     'tasks.archive': (input) =>
       coordinator.archiveTask(input.taskId, { removeWorktree: input.removeWorktree }),
+    'tasks.setStatus': (input) => coordinator.setTaskStatus(input.taskId, input.status),
 
     'subtasks.list': async (input) => tasks.listSubtasks(input.taskId),
     'subtasks.detail': async (input) => tasks.getSubtaskDetail(input.subtaskId),

@@ -56,6 +56,7 @@ export function makeTask(id: string, title: string, extra: Partial<Task> = {}): 
     leadRoleId: 'lead',
     soloProvider: null,
     status: 'open',
+    workflowStatus: 'em_andamento',
     createdAt: T0,
     updatedAt: T0,
     archivedAt: null,
@@ -239,6 +240,20 @@ export class FakeApi implements EclipseApi {
         d.tasks.push(task)
         return task
       }
+      case 'tasks.setStatus': {
+        const current = d.tasks.find((t) => t.id === input.taskId)
+        if (!current) throw new Error('tarefa inexistente no fake')
+        const status = input.status as Task['workflowStatus']
+        const next: Task = {
+          ...current,
+          workflowStatus: status,
+          status: status === 'lancado' ? 'archived' : 'open',
+          archivedAt: status === 'lancado' ? T0 + 60_000 : null,
+          updatedAt: current.updatedAt + 1,
+        }
+        d.tasks = d.tasks.map((t) => (t.id === next.id ? next : t))
+        return next
+      }
       case 'questions.answer':
       case 'questions.dismiss': {
         const q = d.questions.find((x) => x.id === input.questionId)
@@ -286,6 +301,12 @@ export function mockupData(): FakeData {
         worktreePath: null,
         branch: null,
         baseBranch: null,
+        workflowStatus: 'a_fazer',
+      }),
+      makeTask('old1', 'checkout antigo', {
+        status: 'archived',
+        workflowStatus: 'lancado',
+        archivedAt: T0 + 1000,
       }),
     ],
     subtasks: [d1, d2, tst],

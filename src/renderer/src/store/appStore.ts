@@ -18,6 +18,7 @@ import type {
   Role,
   Subtask,
   Task,
+  TaskWorkflowStatus,
   UserQuestion,
 } from '@shared/domain'
 import type {
@@ -191,7 +192,8 @@ export class AppStore {
     await this.guard(async () => {
       const [roles, tasks, questions] = await Promise.all([
         this.call('roles.list', { projectId }),
-        this.call('tasks.list', { projectId, includeArchived: false }),
+        // Arquivadas entram para o grupo "Lançado" (recolhido por padrao na lista).
+        this.call('tasks.list', { projectId, includeArchived: true }),
         this.call('questions.list', { projectId }),
       ])
       const subtaskLists = await Promise.all(
@@ -202,7 +204,8 @@ export class AppStore {
       tasks.forEach((t, i) => {
         subtasks[t.id] = subtaskLists[i] ?? []
       })
-      const first = tasks.find((t) => t.kind === 'team') ?? tasks[0] ?? null
+      const open = tasks.filter((t) => t.status === 'open')
+      const first = open.find((t) => t.kind === 'team') ?? open[0] ?? null
       this.set((s) => ({
         roles: Object.fromEntries(roles.map((r) => [r.id, r])),
         tasks,
@@ -312,6 +315,21 @@ export class AppStore {
     })
   }
 
+  /** Status escolhido no menu do icone. O main decide; a tela so troca pela resposta (S1). */
+  async setTaskStatus(taskId: string, status: TaskWorkflowStatus): Promise<void> {
+    await this.guard(async () => {
+      const task = await this.call('tasks.setStatus', { taskId, status })
+      this.applyTask(task)
+    })
+  }
+
+  private applyTask(task: Task): void {
+    this.set((s) => ({
+      tasks: upsertById(s.tasks, task),
+      subtasks: s.subtasks[task.id] ? s.subtasks : { ...s.subtasks, [task.id]: [] },
+    }))
+  }
+
   async answerQuestion(
     questionId: string,
     answers: { itemId: string; optionIds: string[]; text: string | null }[],
@@ -383,19 +401,8 @@ export class AppStore {
       case 'task.upserted': {
         const task = event.task
         if (task.projectId !== s.projectId) return
-        if (task.status === 'archived') {
-          this.set({
-            tasks: s.tasks.filter((t) => t.id !== task.id),
-            ...(s.selectedTaskId === task.id
-              ? { selectedTaskId: null, selectedSubtaskId: null, midTab: 'leader' as const }
-              : {}),
-          })
-          return
-        }
-        this.set({
-          tasks: upsertById(s.tasks, task),
-          subtasks: s.subtasks[task.id] ? s.subtasks : { ...s.subtasks, [task.id]: [] },
-        })
+        // Arquivada continua na lista, no grupo "Lançado".
+        this.applyTask(task)
         return
       }
       case 'subtask.upserted': {

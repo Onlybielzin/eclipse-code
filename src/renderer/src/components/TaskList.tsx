@@ -1,9 +1,22 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { PROVIDER_LABELS, PROVIDERS, type Provider, type Task } from '@shared/domain'
+import {
+  PROVIDER_LABELS,
+  PROVIDERS,
+  type Provider,
+  type Task,
+  type TaskWorkflowStatus,
+} from '@shared/domain'
 import { groupTasks, STATE_ICON_CLASS } from '../store/format'
 import { useAppState, useStore } from '../store/context'
+import { TaskStatusMenu } from './TaskStatusMenu'
 
-/** Coluna esquerda: tarefas com subtarefas embaixo, e a secao Avulsos. */
+/** Grupos recolhidos ao abrir a tela. */
+const COLLAPSED_BY_DEFAULT: Partial<Record<TaskWorkflowStatus, boolean>> = { lancado: true }
+
+/**
+ * Coluna esquerda: tarefas agrupadas por status (ordem de TASK_WORKFLOW_STATUSES), com
+ * subtarefas embaixo. Avulsos entram no grupo do seu status.
+ */
 export function TaskList() {
   const store = useStore()
   const tasks = useAppState((s) => s.tasks)
@@ -14,12 +27,15 @@ export function TaskList() {
   const selectedSubtaskId = useAppState((s) => s.selectedSubtaskId)
   const projectId = useAppState((s) => s.projectId)
   const [creating, setCreating] = useState(false)
+  const [collapsed, setCollapsed] =
+    useState<Partial<Record<TaskWorkflowStatus, boolean>>>(COLLAPSED_BY_DEFAULT)
   const groups = useMemo(() => groupTasks(tasks), [tasks])
 
   const leadMeta = (task: Task): string => {
     const role = task.leadRoleId ? roles[task.leadRoleId] : undefined
     if (task.kind === 'solo') {
-      return role?.model ?? (task.soloProvider ? PROVIDER_LABELS[task.soloProvider] : '')
+      const agent = role?.model ?? (task.soloProvider ? PROVIDER_LABELS[task.soloProvider] : '')
+      return agent ? `avulso · ${agent}` : 'avulso'
     }
     return role ? `Líder${role.model ? ` · ${role.model}` : ''}` : 'Líder'
   }
@@ -43,76 +59,101 @@ export function TaskList() {
         {groups.length === 0 && !creating && (
           <p className="empty">Nenhuma tarefa aberta. Use "+ nova" para criar a primeira.</p>
         )}
-        {groups.map((group) => (
-          <div key={group.label} role="group" aria-label={group.label}>
-            <div className="grp">{group.label}</div>
-            {group.tasks.map((task) => {
-              const subs = subtasks[task.id] ?? []
-              const open = expanded[task.id] === true
-              const isSel = selectedTaskId === task.id && selectedSubtaskId === null
-              return (
-                <div key={task.id}>
-                  <div
-                    className={`row ${isSel ? 'sel' : ''}`}
-                    role="treeitem"
-                    aria-selected={isSel}
-                    aria-expanded={subs.length > 0 ? open : undefined}
-                    tabIndex={0}
-                    onClick={() => store.selectTask(task.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        store.selectTask(task.id)
-                      }
-                    }}
-                  >
-                    <span
-                      className="chev"
-                      aria-label={subs.length > 0 ? (open ? 'recolher' : 'expandir') : undefined}
-                      onClick={(e) => {
-                        if (subs.length === 0) return
-                        e.stopPropagation()
-                        store.toggleExpanded(task.id)
-                      }}
-                    >
-                      {subs.length > 0 ? (open ? '⌄' : '›') : ''}
-                    </span>
-                    <i className={`ic ${task.kind === 'team' ? 'st-lead' : 'st-solo'}`} />
-                    <span className="t">{task.title}</span>
-                    <span className="m">{leadMeta(task)}</span>
-                  </div>
-                  {open &&
-                    subs.map((sub) => {
-                      const subSel = selectedSubtaskId === sub.id
-                      const role = roles[sub.roleId]
-                      return (
-                        <div
-                          key={sub.id}
-                          className={`row child ${subSel ? 'sel' : ''}`}
-                          role="treeitem"
-                          aria-selected={subSel}
-                          tabIndex={0}
-                          onClick={() => void store.selectSubtask(sub.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault()
-                              void store.selectSubtask(sub.id)
-                            }
+        {groups.map((group) => {
+          const isCollapsed = collapsed[group.status] === true
+          return (
+            <div key={group.status} role="group" aria-label={group.label}>
+              <button
+                type="button"
+                className="grp"
+                aria-expanded={!isCollapsed}
+                data-testid={`group-${group.status}`}
+                onClick={() => setCollapsed((c) => ({ ...c, [group.status]: !isCollapsed }))}
+              >
+                <span className="grp-chev" aria-hidden="true">
+                  {isCollapsed ? '›' : '⌄'}
+                </span>
+                <span className="grp-label">{group.label}</span>
+                <span className="grp-count" aria-label={`${group.tasks.length} tarefas`}>
+                  {group.tasks.length}
+                </span>
+              </button>
+              {!isCollapsed &&
+                group.tasks.map((task) => {
+                  const subs = subtasks[task.id] ?? []
+                  const open = expanded[task.id] === true
+                  const isSel = selectedTaskId === task.id && selectedSubtaskId === null
+                  return (
+                    <div key={task.id}>
+                      <div
+                        className={`row ${isSel ? 'sel' : ''}`}
+                        data-testid={`task-${task.id}`}
+                        role="treeitem"
+                        aria-selected={isSel}
+                        aria-expanded={subs.length > 0 ? open : undefined}
+                        tabIndex={0}
+                        onClick={() => store.selectTask(task.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            store.selectTask(task.id)
+                          }
+                        }}
+                      >
+                        <span
+                          className="chev"
+                          aria-label={
+                            subs.length > 0 ? (open ? 'recolher' : 'expandir') : undefined
+                          }
+                          onClick={(e) => {
+                            if (subs.length === 0) return
+                            e.stopPropagation()
+                            store.toggleExpanded(task.id)
                           }}
                         >
-                          <i className={`ic ${STATE_ICON_CLASS[sub.state]}`} />
-                          <span className="t">
-                            {role ? `${role.name} · ` : ''}
-                            {sub.title}
-                          </span>
-                        </div>
-                      )
-                    })}
-                </div>
-              )
-            })}
-          </div>
-        ))}
+                          {subs.length > 0 ? (open ? '⌄' : '›') : ''}
+                        </span>
+                        <TaskStatusMenu
+                          status={task.workflowStatus}
+                          taskTitle={task.title}
+                          onChange={(status) => void store.setTaskStatus(task.id, status)}
+                        />
+                        <span className="t">{task.title}</span>
+                        <span className="m">{leadMeta(task)}</span>
+                      </div>
+                      {open &&
+                        subs.map((sub) => {
+                          const subSel = selectedSubtaskId === sub.id
+                          const role = roles[sub.roleId]
+                          return (
+                            <div
+                              key={sub.id}
+                              className={`row child ${subSel ? 'sel' : ''}`}
+                              role="treeitem"
+                              aria-selected={subSel}
+                              tabIndex={0}
+                              onClick={() => void store.selectSubtask(sub.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  void store.selectSubtask(sub.id)
+                                }
+                              }}
+                            >
+                              <i className={`ic ${STATE_ICON_CLASS[sub.state]}`} />
+                              <span className="t">
+                                {role ? `${role.name} · ` : ''}
+                                {sub.title}
+                              </span>
+                            </div>
+                          )
+                        })}
+                    </div>
+                  )
+                })}
+            </div>
+          )
+        })}
       </div>
     </section>
   )

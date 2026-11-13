@@ -16,7 +16,7 @@ describe('AppStore', () => {
     const s = store.getState()
     expect(s.status).toBe('ready')
     expect(s.projectId).toBe('p1')
-    expect(s.tasks.map((t) => t.id)).toEqual(['t1', 'solo1'])
+    expect(s.tasks.map((t) => t.id)).toEqual(['t1', 'solo1', 'old1'])
     expect(s.subtasks.t1?.map((x) => x.id)).toEqual(['d1', 'd2', 't'])
     expect(s.selectedTaskId).toBe('t1')
     expect(s.questions).toHaveLength(1)
@@ -45,16 +45,31 @@ describe('AppStore', () => {
     expect(store.getState().activity.d1?.map((e) => e.seq)).toEqual([1, 2, 3, 4, 5])
   })
 
-  it('ignora tarefa de outro projeto e tira da lista a arquivada', async () => {
+  it('ignora tarefa de outro projeto e mantém a arquivada no grupo Lançado', async () => {
     const { api, store } = await started()
+    expect(api.callsTo('tasks.list')).toEqual([{ projectId: 'p1', includeArchived: true }])
     api.emitDomain({ type: 'task.upserted', task: makeTask('x', 'outra', { projectId: 'p2' }) })
     expect(store.getState().tasks.some((t) => t.id === 'x')).toBe(false)
     api.emitDomain({
       type: 'task.upserted',
-      task: makeTask('t1', 'feat-orfer-e-up', { status: 'archived' }),
+      task: makeTask('t1', 'feat-orfer-e-up', { status: 'archived', workflowStatus: 'lancado' }),
     })
-    expect(store.getState().tasks.some((t) => t.id === 't1')).toBe(false)
-    expect(store.getState().selectedTaskId).toBeNull()
+    expect(store.getState().tasks.find((t) => t.id === 't1')?.workflowStatus).toBe('lancado')
+  })
+
+  it('troca o status pelo main e usa a tarefa que ele devolve (S1)', async () => {
+    const { api, store } = await started()
+    await store.setTaskStatus('t1', 'em_revisao')
+    expect(api.callsTo('tasks.setStatus')).toEqual([{ taskId: 't1', status: 'em_revisao' }])
+    expect(store.getState().tasks.find((t) => t.id === 't1')?.workflowStatus).toBe('em_revisao')
+
+    api.overrides.set('tasks.setStatus', () => ({
+      ok: false,
+      error: { code: 'unavailable', message: 'a worktree desta tarefa foi removida' },
+    }))
+    await store.setTaskStatus('old1', 'a_fazer')
+    expect(store.getState().error).toBe('a worktree desta tarefa foi removida')
+    expect(store.getState().tasks.find((t) => t.id === 'old1')?.workflowStatus).toBe('lancado')
   })
 
   it('mostra o erro do main em vez de engolir', async () => {
@@ -85,11 +100,22 @@ describe('format', () => {
     expect(formatElapsed(0, 120 * 60_000)).toBe('2 h')
   })
 
-  it('separa Em andamento e Avulsos', () => {
-    const groups = groupTasks(mockupData().tasks)
+  it('agrupa por status na ordem fixa e esconde grupo vazio', () => {
+    const tasks = [
+      ...mockupData().tasks,
+      makeTask('r1', 'revisar', { workflowStatus: 'em_revisao' }),
+      makeTask('p1t', 'pronta', { workflowStatus: 'pronto_lancar' }),
+      makeTask('q1t', 'perguntando', { workflowStatus: 'pergunta' }),
+    ]
+    const groups = groupTasks(tasks)
     expect(groups.map((g) => [g.label, g.tasks.map((t) => t.id)])).toEqual([
+      ['A fazer', ['solo1']],
       ['Em andamento', ['t1']],
-      ['Avulsos', ['solo1']],
+      ['Pergunta para você', ['q1t']],
+      ['Em revisão', ['r1']],
+      ['Pronto pra lançar', ['p1t']],
+      ['Lançado', ['old1']],
     ])
+    expect(groupTasks([makeTask('a', 'a')]).map((g) => g.status)).toEqual(['em_andamento'])
   })
 })

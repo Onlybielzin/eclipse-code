@@ -2,6 +2,7 @@ import {
   DELIVERY_STATE_LABELS,
   DomainError,
   isFinalSubtaskState,
+  TASK_WORKFLOW_STATUS_LABELS,
   SUBTASK_STATE_LABELS,
   type Artifact,
   type JsonObject,
@@ -298,6 +299,17 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       return {
         text: `Pergunta ${question.id} repassada ao usuário em "Precisa de você". O app avisa quando ele responder.`,
         data: { pergunta_id: question.id },
+      }
+    },
+
+    async tarefa_concluir(caller: McpCaller, input: McpToolInput<'tarefa_concluir'>) {
+      if (caller.role !== 'leader' || caller.subtaskId !== null) {
+        throw new DomainError('forbidden', 'so o Lider conclui a tarefa')
+      }
+      const task = tasks.concludeTask(caller.taskId)
+      return {
+        text: `Tarefa marcada como "${TASK_WORKFLOW_STATUS_LABELS[task.workflowStatus]}". O usuário revisa e decide quando lançar.`,
+        data: { tarefa_id: task.id, status: task.workflowStatus, resumo: input.resumo },
       }
     },
   } satisfies {

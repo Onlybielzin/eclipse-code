@@ -48,6 +48,8 @@ import type {
   Task,
   TaskId,
   TaskKind,
+  TaskWorkflowActor,
+  TaskWorkflowStatus,
   Turn,
   TurnId,
   TurnResult,
@@ -242,7 +244,21 @@ export interface TaskService {
   listTasks(projectId: ProjectId, options: { includeArchived: boolean }): Task[]
   getTask(id: TaskId): Task
   createTask(record: CreateTaskRecord): Task
+  /** Arquiva e marca 'lancado' (W3). */
   markTaskArchived(id: TaskId): Task
+  /**
+   * Muda o status de trabalho a pedido de alguem. 'agent' nunca escreve pronto_lancar
+   * nem lancado ('forbidden') e nao tira de lancado. 'user' escolhe qualquer um:
+   * lancado arquiva (mesma regra do markTaskArchived) e sair de lancado desarquiva.
+   */
+  setTaskWorkflowStatus(id: TaskId, to: TaskWorkflowStatus, actor: TaskWorkflowActor): Task
+  /** Lider ou membro comecou a trabalhar: a_fazer | em_revisao -> em_andamento. */
+  markTaskWorkStarted(id: TaskId): Task
+  /**
+   * Lider declarou a tarefa terminada (tarefa_concluir): -> em_revisao. Recusa com
+   * pergunta aberta ('conflict') ou tarefa ja lancada ('invalid_transition').
+   */
+  concludeTask(id: TaskId): Task
 
   listSubtasks(taskId: TaskId): Subtask[]
   getSubtask(id: SubtaskId): Subtask

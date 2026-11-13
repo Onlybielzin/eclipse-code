@@ -59,7 +59,14 @@ export function MiddlePane() {
       <div className="mid">
         {/* O terminal fica montado enquanto a tarefa nao muda, para nao perder o xterm ao trocar de aba. */}
         <div className="mid-layer" hidden={!showLeader}>
-          <LeaderTerminal key={task.id} task={task} />
+          {task.status === 'archived' ? (
+            <div className="empty" data-testid="task-launched">
+              Tarefa lançada e arquivada. Os agentes foram fechados. Para reabrir, troque o status
+              no ícone da tarefa.
+            </div>
+          ) : (
+            <LeaderTerminal key={task.id} task={task} />
+          )}
         </div>
         {subtask && tab === 'delivery' && <DeliveryView subtask={subtask} detail={detail} />}
         {subtask && tab === 'activity' && <ActivityView events={activity} />}

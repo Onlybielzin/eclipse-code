@@ -200,6 +200,16 @@ export const MIGRATIONS: readonly Migration[] = [
       CREATE INDEX leader_notices_pending ON leader_notices(task_id, id) WHERE delivered_at IS NULL;
     `,
   },
+  {
+    version: 3,
+    name: 'status de trabalho da tarefa',
+    sql: `
+      ALTER TABLE tasks ADD COLUMN workflow_status TEXT NOT NULL DEFAULT 'a_fazer'
+        CHECK (workflow_status IN
+          ('a_fazer', 'em_andamento', 'pergunta', 'em_revisao', 'pronto_lancar', 'lancado'));
+      UPDATE tasks SET workflow_status = 'lancado' WHERE status = 'archived';
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

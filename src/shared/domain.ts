@@ -107,6 +107,47 @@ export type TaskKind = (typeof TASK_KINDS)[number]
 export const TASK_STATUSES = ['open', 'archived'] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 
+/**
+ * Status de trabalho da tarefa (o que a lista mostra e agrupa), na ordem da tela.
+ * Dono: TaskService. Regras automaticas em taskWorkflow.ts.
+ *
+ *   a_fazer -> em_andamento -> (pergunta <-> em_andamento) -> em_revisao
+ *     -> pronto_lancar -> lancado
+ *
+ * Invariantes:
+ *   W1. pronto_lancar e lancado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
+ *   W2. lancado e final para a automacao: nada automatico tira a tarefa de la.
+ *   W3. status 'archived' <=> workflowStatus 'lancado' (lancar arquiva; sair de lancado desarquiva).
+ */
+export const TASK_WORKFLOW_STATUSES = [
+  'a_fazer',
+  'em_andamento',
+  'pergunta',
+  'em_revisao',
+  'pronto_lancar',
+  'lancado',
+] as const
+export type TaskWorkflowStatus = (typeof TASK_WORKFLOW_STATUSES)[number]
+
+export const TASK_WORKFLOW_STATUS_LABELS: Record<TaskWorkflowStatus, string> = {
+  a_fazer: 'A fazer',
+  em_andamento: 'Em andamento',
+  pergunta: 'Pergunta para você',
+  em_revisao: 'Em revisão',
+  pronto_lancar: 'Pronto pra lançar',
+  lancado: 'Lançado',
+}
+
+/** Status que agente e automacao nunca escrevem (W1). */
+export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'lancado'] as const
+
+/** Quem pede a mudanca de status: o usuario (tela) ou um agente (MCP). */
+export type TaskWorkflowActor = 'user' | 'agent'
+
+export function isUserOnlyTaskWorkflowStatus(status: TaskWorkflowStatus): boolean {
+  return (USER_ONLY_TASK_WORKFLOW_STATUSES as readonly TaskWorkflowStatus[]).includes(status)
+}
+
 export interface Task {
   id: TaskId
   projectId: ProjectId
@@ -128,6 +169,8 @@ export interface Task {
   /** Provedor do agente avulso quando leadRoleId e null (kind 'solo'). */
   soloProvider: Provider | null
   status: TaskStatus
+  /** Status de trabalho mostrado na lista (ver TASK_WORKFLOW_STATUSES). */
+  workflowStatus: TaskWorkflowStatus
   createdAt: EpochMs
   updatedAt: EpochMs
   archivedAt: EpochMs | null

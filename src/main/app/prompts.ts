@@ -32,8 +32,20 @@ const LEADER_TOOLS_HINT = [
   '- subtarefa_criar (papel, titulo, instrucoes): abre um membro do time.',
   '- subtarefas_esperar: espera os membros pararem e devolve as entregas.',
   '- subtarefas_ver, subtarefa_responder, subtarefa_cancelar, pergunta_repassar.',
+  '- tarefa_concluir (resumo): declara a tarefa terminada.',
   'O app avisa neste terminal, com uma linha [eclipse], quando o turno de um membro acaba.',
 ].join('\n')
+
+/**
+ * Regra de fim do Lider. Vai sempre no prompt inicial, mesmo com prompt de papel proprio,
+ * porque e o unico jeito de a tarefa ir para "Em revisão".
+ */
+export const LEADER_FINISH_RULE = [
+  'Quando todo o trabalho da tarefa estiver pronto e verificado, chame a ferramenta MCP',
+  '`tarefa_concluir` uma vez, com um resumo do que foi entregue. A tarefa vai para "Em revisão"',
+  'do usuário. Não chame com pergunta ao usuário sem resposta. Só o usuário marca',
+  '"Pronto pra lançar" e "Lançado".',
+].join(' ')
 
 /** Prompt inicial do Lider: o prompt do papel com as variaveis da tarefa. */
 export function composeLeaderPrompt(input: {
@@ -45,6 +57,7 @@ export function composeLeaderPrompt(input: {
   const rendered = input.template ? renderPromptTemplate(input.template, vars).trim() : ''
   const parts = [rendered || LEADER_TOOLS_HINT]
   if (!rendered.includes(input.task.title)) parts.push(`Tarefa: ${input.task.title}`)
+  if (!rendered.includes('tarefa_concluir')) parts.push(LEADER_FINISH_RULE)
   return parts.join('\n\n')
 }
 

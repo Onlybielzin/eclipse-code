@@ -112,6 +112,16 @@ export const mcpToolInputSchemas = {
       itens: z.array(questionItemSchema).min(1).max(MAX_QUESTION_ITEMS),
     })
     .strict(),
+
+  /**
+   * Lider: declara a tarefa terminada. O status vai para "Em revisão" (revisão do usuário).
+   * Pronto pra lançar e Lançado so o usuario marca.
+   */
+  tarefa_concluir: z
+    .object({
+      resumo: textSchema.min(1).describe('O que foi entregue na tarefa, para o usuário revisar.'),
+    })
+    .strict(),
 } as const
 
 export type McpToolName = keyof typeof mcpToolInputSchemas
@@ -128,6 +138,7 @@ export const MCP_TOOL_ROLES: Record<McpToolName, readonly McpCallerRole[]> = {
   subtarefas_ver: ['leader'],
   subtarefas_esperar: ['leader'],
   pergunta_repassar: ['leader'],
+  tarefa_concluir: ['leader'],
 }
 
 export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
@@ -141,6 +152,8 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
   subtarefas_esperar:
     'Espera subtarefas pararem (pronto, dúvida, bloqueado ou cancelada) e devolve as entregas. Use em vez de consultar em laço.',
   pergunta_repassar: 'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta.',
+  tarefa_concluir:
+    'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
 }
 
 export function isMcpToolName(value: unknown): value is McpToolName {
