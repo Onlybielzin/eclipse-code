@@ -128,6 +128,11 @@ export function createFakeTaskService(): FakeTaskService {
       }
     },
     listTurnDeliveries: (turnId) => artifacts.filter((a) => a.turnId === turnId),
+    getSession: (id) => {
+      const session = sessions.get(id)
+      if (!session) throw new DomainError('not_found', `sessao ${id} nao existe`)
+      return session
+    },
     getLiveLeaderSession: (taskId) =>
       [...sessions.values()].find(
         (s) => s.taskId === taskId && s.kind === 'leader-pty' && s.status !== 'exited',

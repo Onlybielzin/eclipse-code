@@ -58,7 +58,7 @@ import {
   toAcpMcpServer,
   type AgentCommand,
 } from './agentCommand'
-import { PARENT_AGENT_SESSION_ENV_KEYS } from '../terminal/spawnEnv'
+import { sanitizeInheritedEnv } from '../terminal/spawnEnv'
 import { decidePermission } from './permissionPolicy'
 import { TurnActivity } from './turnActivity'
 
@@ -108,10 +108,26 @@ interface MemberSession {
   active: ActiveTurn | null
   /** Pedido session/prompt ainda sem resposta (inclusive de turno ja encerrado por vigia). */
   inflight: Promise<unknown> | null
+  /** Encerramento do grupo de processos em curso (close, dispose ou queda do adaptador). */
+  reaping: Promise<void> | null
 }
 
 const STDERR_TAIL_CHARS = 4_000
 const noopLogger: AcpRuntimeLogger = { info: () => {}, warn: () => {} }
+
+const GROUP_POLL_MS = 50
+
+/** Algum processo ainda vive no grupo `pid` (o adaptador abre detached, lider do grupo). */
+function processGroupAlive(pid: number): boolean {
+  if (process.platform === 'win32') return false
+  try {
+    process.kill(-pid, 0)
+    return true
+  } catch (error) {
+    // EPERM: existe, mas de outro usuario (nao deveria acontecer); conta como vivo.
+    return (error as NodeJS.ErrnoException).code === 'EPERM'
+  }
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -173,12 +189,10 @@ export class AcpMemberRuntime implements MemberRuntime {
       throw new DomainError('conflict', `Sessão ${request.sessionId} já está aberta.`)
     }
     const command = this.resolveCommand(request)
-    const env: Record<string, string> = {}
-    for (const [key, value] of Object.entries(process.env)) {
-      if (value !== undefined) env[key] = value
-    }
-    // Marcas da sessao Claude que abriu o app: o membro nao e sessao aninhada dela.
-    for (const key of PARENT_AGENT_SESSION_ENV_KEYS) delete env[key]
+    // Sem as marcas da sessao Claude que abriu o app (o membro nao e sessao aninhada dela),
+    // sem as variaveis de sessao do app antigo (ECLIPSE_CODE_*, shim do CLI no PATH) e sem
+    // token MCP de um agente pai.
+    const env = sanitizeInheritedEnv(process.env)
     Object.assign(env, command.env, request.env, { [ENV.marker]: '1' })
 
     let child: ChildProcess
@@ -237,6 +251,7 @@ export class AcpMemberRuntime implements MemberRuntime {
       stderrTail: '',
       active: null,
       inflight: null,
+      reaping: null,
     }
     this.sessions.set(request.sessionId, session)
 
@@ -258,6 +273,9 @@ export class AcpMemberRuntime implements MemberRuntime {
         })
       }
       resolveExited(exit)
+      // Adaptador caiu sozinho: os netos do grupo (claude CLI, MCP, Bash do membro) ficariam
+      // orfaos mexendo na worktree. close() reaproveita este mesmo encerramento.
+      if (!session.closing) void this.reapGroup(session)
       for (const listener of this.exitListeners) {
         try {
           listener(session.id, exit)
@@ -620,18 +638,29 @@ export class AcpMemberRuntime implements MemberRuntime {
     this.sessions.delete(sessionId)
   }
 
-  /** SIGTERM no grupo do processo; SIGKILL se nao sair em killGraceMs. */
   private async terminate(session: MemberSession): Promise<void> {
-    if (session.exit) return
-    session.child.stdin?.end()
-    this.signal(session, 'SIGTERM')
-    const exited = await Promise.race([
-      session.exited.then(() => true),
-      delay(this.killGraceMs).then(() => false),
-    ])
-    if (exited) return
-    this.signal(session, 'SIGKILL')
-    await Promise.race([session.exited, delay(this.killGraceMs)])
+    await this.reapGroup(session)
+  }
+
+  /**
+   * SIGTERM no grupo do processo; SIGKILL no grupo se o adaptador OU qualquer neto do
+   * grupo nao sair em killGraceMs. Nao depende so da saida do pid do adaptador: ele
+   * costuma sair em milissegundos e deixar para tras quem trata ou ignora SIGTERM.
+   * Idempotente por sessao.
+   */
+  private reapGroup(session: MemberSession): Promise<void> {
+    session.reaping ??= (async () => {
+      if (!session.exit) session.child.stdin?.end()
+      this.signal(session, 'SIGTERM')
+      const pid = session.child.pid
+      const until = Date.now() + this.killGraceMs
+      const pending = () => !session.exit || (pid !== undefined && processGroupAlive(pid))
+      while (pending() && Date.now() < until) await delay(GROUP_POLL_MS)
+      if (!pending()) return
+      this.signal(session, 'SIGKILL')
+      await Promise.race([session.exited, delay(this.killGraceMs)])
+    })()
+    return session.reaping
   }
 
   private signal(session: MemberSession, signal: NodeJS.Signals): void {

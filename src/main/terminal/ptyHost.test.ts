@@ -140,6 +140,43 @@ describe('createPtyHost com /bin/sh', () => {
     expect(host.liveCount()).toBe(0)
   })
 
+  it('kill escala para SIGKILL no grupo mesmo depois que o processo principal saiu', async () => {
+    const host = makeHost()
+    const { ptyId } = await host.spawn({
+      command: '/bin/sh',
+      // O sh sai com SIGTERM; o neto no mesmo grupo ignora TERM e HUP (servidor de dev,
+      // `pnpm test` aberto pelo agente).
+      args: ['-c', `sh -c "trap '' TERM HUP; exec sleep 30" & echo "neto:$!"; wait`],
+      cwd: tmpdir(),
+      env: baseEnv(),
+      cols: 80,
+      rows: 24,
+    })
+    const out = await waitForOutput(host, ptyId, 'neto:')
+    await new Promise((r) => setTimeout(r, 100))
+    const pid = Number(/neto:(\d+)/.exec(host.scrollback(ptyId) || out)?.[1])
+    expect(pid).toBeGreaterThan(0)
+    const alive = () => {
+      try {
+        process.kill(pid, 0)
+        return true
+      } catch {
+        return false
+      }
+    }
+    try {
+      const exitPromise = waitForPtyExit(host, ptyId, 5000)
+      host.kill(ptyId, 'SIGTERM')
+      expect(await exitPromise).not.toBeNull()
+      // killGraceMs = 500: o neto precisa receber SIGKILL logo depois.
+      const until = Date.now() + 2_000
+      while (alive() && Date.now() < until) await new Promise((r) => setTimeout(r, 25))
+      expect(alive()).toBe(false)
+    } finally {
+      if (alive()) process.kill(pid, 'SIGKILL')
+    }
+  })
+
   it('conta varios vivos e dispose encerra todos', async () => {
     const host = makeHost()
     const spawned = await Promise.all(

@@ -109,6 +109,41 @@ describe('recuperação no boot', () => {
     h2.store.close()
   })
 
+  it('subtarefa sem turno aberto que vira sessão perdida deixa aviso durável ao Líder', () => {
+    const h1 = createHarness(dbPath, 'a')
+    const fx = seedTeam(h1.service)
+    const waiting = seedWorkingSubtask(h1.service, fx, 'em dúvida')
+    h1.service.transitionSubtask(waiting.subtask.id, 'input_required')
+    const queued = h1.service.createSubtask({
+      taskId: fx.task.id,
+      roleId: fx.dev.id,
+      title: 'na fila',
+      instructions: 'x',
+      referenceTaskIds: [],
+    })
+
+    const h2 = reboot(h1, 'b')
+    h2.service.recoverAfterRestart({
+      composeLostNotice: (subtask) => `[eclipse] ${subtask.id} parou: ${subtask.state}`,
+    })
+    const notices = h2.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)
+    expect(notices).toEqual([
+      `[eclipse] ${waiting.subtask.id} parou: failed`,
+      `[eclipse] ${queued.id} parou: failed`,
+    ])
+
+    // Gravado no SQLite: sobrevive a outro reinício até ser entregue.
+    const h3 = reboot(h2, 'c')
+    const pending = h3.service.listPendingLeaderNotices(fx.task.id)
+    expect(pending).toHaveLength(2)
+    expect(h3.service.listTasksWithPendingLeaderNotices()).toEqual([fx.task.id])
+    h3.service.markLeaderNoticeDelivered(pending[0]!.id)
+    expect(h3.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)).toEqual([
+      `[eclipse] ${queued.id} parou: failed`,
+    ])
+    h3.store.close()
+  })
+
   it('entrega pronta gravada antes da queda vale; dúvida gravada vira sessão perdida', () => {
     const h1 = createHarness(dbPath, 'a')
     const fx = seedTeam(h1.service)

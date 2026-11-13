@@ -59,6 +59,8 @@ import type {
   CreateTaskRecord,
   FinishTurnOutcome,
   IdFactory,
+  LeaderNotice,
+  LeaderNoticeStore,
   OpenSessionRecord,
   SaveRoleInput,
   StartTurnRecord,
@@ -103,6 +105,12 @@ export interface RecoveryReport {
 
 const PROMPT_ACTIVITY_MAX = MAX_ACTIVITY_TEXT_CHARS
 
+/**
+ * Teto de avisos pendentes por tarefa: protege o banco de um laco que gere avisos sem fim.
+ * Passou do teto, o mais antigo sai (o Lider ainda le tudo com subtarefas_ver).
+ */
+export const MAX_PENDING_LEADER_NOTICES = 200
+
 function normalizeRootPath(rootPath: string): string {
   const resolved = resolve(rootPath.trim())
   return resolved.length > 1 ? resolved.replace(/\/+$/, '') : resolved
@@ -144,7 +152,7 @@ function notFound(what: string, id: string): DomainError {
   return new DomainError('not_found', `${what} não encontrado(a): ${id}`, { id })
 }
 
-export class SqliteTaskService implements TaskService {
+export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   private readonly store: SqliteTaskStore
   private readonly clock: Clock
   private readonly ids: IdFactory
@@ -1081,6 +1089,39 @@ export class SqliteTaskService implements TaskService {
   }
 
   // -------------------------------------------------------------------------
+  // Avisos ao Lider (fila duravel; sem evento de dominio: a tela nao mostra)
+  // -------------------------------------------------------------------------
+
+  enqueueLeaderNotice(taskId: TaskId, text: string): LeaderNotice {
+    return this.write(() => this.insertLeaderNotice(taskId, text))
+  }
+
+  private insertLeaderNotice(taskId: TaskId, text: string): LeaderNotice {
+    if (!this.store.getTask(taskId)) throw notFound('tarefa', taskId)
+    const notice = this.store.insertLeaderNotice(taskId, text, this.clock.now())
+    const excess = this.store.countPendingLeaderNotices(taskId) - MAX_PENDING_LEADER_NOTICES
+    if (excess > 0) {
+      // delivered_at = -1: descartado pelo teto, nunca colado no terminal.
+      for (const dropped of this.store.listPendingLeaderNotices(taskId, excess)) {
+        this.store.markLeaderNoticeDelivered(dropped.id, -1)
+      }
+    }
+    return notice
+  }
+
+  listPendingLeaderNotices(taskId: TaskId): LeaderNotice[] {
+    return this.store.listPendingLeaderNotices(taskId)
+  }
+
+  markLeaderNoticeDelivered(id: number): void {
+    this.write(() => this.store.markLeaderNoticeDelivered(id, this.clock.now()))
+  }
+
+  listTasksWithPendingLeaderNotices(): TaskId[] {
+    return this.store.listTasksWithPendingLeaderNotices()
+  }
+
+  // -------------------------------------------------------------------------
   // Recuperacao no boot
   // -------------------------------------------------------------------------
 
@@ -1094,10 +1135,16 @@ export class SqliteTaskService implements TaskService {
    *   - subtarefa nao final cuja sessao nao voltou (ou que nem chegou a ter
    *     sessao) tambem vira failed / 'session_lost'.
    * Lideres nao viram erro: voltam em leadersToResume para o --resume.
+   * Subtarefa perdida sem turno aberto (na fila, em duvida) nao gera turn.upserted, entao o
+   * TeamTurnRelay nao avisaria o Lider: com `composeLostNotice`, o aviso entra na fila
+   * duravel de avisos (leader_notices) na mesma transacao.
    * Uma transacao so: ou recupera tudo, ou nada muda.
    */
   recoverAfterRestart(
-    input: { survivingSessionIds?: ReadonlySet<SessionId> } = {},
+    input: {
+      survivingSessionIds?: ReadonlySet<SessionId>
+      composeLostNotice?: (subtask: Subtask) => string
+    } = {},
   ): RecoveryReport {
     const survivors = input.survivingSessionIds ?? new Set<SessionId>()
     return this.write(() => {
@@ -1143,9 +1190,11 @@ export class SqliteTaskService implements TaskService {
 
       for (const subtask of this.store.listUnfinishedSubtasks()) {
         if (subtask.sessionId !== null && survivors.has(subtask.sessionId)) continue
-        report.lostSubtasks.push(
-          this.applyTransition(subtask, 'failed', { failureCode: 'session_lost' }),
-        )
+        const lost = this.applyTransition(subtask, 'failed', { failureCode: 'session_lost' })
+        report.lostSubtasks.push(lost)
+        if (input.composeLostNotice) {
+          this.insertLeaderNotice(lost.taskId, input.composeLostNotice(lost))
+        }
       }
 
       const lostLeaderTasks = new Set(

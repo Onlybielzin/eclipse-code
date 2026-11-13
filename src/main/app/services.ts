@@ -6,7 +6,8 @@
  * Ordem da partida (importa):
  *   1. SQLite e TaskService.
  *   2. TeamTurnRelay assina os eventos ANTES da recuperacao, para que o fim de turno das
- *      subtarefas perdidas vire aviso quando o Lider voltar.
+ *      subtarefas perdidas vire aviso quando o Lider voltar. A fila de avisos e duravel
+ *      (leader_notices): o que nao saiu antes de fechar o app sai na proxima partida.
  *   3. Ponte MCP escutando antes de qualquer agente abrir.
  *   4. recoverOnStartup: fecha o que nao voltou e reabre os Lideres com --resume.
  */
@@ -48,6 +49,8 @@ export interface AppServicesOptions {
   terminalSize?: { cols: number; rows: number }
   leaderEnv?: Record<string, string>
   memberEnv?: Record<string, string>
+  /** Intervalo da tentativa periodica de entregar avisos parados ao Lider (0 desliga). */
+  noticeRetryIntervalMs?: number
   log?: AppLogger
 }
 
@@ -105,6 +108,21 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     serverScriptPath: options.mcpServerScript,
     ...(options.nodeCommand ? { nodeCommand: options.nodeCommand } : {}),
   })
+  // Fila duravel de avisos ao Lider (SQLite): fim de turno, resposta do usuario, membro que
+  // parou. Lider ocioso e a tentativa periodica destravam aviso que esgotou o relay.
+  const turnRelay = startTeamTurnRelay({
+    tasks,
+    relay: leader.relay,
+    notices: tasks,
+    leaderEvents: leader.sessions,
+    ...(options.noticeRetryIntervalMs !== undefined
+      ? { retryIntervalMs: options.noticeRetryIntervalMs }
+      : {}),
+    onError: (error) =>
+      log.warn('aviso ao Líder falhou', {
+        error: error instanceof Error ? error.message : String(error),
+      }),
+  })
   const coordinator = new AppTeamCoordinator({
     tasks,
     ptyHost,
@@ -113,19 +131,12 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     worktrees: createWorktreeService(),
     bridge,
     worktreesRoot: options.paths.worktrees,
+    leaderNotices: turnRelay,
     ...(options.limits ? { limits: options.limits } : {}),
     ...(options.terminalSize ? { terminalSize: options.terminalSize } : {}),
     ...(options.leaderEnv ? { leaderEnv: options.leaderEnv } : {}),
     ...(options.memberEnv ? { memberEnv: options.memberEnv } : {}),
     log,
-  })
-  const turnRelay = startTeamTurnRelay({
-    tasks,
-    relay: leader.relay,
-    onError: (error) =>
-      log.warn('aviso de fim de turno falhou', {
-        error: error instanceof Error ? error.message : String(error),
-      }),
   })
 
   let socketPath: string

@@ -45,7 +45,7 @@ import type {
   UserQuestionStatus,
 } from '@shared/domain'
 import type { ActivityPage } from '@shared/ipc'
-import type { TaskStore } from '@shared/ports'
+import type { LeaderNotice, TaskStore } from '@shared/ports'
 import { MIGRATIONS } from './migrations'
 
 type Db = Database.Database
@@ -625,7 +625,57 @@ export class SqliteTaskStore implements TaskStore {
     )
   }
 
+  // --- avisos ao Lider -----------------------------------------------------
+
+  insertLeaderNotice(taskId: TaskId, text: string, createdAt: EpochMs): LeaderNotice {
+    const info = this.db
+      .prepare('INSERT INTO leader_notices (task_id, text, created_at) VALUES (?, ?, ?)')
+      .run(taskId, text, createdAt)
+    return { id: Number(info.lastInsertRowid), taskId, text, createdAt }
+  }
+  listPendingLeaderNotices(taskId: TaskId, limit = -1): LeaderNotice[] {
+    return this.all(
+      `SELECT * FROM leader_notices WHERE task_id = ? AND delivered_at IS NULL
+       ORDER BY id LIMIT ?`,
+      toLeaderNotice,
+      taskId,
+      limit,
+    )
+  }
+  countPendingLeaderNotices(taskId: TaskId): number {
+    const row = this.db
+      .prepare(
+        'SELECT COUNT(*) AS n FROM leader_notices WHERE task_id = ? AND delivered_at IS NULL',
+      )
+      .get(taskId) as { n: number }
+    return row.n
+  }
+  markLeaderNoticeDelivered(id: number, at: EpochMs): void {
+    this.db
+      .prepare('UPDATE leader_notices SET delivered_at = ? WHERE id = ? AND delivered_at IS NULL')
+      .run(at, id)
+  }
+  listTasksWithPendingLeaderNotices(): TaskId[] {
+    return (
+      this.db
+        .prepare(
+          `SELECT DISTINCT n.task_id AS id FROM leader_notices n JOIN tasks t ON t.id = n.task_id
+           WHERE n.delivered_at IS NULL AND t.status = 'open' ORDER BY n.task_id`,
+        )
+        .all() as { id: string }[]
+    ).map((row) => row.id)
+  }
+
   close(): void {
     if (this.db.open) this.db.close()
+  }
+}
+
+function toLeaderNotice(row: Row): LeaderNotice {
+  return {
+    id: Number(row['id']),
+    taskId: String(row['task_id']),
+    text: String(row['text']),
+    createdAt: Number(row['created_at']),
   }
 }

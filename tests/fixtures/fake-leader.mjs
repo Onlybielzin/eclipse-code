@@ -7,7 +7,8 @@
 //   FAKE_LEADER_PLAN_RESUME.
 // - Liga o bracketed paste, roda os ganchos do --settings (SessionStart, UserPromptSubmit,
 //   Stop) e registra cada texto colado no terminal em FAKE_LOG ({kind:'prompt'}).
-import { appendFileSync, readFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
@@ -35,7 +36,32 @@ const runHook = (event, extra = {}) => {
   })
 }
 
-write({ kind: 'start', argv, resumed, marker: process.env.ECLIPSE_NEXT_ENV ?? null })
+// Como o Claude: transcript em <config>/projects/<cwd codificado>/<id>.jsonl, que o app
+// confere antes de --resume. Sem a pasta, a retomada falha como "No conversation found".
+const claudeConfig = process.env.FAKE_CLAUDE_CONFIG_DIR
+if (claudeConfig && sessionId) {
+  const dir = join(claudeConfig, 'projects', resolve(process.cwd()).replace(/[^A-Za-z0-9]/g, '-'))
+  const transcript = join(dir, `${sessionId}.jsonl`)
+  if (resumed) {
+    try {
+      readFileSync(transcript)
+    } catch {
+      process.stderr.write(`No conversation found with session ID: ${sessionId}\n`)
+      process.exit(1)
+    }
+  } else {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(transcript, '{}\n')
+  }
+}
+
+write({
+  kind: 'start',
+  argv,
+  resumed,
+  marker: process.env.ECLIPSE_NEXT_ENV ?? null,
+  tokenInEnv: Boolean(process.env.ECLIPSE_NEXT_MCP_TOKEN),
+})
 process.stdout.write('lider falso pronto\r\n')
 process.stdout.write('\x1b[?2004h')
 runHook('SessionStart', { source: resumed ? 'resume' : 'startup' })

@@ -105,6 +105,11 @@ export function composeMemberStoppedNotice(subtask: Subtask, roleName: string): 
   return `[eclipse] Subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou: bloqueado (processo morreu fora de turno). -> detalhes: subtarefas_ver`
 }
 
+/** Aviso ao Lider de que a subtarefa sem turno aberto se perdeu quando o app reiniciou. */
+export function composeSessionLostNotice(subtask: Subtask, roleName: string): string {
+  return `[eclipse] Subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou: bloqueado (sessão perdida ao reiniciar o app). -> detalhes: subtarefas_ver`
+}
+
 function answerText(question: UserQuestion, answers: readonly QuestionAnswer[]): string {
   return answers
     .map((answer) => {

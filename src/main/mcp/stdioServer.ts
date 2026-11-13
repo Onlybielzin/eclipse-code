@@ -1,3 +1,4 @@
+import type { Readable } from 'node:stream'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
@@ -93,8 +94,17 @@ export function createEclipseMcpServer(client: McpBridgeClient): Server {
   return server
 }
 
-/** Entrada do processo filho: le socket e token do ambiente e serve por stdio. */
-export async function runStdioMcpServer(env: NodeJS.ProcessEnv = process.env): Promise<void> {
+/**
+ * Entrada do processo filho: le socket e token do ambiente e serve por stdio.
+ *
+ * O StdioServerTransport do SDK so ouve 'data' e 'error' do stdin: sem isto o fim do
+ * stdin (agente pai morreu) nao fecha o servidor e o socket da ponte segura o processo
+ * vivo para sempre. Fim do stdin -> server.close() -> onclose fecha o cliente da ponte.
+ */
+export async function runStdioMcpServer(
+  env: NodeJS.ProcessEnv = process.env,
+  stdin: Readable = process.stdin,
+): Promise<void> {
   const socketPath = env[ENV.mcpSocket]
   const token = env[ENV.mcpToken]
   if (!socketPath || !token) {
@@ -105,5 +115,13 @@ export async function runStdioMcpServer(env: NodeJS.ProcessEnv = process.env): P
   const client = createMcpBridgeClient({ socketPath, token })
   const server = createEclipseMcpServer(client)
   server.onclose = () => client.close()
-  await server.connect(new StdioServerTransport())
+  let closing = false
+  const closeOnEnd = () => {
+    if (closing) return
+    closing = true
+    void server.close().catch(() => client.close())
+  }
+  stdin.once('end', closeOnEnd)
+  stdin.once('close', closeOnEnd)
+  await server.connect(new StdioServerTransport(stdin))
 }

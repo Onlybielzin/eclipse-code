@@ -220,8 +220,8 @@ export function createPtyHost(options: PtyHostOptions = {}): PtyHost {
           if (!entry.alive) return
           entry.alive = false
           entry.exit = toPtyExit(event)
-          if (entry.escalation) clearTimeout(entry.escalation)
-          entry.escalation = null
+          // A escalada de um kill() continua: netos do grupo que ignoram o sinal ainda
+          // precisam do SIGKILL, mesmo com o processo principal ja encerrado.
           exitedOrder.push(ptyId)
           entry.markExited()
           emitExit(ptyId, entry.exit)
@@ -271,7 +271,9 @@ export function createPtyHost(options: PtyHostOptions = {}): PtyHost {
       if (signal !== 'SIGKILL' && !entry.escalation) {
         entry.escalation = setTimeout(() => {
           entry.escalation = null
-          sendSignal(entry, 'SIGKILL')
+          // Sempre no grupo, vivo ou nao o processo principal (ESRCH com grupo vazio).
+          if (entry.alive) sendSignal(entry, 'SIGKILL')
+          else signalGroup(entry.pid, 'SIGKILL')
         }, killGraceMs)
         entry.escalation.unref?.()
       }
@@ -327,8 +329,11 @@ export function createPtyHost(options: PtyHostOptions = {}): PtyHost {
         for (const entry of alive) sendSignal(entry, 'SIGKILL')
       }
       for (const entry of entries.values()) {
-        if (entry.escalation) clearTimeout(entry.escalation)
+        if (!entry.escalation) continue
+        clearTimeout(entry.escalation)
         entry.escalation = null
+        // O app vai fechar: quem sobrou no grupo de um pty encerrado nao espera o prazo.
+        if (!entry.alive) signalGroup(entry.pid, 'SIGKILL')
       }
       dataListeners.clear()
       exitListeners.clear()

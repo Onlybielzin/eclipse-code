@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto'
 import { ENV } from '@shared/app'
 import { MCP_WAIT_MAX_SECONDS } from '@shared/mcp'
 import type { LeaderCommand, LeaderLaunchRequest, McpServerLaunch } from '@shared/ports'
+import { sanitizeInheritedEnv } from '../terminal/spawnEnv'
 
 /** Liga as ferramentas de lista de tarefas do Claude (TaskCreate/TaskUpdate), como o app antigo. */
 export const LEADER_CLAUDE_ENV = { CLAUDE_CODE_ENABLE_TODO_TOOLS: '1' } as const
@@ -44,11 +45,37 @@ export function claudeSessionIdFor(sessionId: string): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
-/** Valor de `claude --mcp-config <json>` com o servidor MCP do app. */
+/**
+ * Variaveis do servidor MCP que nunca vao na linha de comando: /proc/<pid>/cmdline e `ps`
+ * mostram o argv a qualquer processo, e um membro com o token do Lider viraria Lider na
+ * ponte. Vao no ambiente do processo do Lider; o servidor MCP filho herda de la.
+ */
+export const MCP_SECRET_ENV_KEYS: readonly string[] = [ENV.mcpToken]
+
+/** Separa o env do servidor MCP em publico (pode ir no argv) e secreto (so no ambiente). */
+export function splitMcpServerEnv(server: McpServerLaunch): {
+  publicEnv: Record<string, string>
+  secretEnv: Record<string, string>
+} {
+  const publicEnv: Record<string, string> = {}
+  const secretEnv: Record<string, string> = {}
+  for (const [key, value] of Object.entries(server.env)) {
+    if (MCP_SECRET_ENV_KEYS.includes(key)) secretEnv[key] = value
+    else publicEnv[key] = value
+  }
+  return { publicEnv, secretEnv }
+}
+
+/**
+ * Valor de `claude --mcp-config <json>` com o servidor MCP do app. Sem o token: o Claude
+ * Code abre o servidor stdio com o proprio ambiente somado ao `env` da config, e o token
+ * esta no ambiente do processo do Lider (composeLeaderEnv).
+ */
 export function buildClaudeMcpConfigArg(server: McpServerLaunch): string {
+  const { publicEnv } = splitMcpServerEnv(server)
   return JSON.stringify({
     mcpServers: {
-      [server.name]: { type: 'stdio', command: server.command, args: server.args, env: server.env },
+      [server.name]: { type: 'stdio', command: server.command, args: server.args, env: publicEnv },
     },
   })
 }
@@ -64,17 +91,26 @@ function tomlString(value: string): string {
   return JSON.stringify(value)
 }
 
-/** Overrides `-c` do Codex que registram o servidor MCP do app. */
+/**
+ * Overrides `-c` do Codex que registram o servidor MCP do app. O Codex abre o servidor
+ * stdio com um ambiente minimo; o token passa pelo nome em `env_vars` (copiado do ambiente
+ * do processo do Lider), nunca pelo valor no argv.
+ */
 export function buildCodexMcpConfigArgs(server: McpServerLaunch): string[] {
   const prefix = `mcp_servers.${codexMcpServerKey(server.name)}`
   const args = ['-c', `${prefix}.command=${tomlString(server.command)}`]
   args.push('-c', `${prefix}.args=[${server.args.map(tomlString).join(',')}]`)
-  const envEntries = Object.entries(server.env)
+  const { publicEnv, secretEnv } = splitMcpServerEnv(server)
+  const envEntries = Object.entries(publicEnv)
   if (envEntries.length > 0) {
     const table = envEntries
       .map(([key, value]) => `${tomlString(key)}=${tomlString(value)}`)
       .join(',')
     args.push('-c', `${prefix}.env={${table}}`)
+  }
+  const secretNames = Object.keys(secretEnv)
+  if (secretNames.length > 0) {
+    args.push('-c', `${prefix}.env_vars=[${secretNames.map(tomlString).join(',')}]`)
   }
   args.push('-c', `${prefix}.tool_timeout_sec=${MCP_TOOL_TIMEOUT_SECONDS}`)
   return args
@@ -90,11 +126,11 @@ export function composeLeaderEnv(
   request: LeaderLaunchRequest,
   options: LeaderCommandOptions,
 ): Record<string, string> {
-  const env: Record<string, string> = {}
-  for (const [key, value] of Object.entries(options.baseEnv)) {
-    if (typeof value === 'string') env[key] = value
-  }
+  // Sem as variaveis de sessao do app antigo nem o token MCP de um agente pai.
+  const env = sanitizeInheritedEnv(options.baseEnv)
   Object.assign(env, request.env)
+  // Token do servidor MCP: so no ambiente (ver MCP_SECRET_ENV_KEYS).
+  Object.assign(env, splitMcpServerEnv(request.mcpServer).secretEnv)
   env[ENV.marker] = '1'
   if (request.provider === 'claude') {
     Object.assign(env, LEADER_CLAUDE_ENV)

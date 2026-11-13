@@ -117,6 +117,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
             PATH: `${bin}:/usr/bin:/bin`,
             HOME: process.env['HOME'] ?? '/tmp',
             FAKE_LOG: leaderLog,
+            FAKE_CLAUDE_CONFIG_DIR: empty,
             FAKE_LEADER_PLAN: JSON.stringify([
               { papel: 'Dev', titulo: 'Primeira parte', instrucoes: 'Faça a primeira parte.' },
               { papel: 'dev', titulo: 'Segunda parte', instrucoes: 'Faça a segunda parte.' },
@@ -183,6 +184,9 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
     expect(start['resumed']).toBe(false)
     expect(start['marker']).toBe('1')
     expect((start['argv'] as string[]).includes('--mcp-config')).toBe(true)
+    // O token MCP do Líder vai no ambiente, nunca no argv (ps/proc/cmdline).
+    expect(start['tokenInEnv']).toBe(true)
+    expect((start['argv'] as string[]).join(' ')).not.toContain('ECLIPSE_NEXT_MCP_TOKEN')
     const mcp = first.find((r) => r.kind === 'mcp')!
     expect(mcp['tools']).toContain('subtarefa_criar')
     expect(mcp['tools']).not.toContain('entregar')

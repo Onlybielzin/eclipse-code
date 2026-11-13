@@ -22,8 +22,11 @@ export {
 } from './toolHandler'
 export { createEclipseMcpServer, runStdioMcpServer, toolInputJsonSchema } from './stdioServer'
 export {
+  DEFAULT_NOTICE_RETRY_INTERVAL_MS,
   composeTurnNotice,
+  createMemoryLeaderNoticeStore,
   startTeamTurnRelay,
+  type LeaderActivityEvent,
   type TeamTurnRelay,
   type TeamTurnRelayDeps,
 } from './teamTurnRelay'

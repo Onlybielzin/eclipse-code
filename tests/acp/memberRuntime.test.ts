@@ -322,4 +322,84 @@ describe('AcpMemberRuntime com agente falso', () => {
     })
     expect(rt.liveCount()).toBe(0)
   })
+
+  describe('neto que ignora SIGTERM no grupo do membro', () => {
+    const grandchildPid = async (file: string): Promise<number> => {
+      const until = Date.now() + 5_000
+      for (;;) {
+        try {
+          const pid = Number(readFileSync(file, 'utf8'))
+          if (pid > 0) return pid
+        } catch {
+          // ainda nao gravou
+        }
+        if (Date.now() > until) throw new Error('neto nao abriu')
+        await new Promise((r) => setTimeout(r, 20))
+      }
+    }
+    const isAlive = (pid: number) => {
+      try {
+        process.kill(pid, 0)
+        return true
+      } catch {
+        return false
+      }
+    }
+    const waitDead = async (pid: number, ms: number) => {
+      const until = Date.now() + ms
+      while (isAlive(pid) && Date.now() < until) await new Promise((r) => setTimeout(r, 25))
+      return !isAlive(pid)
+    }
+
+    it('close manda SIGKILL ao grupo mesmo depois que o adaptador já saiu', async () => {
+      const h = makeRuntime()
+      const pidFile = join(workdir, 'neto.pid')
+      const request = startRequest('normal', {
+        env: { FAKE_ACP_MODE: 'normal', FAKE_ACP_GRANDCHILD: pidFile },
+      })
+      await h.runtime.startSession(request)
+      const pid = await grandchildPid(pidFile)
+      try {
+        await h.runtime.close(request.sessionId)
+        // killGraceMs = 500: o neto que ignora SIGTERM recebe SIGKILL logo depois.
+        expect(await waitDead(pid, 2_000)).toBe(true)
+      } finally {
+        if (isAlive(pid)) process.kill(pid, 'SIGKILL')
+      }
+    })
+
+    it('adaptador que cai sozinho não deixa o neto vivo', async () => {
+      const h = makeRuntime()
+      const pidFile = join(workdir, 'neto-crash.pid')
+      const request = startRequest('morre-no-meio', {
+        env: { FAKE_ACP_MODE: 'morre-no-meio', FAKE_ACP_GRANDCHILD: pidFile },
+      })
+      await h.runtime.startSession(request)
+      const pid = await grandchildPid(pidFile)
+      try {
+        const result = await h.runtime.prompt(request.sessionId, { turnId: 't1', text: 'oi' })
+        expect(result.outcome.kind).toBe('error')
+        expect(await waitDead(pid, 3_000)).toBe(true)
+      } finally {
+        if (isAlive(pid)) process.kill(pid, 'SIGKILL')
+      }
+    })
+  })
+
+  it('membro não herda as variáveis de sessão do app antigo', async () => {
+    const saved = { ...process.env }
+    process.env['ECLIPSE_CODE_CONTROL_TOKEN'] = 'segredo-antigo'
+    process.env['ECLIPSE_CODE_ENV'] = '1'
+    try {
+      const { runtime } = makeRuntime()
+      const request = startRequest('normal')
+      await runtime.startSession(request)
+      const start = recorded().find((r) => r.method === 'session/new')!
+      expect(Object.keys(start.env).filter((k) => k.startsWith('ECLIPSE_CODE_'))).toEqual([])
+      expect(start.env['ECLIPSE_NEXT_ENV']).toBe('1')
+    } finally {
+      for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]
+      Object.assign(process.env, saved)
+    }
+  })
 })

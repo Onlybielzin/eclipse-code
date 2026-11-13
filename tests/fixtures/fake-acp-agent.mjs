@@ -12,8 +12,12 @@
 //   mcp            chama de verdade a ferramenta `entregar` no servidor MCP recebido em
 //                  session/new (mcpServers), como o claude-agent-acp faria, e termina com end_turn
 //
+// FAKE_ACP_GRANDCHILD=<arquivo>: abre um neto no mesmo grupo de processos que ignora
+// SIGTERM (como um `pnpm test` aberto pelo Bash do membro) e grava o pid dele no arquivo.
+//
 // FAKE_ACP_RECORD=<arquivo>: grava uma linha JSON por chamada de partida (initialize,
 // session/new, session/load) com cwd e algumas variaveis de ambiente.
+import { spawn } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Readable, Writable } from 'node:stream'
@@ -29,6 +33,9 @@ function record(method, params) {
   const env = {}
   for (const key of ['ANTHROPIC_MODEL', 'CODEX_CONFIG', 'ECLIPSE_NEXT_ENV', 'FAKE_EXTRA']) {
     if (process.env[key] !== undefined) env[key] = process.env[key]
+  }
+  for (const key of Object.keys(process.env)) {
+    if (key.startsWith('ECLIPSE_CODE_')) env[key] = process.env[key]
   }
   appendFileSync(recordFile, `${JSON.stringify({ method, params, cwd: process.cwd(), env })}\n`)
 }
@@ -222,6 +229,18 @@ class FakeAgent {
         throw new Error(`modo desconhecido: ${mode}`)
     }
   }
+}
+
+if (process.env.FAKE_ACP_GRANDCHILD) {
+  const pidFile = process.env.FAKE_ACP_GRANDCHILD
+  spawn(
+    process.execPath,
+    [
+      '-e',
+      `process.on('SIGTERM', () => {}); require('fs').writeFileSync(${JSON.stringify(pidFile)}, String(process.pid)); setInterval(() => {}, 1000)`,
+    ],
+    { env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: 'ignore' },
+  )
 }
 
 const stream = ndJsonStream(Writable.toWeb(process.stdout), Readable.toWeb(process.stdin))

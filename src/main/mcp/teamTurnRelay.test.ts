@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { LeaderRelay } from '@shared/ports'
-import { composeTurnNotice, startTeamTurnRelay } from './teamTurnRelay'
+import {
+  composeTurnNotice,
+  createMemoryLeaderNoticeStore,
+  startTeamTurnRelay,
+} from './teamTurnRelay'
 import { createFakeTaskService, leaderSession } from './testing/fakeTaskService'
 
 function relaySpy(delivered = true) {
@@ -136,5 +140,90 @@ describe('startTeamTurnRelay', () => {
     tasks.endTurn({ id: 'ta', subtaskId: 'a' })
     await team.idle()
     expect(sent).toHaveLength(0)
+  })
+
+  it('aviso parado volta a andar quando o Líder fica ocioso (evento activity)', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    let accept = false
+    const sent: string[] = []
+    const relay: LeaderRelay = {
+      async deliver(_s, text) {
+        if (!accept) return { delivered: false, attempts: 600 }
+        sent.push(text)
+        return { delivered: true, attempts: 1 }
+      },
+    }
+    const listeners = new Set<
+      (e: { type: 'activity'; sessionId: string; activity: string }) => void
+    >()
+    const team = startTeamTurnRelay({
+      tasks,
+      relay,
+      retryIntervalMs: 0,
+      leaderEvents: {
+        onEvent(listener) {
+          listeners.add(listener as never)
+          return () => listeners.delete(listener as never)
+        },
+      },
+    })
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await team.idle()
+    expect(team.pending('task1')).toHaveLength(1)
+
+    // Nenhum membro termina mais turno e o Líder continua 'running': só o ocioso destrava.
+    accept = true
+    for (const l of listeners) l({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(sent.map((t) => t.match(/Subtarefa (\w+)/)?.[1])).toEqual(['a'])
+    expect(team.pending('task1')).toHaveLength(0)
+    team.stop()
+  })
+
+  it('tentativa periódica entrega o aviso parado mesmo sem nenhum evento', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    let accept = false
+    const sent: string[] = []
+    const relay: LeaderRelay = {
+      async deliver(_s, text) {
+        if (!accept) return { delivered: false, attempts: 600 }
+        sent.push(text)
+        return { delivered: true, attempts: 1 }
+      },
+    }
+    const team = startTeamTurnRelay({ tasks, relay, retryIntervalMs: 20 })
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await team.idle()
+    expect(team.pending('task1')).toHaveLength(1)
+    accept = true
+    const until = Date.now() + 2_000
+    while (sent.length === 0 && Date.now() < until) await new Promise((r) => setTimeout(r, 10))
+    await team.idle()
+    expect(sent).toHaveLength(1)
+    team.stop()
+  })
+
+  it('notify entra na mesma fila durável e sobrevive a um relay novo (reinício)', async () => {
+    const tasks = createFakeTaskService()
+    const notices = createMemoryLeaderNoticeStore()
+    const { relay, sent } = relaySpy()
+    const first = startTeamTurnRelay({ tasks, relay, notices, retryIntervalMs: 0 })
+    first.notify('task1', '[eclipse] resposta do usuário')
+    await first.idle()
+    expect(sent).toHaveLength(0) // sem Líder vivo
+    first.stop()
+
+    const second = startTeamTurnRelay({ tasks, relay, notices, retryIntervalMs: 0 })
+    const session = leaderSession('L9')
+    tasks.sessions.set('L9', session)
+    tasks.emit({ type: 'session.upserted', session })
+    await second.idle()
+    expect(sent).toEqual([{ sessionId: 'L9', text: '[eclipse] resposta do usuário' }])
+    expect(notices.listPendingLeaderNotices('task1')).toEqual([])
+    second.stop()
   })
 })

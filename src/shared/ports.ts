@@ -292,6 +292,31 @@ export interface TaskService {
 }
 
 // ---------------------------------------------------------------------------
+// tasks/: avisos ao Lider (fila duravel)
+// ---------------------------------------------------------------------------
+
+/** Linha [eclipse] que espera ser colada no terminal do Lider da tarefa. */
+export interface LeaderNotice {
+  id: number
+  taskId: TaskId
+  text: string
+  createdAt: EpochMs
+}
+
+/**
+ * Fila duravel de avisos ao Lider (SQLite). O aviso so sai da fila quando o relay
+ * confirma a entrega; sobrevive a Lider ocupado, Lider morto e reinicio do app.
+ */
+export interface LeaderNoticeStore {
+  enqueueLeaderNotice(taskId: TaskId, text: string): LeaderNotice
+  /** Pendentes da tarefa, do mais antigo ao mais novo. */
+  listPendingLeaderNotices(taskId: TaskId): LeaderNotice[]
+  markLeaderNoticeDelivered(id: number): void
+  /** Tarefas abertas com aviso pendente. */
+  listTasksWithPendingLeaderNotices(): TaskId[]
+}
+
+// ---------------------------------------------------------------------------
 // tasks/: orquestracao do time
 // ---------------------------------------------------------------------------
 

@@ -74,7 +74,8 @@ describe('buildLeaderCommand (Claude)', () => {
           type: 'stdio',
           command: mcpServer.command,
           args: mcpServer.args,
-          env: mcpServer.env,
+          // O token fica no ambiente do processo, nunca no argv.
+          env: { ELECTRON_RUN_AS_NODE: '1' },
         },
       },
     })
@@ -153,10 +154,60 @@ describe('buildLeaderCommand (Codex)', () => {
       '-c',
       'mcp_servers.eclipse.args=["/opt/eclipse/out/mcp/server.js"]',
       '-c',
-      'mcp_servers.eclipse.env={"ELECTRON_RUN_AS_NODE"="1","ECLIPSE_NEXT_MCP_TOKEN"="tok\\"en"}',
+      'mcp_servers.eclipse.env={"ELECTRON_RUN_AS_NODE"="1"}',
+      '-c',
+      'mcp_servers.eclipse.env_vars=["ECLIPSE_NEXT_MCP_TOKEN"]',
       '-c',
       'mcp_servers.eclipse.tool_timeout_sec=1860',
     ])
     expect(codexMcpServerKey('eclipse code.v2')).toBe('eclipse_code_v2')
+  })
+})
+
+describe('ambiente herdado do app antigo', () => {
+  const legacy = {
+    PATH: '/run/old/cli-shim:/home/u/.local/bin:/usr/bin',
+    HOME: '/home/u',
+    ZDOTDIR: '/run/old/zsh',
+    ECLIPSE_CODE_ENV: '1',
+    ECLIPSE_CODE_CONTROL_URL: 'http://127.0.0.1:9/ctl',
+    ECLIPSE_CODE_CONTROL_TOKEN: 'segredo-antigo',
+    ECLIPSE_CODE_NODE_ID: 'no-1',
+    ECLIPSE_CODE_SPACE_ID: 'space-1',
+    ECLIPSE_CODE_TEAM_RELAY: '1',
+    ECLIPSE_CODE_CLI_SHIM_DIRECTORY: '/run/old/cli-shim',
+    ECLIPSE_CODE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY: '/run/old/zsh',
+    ECLIPSE_CODE_TERMINAL_AGENT_ORIGINAL_ZDOTDIR: '',
+    ECLIPSE_NEXT_MCP_TOKEN: 'token-do-pai',
+  }
+
+  it('Líder não herda ECLIPSE_CODE_*, o shim do CLI antigo nem o token MCP do pai', () => {
+    for (const provider of ['claude', 'codex'] as const) {
+      const command = buildLeaderCommand(request({ provider }), { ...options, baseEnv: legacy })
+      expect(Object.keys(command.env).filter((k) => k.startsWith('ECLIPSE_CODE_'))).toEqual([])
+      expect(command.env['PATH']).toBe('/home/u/.local/bin:/usr/bin')
+      expect(command.env).not.toHaveProperty('ZDOTDIR')
+      expect(command.env['ECLIPSE_NEXT_MCP_TOKEN']).not.toBe('token-do-pai')
+      expect(command.env['ECLIPSE_NEXT_ENV']).toBe('1')
+      expect(command.env['HOME']).toBe('/home/u')
+    }
+  })
+})
+
+describe('token MCP do Líder fora da linha de comando', () => {
+  it('Claude: o token vai no ambiente do processo, nunca no --mcp-config', () => {
+    const command = buildLeaderCommand(request(), options)
+    expect(command.args.join(' ')).not.toContain('tok"en')
+    expect(command.args.join(' ')).not.toContain('ECLIPSE_NEXT_MCP_TOKEN')
+    expect(command.env['ECLIPSE_NEXT_MCP_TOKEN']).toBe('tok"en')
+    const config = JSON.parse(command.args[command.args.indexOf('--mcp-config') + 1] ?? '{}')
+    expect(config.mcpServers.eclipse.env).toEqual({ ELECTRON_RUN_AS_NODE: '1' })
+  })
+
+  it('Codex: o token vai no ambiente e o -c só repassa o nome (env_vars)', () => {
+    const command = buildLeaderCommand(request({ provider: 'codex' }), options)
+    expect(command.args.join(' ')).not.toContain('tok"en')
+    expect(command.env['ECLIPSE_NEXT_MCP_TOKEN']).toBe('tok"en')
+    expect(command.args).toContain('mcp_servers.eclipse.env_vars=["ECLIPSE_NEXT_MCP_TOKEN"]')
   })
 })

@@ -11,6 +11,7 @@
  *   leader.sessions.onEvent(e => e.type === 'provider-session-id' && taskService.updateSession(...))
  *   leader.relay.deliver(sessionId, texto)
  */
+import type { Provider } from '@shared/domain'
 import type { LeaderLauncher, LeaderRelay, PtyHost } from '@shared/ports'
 import { createLeaderLauncher, type LeaderLauncherOptions } from './launcher'
 import {
@@ -19,7 +20,12 @@ import {
   type LeaderSessionRegistryOptions,
 } from './leaderSessions'
 import { createLeaderRelay, type LeaderRelayOptions } from './relay'
-import { defaultSessionLocatorDirs, type SessionLocatorDirs } from './sessionLocator'
+import {
+  defaultSessionLocatorDirs,
+  findClaudeTranscript,
+  findCodexSessionFile,
+  type SessionLocatorDirs,
+} from './sessionLocator'
 
 export interface LeaderModuleOptions {
   ptyHost: PtyHost
@@ -35,6 +41,12 @@ export interface LeaderModule {
   launcher: LeaderLauncher
   relay: LeaderRelay
   sessions: LeaderSessionRegistry
+  /**
+   * O provedor ainda tem a conversa para `--resume` / `resume`? O Claude so grava o
+   * transcript na primeira mensagem e apaga os antigos (cleanupPeriodDays); sem ele,
+   * `claude --resume <id>` sai com "No conversation found".
+   */
+  canResume(input: { provider: Provider; providerSessionId: string; cwd: string }): Promise<boolean>
   dispose(): Promise<void>
 }
 
@@ -57,7 +69,18 @@ export function createLeaderModule(options: LeaderModuleOptions): LeaderModule {
     ptyHost: options.ptyHost,
     registry: sessions,
   })
-  return { launcher, relay, sessions, dispose: () => sessions.dispose() }
+  const canResume: LeaderModule['canResume'] = async (input) => {
+    try {
+      if (input.provider === 'claude') {
+        return (await findClaudeTranscript(input.cwd, input.providerSessionId, dirs)) !== null
+      }
+      return (await findCodexSessionFile(input.providerSessionId, dirs)) !== null
+    } catch {
+      // Na duvida tenta retomar: a falha do --resume ainda tem saida (TeamCoordinator).
+      return true
+    }
+  }
+  return { launcher, relay, sessions, canResume, dispose: () => sessions.dispose() }
 }
 
 export { createLeaderLauncher, type LeaderLauncherOptions } from './launcher'

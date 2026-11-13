@@ -14,6 +14,12 @@
  *   C2. Membro em estado final nunca fica com processo aberto (closeMember depois do finishTurn).
  *   C3. No desligamento nenhum turno e fechado a forca: a recuperacao na proxima partida decide
  *       (entrega gravada vale; sem entrega vira "bloqueado: sessão perdida").
+ *   C4. Processo de Lider aberto para uma sessao ja encerrada (arquivada/fechada durante o
+ *       launch) e morto na hora: nenhum Lider vive sem sessao aberta no banco.
+ *   C5. Aviso ao Lider nunca e descartado: vai para a fila duravel (leaderNotices) e so sai
+ *       dela com entrega confirmada.
+ *   C6. Um providerSessionId que falhou no --resume nao e tentado de novo: a sessao fica com
+ *       providerSessionId null e o Lider abre sessao nova.
  */
 import { join } from 'node:path'
 import {
@@ -60,6 +66,7 @@ import {
   composeMemberSystemPrompt,
   composeQuestionNotice,
   composeMemberStoppedNotice,
+  composeSessionLostNotice,
   composeSpawnFailureNotice,
 } from './prompts'
 
@@ -86,8 +93,21 @@ export interface TeamCoordinatorDeps {
   /** Variaveis extras para o Lider e para os membros. */
   leaderEnv?: Record<string, string>
   memberEnv?: Record<string, string>
+  /**
+   * Fila duravel de avisos ao Lider (TeamTurnRelay.notify). Resposta do usuario, membro que
+   * nao abriu ou que parou: tudo entra aqui e sai so com entrega confirmada.
+   */
+  leaderNotices: { notify(taskId: TaskId, text: string): void }
+  /**
+   * Saida com erro de um Lider aberto com --resume dentro deste prazo, antes de qualquer
+   * sinal de turno, conta como retomada que falhou (padrao 60 s).
+   */
+  resumeFailureWindowMs?: number
+  now?: () => number
   log?: AppLogger
 }
+
+const DEFAULT_RESUME_FAILURE_WINDOW_MS = 60_000
 
 export interface CreateTaskInput {
   projectId: string
@@ -120,6 +140,10 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private readonly ptyLeaders = new Map<string, SessionId>()
   private readonly leaderLocks = new Map<TaskId, Promise<Session>>()
   private readonly closingLeaders = new Set<SessionId>()
+  /** Lideres abertos com --resume e quando abriram (para detectar retomada que falhou). */
+  private readonly resumedLeaders = new Map<SessionId, { taskId: TaskId; startedAt: number }>()
+  private readonly now: () => number
+  private readonly resumeFailureWindowMs: number
   /** Membros entre openSession e o fim do startSession (contam no limite). */
   private readonly startingMembers = new Set<SessionId>()
   private readonly closingMembers = new Set<SessionId>()
@@ -138,6 +162,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     this.bridge = deps.bridge
     this.limits = deps.limits ?? DEFAULT_AGENT_LIMITS
     this.log = deps.log ?? silentLogger
+    this.now = deps.now ?? Date.now
+    this.resumeFailureWindowMs = deps.resumeFailureWindowMs ?? DEFAULT_RESUME_FAILURE_WINDOW_MS
     this.toolHandler = createMcpToolHandler({ tasks: this.tasks, actions: this })
 
     this.unsubscribers.push(
@@ -292,7 +318,19 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     const role = this.findRole(task.leadRoleId)
     const provider: Provider = role?.provider ?? task.soloProvider ?? 'claude'
     const latest = this.tasks.getLatestLeaderSession(taskId)
-    const resumeId = latest?.provider === provider ? latest.providerSessionId : null
+    let resumeId = latest?.provider === provider ? latest.providerSessionId : null
+    if (
+      resumeId &&
+      !(await this.leader.canResume({ provider, providerSessionId: resumeId, cwd }))
+    ) {
+      // Conversa sumiu (nunca gravada ou limpa pelo provedor): --resume so falharia.
+      this.log.warn('Líder sem conversa para retomar; abrindo sessão nova', {
+        taskId,
+        providerSessionId: resumeId,
+      })
+      resumeId = null
+    }
+    this.assertRunning()
 
     const session = this.tasks.openSession({
       taskId,
@@ -343,7 +381,18 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         ? claudeSessionIdFor(session.id)
         : null
     const current = this.tasks.getSession(session.id)
-    if (current.status === 'exited') return current
+    if (current.status === 'exited' || this.shuttingDown) {
+      // Encerrada durante o launch (arquivar, fechar o app, stopLeader): o processo que
+      // acabou de abrir nao tem dono e morre aqui (C4).
+      this.closingLeaders.add(session.id)
+      this.bridge.revokeSession(session.id)
+      if (this.ptyHost.isAlive(launched.ptyId)) this.ptyHost.kill(launched.ptyId, 'SIGTERM')
+      if (this.shuttingDown) return current
+      return this.tasks.getSession(session.id)
+    }
+    if (launched.resumed) {
+      this.resumedLeaders.set(session.id, { taskId, startedAt: this.now() })
+    }
     this.log.info('Líder aberto', { taskId, sessionId: session.id, resumed: launched.resumed })
     return this.tasks.updateSession(session.id, {
       pid: launched.pid,
@@ -362,30 +411,61 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
   private onLeaderExit(sessionId: SessionId, exitCode: number | null, signal: string | null) {
     for (const listener of this.exitListeners) listener({ sessionId, exitCode, signal })
+    const resumed = this.resumedLeaders.get(sessionId)
+    this.resumedLeaders.delete(sessionId)
     if (this.shuttingDown) return
     this.bridge.revokeSession(sessionId)
-    const reason = this.closingLeaders.has(sessionId)
-      ? 'closed'
-      : exitCode === 0
-        ? 'exited'
-        : 'process_died'
+    const closing = this.closingLeaders.has(sessionId)
+    const reason = closing ? 'closed' : exitCode === 0 ? 'exited' : 'process_died'
     this.closingLeaders.delete(sessionId)
-    this.safely('encerrar sessão do Líder', () =>
-      this.tasks.endSession(sessionId, { reason, exitCode }),
+    const resumeFailed =
+      !!resumed &&
+      !closing &&
+      exitCode !== 0 &&
+      this.now() - resumed.startedAt <= this.resumeFailureWindowMs &&
+      !this.leader.sessions.get(sessionId)?.hasTurnSignal
+    this.safely('encerrar sessão do Líder', () => {
+      // Retomada que falhou: esquece o id, senao todo ensure tentaria o mesmo --resume (C6).
+      if (resumeFailed) this.tasks.updateSession(sessionId, { providerSessionId: null })
+      this.tasks.endSession(sessionId, { reason, exitCode })
+    })
+    if (resumeFailed && resumed) {
+      this.log.warn('--resume do Líder falhou; abrindo sessão nova', {
+        taskId: resumed.taskId,
+        sessionId,
+        exitCode,
+      })
+      this.reopenLeaderFresh(resumed.taskId)
+    }
+  }
+
+  /** Depois de uma retomada que falhou: uma tentativa de Lider novo (nunca em laco). */
+  private reopenLeaderFresh(taskId: TaskId): void {
+    const opening = this.leaderLocks.get(taskId) ?? Promise.resolve(null)
+    this.track(
+      opening
+        .catch(() => null)
+        .then(() => {
+          if (this.shuttingDown) return null
+          const task = this.tasks.getTask(taskId)
+          if (task.status !== 'open') return null
+          return this.ensureLeader(taskId)
+        })
+        .catch((error: unknown) =>
+          this.log.warn('Líder novo não abriu depois do --resume', {
+            taskId,
+            error: errorMessage(error),
+          }),
+        ),
     )
   }
 
-  /** Avisa o Lider vivo da tarefa (aviso fora de turno: membro nao abriu, resposta do usuario). */
+  /**
+   * Aviso fora de turno ao Lider (membro nao abriu ou parou, resposta do usuario). Entra na
+   * fila duravel e sai quando o Lider estiver vivo e ocioso; nunca e descartado (C5).
+   */
   private notifyLeader(taskId: TaskId, text: string): void {
-    const live = this.tasks.getLiveLeaderSession(taskId)
-    if (!live) return
-    this.track(
-      this.leader.relay
-        .deliver(live.id, text)
-        .catch((error: unknown) =>
-          this.log.warn('aviso ao Líder falhou', { taskId, error: errorMessage(error) }),
-        ),
-    )
+    this.deps.leaderNotices.notify(taskId, text)
   }
 
   // -------------------------------------------------------------------------
@@ -711,7 +791,12 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
   /** recoverOnStartup com o relatorio (o composition root registra os numeros). */
   async recover(): Promise<RecoveryReport> {
-    const report = this.tasks.recoverAfterRestart({ survivingSessionIds: new Set() })
+    const report = this.tasks.recoverAfterRestart({
+      survivingSessionIds: new Set(),
+      // Subtarefa perdida sem turno aberto nao gera fim de turno: o aviso vai para a fila.
+      composeLostNotice: (subtask) =>
+        composeSessionLostNotice(subtask, this.findRole(subtask.roleId)?.name ?? subtask.roleId),
+    })
     for (const leader of report.leadersToResume) {
       this.track(
         this.ensureLeader(leader.taskId).catch((error: unknown) =>
