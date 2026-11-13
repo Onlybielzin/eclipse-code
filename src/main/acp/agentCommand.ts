@@ -13,6 +13,10 @@
  *   - CLI: CLAUDE_CODE_EXECUTABLE aponta para o primeiro `claude` do PATH (o wrapper de
  *     rodizio de contas, quando existe). Sem isso o adaptador usaria o binario embutido no
  *     claude-agent-sdk e pularia o rodizio. Valor ja definido pelo usuario e mantido.
+ *   - O app empacotado NAO leva os binarios embutidos (package.json build.files exclui
+ *     claude-agent-sdk-<plataforma> e @openai/codex-<plataforma>, ~700 MB). Sem CLI no PATH
+ *     a variavel recebe o nome puro ("claude"/"codex") e a partida falha dizendo que o
+ *     comando nao existe, em vez de cair no binario embutido que nao esta no pacote.
  *
  * Codex (codex-acp 1.6.2):
  *   - Le ~/.codex/config.toml sozinho (MCPs e preferencias do usuario).
@@ -67,8 +71,7 @@ export function buildAgentCommand(
   const env: Record<string, string> = { ELECTRON_RUN_AS_NODE: '1' }
   const cliVariable = request.provider === 'claude' ? 'CLAUDE_CODE_EXECUTABLE' : 'CODEX_PATH'
   if (!baseEnv[cliVariable]) {
-    const cli = resolveExecutableOnPath(request.provider, baseEnv.PATH)
-    if (cli) env[cliVariable] = cli
+    env[cliVariable] = resolveExecutableOnPath(request.provider, baseEnv.PATH) ?? request.provider
   }
   if (request.provider === 'claude') {
     if (request.model) env.ANTHROPIC_MODEL = request.model

@@ -19,8 +19,23 @@ describe('buildAgentCommand', () => {
     expect(cmd).toEqual({
       command: '/bin/electron',
       args: ['/s.js'],
-      env: { ELECTRON_RUN_AS_NODE: '1', ANTHROPIC_MODEL: 'claude-haiku-4-5' },
+      env: {
+        ELECTRON_RUN_AS_NODE: '1',
+        CLAUDE_CODE_EXECUTABLE: 'claude',
+        ANTHROPIC_MODEL: 'claude-haiku-4-5',
+      },
     })
+  })
+
+  it('sem CLI no PATH usa o nome puro: nunca cai no binario embutido (fora do pacote)', () => {
+    for (const provider of ['claude', 'codex'] as const) {
+      const cmd = buildAgentCommand(
+        { provider, model: null, systemPrompt: '' },
+        { nodeBinary: 'n', scriptPath: 's', baseEnv: { PATH: '' } },
+      )
+      const variable = provider === 'claude' ? 'CLAUDE_CODE_EXECUTABLE' : 'CODEX_PATH'
+      expect(cmd.env[variable]).toBe(provider)
+    }
   })
 
   it('usa o primeiro claude/codex do PATH (wrapper de rodízio) e respeita o valor do usuário', () => {

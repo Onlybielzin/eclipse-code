@@ -10,3 +10,16 @@ describe('resolveAppPaths', () => {
     expect(p.userData).not.toContain('Eclipse Code')
   })
 })
+
+describe('resolveAppPaths com --user-data-dir', () => {
+  it('poe dados na pasta pedida e separa o socket da instalacao normal', () => {
+    const env = { XDG_RUNTIME_DIR: '/run/user/1000' }
+    const normal = resolveAppPaths(env, '/home/u/.config')
+    const p = resolveAppPaths(env, '/home/u/.config', '/tmp/smoke-data')
+    expect(p.userData).toBe('/tmp/smoke-data')
+    expect(p.database).toBe('/tmp/smoke-data/eclipse-code.sqlite')
+    expect(p.runtime).toMatch(/^\/run\/user\/1000\/eclipse-code-next-[0-9a-f]{8}$/)
+    expect(p.runtime).not.toBe(normal.runtime)
+    expect(resolveAppPaths(env, '/x', '/tmp/smoke-data').runtime).toBe(p.runtime)
+  })
+})

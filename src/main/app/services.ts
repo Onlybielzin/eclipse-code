@@ -32,7 +32,7 @@ import {
 import { createPtyHost, type PtyHostOptions } from '../terminal'
 import { createWorktreeService } from '../worktree'
 import { AppTeamCoordinator, silentLogger, type AppLogger } from './teamCoordinator'
-import type { PtyHost } from '@shared/ports'
+import type { McpBridgeServer, PtyHost } from '@shared/ports'
 
 export interface AppServicesOptions {
   paths: Pick<AppPaths, 'database' | 'runtime' | 'worktrees' | 'userData'>
@@ -61,6 +61,8 @@ export interface AppServices {
   leader: LeaderModule
   members: AcpMemberRuntime
   turnRelay: TeamTurnRelay
+  /** Ponte MCP: o modo --smoke emite um token de teste para provar o servidor empacotado. */
+  bridge: McpBridgeServer
   recovery: RecoveryReport
   socketPath: string
   /** Eventos para a tela: dominio (depois do commit) e terminal do Lider. */
@@ -185,6 +187,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     leader,
     members,
     turnRelay,
+    bridge,
     recovery,
     socketPath,
     onUiEvent(listener) {

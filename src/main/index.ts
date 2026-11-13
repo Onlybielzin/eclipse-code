@@ -6,6 +6,7 @@ import {
   createIpcHandlers,
   createIpcRouter,
   resolveAppPaths,
+  runSmokeChecks,
   startAppServices,
   type AppLogger,
   type AppServices,
@@ -13,11 +14,18 @@ import {
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
 
 // Pasta de dados propria: nunca a do app antigo. Precisa vir antes de 'ready'.
-const paths = resolveAppPaths()
+// --user-data-dir (switch do Chromium) troca a pasta inteira, banco e socket inclusive.
+const paths = resolveAppPaths(
+  process.env,
+  undefined,
+  app.commandLine.getSwitchValue('user-data-dir') || undefined,
+)
 app.setName(APP_PRODUCT_NAME)
 app.setPath('userData', paths.userData)
 
-const isTestRun = process.env[ENV.runtime] === 'test'
+/** --smoke: sobe tudo sem mostrar janela, confere as pecas nativas e sai com 0 ou 1. */
+const isSmokeRun = process.argv.includes('--smoke')
+const isTestRun = process.env[ENV.runtime] === 'test' || isSmokeRun
 
 const log: AppLogger = {
   info: (message, meta) => console.info(`[eclipse] ${message}`, meta ?? ''),
@@ -88,6 +96,44 @@ async function boot(): Promise<AppServices> {
   return services
 }
 
+/** Espera a tela carregar (preload + renderer do pacote) e roda as checagens do main. */
+async function runSmoke(services: AppServices, window: BrowserWindow): Promise<void> {
+  const renderer = await new Promise<{ ok: boolean; detail: string }>((resolve) => {
+    const timer = setTimeout(() => resolve({ ok: false, detail: 'timeout' }), 20_000)
+    window.webContents.once('did-finish-load', () => {
+      clearTimeout(timer)
+      resolve({ ok: true, detail: window.webContents.getURL() })
+    })
+    window.webContents.once('did-fail-load', (_event, code, description) => {
+      clearTimeout(timer)
+      resolve({ ok: false, detail: `${code} ${description}` })
+    })
+  })
+  log.info('smoke: tela', renderer)
+  let code = 1
+  try {
+    const report = await runSmokeChecks(services, paths)
+    const ok = report.ok && renderer.ok
+    console.info(
+      `[eclipse] smoke ${ok ? 'OK' : 'FALHOU'} ${JSON.stringify({
+        version: app.getVersion(),
+        packaged: app.isPackaged,
+        electron: process.versions.electron,
+        userData: paths.userData,
+        windowVisible: window.isVisible(),
+        renderer,
+        ...report,
+      })}`,
+    )
+    code = ok ? 0 : 1
+  } catch (error) {
+    log.error('smoke quebrou', { error: error instanceof Error ? error.stack : String(error) })
+  }
+  log.info('smoke: desligando')
+  await services.dispose().catch((error: unknown) => log.error('falha ao desligar', { error }))
+  app.exit(code)
+}
+
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
@@ -119,7 +165,8 @@ if (!app.requestSingleInstanceLock()) {
       app.exit(1)
       return
     }
-    createMainWindow()
+    const window = createMainWindow()
+    if (isSmokeRun) void runSmoke(services, window)
   })
 
   // Desligamento ordenado: mata membros e Lideres sem fechar turnos; a proxima partida recupera.
