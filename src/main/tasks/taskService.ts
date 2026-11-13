@@ -58,6 +58,7 @@ import {
   type TurnId,
   type TurnResult,
   type UserQuestion,
+  type UserQuestionStatus,
 } from '@shared/domain'
 import type { ActivityPage, SubtaskDetail } from '@shared/ipc'
 import type {
@@ -1095,6 +1096,11 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
           throw new DomainError('invalid_input', 'subtarefa de outra tarefa')
         }
       }
+      // Pergunta nova substitui as abertas da mesma tarefa (Q1): so a ultima fica em
+      // "Precisa de voce". Sem sinal questions_cleared: a tarefa continua em 'pergunta'.
+      for (const previous of this.store.listOpenTaskQuestions(task.id)) {
+        this.markQuestionClosed(previous, 'superseded', null)
+      }
       const question: UserQuestion = {
         id: this.ids.newId(),
         taskId: task.id,
@@ -1151,9 +1157,32 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     return this.write(() => this.closeQuestion(this.getQuestion(id), 'dismissed', null))
   }
 
+  closeQuestionsAnsweredInTerminal(taskId: TaskId): UserQuestion[] {
+    return this.write(() => {
+      const open = this.store.listOpenTaskQuestions(taskId)
+      if (open.length === 0) return []
+      const closed = open.map((q) => this.markQuestionClosed(q, 'answered_in_terminal', null))
+      this.applyTaskSignal(taskId, 'questions_cleared')
+      return closed
+    })
+  }
+
   private closeQuestion(
     question: UserQuestion,
     status: 'answered' | 'dismissed',
+    answers: QuestionAnswer[] | null,
+  ): UserQuestion {
+    const next = this.markQuestionClosed(question, status, answers)
+    if (this.store.countOpenQuestions(question.taskId) === 0) {
+      this.applyTaskSignal(question.taskId, 'questions_cleared')
+    }
+    return next
+  }
+
+  /** open -> status final. Grava e emite; o sinal da tarefa fica com quem chamou. */
+  private markQuestionClosed(
+    question: UserQuestion,
+    status: Exclude<UserQuestionStatus, 'open'>,
     answers: QuestionAnswer[] | null,
   ): UserQuestion {
     if (question.status !== 'open') {
@@ -1170,9 +1199,6 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     }
     this.store.updateQuestion(next)
     this.emit({ type: 'question.upserted', question: next })
-    if (this.store.countOpenQuestions(question.taskId) === 0) {
-      this.applyTaskSignal(question.taskId, 'questions_cleared')
-    }
     return next
   }
 

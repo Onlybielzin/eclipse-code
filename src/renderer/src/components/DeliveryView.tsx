@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   SUBTASK_STATE_LABELS,
+  USER_QUESTION_STATUS_LABELS,
   type Artifact,
   type QuestionItem,
   type Subtask,
@@ -48,6 +49,12 @@ export function DeliveryView({
   const delivery = artifact?.delivery ?? null
   const openQuestion =
     questions.find((q) => q.subtaskId === subtask.id && q.status === 'open') ?? null
+  // Ultima pergunta fechada desta subtarefa vista nesta sessao da tela (historico curto).
+  const closedQuestion = openQuestion
+    ? null
+    : (questions
+        .filter((q) => q.subtaskId === subtask.id && q.status !== 'open')
+        .sort((a, b) => (b.answeredAt ?? b.createdAt) - (a.answeredAt ?? a.createdAt))[0] ?? null)
   const references = subtask.referenceTaskIds
     .map((id) => allSubtasks?.find((s) => s.id === id)?.title ?? id)
     .join(', ')
@@ -103,6 +110,11 @@ export function DeliveryView({
             <p className="muted small">O Líder decide se repassa para você.</p>
           </div>
         )
+      )}
+      {closedQuestion && (
+        <p className="muted small" data-testid="question-closed">
+          Pergunta ao usuário: {USER_QUESTION_STATUS_LABELS[closedQuestion.status]}.
+        </p>
       )}
 
       {delivery && delivery.files.length > 0 && (

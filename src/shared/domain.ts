@@ -561,8 +561,32 @@ export type ActivityEventDraft = Omit<ActivityEvent, 'seq'>
 // Pergunta repassada ao usuario ("Precisa de voce")
 // ---------------------------------------------------------------------------
 
-export const USER_QUESTION_STATUSES = ['open', 'answered', 'dismissed'] as const
+/**
+ * Estados da pergunta ao usuario. So 'open' esta aberta; os outros sao finais.
+ *
+ *   open -> answered              usuario respondeu no card.
+ *   open -> dismissed             usuario deixou a decisao com o Lider (ou a tarefa foi lancada).
+ *   open -> superseded            o Lider repassou pergunta nova na mesma tarefa.
+ *   open -> answered_in_terminal  usuario apertou Enter no terminal do Lider da tarefa.
+ *
+ * Invariante Q1: pergunta fechada nunca reabre e nunca conta em "Precisa de voce".
+ */
+export const USER_QUESTION_STATUSES = [
+  'open',
+  'answered',
+  'dismissed',
+  'superseded',
+  'answered_in_terminal',
+] as const
 export type UserQuestionStatus = (typeof USER_QUESTION_STATUSES)[number]
+
+export const USER_QUESTION_STATUS_LABELS: Record<UserQuestionStatus, string> = {
+  open: 'aberta',
+  answered: 'respondida',
+  dismissed: 'decisão com o Líder',
+  superseded: 'substituída',
+  answered_in_terminal: 'respondida no terminal',
+}
 
 /** Duvida que o Lider repassou ao usuario. Aparece em "Precisa de voce". */
 export interface UserQuestion {

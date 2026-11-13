@@ -151,7 +151,8 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
   subtarefas_ver: 'Lista as subtarefas desta tarefa ou mostra uma com entregas e histórico.',
   subtarefas_esperar:
     'Espera subtarefas pararem (pronto, dúvida, bloqueado ou cancelada) e devolve as entregas. Use em vez de consultar em laço.',
-  pergunta_repassar: 'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta.',
+  pergunta_repassar:
+    'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta. Uma pergunta nova substitui as que ainda estavam abertas nesta tarefa.',
   tarefa_concluir:
     'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
 }

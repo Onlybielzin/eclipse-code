@@ -531,9 +531,25 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     }
   }
 
+  /**
+   * Digitacao do usuario no terminal do Lider (so a tela chama; o relay de avisos escreve
+   * direto no PtyHost e nao passa aqui). Enter fecha as perguntas abertas da tarefa como
+   * 'answered_in_terminal': o usuario respondeu conversando com o Lider.
+   */
   writeTerminal(sessionId: SessionId, data: string): void {
     const ptyId = this.livePty(sessionId)
     this.ptyHost.write(ptyId, data)
+    if (!/[\r\n]/.test(data)) return
+    try {
+      const session = this.tasks.getSession(sessionId)
+      if (session.kind === 'leader-pty') this.tasks.closeQuestionsAnsweredInTerminal(session.taskId)
+    } catch (error) {
+      // A digitacao ja foi entregue; falhar aqui nao pode travar o terminal.
+      this.log.warn('não fechou as perguntas respondidas no terminal', {
+        sessionId,
+        error: errorMessage(error),
+      })
+    }
   }
 
   resizeTerminal(sessionId: SessionId, cols: number, rows: number): void {

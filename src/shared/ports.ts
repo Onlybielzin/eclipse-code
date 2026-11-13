@@ -138,6 +138,8 @@ export interface TaskStore {
   listTurnActivity(turnId: TurnId): ActivityEvent[]
 
   listOpenQuestions(projectId: ProjectId): UserQuestion[]
+  /** Perguntas 'open' de uma tarefa, da mais antiga a mais nova. */
+  listOpenTaskQuestions(taskId: TaskId): UserQuestion[]
   getQuestion(id: QuestionId): UserQuestion | null
   insertQuestion(question: UserQuestion): void
   updateQuestion(question: UserQuestion): void
@@ -305,6 +307,11 @@ export interface TaskService {
   }): UserQuestion
   answerQuestion(id: QuestionId, answers: QuestionAnswer[]): UserQuestion
   dismissQuestion(id: QuestionId): UserQuestion
+  /**
+   * O usuario apertou Enter no terminal do Lider da tarefa: toda pergunta 'open' dela
+   * vira 'answered_in_terminal'. Devolve as que fechou (vazio se nao havia nenhuma).
+   */
+  closeQuestionsAnsweredInTerminal(taskId: TaskId): UserQuestion[]
 }
 
 // ---------------------------------------------------------------------------

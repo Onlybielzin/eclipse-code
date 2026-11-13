@@ -13,6 +13,8 @@ import type {
 import type { LeaderModule, LeaderSessionEvent } from '../leader'
 import { startTeamTurnRelay } from '../mcp'
 import { createHarness, seedTeam } from '../tasks/testing'
+import { createIpcHandlers } from './ipcHandlers'
+import { createIpcRouter } from './ipcRouter'
 import { AppTeamCoordinator } from './teamCoordinator'
 
 interface Deferred<T> {
@@ -34,13 +36,16 @@ function setup(options: { transcripts?: Set<string> } = {}) {
   const alive = new Set<string>()
   const killed: string[] = []
   let ptySeq = 0
+  const ptyWrites: { ptyId: string; data: string }[] = []
   const ptyHost = {
     isAlive: (id: string) => alive.has(id),
     kill: (id: string) => {
       killed.push(id)
       alive.delete(id)
     },
-    write: () => undefined,
+    write: (ptyId: string, data: string) => {
+      ptyWrites.push({ ptyId, data })
+    },
     resize: () => undefined,
     size: () => null,
     scrollback: () => '',
@@ -69,8 +74,14 @@ function setup(options: { transcripts?: Set<string> } = {}) {
       locateProviderSessionId: async () => null,
     },
     relay: {
+      // Como o relay real (ptyLeaderRelay): cola o aviso e manda Enter direto no PtyHost.
       async deliver(sessionId: SessionId, text: string) {
         delivered.push({ sessionId, text })
+        const ptyId = `pty-${ptySeq}`
+        if (alive.has(ptyId)) {
+          ptyHost.write(ptyId, text)
+          ptyHost.write(ptyId, '\r')
+        }
         return { delivered: true, attempts: 1 }
       },
     },
@@ -149,6 +160,8 @@ function setup(options: { transcripts?: Set<string> } = {}) {
     killed,
     alive,
     delivered,
+    ptyWrites,
+    turnRelay,
     transcripts,
     exitLeader,
     settle,
@@ -308,5 +321,62 @@ describe('status da tarefa', () => {
     const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'pronto_lancar')
     expect(task).toMatchObject({ status: 'open', workflowStatus: 'pronto_lancar' })
     expect(h.launches).toHaveLength(0)
+  })
+})
+
+describe('pergunta respondida no terminal do Líder', () => {
+  const ITEM = {
+    id: 'i1',
+    prompt: 'Qual banco?',
+    options: [],
+    multiSelect: false,
+    allowFreeText: true,
+  }
+
+  async function withOpenQuestion() {
+    const h = setup()
+    const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    const question = h.tasks.createQuestion({
+      taskId: h.fx.task.id,
+      subtaskId: null,
+      items: [ITEM],
+    })
+    const route = createIpcRouter(createIpcHandlers({ tasks: h.tasks, coordinator: h.coordinator }))
+    return { h, leader, question, route }
+  }
+
+  it('terminal.write com Enter fecha a pergunta e a tarefa volta a em_andamento', async () => {
+    const { h, leader, question, route } = await withOpenQuestion()
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('pergunta')
+    const result = await route({
+      channel: 'terminal.write',
+      input: { sessionId: leader.id, data: 'use Postgres\r' },
+    })
+    expect(result).toEqual({ ok: true, value: undefined })
+    expect(h.ptyWrites.at(-1)).toEqual({ ptyId: 'pty-1', data: 'use Postgres\r' })
+    expect(h.tasks.getQuestion(question.id).status).toBe('answered_in_terminal')
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('em_andamento')
+    expect(h.tasks.listOpenQuestions(h.fx.project.id)).toEqual([])
+  })
+
+  it('digitação sem Enter não fecha', async () => {
+    const { h, leader, question, route } = await withOpenQuestion()
+    await route({ channel: 'terminal.write', input: { sessionId: leader.id, data: 'use Post' } })
+    expect(h.tasks.getQuestion(question.id).status).toBe('open')
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('pergunta')
+    await route({ channel: 'terminal.write', input: { sessionId: leader.id, data: 'gres\n' } })
+    expect(h.tasks.getQuestion(question.id).status).toBe('answered_in_terminal')
+  })
+
+  it('aviso do relay colado no pty do Líder (com Enter) não fecha a pergunta', async () => {
+    const { h, question } = await withOpenQuestion()
+    const before = h.ptyWrites.length
+    h.turnRelay.notify(h.fx.task.id, '[eclipse] membro terminou o turno')
+    await h.settle()
+    // O relay escreveu de verdade no pty, Enter incluso...
+    expect(h.ptyWrites.slice(before).map((w) => w.data)).toContain('\r')
+    // ...e a pergunta continua aberta: só a digitação da tela conta.
+    expect(h.tasks.getQuestion(question.id).status).toBe('open')
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('pergunta')
   })
 })

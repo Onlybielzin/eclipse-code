@@ -122,10 +122,10 @@ describe('TaskService: status automático da tarefa', () => {
     const { service, fx } = setup()
     force(service, fx, 'em_revisao')
     const q1 = service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: ITEMS })
-    const q2 = service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: ITEMS })
     expect(statusOf(service, fx)).toBe('pergunta')
-    service.answerQuestion(q1.id, [{ itemId: 'i1', optionIds: [], text: 'Postgres' }])
-    // Ainda ha uma pendente.
+    // A segunda substitui a primeira: a tarefa continua em pergunta.
+    const q2 = service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: ITEMS })
+    expect(service.getQuestion(q1.id).status).toBe('superseded')
     expect(statusOf(service, fx)).toBe('pergunta')
     service.dismissQuestion(q2.id)
     expect(statusOf(service, fx)).toBe('em_andamento')

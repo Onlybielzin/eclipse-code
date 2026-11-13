@@ -888,3 +888,126 @@ button:disabled {
     animation: none;
   }
 }
+
+/* ===== paineis do rodape da coluna esquerda (estilo Outline/Timeline) ===== */
+.col-tasks {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.side-panels {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  max-height: 55%;
+  min-height: 0;
+}
+.side-panel {
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.side-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: #141917;
+  border: 0;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+  flex: none;
+}
+.side-head:hover {
+  color: var(--fg);
+}
+.side-chev {
+  width: 10px;
+  flex: none;
+  letter-spacing: 0;
+}
+.side-count {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 0 6px;
+  font-size: 10.5px;
+  line-height: 16px;
+}
+.side-body {
+  overflow: auto;
+  min-height: 0;
+  max-height: 220px;
+  padding: 2px 0 6px;
+}
+.side-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.side-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 3px 14px 3px 28px;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+.side-row:hover:not(:disabled):not(.static) {
+  background: #161c19;
+}
+.side-row:disabled {
+  cursor: default;
+  color: var(--muted);
+}
+.side-row.static {
+  cursor: default;
+}
+.side-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.side-num,
+.side-meta {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex: none;
+}
+.side-tag {
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 0 5px;
+  line-height: 15px;
+  flex: none;
+}
+.side-empty {
+  margin: 0;
+  padding: 4px 14px 4px 28px;
+  font-size: 12px;
+  color: var(--muted);
+}

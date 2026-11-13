@@ -1,6 +1,7 @@
 import {
   TASK_WORKFLOW_STATUS_LABELS,
   TASK_WORKFLOW_STATUSES,
+  type Role,
   type Subtask,
   type SubtaskState,
   type Task,
@@ -81,6 +82,25 @@ export function groupTasks(tasks: readonly Task[]): TaskGroup[] {
       ? [{ status, label: TASK_WORKFLOW_STATUS_LABELS[status], tasks: list }]
       : []
   })
+}
+
+/** Numero de tarefas por status, sempre com os 6 status (0 quando vazio). */
+export function countTasksByStatus(tasks: readonly Task[]): Record<TaskWorkflowStatus, number> {
+  const counts = Object.fromEntries(TASK_WORKFLOW_STATUSES.map((s) => [s, 0])) as Record<
+    TaskWorkflowStatus,
+    number
+  >
+  for (const t of tasks) counts[t.workflowStatus] += 1
+  return counts
+}
+
+/** Time do projeto: o Lider primeiro, depois os membros em ordem alfabetica. */
+export function sortTeamRoles(roles: readonly Role[]): Role[] {
+  return [...roles].sort(
+    (a, b) =>
+      Number(b.isLead) - Number(a.isLead) ||
+      a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }),
+  )
 }
 
 /** Substitui por id, ou acrescenta no fim. */

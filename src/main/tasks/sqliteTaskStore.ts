@@ -607,6 +607,13 @@ export class SqliteTaskStore implements TaskStore {
       projectId,
     )
   }
+  listOpenTaskQuestions(taskId: TaskId): UserQuestion[] {
+    return this.all(
+      "SELECT * FROM questions WHERE task_id = ? AND status = 'open' ORDER BY created_at, rowid",
+      toQuestion,
+      taskId,
+    )
+  }
   countOpenQuestions(taskId: TaskId): number {
     const row = this.db
       .prepare("SELECT COUNT(*) AS n FROM questions WHERE task_id = ? AND status = 'open'")

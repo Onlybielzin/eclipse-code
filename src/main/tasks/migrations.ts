@@ -210,6 +210,32 @@ export const MIGRATIONS: readonly Migration[] = [
       UPDATE tasks SET workflow_status = 'lancado' WHERE status = 'archived';
     `,
   },
+  {
+    version: 4,
+    name: 'perguntas substituidas e respondidas no terminal',
+    // SQLite nao altera CHECK: recria a tabela com os dois status novos e copia as linhas.
+    // Nenhuma tabela aponta para questions, entao trocar a tabela nao quebra chave estrangeira.
+    sql: `
+      CREATE TABLE questions_v4 (
+        id TEXT PRIMARY KEY,
+        task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+        subtask_id TEXT REFERENCES subtasks(id) ON DELETE CASCADE,
+        items_json TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN
+          ('open', 'answered', 'dismissed', 'superseded', 'answered_in_terminal')),
+        answers_json TEXT,
+        created_at INTEGER NOT NULL,
+        answered_at INTEGER
+      );
+      INSERT INTO questions_v4 (id, task_id, subtask_id, items_json, status, answers_json,
+        created_at, answered_at)
+        SELECT id, task_id, subtask_id, items_json, status, answers_json, created_at, answered_at
+        FROM questions ORDER BY rowid;
+      DROP TABLE questions;
+      ALTER TABLE questions_v4 RENAME TO questions;
+      CREATE INDEX questions_open ON questions(task_id) WHERE status = 'open';
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

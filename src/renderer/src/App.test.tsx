@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { AppStore } from './store/appStore'
-import { FakeApi, makeActivity, makeSubtask, mockupData } from './test/fakeApi'
+import { FakeApi, makeActivity, makeSubtask, mockupData, type FakeData } from './test/fakeApi'
 
 // jsdom nao tem canvas/WebGL: o xterm vira um <pre> que acumula o que foi escrito.
 const xtermInputs: ((data: string) => void)[] = []
@@ -31,12 +31,12 @@ vi.mock('./terminal/createXterm', () => ({
 
 let api: FakeApi
 
-async function renderApp() {
-  api = new FakeApi(mockupData())
+async function renderApp(data: FakeData = mockupData()) {
+  api = new FakeApi(data)
   const store = new AppStore(api)
-  render(<App store={store} />)
+  const view = render(<App store={store} />)
   await screen.findByText('feat-orfer-e-up')
-  return store
+  return { store, view }
 }
 
 function middle() {
@@ -45,6 +45,7 @@ function middle() {
 
 beforeEach(() => {
   xtermInputs.length = 0
+  localStorage.clear()
 })
 afterEach(() => {
   vi.clearAllMocks()
@@ -346,5 +347,166 @@ describe('modal Adicionar projeto', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(api.callsTo('projects.add')).toHaveLength(0)
+  })
+})
+
+describe('pergunta fechada sem resposta no card', () => {
+  it('substituída sai do contador e a entrega mostra o rótulo', async () => {
+    await renderApp()
+    expect(screen.getByTestId('need-you').textContent).toBe('1 precisa de você')
+    const q1 = api.data.questions[0]!
+    act(() =>
+      api.emitDomain({
+        type: 'question.upserted',
+        question: { ...q1, status: 'superseded', answeredAt: Date.now() },
+      }),
+    )
+    expect(screen.getByTestId('need-you').textContent).toBe('0 precisam de você')
+    fireEvent.click(screen.getByTestId('subtask-d2'))
+    const note = await within(middle()).findByTestId('question-closed')
+    expect(note.textContent).toBe('Pergunta ao usuário: substituída.')
+    expect(within(middle()).queryByTestId('question')).toBeNull()
+  })
+
+  it('respondida no terminal também conta como fechada', async () => {
+    await renderApp()
+    const q1 = api.data.questions[0]!
+    act(() =>
+      api.emitDomain({
+        type: 'question.upserted',
+        question: { ...q1, status: 'answered_in_terminal', answeredAt: Date.now() },
+      }),
+    )
+    expect(screen.getByTestId('need-you').textContent).toBe('0 precisam de você')
+    fireEvent.click(screen.getByTestId('subtask-d2'))
+    expect((await within(middle()).findByTestId('question-closed')).textContent).toContain(
+      'respondida no terminal',
+    )
+  })
+})
+
+describe('painéis do rodape da coluna esquerda', () => {
+  function statusRow(status: string) {
+    return screen.getByTestId(`status-row-${status}`)
+  }
+
+  it('Status mostra os 6 status na ordem, com 0 nos vazios e o total de abertas', async () => {
+    await renderApp()
+    const panel = screen.getByRole('region', { name: 'Status' })
+    const rows = within(panel).getAllByRole('button').slice(1)
+    expect(rows.map((r) => r.textContent)).toEqual([
+      'A fazer1',
+      'Em andamento1',
+      'Pergunta para você0',
+      'Em revisão0',
+      'Pronto pra lançar0',
+      'Lançado1',
+    ])
+    expect(rows.every((r) => r.querySelector('.ic') !== null)).toBe(true)
+    // Abertas: t1 e solo1 (old1 está lançada).
+    expect(screen.getByTestId('panel-status-count').textContent).toBe('2')
+    expect((statusRow('em_revisao') as HTMLButtonElement).disabled).toBe(true)
+
+    // Contagem acompanha os eventos do main.
+    act(() =>
+      api.emitDomain({
+        type: 'task.upserted',
+        task: { ...api.data.tasks[0]!, workflowStatus: 'em_revisao', updatedAt: Date.now() },
+      }),
+    )
+    expect(statusRow('em_andamento').textContent).toBe('Em andamento0')
+    expect(statusRow('em_revisao').textContent).toBe('Em revisão1')
+  })
+
+  it('recolhe e expande cada seção e lembra no localStorage', async () => {
+    const { view } = await renderApp()
+    const head = within(screen.getByRole('region', { name: 'Status' })).getByRole('button', {
+      name: /Status/,
+    })
+    expect(head.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(head)
+    expect(head.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByTestId('status-row-a_fazer')).toBeNull()
+    // Time continua aberto: estado é por seção.
+    expect(screen.getByTestId('team-row-lead')).toBeTruthy()
+    expect(JSON.parse(localStorage.getItem('eclipse.sidePanels.collapsed') ?? '{}')).toEqual({
+      status: true,
+    })
+
+    view.unmount()
+    await renderApp()
+    expect(screen.queryByTestId('status-row-a_fazer')).toBeNull()
+    fireEvent.click(
+      within(screen.getByRole('region', { name: 'Status' })).getByRole('button', {
+        name: /Status/,
+      }),
+    )
+    expect(screen.getByTestId('status-row-a_fazer')).toBeTruthy()
+  })
+
+  it('localStorage quebrado não derruba a tela', async () => {
+    const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('bloqueado')
+    })
+    const setSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('bloqueado')
+    })
+    try {
+      await renderApp()
+      const head = within(screen.getByRole('region', { name: 'Time' })).getByRole('button', {
+        name: /Time/,
+      })
+      fireEvent.click(head)
+      expect(head.getAttribute('aria-expanded')).toBe('false')
+    } finally {
+      spy.mockRestore()
+      setSpy.mockRestore()
+    }
+  })
+
+  it('clicar em Lançado expande o grupo recolhido e foca o cabeçalho dele', async () => {
+    await renderApp()
+    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(statusRow('lancado'))
+    const group = screen.getByTestId('group-lancado')
+    expect(group.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByTestId('task-old1')).toBeTruthy()
+    expect(document.activeElement).toBe(group)
+
+    fireEvent.click(statusRow('a_fazer'))
+    expect(document.activeElement).toBe(screen.getByTestId('group-a_fazer'))
+    expect(api.callsTo('tasks.setStatus')).toEqual([])
+  })
+
+  it('Time: Líder primeiro com etiqueta, depois membros em ordem alfabética', async () => {
+    const data = mockupData()
+    data.roles = [
+      { ...data.roles[2]!, name: 'Testes', description: 'escreve testes' },
+      { ...data.roles[1]!, name: 'Back' },
+      { ...data.roles[0]!, name: 'Coordenador' },
+    ]
+    await renderApp(data)
+    const panel = screen.getByRole('region', { name: 'Time' })
+    const rows = within(panel).getAllByRole('listitem')
+    expect(rows.map((r) => r.querySelector('.side-name')?.textContent)).toEqual([
+      'Coordenador',
+      'Back',
+      'Testes',
+    ])
+    expect(rows[0]?.querySelector('.side-tag')?.textContent).toBe('Líder')
+    expect(rows[1]?.querySelector('.side-tag')).toBeNull()
+    expect(rows[0]?.querySelector('.side-meta')?.textContent).toBe('Claude · opus')
+    expect(rows[2]?.querySelector('.side-meta')?.textContent).toBe('Codex')
+    expect(rows[2]?.getAttribute('title')).toBe('escreve testes')
+    expect(screen.getByTestId('panel-team-count').textContent).toBe('3')
+  })
+
+  it('Time sem papéis mostra o aviso curto', async () => {
+    const data = mockupData()
+    data.roles = []
+    await renderApp(data)
+    const panel = screen.getByRole('region', { name: 'Time' })
+    expect(within(panel).getByText('Nenhum agente neste projeto.')).toBeTruthy()
+    expect(screen.getByTestId('panel-team-count').textContent).toBe('0')
   })
 })
