@@ -1,0 +1,331 @@
+/**
+ * EclipseApi falsa para os testes da tela. Responde comandos a partir de dados em
+ * memoria e deixa o teste emitir eventos como o main faria.
+ */
+import type {
+  ActivityEvent,
+  Artifact,
+  DomainEvent,
+  Project,
+  Role,
+  Session,
+  Subtask,
+  Task,
+  UserQuestion,
+} from '@shared/domain'
+import type {
+  EclipseApi,
+  IpcCommandChannel,
+  IpcEventChannel,
+  IpcEvents,
+  IpcResult,
+} from '@shared/ipc'
+
+const T0 = 1_700_000_000_000
+
+export function makeProject(): Project {
+  return { id: 'p1', name: 'ereemby', rootPath: '/repo/ereemby', createdAt: T0, updatedAt: T0 }
+}
+
+export function makeRole(id: string, name: string, extra: Partial<Role> = {}): Role {
+  return {
+    id,
+    projectId: 'p1',
+    name,
+    description: '',
+    provider: 'claude',
+    model: 'sonnet',
+    promptTemplate: '',
+    isLead: false,
+    createdAt: T0,
+    updatedAt: T0,
+    ...extra,
+  }
+}
+
+export function makeTask(id: string, title: string, extra: Partial<Task> = {}): Task {
+  return {
+    id,
+    projectId: 'p1',
+    contextId: `ctx-${id}`,
+    title,
+    kind: 'team',
+    worktreePath: `/repo/wt/${id}`,
+    branch: id,
+    baseBranch: 'main',
+    leadRoleId: 'lead',
+    soloProvider: null,
+    status: 'open',
+    createdAt: T0,
+    updatedAt: T0,
+    archivedAt: null,
+    ...extra,
+  }
+}
+
+export function makeSubtask(id: string, taskId: string, extra: Partial<Subtask> = {}): Subtask {
+  return {
+    id,
+    taskId,
+    roleId: 'dev',
+    title: `subtarefa ${id}`,
+    instructions: 'faça o trabalho',
+    state: 'working',
+    statusMessage: null,
+    failureCode: null,
+    referenceTaskIds: [],
+    sessionId: `sess-${id}`,
+    createdAt: T0,
+    updatedAt: T0,
+    finishedAt: null,
+    ...extra,
+  }
+}
+
+export function makeArtifact(subtask: Subtask, summary: string): Artifact {
+  return {
+    id: `art-${subtask.id}`,
+    taskId: subtask.taskId,
+    subtaskId: subtask.id,
+    sessionId: subtask.sessionId ?? 's',
+    turnId: 'turn1',
+    format: 'structured',
+    delivery: {
+      state: 'completed',
+      summary,
+      files: [{ path: 'src/reports/report.ts', change: 'modified' }],
+      tests: [{ command: 'npm run analise', result: 'limpo', passed: true }],
+      questions: [],
+    },
+    parts: [],
+    createdAt: T0 + 1000,
+  }
+}
+
+export function makeActivity(
+  subtask: Subtask,
+  seq: number,
+  payload: ActivityEvent['payload'],
+): ActivityEvent {
+  return {
+    seq,
+    sessionId: subtask.sessionId ?? 's',
+    subtaskId: subtask.id,
+    turnId: 'turn1',
+    at: T0 + seq * 1000,
+    payload,
+  }
+}
+
+export interface FakeData {
+  projects: Project[]
+  roles: Role[]
+  tasks: Task[]
+  subtasks: Subtask[]
+  artifacts: Artifact[]
+  activity: ActivityEvent[]
+  questions: UserQuestion[]
+  scrollback: Record<string, string>
+}
+
+type Listener = (payload: unknown) => void
+
+export class FakeApi implements EclipseApi {
+  readonly calls: { channel: string; input: unknown }[] = []
+  private readonly listeners = new Map<string, Set<Listener>>()
+  private revision = 0
+  /** Respostas fixas que sobrescrevem a logica padrao. */
+  readonly overrides = new Map<string, (input: unknown) => IpcResult<unknown>>()
+
+  constructor(readonly data: FakeData) {}
+
+  invoke: EclipseApi['invoke'] = async (channel, input) => {
+    this.calls.push({ channel, input })
+    const override = this.overrides.get(channel)
+    if (override) return override(input) as never
+    return { ok: true, value: this.handle(channel, input as Record<string, unknown>) } as never
+  }
+
+  on: EclipseApi['on'] = (channel, listener) => {
+    const set = this.listeners.get(channel) ?? new Set<Listener>()
+    set.add(listener as Listener)
+    this.listeners.set(channel, set)
+    return () => {
+      set.delete(listener as Listener)
+    }
+  }
+
+  emit<C extends IpcEventChannel>(channel: C, payload: IpcEvents[C]): void {
+    for (const l of this.listeners.get(channel) ?? []) l(payload)
+  }
+
+  /** Emite um domain.event com revisao nova (ou a informada). */
+  emitDomain(event: DomainEvent, revision?: number): void {
+    const rev = revision ?? ++this.revision
+    this.revision = Math.max(this.revision, rev)
+    this.emit('domain.event', { revision: rev, at: Date.now(), event })
+  }
+
+  callsTo(channel: IpcCommandChannel): unknown[] {
+    return this.calls.filter((c) => c.channel === channel).map((c) => c.input)
+  }
+
+  private handle(channel: IpcCommandChannel, input: Record<string, unknown>): unknown {
+    const d = this.data
+    switch (channel) {
+      case 'projects.list':
+        return d.projects
+      case 'roles.list':
+        return d.roles
+      case 'tasks.list':
+        return d.tasks
+      case 'questions.list':
+        return d.questions.filter((q) => q.status === 'open')
+      case 'subtasks.list':
+        return d.subtasks.filter((s) => s.taskId === input.taskId)
+      case 'subtasks.detail': {
+        const subtask = d.subtasks.find((s) => s.id === input.subtaskId)
+        if (!subtask) throw new Error('subtarefa inexistente no fake')
+        return {
+          subtask,
+          messages: [],
+          artifacts: d.artifacts.filter((a) => a.subtaskId === subtask.id),
+          turns: [],
+          session: null,
+        }
+      }
+      case 'activity.list': {
+        const after = (input.afterSeq as number | undefined) ?? 0
+        const events = d.activity.filter((e) => e.subtaskId === input.subtaskId && e.seq > after)
+        return { events, lastSeq: events.at(-1)?.seq ?? null, hasMore: false }
+      }
+      case 'leader.ensure': {
+        const session: Session = {
+          id: `lead-${String(input.taskId)}`,
+          taskId: String(input.taskId),
+          subtaskId: null,
+          roleId: 'lead',
+          kind: 'leader-pty',
+          provider: 'claude',
+          model: 'opus',
+          cwd: '/repo',
+          providerSessionId: null,
+          pid: 1,
+          status: 'running',
+          activeTurnId: null,
+          startedAt: T0,
+          endedAt: null,
+          endReason: null,
+          exitCode: null,
+        }
+        return session
+      }
+      case 'terminal.attach':
+        return {
+          sessionId: input.sessionId,
+          alive: true,
+          cols: 80,
+          rows: 24,
+          scrollback: d.scrollback[String(input.sessionId)] ?? '',
+        }
+      case 'terminal.write':
+      case 'terminal.resize':
+        return undefined
+      case 'tasks.create': {
+        const task = makeTask(`t-new-${d.tasks.length + 1}`, String(input.title), {
+          kind: input.kind as Task['kind'],
+          createdAt: T0 + 10_000,
+        })
+        d.tasks.push(task)
+        return task
+      }
+      case 'questions.answer':
+      case 'questions.dismiss': {
+        const q = d.questions.find((x) => x.id === input.questionId)
+        if (!q) throw new Error('pergunta inexistente no fake')
+        const next: UserQuestion = {
+          ...q,
+          status: channel === 'questions.answer' ? 'answered' : 'dismissed',
+          answers:
+            channel === 'questions.answer' ? (input.answers as UserQuestion['answers']) : null,
+        }
+        d.questions = d.questions.map((x) => (x.id === q.id ? next : x))
+        return next
+      }
+      default:
+        throw new Error(`comando sem resposta no fake: ${channel}`)
+    }
+  }
+}
+
+/** Cenario da maquete: uma tarefa de time com 3 subtarefas, uma duvida aberta e um avulso. */
+export function mockupData(): FakeData {
+  const d1 = makeSubtask('d1', 't1', {
+    title: 'group_by=offer em report.ts',
+    state: 'completed',
+    finishedAt: T0 + 5 * 60_000,
+  })
+  const d2 = makeSubtask('d2', 't1', {
+    title: 'source_name da venda mais recente',
+    state: 'input_required',
+  })
+  const tst = makeSubtask('t', 't1', { roleId: 'qa', title: 'Cobrir by_offer', state: 'working' })
+  return {
+    projects: [makeProject()],
+    roles: [
+      makeRole('lead', 'Líder', { model: 'opus', isLead: true }),
+      makeRole('dev', 'Dev'),
+      makeRole('qa', 'Testes', { provider: 'codex', model: null }),
+    ],
+    tasks: [
+      makeTask('t1', 'feat-orfer-e-up'),
+      makeTask('solo1', 'conversa solta', {
+        kind: 'solo',
+        leadRoleId: null,
+        soloProvider: 'claude',
+        worktreePath: null,
+        branch: null,
+        baseBranch: null,
+      }),
+    ],
+    subtasks: [d1, d2, tst],
+    artifacts: [makeArtifact(d1, 'Adicionei group_by=offer e computeAdditionalRevenueByOffer.')],
+    activity: [
+      makeActivity(d1, 1, { kind: 'prompt', text: 'faça o group_by' }),
+      makeActivity(d1, 2, {
+        kind: 'tool_call',
+        toolCallId: 'c1',
+        title: 'Ler report.ts',
+        toolKind: 'read',
+        status: 'completed',
+        input: null,
+      }),
+      makeActivity(d1, 3, { kind: 'text', text: 'Pronto, group_by adicionado.' }),
+      makeActivity(d1, 4, { kind: 'turn_end', stopReason: 'end_turn', error: null }),
+    ],
+    questions: [
+      {
+        id: 'q1',
+        taskId: 't1',
+        subtaskId: 'd2',
+        items: [
+          {
+            id: 'i1',
+            prompt: 'Quando a venda mais recente não tem source_name, o relatório mostra:',
+            options: [
+              { id: 'o1', label: 'Vazio (null)' },
+              { id: 'o2', label: 'Sem origem' },
+            ],
+            multiSelect: false,
+            allowFreeText: false,
+          },
+        ],
+        status: 'open',
+        answers: null,
+        createdAt: T0,
+        answeredAt: null,
+      },
+    ],
+    scrollback: { 'lead-t1': 'vings: plano já está feito\r\n' },
+  }
+}
