@@ -42,6 +42,10 @@ export const ENTREGAR_ESTADO_TO_DELIVERY_STATE: Record<EntregarEstado, DeliveryS
   bloqueado: 'failed',
 }
 
+/** Prazo padrao e maximo do subtarefas_esperar. */
+export const MCP_WAIT_DEFAULT_SECONDS = 300
+export const MCP_WAIT_MAX_SECONDS = 1_800
+
 export const mcpToolInputSchemas = {
   /** Lider: cria subtarefa "na fila" e abre o membro do papel. */
   subtarefa_criar: z
@@ -79,6 +83,28 @@ export const mcpToolInputSchemas = {
   /** Lider: lista as subtarefas da tarefa, ou detalha uma. */
   subtarefas_ver: z.object({ subtarefa_id: idSchema.optional() }).strict(),
 
+  /**
+   * Lider: espera subtarefas pararem (pronto, duvida, bloqueado ou cancelada) e devolve
+   * as entregas de uma vez. Sem ids, espera as que ainda nao pararam. Principio Code
+   * Mode: o Lider nao fica consultando em laco; o dado intermediario nao passa pelo modelo.
+   */
+  subtarefas_esperar: z
+    .object({
+      subtarefa_ids: z.array(idSchema).min(1).max(50).optional(),
+      modo: z
+        .enum(['todas', 'qualquer'])
+        .optional()
+        .describe('todas (padrão): espera todas pararem. qualquer: volta na primeira.'),
+      timeout_segundos: z
+        .number()
+        .int()
+        .min(1)
+        .max(MCP_WAIT_MAX_SECONDS)
+        .optional()
+        .describe(`Prazo em segundos. Padrão ${MCP_WAIT_DEFAULT_SECONDS}.`),
+    })
+    .strict(),
+
   /** Lider: repassa uma duvida ao usuario ("Precisa de voce"). */
   pergunta_repassar: z
     .object({
@@ -100,6 +126,7 @@ export const MCP_TOOL_ROLES: Record<McpToolName, readonly McpCallerRole[]> = {
   subtarefa_responder: ['leader'],
   subtarefa_cancelar: ['leader'],
   subtarefas_ver: ['leader'],
+  subtarefas_esperar: ['leader'],
   pergunta_repassar: ['leader'],
 }
 
@@ -111,6 +138,8 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
   subtarefa_responder: 'Responde uma subtarefa em dúvida. O membro continua na mesma sessão.',
   subtarefa_cancelar: 'Cancela uma subtarefa que ainda não terminou.',
   subtarefas_ver: 'Lista as subtarefas desta tarefa ou mostra uma com entregas e histórico.',
+  subtarefas_esperar:
+    'Espera subtarefas pararem (pronto, dúvida, bloqueado ou cancelada) e devolve as entregas. Use em vez de consultar em laço.',
   pergunta_repassar: 'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta.',
 }
 
