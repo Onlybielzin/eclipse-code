@@ -1,14 +1,35 @@
 /**
- * mcp/: servidor MCP stdio do app e ponte com o main. Implementa McpBridgeServer
- * (lado main) e McpBridgeClient (lado servidor MCP) de src/shared/ports.ts, com o
- * protocolo NDJSON e as ferramentas de src/shared/mcp.ts.
+ * mcp/: servidor MCP stdio do app e ponte com o main.
  *
- * Origem: /data/Projects/eclipse-code/src/app/cli/mcp/server.ts (reescrito para
- * subtarefa_criar, entregar, subtarefa_responder, subtarefa_cancelar, subtarefas_ver,
- * pergunta_repassar).
+ *   bridgeServer.ts   McpBridgeServer (lado main): socket unix 0600, token por sessao.
+ *   bridgeClient.ts   McpBridgeClient (lado do servidor MCP stdio).
+ *   toolHandler.ts    McpToolHandler: valida, autoriza pelo papel do token e chama
+ *                     TaskService ou McpTeamActions (implementadas pelo TeamCoordinator).
+ *   stdioServer.ts    servidor MCP (@modelcontextprotocol/sdk); entrada do build em server.ts.
+ *   teamTurnRelay.ts  aviso de uma linha ao Lider quando o turno de um membro fecha.
+ *   ptyLeaderRelay.ts LeaderRelay sobre o PtyHost: espera ocioso, cola e envia.
  *
- * TODO(mcp):
- *  - Socket unix em AppPaths.runtime com permissao 0600; token por sessao.
- *  - Entrada separada do build (out/mcp/server.js) usando @modelcontextprotocol/sdk.
+ * Origem: src/app/cli/mcp/server.ts, TeamTurnRelay.ts e PromptDeliveryService.ts do app antigo.
  */
-export {}
+export { createMcpBridgeServer, type McpBridgeServerOptions } from './bridgeServer'
+export { createMcpBridgeClient } from './bridgeClient'
+export {
+  createMcpToolHandler,
+  isStoppedState,
+  type DisposableMcpToolHandler,
+  type McpTeamActions,
+  type McpToolHandlerDeps,
+} from './toolHandler'
+export { createEclipseMcpServer, runStdioMcpServer, toolInputJsonSchema } from './stdioServer'
+export {
+  composeTurnNotice,
+  startTeamTurnRelay,
+  type TeamTurnRelay,
+  type TeamTurnRelayDeps,
+} from './teamTurnRelay'
+export {
+  createPtyLeaderRelay,
+  lastBracketedPasteMode,
+  type PtyLeaderRelay,
+  type PtyLeaderRelayOptions,
+} from './ptyLeaderRelay'
