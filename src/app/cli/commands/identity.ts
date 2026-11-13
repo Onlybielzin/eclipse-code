@@ -14,7 +14,7 @@ export const identityCommands = [
     path: ['whoami'],
     summary: 'Show your caller identity and permission scope',
     description:
-      'Inside an OpenCove terminal, caller is session-grant and scope is interact. With a desktop token, caller is bearer and scope is admin. projectId, spaceId, nodeId and sessionId are null when the caller has no session identity; spaceId is also null outside any Space. Standalone sessions keep their interact grant and project/Space identity, with nodeId: null. Credentials are never printed.',
+      'Inside an Eclipse Code terminal, caller is session-grant and scope is interact. With a desktop token, caller is bearer and scope is admin. projectId, spaceId, nodeId and sessionId are null when the caller has no session identity; spaceId is also null outside any Space. Standalone sessions keep their interact grant and project/Space identity, with nodeId: null. Credentials are never printed.',
     connect: true,
     operation: 'system.whoami',
     buildInput: () => ({}),
@@ -22,17 +22,17 @@ export const identityCommands = [
     render: {
       fields: identityFields,
       examples: [
-        'opencove whoami --fields caller,scope',
+        'eclipse-code whoami --fields caller,scope',
         '{"caller":"session-grant","scope":"interact"}',
       ],
     },
-    examples: ['opencove whoami', 'opencove whoami --fields caller,scope,nodeId'],
+    examples: ['eclipse-code whoami', 'eclipse-code whoami --fields caller,scope,nodeId'],
   }),
   defineCommand({
     path: ['context'],
     summary: 'Show your project, space and neighboring nodes',
     description:
-      'With no explicit target, inside OpenCove defaults to your own space. Terminals outside any space show their project with space: null and no neighbors. Outside OpenCove, provide --space or --project. An explicit project selects its active space. self contains your caller identity and node summary in self.node (null without a canvas node); project and space describe the target you asked about, which may differ from self. For agent nodes, state is the Worker run state (idle, working, waiting, exited or unknown) from agent.list; missing observations are unknown, never inferred from lifecycle. sessionStatus preserves the agent session lifecycle (for example running). For tasks, state is task status; for terminals, state remains session lifecycle; for other nodes it is null. agentState {state, quality, turnId} exposes work state for agent nodes and observed agents in terminals: working means the agent is working. taskNodeId is the reverse task link, or null when absent or ambiguous.',
+      'With no explicit target, inside Eclipse Code defaults to your own space. Terminals outside any space show their project with space: null and no neighbors. Outside Eclipse Code, provide --space or --project. An explicit project selects its active space. self contains your caller identity and node summary in self.node (null without a canvas node); project and space describe the target you asked about, which may differ from self. For agent nodes, state is the Worker run state (idle, working, waiting, exited or unknown) from agent.list; missing observations are unknown, never inferred from lifecycle. sessionStatus preserves the agent session lifecycle (for example running). For tasks, state is task status; for terminals, state remains session lifecycle; for other nodes it is null. agentState {state, quality, turnId} exposes work state for agent nodes and observed agents in terminals: working means the agent is working. taskNodeId is the reverse task link, or null when absent or ambiguous.',
     connect: true,
     options: {
       space: {
@@ -45,13 +45,13 @@ export const identityCommands = [
     },
     buildInput: ({ options }) => {
       if (options.space === undefined && options.project === undefined) {
-        usage('context requires --space or --project outside OpenCove.')
+        usage('context requires --space or --project outside Eclipse Code.')
       }
       return null
     },
     render: {
       examples: [
-        `opencove context --space ${selfSelector} --fields space.name`,
+        `eclipse-code context --space ${selfSelector} --fields space.name`,
         '{"space":{"name":"Main"}}',
       ],
       fields: [
@@ -95,11 +95,11 @@ export const identityCommands = [
       ),
     },
     examples: [
-      `opencove context --space ${selfSelector}`,
-      'opencove context --project project-123 --fields project,space,next',
+      `eclipse-code context --space ${selfSelector}`,
+      'eclipse-code context --project project-123 --fields project,space,next',
     ],
     async execute({ options, explicitOptions, io, invoke, selfSelected, whoami }) {
-      const inside = io.env.OPENCOVE_ENV === '1' || selfSelected
+      const inside = io.env.ECLIPSE_CODE_ENV === '1' || selfSelected
       const identity = inside ? await whoami() : undefined
       const projects = ((await invoke('project.list', null)) as ListProjectsResult).projects
       let projectId = options.project as string | undefined
@@ -136,20 +136,22 @@ export const identityCommands = [
       const projectTarget = projectId === identity?.projectId ? selfSelector : shellWord(projectId!)
       const next = target
         ? [
-            `opencove node list --space ${target}`,
-            `opencove space get --space ${target}`,
-            `opencove node create note --space ${target} --text 'Progress update'`,
+            `eclipse-code node list --space ${target}`,
+            `eclipse-code space get --space ${target}`,
+            `eclipse-code node create note --space ${target} --text 'Progress update'`,
           ]
         : [
-            `opencove space list --project ${projectTarget}`,
-            `opencove mount list --project ${projectTarget}`,
-            'opencove project list',
+            `eclipse-code space list --project ${projectTarget}`,
+            `eclipse-code mount list --project ${projectTarget}`,
+            'eclipse-code project list',
           ]
       if (inside && identity?.nodeId) {
-        next.unshift(`opencove node get --node ${selfSelector}`)
+        next.unshift(`eclipse-code node get --node ${selfSelector}`)
       }
       if (nodes.some(node => node.kind === 'task')) {
-        next.push(`opencove node list --space ${target} --kind task --fields id,title,data.status`)
+        next.push(
+          `eclipse-code node list --space ${target} --kind task --fields id,title,data.status`,
+        )
       }
       return {
         self: await contextSelf(identity, nodes, { invoke, io, options }),

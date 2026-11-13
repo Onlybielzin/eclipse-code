@@ -14,7 +14,7 @@ import path from 'node:path'
 
 // Mutate isolated copies only: never rewrite source beneath another developer or running E2E.
 const root = process.cwd()
-const directory = mkdtempSync(path.join(tmpdir(), 'opencove-convergence-mutations-'))
+const directory = mkdtempSync(path.join(tmpdir(), 'eclipse-code-convergence-mutations-'))
 const persistence = 'src/contexts/workspace/presentation/renderer/utils/persistence/'
 const model = 'tests/integration/recovery/clientConvergence.model.spec.tsx'
 const mutations = [

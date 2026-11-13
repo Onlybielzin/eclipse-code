@@ -1,6 +1,6 @@
-// Frozen wire-format values written by shipped OpenCove builds.
-export const LEGACY_MANAGED_CLAUDE_HOOK_STATUS_MESSAGE = 'OpenCove agent status'
-export const LEGACY_MANAGED_CODEX_HOOK_DESCRIPTION = 'OpenCove managed agent status hooks'
+// Frozen wire-format values written by shipped Eclipse Code builds.
+export const LEGACY_MANAGED_CLAUDE_HOOK_STATUS_MESSAGE = 'Eclipse Code agent status'
+export const LEGACY_MANAGED_CODEX_HOOK_DESCRIPTION = 'Eclipse Code managed agent status hooks'
 
 export interface LegacyHookCleanupResult<T> {
   readonly content: T
@@ -69,7 +69,7 @@ export function cleanLegacyClaudeSettings(settings: unknown): LegacyHookCleanupR
   return cleanHookGroups(settings, isLegacyClaudeHookGroup)
 }
 
-export function isLegacyOpenCoveCodexHooksFile(parsed: unknown): boolean {
+export function isLegacyEclipseCodeCodexHooksFile(parsed: unknown): boolean {
   return isRecord(parsed) && parsed.description === LEGACY_MANAGED_CODEX_HOOK_DESCRIPTION
 }
 

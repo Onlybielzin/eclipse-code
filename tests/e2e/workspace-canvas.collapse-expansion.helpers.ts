@@ -30,7 +30,7 @@ interface DragProbe {
   active: boolean
 }
 
-type ProbeWindow = Window & { __opencoveCollapseExpansionProbe?: DragProbe }
+type ProbeWindow = Window & { __eclipseCodeCollapseExpansionProbe?: DragProbe }
 
 export async function seedExpansionFixture(page: Page, behavior?: 'find-space') {
   await seedWorkspaceState(page, {
@@ -86,7 +86,7 @@ export async function readNodeFrame(page: Page, id: string): Promise<NodeFrame> 
 
 export async function readTerminalIdentity(page: Page) {
   return page.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const body = document.querySelector<HTMLElement>(`[data-id="${id}"] .terminal-node__terminal`)
     const sessionId = api?.getRuntimeSessionId(id) ?? null
     const size = api?.getSize(id) ?? null
@@ -106,7 +106,7 @@ export async function readTerminalIdentity(page: Page) {
 export async function readPersistedFrame(page: Page, id: string) {
   return page.evaluate(
     async ({ projectId, nodeId }) => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       const state = raw
         ? (JSON.parse(raw) as {
             workspaces?: Array<{
@@ -142,14 +142,14 @@ export async function writeCollapsedTerminalMarker(
   )
   await page.evaluate(
     async ({ sessionId: id, command: input }) => {
-      await window.opencoveApi.pty.write({ sessionId: id, data: `${input}\r` })
+      await window.eclipseCodeApi.pty.write({ sessionId: id, data: `${input}\r` })
     },
     { sessionId, command },
   )
   await expect
     .poll(() =>
       page.evaluate(async id => {
-        return (await window.opencoveApi.pty.presentationSnapshot({ sessionId: id }))
+        return (await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }))
           .serializedScreen
       }, sessionId),
     )
@@ -173,7 +173,7 @@ export async function sampleCollapsedDrag(page: Page): Promise<DragFrame[]> {
     const host = window as ProbeWindow
     const samples: DragFrame[] = []
     const probe: DragProbe = { samples, frameId: 0, active: true }
-    host.__opencoveCollapseExpansionProbe = probe
+    host.__eclipseCodeCollapseExpansionProbe = probe
     const sample = () => {
       if (!probe.active) {
         return
@@ -222,13 +222,13 @@ export async function sampleCollapsedDrag(page: Page): Promise<DragFrame[]> {
     await page.mouse.up()
     dragSamples = await page.evaluate(() => {
       const host = window as ProbeWindow
-      const probe = host.__opencoveCollapseExpansionProbe
+      const probe = host.__eclipseCodeCollapseExpansionProbe
       if (!probe) {
         throw new Error('Collapsed drag probe is missing')
       }
       probe.active = false
       cancelAnimationFrame(probe.frameId)
-      delete host.__opencoveCollapseExpansionProbe
+      delete host.__eclipseCodeCollapseExpansionProbe
       return probe.samples
     })
   }

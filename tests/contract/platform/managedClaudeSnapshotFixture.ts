@@ -222,7 +222,7 @@ export async function snapshotFixture(
   const deps = {
     ...admission,
     terminalAgentActivity: options.terminalAgentActivity,
-    userDataPath: '/tmp/opencove-snapshot-contract',
+    userDataPath: '/tmp/eclipse-code-snapshot-contract',
     getPersistenceStore,
     approvedWorkspaces: { isPathApproved: async () => true } as never,
     agentProviderRegistry: registry,

@@ -16,11 +16,11 @@ afterEach(async () => {
 
 describe('terminal Agent private telemetry assets', () => {
   it('places Windows invocation plans under the private asset root with finally-owned cleanup', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-assets-script-test-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-assets-script-test-'))
     roots.push(root)
     const store = new TerminalAgentTelemetryAssetStore({
       parentDirectory: root,
-      runtimeExecutable: 'C:\\Program Files\\OpenCove\\OpenCove.exe',
+      runtimeExecutable: 'C:\\Program Files\\Eclipse Code\\Eclipse Code.exe',
       platform: 'win32',
     })
     stores.push(store)

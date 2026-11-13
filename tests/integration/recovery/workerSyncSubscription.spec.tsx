@@ -6,10 +6,10 @@ import { fixture } from '../../support/convergence/fixture'
 import { toShellWorkspaceState } from '../../../src/app/renderer/shell/hooks/useHydrateAppState.helpers'
 import { markPersistedStateAsSynced } from '../../../src/contexts/workspace/presentation/renderer/utils/persistence/write'
 const original = useAppStore.getState(),
-  originalApi = window.opencoveApi
+  originalApi = window.eclipseCodeApi
 afterEach(() => {
   useAppStore.setState(original, true)
-  window.opencoveApi = originalApi
+  window.eclipseCodeApi = originalApi
 })
 it('reads a commit between hydration and the Desktop listener without another event', async () => {
   const hydrated = fixture(true),
@@ -20,7 +20,7 @@ it('reads a commit between hydration and the Desktop listener without another ev
     expect(subscribed).toBe(true)
     return { state: current, revision: 2, recovery: null }
   })
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     persistence: { readAppState: read },
     sync: {
       onStateUpdated: () => {
@@ -28,7 +28,7 @@ it('reads a commit between hydration and the Desktop listener without another ev
         return () => {}
       },
     },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   markPersistedStateAsSynced(hydrated, 1)
   useAppStore.setState({
     workspaces: hydrated.workspaces.map(w => toShellWorkspaceState(w)),

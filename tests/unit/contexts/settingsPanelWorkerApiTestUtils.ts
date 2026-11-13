@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 
 export function installSettingsPanelWorkerApi(): void {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       meta: {

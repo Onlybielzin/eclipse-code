@@ -88,7 +88,7 @@ for (const key of ['x', 'y', 'width', 'height']) {
   }
 }
 for (const env of [
-  { ' A ': ' x ', OPENCOVE_X: 'a', '-bad': 'a', BAD: 4 },
+  { ' A ': ' x ', ECLIPSE_CODE_X: 'a', '-bad': 'a', BAD: 4 },
   { ['K'.repeat(121)]: huge },
   Object.fromEntries(Array.from({ length: 201 }, (_, i) => [`K${i}`, 'v'])),
   { ' ': 'v' },

@@ -26,8 +26,8 @@ vi.mock('node:fs', () => ({
   renameSync: vi.fn(),
   rmSync: vi.fn(),
 }))
-const output = join(tmpdir(), 'opencove-cli-build-fixture')
-const target = join(resolve('.'), 'out/cli/opencove.mjs')
+const output = join(tmpdir(), 'eclipse-code-cli-build-fixture')
+const target = join(resolve('.'), 'out/cli/eclipse-code.mjs')
 const staged = `${target}.${process.pid}.tmp`
 beforeEach(() => {
   vi.clearAllMocks()
@@ -38,7 +38,7 @@ beforeEach(() => {
 
 it('builds in a system temp directory and leaves an identical artifact untouched', () => {
   buildCliForTests()
-  expect(mkdtempSync).toHaveBeenCalledWith(join(tmpdir(), 'opencove-cli-build-'))
+  expect(mkdtempSync).toHaveBeenCalledWith(join(tmpdir(), 'eclipse-code-cli-build-'))
   expect(execFileSync).toHaveBeenCalledWith(
     process.execPath,
     ['scripts/build-cli.mjs', '--out-dir', output],
@@ -51,7 +51,7 @@ it('builds in a system temp directory and leaves an identical artifact untouched
 it('replaces a stale artifact atomically', () => {
   vi.mocked(readFileSync).mockReturnValueOnce(Buffer.from('stale CLI'))
   buildCliForTests()
-  expect(copyFileSync).toHaveBeenCalledWith(join(output, 'opencove.mjs'), staged)
+  expect(copyFileSync).toHaveBeenCalledWith(join(output, 'eclipse-code.mjs'), staged)
   expect(chmodSync).toHaveBeenCalledWith(staged, 0o755)
   expect(renameSync).toHaveBeenCalledWith(staged, target)
 })

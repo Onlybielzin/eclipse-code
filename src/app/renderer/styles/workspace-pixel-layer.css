@@ -57,6 +57,24 @@
   background-size: var(--cove-wall-cell) var(--cove-wall-cell);
 }
 
+.workspace-canvas-wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--cove-app-background);
+  /* Wine scrim over the photo: chrome glass and window text keep their contrast on the bright rim. */
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--cove-app-background) 38%, transparent),
+      color-mix(in srgb, var(--cove-app-background) 38%, transparent)
+    ),
+    var(--workspace-canvas-wallpaper);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .workspace-pixel-wall__surface {
   position: absolute;
   inset: 0;

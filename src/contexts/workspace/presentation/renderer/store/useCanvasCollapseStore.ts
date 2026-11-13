@@ -6,7 +6,7 @@ import {
   type CanvasCollapseState,
 } from '../utils/canvasCollapse'
 
-const STORAGE_KEY = 'opencove:canvas-collapse:v1'
+const STORAGE_KEY = 'eclipse-code:canvas-collapse:v1'
 
 function readWorkspaces(): Record<string, CanvasCollapseState> {
   try {

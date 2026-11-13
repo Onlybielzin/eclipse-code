@@ -63,8 +63,8 @@ export function useWorkspaceMountDetails({
 
   useEffect(() => {
     const controlSurfaceInvoke = (
-      window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-    ).opencoveApi?.controlSurface?.invoke
+      window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+    ).eclipseCodeApi?.controlSurface?.invoke
 
     if (typeof controlSurfaceInvoke !== 'function') {
       return
@@ -81,7 +81,7 @@ export function useWorkspaceMountDetails({
 
       try {
         const endpointResult =
-          await window.opencoveApi.controlSurface.invoke<ListWorkerEndpointsResult>({
+          await window.eclipseCodeApi.controlSurface.invoke<ListWorkerEndpointsResult>({
             kind: 'query',
             id: 'endpoint.list',
             payload: null,
@@ -98,11 +98,12 @@ export function useWorkspaceMountDetails({
         const results = await Promise.all(
           workspaceIds.map(async workspaceId => {
             try {
-              const mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
-                kind: 'query',
-                id: 'mount.list',
-                payload: { projectId: workspaceId },
-              })
+              const mountResult =
+                await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
+                  kind: 'query',
+                  id: 'mount.list',
+                  payload: { projectId: workspaceId },
+                })
 
               return [workspaceId, summarizeMounts(mountResult.mounts, endpointLabelById)] as const
             } catch {

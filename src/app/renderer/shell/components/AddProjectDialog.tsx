@@ -77,7 +77,7 @@ export function AddProjectDialog({
         payload: { path: trimmedPath },
       })
 
-      const stat = await window.opencoveApi.filesystem.stat({ uri: toFileUri(trimmedPath) })
+      const stat = await window.eclipseCodeApi.filesystem.stat({ uri: toFileUri(trimmedPath) })
       if (stat.kind !== 'directory') {
         setError(t('addProjectDialog.pathMustBeDirectory'))
         return

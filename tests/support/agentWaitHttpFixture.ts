@@ -44,7 +44,7 @@ export function agentWaitHttpFixture(snapshot: AgentRunSnapshot) {
                   ? snapshot
                   : null
     res.setHeader('content-type', 'application/json')
-    res.end(JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value }))
+    res.end(JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value }))
   })
   return {
     server,

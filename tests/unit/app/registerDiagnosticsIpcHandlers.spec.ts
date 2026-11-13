@@ -8,7 +8,7 @@ import {
 const listeners = vi.hoisted(() => new Map<string, (...args: unknown[]) => void>())
 
 vi.mock('electron', () => ({
-  app: { getPath: () => '/tmp/opencove-test' },
+  app: { getPath: () => '/tmp/eclipse-code-test' },
   ipcMain: {
     on: vi.fn((channel: string, listener: (...args: unknown[]) => void) => {
       listeners.set(channel, listener)
@@ -23,13 +23,13 @@ describe('diagnostics IPC handlers', () => {
   beforeEach(() => {
     clearIssueReportBreadcrumbsForTests()
     listeners.clear()
-    delete process.env['OPENCOVE_TERMINAL_DIAGNOSTICS']
-    delete process.env['OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS']
+    delete process.env['ECLIPSE_CODE_TERMINAL_DIAGNOSTICS']
+    delete process.env['ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS']
   })
 
   afterEach(() => {
-    delete process.env['OPENCOVE_TERMINAL_DIAGNOSTICS']
-    delete process.env['OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS']
+    delete process.env['ECLIPSE_CODE_TERMINAL_DIAGNOSTICS']
+    delete process.env['ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS']
   })
 
   it('records key terminal events without diagnostic environment flags', async () => {

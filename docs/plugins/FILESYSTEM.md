@@ -122,7 +122,7 @@ or modify real files.
 
 The [VS Code filesystem API](https://code.visualstudio.com/api/references/vscode-api#FileSystem)
 keeps local/remote access behind filesystem providers and makes mutation options
-explicit. OpenCove follows that boundary while selecting a project/Space per
+explicit. Eclipse Code follows that boundary while selecting a project/Space per
 request. Its initial watcher uses bounded provider snapshots because the current
 Worker protocol does not expose a general OS event subscription; the sampled
 semantics above are deliberately narrower than native recursive watching.

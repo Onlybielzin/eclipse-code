@@ -14,7 +14,7 @@ describeWithElectronNativeModules('managed Claude launch lifecycle', () => {
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   let sql: Database.Database
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-managed-launch-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-managed-launch-'))
     store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
     sql = new Database(join(root, 'state.db'))
   })
@@ -162,7 +162,7 @@ describeWithElectronNativeModules('managed Claude launch lifecycle', () => {
 // The adapter must reject uncommitted visibility even if every activation field matches.
 describeWithElectronNativeModules('managed Claude uncertain transaction visibility', () => {
   it('retains an unknown runtime while the connection remains in a transaction', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-managed-uncertain-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-managed-uncertain-'))
     const dbPath = join(root, 'state.db')
     const store = await createPersistenceStore({ dbPath, strictRecovery: true })
     const sql = new Database(dbPath)

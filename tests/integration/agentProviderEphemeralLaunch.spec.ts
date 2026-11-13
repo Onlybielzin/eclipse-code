@@ -29,7 +29,7 @@ afterEach(() => {
 
 describe('ephemeral Agent Provider launch', () => {
   it('leaves every user-level provider config byte-for-byte unchanged', async () => {
-    const testHome = await mkdtemp(join(tmpdir(), 'opencove-provider-home-'))
+    const testHome = await mkdtemp(join(tmpdir(), 'eclipse-code-provider-home-'))
     vi.stubEnv('HOME', testHome)
     vi.stubEnv('USERPROFILE', testHome)
     expect(homedir()).toBe(testHome)

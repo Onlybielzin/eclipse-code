@@ -89,7 +89,7 @@ export function useWorkspaceCanvasTerminalCreation({
   )
 
   useLayoutEffect(() => {
-    if (window.opencoveApi?.meta?.isTest !== true) {
+    if (window.eclipseCodeApi?.meta?.isTest !== true) {
       return
     }
 

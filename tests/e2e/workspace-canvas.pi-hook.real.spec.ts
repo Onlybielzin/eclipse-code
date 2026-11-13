@@ -8,7 +8,7 @@ import { readRuntimeSessionId } from './workspace-canvas.terminal-agent-overlay.
 // Opt-in: uses an installed Pi CLI and its existing authenticated model configuration.
 // No credentials are copied. Prompts/transcripts are disposable; project resources and tools are disabled.
 test.describe('Pi real-model acceptance', () => {
-  test.skip(process.env.OPENCOVE_TEST_REAL_PI !== '1', 'Requires explicit real-model opt-in')
+  test.skip(process.env.ECLIPSE_CODE_TEST_REAL_PI !== '1', 'Requires explicit real-model opt-in')
   test.skip(
     process.platform === 'win32',
     'POSIX wrapper; native Windows runtime remains unverified',
@@ -16,11 +16,11 @@ test.describe('Pi real-model acceptance', () => {
   test.setTimeout(120_000)
   for (const entry of ['terminal', 'agent'] as const) {
     test(`${entry} launch reaches native settled state with a real model`, async () => {
-      const directory = await mkdtemp(path.join(tmpdir(), 'opencove-pi-real-'))
+      const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-pi-real-'))
       const executable = path.join(directory, 'pi')
-      const realPi = process.env.OPENCOVE_REAL_PI_EXECUTABLE
+      const realPi = process.env.ECLIPSE_CODE_REAL_PI_EXECUTABLE
       if (!realPi || !path.isAbsolute(realPi)) {
-        throw new Error('Set OPENCOVE_REAL_PI_EXECUTABLE to the installed CLI absolute path')
+        throw new Error('Set ECLIPSE_CODE_REAL_PI_EXECUTABLE to the installed CLI absolute path')
       }
       await writeFile(
         executable,
@@ -31,13 +31,13 @@ test.describe('Pi real-model acceptance', () => {
         windowMode: 'offscreen',
         env: {
           PATH: `${directory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
           PI_CODING_AGENT_DIR:
             process.env.PI_CODING_AGENT_DIR ?? path.join(homedir(), '.pi', 'agent'),
         },
       })
       try {
-        const prompt = 'Reply exactly OPENCOVE_PI_REAL_OK. Do not use tools.'
+        const prompt = 'Reply exactly ECLIPSE_CODE_PI_REAL_OK. Do not use tools.'
         await clearAndSeedWorkspace(
           window,
           [
@@ -98,12 +98,12 @@ test.describe('Pi real-model acceptance', () => {
         await expect(terminal.locator('.terminal-node__status')).toHaveText('Standby', {
           timeout: 90_000,
         })
-        await expect(terminal).toContainText('OPENCOVE_PI_REAL_OK')
+        await expect(terminal).toContainText('ECLIPSE_CODE_PI_REAL_OK')
         let sessionFile: string | null = null
         await expect
           .poll(async () => {
             sessionFile = await window.evaluate(async kind => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               const state = raw ? JSON.parse(raw) : null
               return (
                 state?.workspaces
@@ -127,7 +127,7 @@ test.describe('Pi real-model acceptance', () => {
               record.type === 'message' &&
               record.message?.role === 'assistant' &&
               record.message.content?.some(
-                part => part.type === 'text' && part.text?.trim() === 'OPENCOVE_PI_REAL_OK',
+                part => part.type === 'text' && part.text?.trim() === 'ECLIPSE_CODE_PI_REAL_OK',
               ),
           ),
         ).toBe(true)

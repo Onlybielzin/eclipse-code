@@ -130,12 +130,13 @@ export function useTerminalRuntimeSession({
       maxChars: MAX_SCROLLBACK_CHARS,
       initial: rendererBaselineSnapshot,
     })
-    const windowsPty = window.opencoveApi.meta?.windowsPty ?? null
-    const inputDiagnosticsEnabled = window.opencoveApi.meta?.enableTerminalInputDiagnostics === true
+    const windowsPty = window.eclipseCodeApi.meta?.windowsPty ?? null
+    const inputDiagnosticsEnabled =
+      window.eclipseCodeApi.meta?.enableTerminalInputDiagnostics === true
     const diagnosticsEnabled =
-      window.opencoveApi.meta?.enableTerminalDiagnostics === true || inputDiagnosticsEnabled
+      window.eclipseCodeApi.meta?.enableTerminalDiagnostics === true || inputDiagnosticsEnabled
     const logTerminalDiagnostics =
-      window.opencoveApi.debug?.logTerminalDiagnostics ?? (() => undefined)
+      window.eclipseCodeApi.debug?.logTerminalDiagnostics ?? (() => undefined)
     const preservedSession = preservedXtermSessionRef.current
     preservedXtermSessionRef.current = null
     const canReusePreservedSession = shouldReusePreservedXtermSession({

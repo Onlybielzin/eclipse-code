@@ -14,8 +14,8 @@ function harness(envOverrides: Record<string, string | undefined> = {}) {
   let idle = true
   let sessionId = 'a'
   const env = {
-    OPENCOVE_PI_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/pi',
-    OPENCOVE_PI_HOOK_TOKEN: 'token',
+    ECLIPSE_CODE_PI_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/pi',
+    ECLIPSE_CODE_PI_HOOK_TOKEN: 'token',
     ...envOverrides,
   }
   const context = {
@@ -106,9 +106,9 @@ describe('launch-scoped Pi status extension', () => {
   it('does nothing without valid loopback credentials, in nested processes, or before session_start', async () => {
     vi.useFakeTimers()
     for (const env of [
-      { OPENCOVE_PI_HOOK_TOKEN: undefined },
-      { OPENCOVE_PI_HOOK_ENDPOINT: 'https://outside.example/hooks/pi' },
-      { OPENCOVE_PI_STATUS_OWNER_PID: '456' },
+      { ECLIPSE_CODE_PI_HOOK_TOKEN: undefined },
+      { ECLIPSE_CODE_PI_HOOK_ENDPOINT: 'https://outside.example/hooks/pi' },
+      { ECLIPSE_CODE_PI_STATUS_OWNER_PID: '456' },
     ]) {
       const h = harness(env)
       h.emit('session_start')

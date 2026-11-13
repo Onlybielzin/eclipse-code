@@ -2,7 +2,7 @@ export const enSettingsPanelNotifications = {
   title: 'Notifications',
   systemNotifications: {
     enabledLabel: 'System notifications',
-    enabledHelp: 'Sent only while OpenCove is in the background.',
+    enabledHelp: 'Sent only while Eclipse Code is in the background.',
   },
   agentStandbyBanner: {
     enabledLabel: 'In-app notifications',

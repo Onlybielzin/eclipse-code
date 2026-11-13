@@ -41,13 +41,13 @@ export function terminalAgentAssetManifest(
   const quotedRuntime = "'" + runtime.replaceAll("'", "'\\''") + "'"
   return [
     file(
-      join(cliShimDirectory, 'opencove'),
-      `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec ${quotedRuntime} "$OPENCOVE_CLI" "$@"\n`,
+      join(cliShimDirectory, 'eclipse-code'),
+      `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec ${quotedRuntime} "$ECLIPSE_CODE_CLI" "$@"\n`,
       0o700,
     ),
     file(
-      join(cliShimDirectory, 'opencove.cmd'),
-      `@echo off\r\nsetlocal\r\nset "ELECTRON_RUN_AS_NODE=1"\r\n"${runtime.replaceAll('%', '%%')}" "%OPENCOVE_CLI%" %*\r\n`,
+      join(cliShimDirectory, 'eclipse-code.cmd'),
+      `@echo off\r\nsetlocal\r\nset "ELECTRON_RUN_AS_NODE=1"\r\n"${runtime.replaceAll('%', '%%')}" "%ECLIPSE_CODE_CLI%" %*\r\n`,
       0o700,
     ),
     file(launcherPath, terminalAgentLauncherScript, 0o700),

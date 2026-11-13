@@ -17,11 +17,11 @@ test('renders a declared Sidebar tree, routes only the clicked backend action, a
   browserName: _,
 }, info) => {
   test.setTimeout(90_000)
-  const source = await mkdtemp(join(tmpdir(), 'opencove-sidebar-extension-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-sidebar-extension-'))
   const userDataDir = await createTestUserDataDir()
   const id = 'sidebar-extension-fixture'
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id,
@@ -92,7 +92,7 @@ test('renders a declared Sidebar tree, routes only the clicked backend action, a
       .poll(async () =>
         page.evaluate(async pluginId => {
           const state = JSON.parse(
-            (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+            (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
           )
           return state.settings?.pluginContributions?.[pluginId]?.sidebar
         }, id),

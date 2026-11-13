@@ -42,7 +42,7 @@ export async function prepareDragScene(page: Page, windowCount = 24) {
       page.evaluate(
         count =>
           Array.from({ length: count }, (_, index) =>
-            window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(
+            window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(
               `drag-terminal-${index}`,
             ),
           ).filter(Boolean).length,
@@ -55,10 +55,10 @@ export async function prepareDragScene(page: Page, windowCount = 24) {
     async ({ count, command }) => {
       await Promise.all(
         Array.from({ length: count }, async (_, index) => {
-          const sessionId = window.__opencoveTerminalSelectionTestApi!.getRuntimeSessionId(
+          const sessionId = window.__eclipseCodeTerminalSelectionTestApi!.getRuntimeSessionId(
             `drag-terminal-${index}`,
           )!
-          await window.opencoveApi.pty.write({ sessionId, data: `${command}\r` })
+          await window.eclipseCodeApi.pty.write({ sessionId, data: `${command}\r` })
         }),
       )
     },
@@ -73,7 +73,7 @@ export async function prepareDragScene(page: Page, windowCount = 24) {
     .poll(() =>
       page.evaluate(async () => {
         const state = JSON.parse(
-          (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+          (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
         )
         return state.workspaces?.[0]?.nodes?.filter(
           (node: { id: string; scrollback?: string }) =>
@@ -82,7 +82,7 @@ export async function prepareDragScene(page: Page, windowCount = 24) {
       }),
     )
     .toBe(TERMINALS)
-  await page.evaluate(() => window.__opencoveWorkspaceCanvasTestApi!.setZoom(0.48))
+  await page.evaluate(() => window.__eclipseCodeWorkspaceCanvasTestApi!.setZoom(0.48))
   // Let viewport persistence, light fades and the sidebar's opening animation finish.
   await page.waitForTimeout(1200)
 }
@@ -103,9 +103,9 @@ export async function sampleContinuousDrag(page: Page, frameCount = 240) {
   try {
     const result = await page.evaluate(
       async ({ start, frames, nodeId }) => {
-        const api = window.__opencoveWorkspaceCanvasTestApi!
+        const api = window.__eclipseCodeWorkspaceCanvasTestApi!
         api.resetWindowCommitCounts()
-        const wall = window.__opencovePixelWallTestApi!
+        const wall = window.__eclipseCodePixelWallTestApi!
         const wallBefore = wall.getFrameCount()
         let minimapMutations = 0
         const dragged = document.querySelector<HTMLElement>(
@@ -174,7 +174,7 @@ export async function sampleContinuousDrag(page: Page, frameCount = 240) {
           sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))]!
         // Read while the button is still down: transient geometry must not have escaped to storage.
         const persisted = JSON.parse(
-          (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+          (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
         )
         return {
           frames,

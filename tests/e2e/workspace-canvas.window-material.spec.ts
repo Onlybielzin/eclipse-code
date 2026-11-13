@@ -79,7 +79,7 @@ test('the window material turns glass solid from Settings, the control center an
     await expect
       .poll(async () =>
         window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           return raw ? (JSON.parse(raw).settings?.windowMaterial ?? null) : null
         }),
       )

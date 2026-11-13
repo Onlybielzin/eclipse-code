@@ -15,7 +15,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
     const lastFrameToken = `FRAME_${String(frameCount - 1).padStart(5, '0')}_TOKEN`
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
+        ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
       },
     })
 
@@ -63,7 +63,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect(terminal.locator('.xterm')).toBeVisible()
 
       const initialSize = await window.evaluate(() => {
-        return window.__opencoveTerminalSelectionTestApi?.getSize?.('node-a') ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getSize?.('node-a') ?? null
       })
       // Useful when debugging linux-only fit/hydration regressions (printed to CI logs on failure).
       // eslint-disable-next-line no-console
@@ -88,7 +88,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect
         .poll(async () => {
           const options = await window.evaluate(() => {
-            return window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
+            return window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
           })
           return options?.fontSize ?? null
         })
@@ -100,7 +100,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect(terminal).toContainText(lastFrameToken, { timeout: 20_000 })
 
       const beforeSwitchSize = await window.evaluate(() => {
-        return window.__opencoveTerminalSelectionTestApi?.getSize?.('node-a') ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getSize?.('node-a') ?? null
       })
       // eslint-disable-next-line no-console
       console.log('[ansi-screen] before switch size', beforeSwitchSize)
@@ -114,7 +114,8 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect(window.locator('.workspace-item').nth(1)).toHaveClass(/workspace-item--active/)
       const afterUnmountCache = await window.evaluate(() => {
         return (
-          window.__opencoveTerminalSelectionTestApi?.getCachedScreenStateSummary?.('node-a') ?? null
+          window.__eclipseCodeTerminalSelectionTestApi?.getCachedScreenStateSummary?.('node-a') ??
+          null
         )
       })
       // eslint-disable-next-line no-console
@@ -124,13 +125,14 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect(window.locator('.workspace-item').nth(0)).toHaveClass(/workspace-item--active/)
 
       const afterRestoreSize = await window.evaluate(() => {
-        return window.__opencoveTerminalSelectionTestApi?.getSize?.('node-a') ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getSize?.('node-a') ?? null
       })
       // eslint-disable-next-line no-console
       console.log('[ansi-screen] after restore size', afterRestoreSize)
       const afterRestoreCache = await window.evaluate(() => {
         return (
-          window.__opencoveTerminalSelectionTestApi?.getCachedScreenStateSummary?.('node-a') ?? null
+          window.__eclipseCodeTerminalSelectionTestApi?.getCachedScreenStateSummary?.('node-a') ??
+          null
         )
       })
       // eslint-disable-next-line no-console
@@ -151,7 +153,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect
         .poll(async () => {
           const options = await window.evaluate(() => {
-            return window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
+            return window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
           })
           return options?.fontSize ?? null
         })
@@ -161,7 +163,7 @@ test.describe('Workspace Canvas - Persistence ANSI screen restore', () => {
       await expect
         .poll(async () => {
           const options = await window.evaluate(() => {
-            return window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
+            return window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-a') ?? null
           })
           return options?.fontSize ?? null
         })

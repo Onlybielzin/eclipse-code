@@ -15,7 +15,7 @@ async function download(
   })
   if (!response.ok || !response.body) {
     throw new Error(
-      `[opencove-bootstrap:installer_unavailable] Desktop download returned HTTP ${response.status}.`,
+      `[eclipse-code-bootstrap:installer_unavailable] Desktop download returned HTTP ${response.status}.`,
     )
   }
   const file = await open(path, 'wx', 0o600)
@@ -30,7 +30,7 @@ async function download(
       size += chunk.value.byteLength
       if (size > limit) {
         throw new Error(
-          '[opencove-bootstrap:installer_unavailable] Release download exceeds the allowed size.',
+          '[eclipse-code-bootstrap:installer_unavailable] Release download exceeds the allowed size.',
         )
       }
       await file.writeFile(chunk.value)
@@ -52,7 +52,7 @@ export async function withManagedSshArtifactRelay<T>(
   },
   consume: (directory: string) => Promise<T>,
 ): Promise<T> {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-ssh-relay-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-ssh-relay-'))
   const base = options.installerUrl.slice(0, options.installerUrl.lastIndexOf('/'))
   try {
     await download(
@@ -63,7 +63,7 @@ export async function withManagedSshArtifactRelay<T>(
     )
     await download(
       options.installerUrl,
-      join(directory, `opencove-install.${options.windows ? 'ps1' : 'sh'}`),
+      join(directory, `eclipse-code-install.${options.windows ? 'ps1' : 'sh'}`),
       1_048_576,
       options.signal,
     )

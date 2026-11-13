@@ -33,7 +33,7 @@ vi.mock('../../../src/platform/terminal/TerminalProfileResolver', () => ({
 describeWithElectronNativeModules('managed Claude fallback execution context', () => {
   let root: string, f: SnapshotFixture
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-fallback-context-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-fallback-context-'))
   })
   afterEach(async () => {
     f?.dispose()

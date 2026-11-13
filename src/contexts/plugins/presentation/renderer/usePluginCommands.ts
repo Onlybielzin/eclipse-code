@@ -45,7 +45,7 @@ export function usePluginCommands(context: PluginHostContext, active = true) {
         )
         .map(async plugin => {
           try {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               windows: WindowTarget[]
             }>({
               kind: 'query',
@@ -119,7 +119,7 @@ export function usePluginCommands(context: PluginHostContext, active = true) {
       ) {
         throw new Error(t('pluginHostExtensions.staleCommand'))
       }
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'plugin.command.run',
         payload: {

@@ -5,14 +5,14 @@ an exact ID, a case-sensitive name, a unique ID prefix of at least six character
 or `@self`. Node selectors in `--move` use the same forms.
 
 ```sh
-opencove space create --name "Review"
-opencove space create --name "Migration" --project project-123 --directory /workspace/migration
-opencove space create --name "Review notes" --in @self --move "Brief" --move "Checklist"
-opencove project add --path /workspace/app --name "App"
+eclipse-code space create --name "Review"
+eclipse-code space create --name "Migration" --project project-123 --directory /workspace/migration
+eclipse-code space create --name "Review notes" --in @self --move "Brief" --move "Checklist"
+eclipse-code project add --path /workspace/app --name "App"
 ```
 
 A top-level Space uses your terminal node’s **current project**, including when the
-terminal is on the root canvas. Outside an OpenCove terminal, provide `--project`.
+terminal is on the root canvas. Outside an Eclipse Code terminal, provide `--project`.
 The Worker chooses an empty position and returns the applied `rect`. There is no
 `--frame` for top-level creation. `--directory` is passed unchanged to the Worker:
 it must be an existing absolute local directory within the project’s default mount.
@@ -47,7 +47,7 @@ success without details, the CLI asks you to inspect the existing result rather
 than repeat the creation command.
 
 **Agents cannot add projects.** A terminal session grant receives exit 4 with a
-human-decision error. Ask the user to add the project in OpenCove. This refusal is
+human-decision error. Ask the user to add the project in Eclipse Code. This refusal is
 final; do not retry with another credential.
 
 ## 创建 Space 与添加项目
@@ -56,7 +56,7 @@ final; do not retry with another credential.
 名称、至少六个字符的唯一 ID 前缀或 `@self`；`--move` 的节点选择器也支持这些形式。
 
 顶层 Space 默认使用终端节点**当前所属的项目**，终端位于 root canvas 时也适用。
-在 OpenCove 终端外调用时，请提供 `--project`。位置由 Worker 自动安排，结果包含实际
+在 Eclipse Code 终端外调用时，请提供 `--project`。位置由 Worker 自动安排，结果包含实际
 `rect`，顶层创建不接受 `--frame`。`--directory` 原样传给 Worker，必须是项目默认
 mount 内已存在的本地绝对目录，符号链接也不能越界；省略时使用 mount 根目录。
 目前不支持远程默认 mount。
@@ -82,7 +82,7 @@ null。相同路径的已有项目会复用其保存的名称和默认 Space。�
 成功而缺少详情，CLI 会引导查询已有结果，避免重复创建。
 
 **智能体不能添加项目。** 终端 session grant 会收到退出码 4，提示此操作需要用户在
-OpenCove 中决定。请用户在 OpenCove 添加项目，不要重试或借用其他凭证。
+Eclipse Code 中决定。请用户在 Eclipse Code 添加项目，不要重试或借用其他凭证。
 
 ## Place nodes in Spaces
 
@@ -100,9 +100,9 @@ member of the selected Space. The Worker resolves parentage; moving never change
 ## Rename Spaces and adjust their boundaries
 
 ```sh
-opencove space update --space @self --name "Review"
-opencove space update --space "Review" --frame '{"width":1200,"height":800}'
-opencove space update --space space-123 --frame '{"x":100,"y":200}'
+eclipse-code space update --space @self --name "Review"
+eclipse-code space update --space "Review" --frame '{"width":1200,"height":800}'
+eclipse-code space update --space space-123 --frame '{"x":100,"y":200}'
 ```
 
 Select a Space explicitly with `--space`; the same selectors as `space get` apply.
@@ -111,7 +111,7 @@ whitespace is removed and blank names are rejected. A frame accepts any nonempty
 subset of x, y, width and height; values must be finite and dimensions positive.
 All four fields change only the Space boundary. Member nodes keep their positions
 and sizes, and child Spaces keep their rects. To move a Space together with its
-contents, drag it in OpenCove.
+contents, drag it in Eclipse Code.
 
 The applied boundary is the smallest rectangle containing both the requested
 frame and the fixed contents with padding: 24 canvas units around direct nodes
@@ -121,7 +121,7 @@ position-only request. For example, requesting x=1000 when a member starts at
 x=24 expands the frame back to x=0 to keep that member inside. Ancestors grow as
 needed; neighboring Spaces and their members stay in place. An empty Space can
 use any finite position and positive dimensions. A Space without a saved boundary
-can be renamed; open it in OpenCove before changing its frame.
+can be renamed; open it in Eclipse Code before changing its frame.
 
 Output is `{id, name, projectId, parentSpaceId, rect, directoryPath, movedNodeIds}`.
 `rect` matches the geometry returned by `space get` and `space list`; `boundary`
@@ -141,14 +141,14 @@ commands for bindings.
 之一，也可同时提供。选择器与 `space get` 相同。名称规则与 `space create` 一致：
 去除首尾空白，不接受空名称。`--frame` 接受 x、y、width、height 的非空子集，数值
 必须有限，宽高必须为正数。四个字段都只调整 Space 的边界：成员节点的位置和尺寸、
-子 Space 的 rect 均保持不变。需要连同内容一起移动时，请在 OpenCove 中拖动 Space。
+子 Space 的 rect 均保持不变。需要连同内容一起移动时，请在 Eclipse Code 中拖动 Space。
 
 实际边界取同时包围请求框和固定内容的最小矩形：直属节点周围保留 24 个画布单位，
 按其显示尺寸计算（包括折叠卡片）；子 Space 周围保留 12 个。因此，请求的 x/y 也可能
 被调整；即使只指定位置，宽高也可能增大。例如，成员位于 x=24 时请求 x=1000，
 实际边界会向左扩展到 x=0，确保成员仍在其中。祖先 Space 按需扩张，相邻 Space
 及其成员保持原位。空 Space 接受任意有限坐标和正数尺寸。没有已保存边界的 Space
-可以改名；调整其边界前，请先在 OpenCove 中打开它。
+可以改名；调整其边界前，请先在 Eclipse Code 中打开它。
 
 返回 `{id,name,projectId,parentSpaceId,rect,directoryPath,movedNodeIds}`；`rect` 与
 `space get`、`space list` 返回的几何边界一致，查询中的 `boundary` 则表示访问范围。

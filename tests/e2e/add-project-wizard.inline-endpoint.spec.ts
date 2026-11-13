@@ -9,7 +9,7 @@ test.describe('Add project wizard inline endpoint registration', () => {
     browserName,
   }, testInfo) => {
     const userDataDir = await mkdtemp(
-      path.join(tmpdir(), `opencove-e2e-inline-endpoint-${browserName}-`),
+      path.join(tmpdir(), `eclipse-code-e2e-inline-endpoint-${browserName}-`),
     )
     const draftProjectPath = path.join(userDataDir, 'draft-project')
     const { electronApp, window } = await launchApp({ userDataDir })
@@ -17,7 +17,7 @@ test.describe('Add project wizard inline endpoint registration', () => {
     try {
       const seeded = await window.evaluate(
         async () =>
-          await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify({
               formatVersion: 1,
               activeWorkspaceId: null,
@@ -76,7 +76,7 @@ test.describe('Add project wizard inline endpoint registration', () => {
       ).toHaveValue(draftProjectPath)
 
       const endpointNames = await window.evaluate(async () => {
-        const result = await window.opencoveApi.controlSurface.invoke<{
+        const result = await window.eclipseCodeApi.controlSurface.invoke<{
           endpoints: Array<{ displayName: string }>
         }>({ kind: 'query', id: 'endpoint.list', payload: null })
         return result.endpoints.map(endpoint => endpoint.displayName)

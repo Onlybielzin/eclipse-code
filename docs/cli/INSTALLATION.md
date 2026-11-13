@@ -8,10 +8,10 @@ controller。controller 拥有安装/激活元数据，通过 Worker 的维护�
 persistence 基础设施生成一致快照；普通业务 CLI 仍只能通过 Control Surface 访问业务状态。
 详细所有权和恢复规则见 [Managed SSH runtime](../runtime/MANAGED_SSH_RUNTIME.md)。
 
-OpenCove 目前支持两条正式的 CLI 安装链路：
+Eclipse Code 目前支持两条正式的 CLI 安装链路：
 
-- **Desktop 内置安装**：用户在 Desktop 的 **Settings → Worker → CLI** 中点击 **Install CLI**，由已安装的 app 写入 `opencove` launcher（Windows 为 `opencove.cmd`）。
-- **Standalone server 安装**：用户从包含 standalone installer 与 runtime bundle 的 GitHub Release 下载资产，并通过 release 专属 `opencove-install-v<tag>.sh` / `opencove-install-v<tag>.ps1` 写入同语义的 `opencove` launcher。stable release 额外提供 `opencove-install.sh` / `opencove-install.ps1` 作为 latest stable 别名。
+- **Desktop 内置安装**：用户在 Desktop 的 **Settings → Worker → CLI** 中点击 **Install CLI**，由已安装的 app 写入 `eclipse-code` launcher（Windows 为 `eclipse-code.cmd`）。
+- **Standalone server 安装**：用户从包含 standalone installer 与 runtime bundle 的 GitHub Release 下载资产，并通过 release 专属 `eclipse-code-install-v<tag>.sh` / `eclipse-code-install-v<tag>.ps1` 写入同语义的 `eclipse-code` launcher。stable release 额外提供 `eclipse-code-install.sh` / `eclipse-code-install.ps1` 作为 latest stable 别名。
 
 当前约束：
 
@@ -22,7 +22,7 @@ OpenCove 目前支持两条正式的 CLI 安装链路：
   ABI 单独构建，并在归档前由该 Node runtime 真实加载验证。
 - 打包态 launcher 必须指向发布 runtime 内的 CLI entrypoint，不能依赖 repo checkout 路径。
 - launcher 会记录安装 owner；两条安装链可以互相覆盖安装，但卸载时只移除自己拥有的 launcher。
-- standalone release 覆盖 macOS / Linux / Windows；Windows 资产格式为 `opencove-server-windows-<arch>.zip`。
+- standalone release 覆盖 macOS / Linux / Windows；Windows 资产格式为 `eclipse-code-server-windows-<arch>.zip`。
 - standalone launcher 必须从 bundle 内 `package.json` 读取版本并通过 `--app-version` 传给 Worker；缺失或非法版本必须拒绝启动，不能产生身份不明的 Remote Worker。
 - 公开 installer 必须从同一 release 路径读取 `SHA256SUMS.txt` 并在解压前校验 bundle；缺失 checksum、缺少本机 SHA256 工具或 hash 不一致都必须 fail closed。
 - stable release 同时发布 tag-pinned installer/uninstaller 和 `latest` 通用别名；nightly 只发布 tag-pinned 版本。Managed SSH 必须按 Desktop 当前版本使用 tag-pinned installer，不能把 `latest` 当作版本一致性保证。
@@ -31,54 +31,54 @@ OpenCove 目前支持两条正式的 CLI 安装链路：
 （macOS / Linux）：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh | sh
 ```
 
 Windows PowerShell：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.ps1 | Invoke-Expression"
 ```
 
-如果 `releases/latest/download/opencove-install.sh` 返回 `404`，说明 latest stable
+如果 `releases/latest/download/eclipse-code-install.sh` 返回 `404`，说明 latest stable
 尚未发布 standalone installer；此时应改用 Desktop 安装，或等待包含这些资产的
 release。
 
 安装 nightly 或任意指定 tag 的 release 时，应改用该 release 页面中的带版本脚本：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.ps1 | Invoke-Expression"
 ```
 
 当 latest stable 已包含 uninstall assets 时，可使用以下命令卸载 standalone
 runtime：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-uninstall.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-uninstall.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-uninstall.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-uninstall.ps1 | Invoke-Expression"
 ```
 
 指定 nightly 或任意指定 tag 时，应使用对应的版本化 uninstall 脚本：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-uninstall-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-uninstall-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-uninstall-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-uninstall-v<version>.ps1 | Invoke-Expression"
 ```
 
 无 Desktop 的 server 场景可直接启动 worker + Web UI：
 
 ```bash
-opencove worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
+eclipse-code worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
 ```
 
 当 Web UI 暴露到 localhost 之外时，必须设置密码或等价安全门禁。

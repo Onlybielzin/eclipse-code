@@ -15,7 +15,7 @@ describeWithElectronNativeModules('managed Claude resume binding storage', () =>
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   let sql: Database.Database
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-resume-ledger-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-resume-ledger-'))
     store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
     sql = new Database(join(root, 'state.db'))
   })

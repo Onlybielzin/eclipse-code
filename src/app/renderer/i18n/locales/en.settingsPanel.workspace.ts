@@ -6,7 +6,7 @@ export const enSettingsPanelWorkspace = {
   workspacePathHelp: 'Project root for {{name}}.',
   worktreeRootLabel: 'Worktree Root',
   worktreeRootHelp: 'Relative path is based on project root.',
-  worktreeRootPlaceholder: '.opencove/worktrees',
+  worktreeRootPlaceholder: '.eclipse-code/worktrees',
   resolvedPathLabel: 'Resolved Path',
   resolvedPathHelp: 'Where new worktrees will be created.',
   pullRequestBaseBranchesLabel: 'Pull Request Base Branches',

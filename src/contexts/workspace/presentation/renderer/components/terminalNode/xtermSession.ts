@@ -148,9 +148,9 @@ export function createMountedXtermSession({
   terminal.loadAddon(fitAddon)
   ;(
     terminal as Terminal & {
-      __opencoveXtermSessionInstanceId?: number
+      __eclipseCodeXtermSessionInstanceId?: number
     }
-  ).__opencoveXtermSessionInstanceId = nextXtermSessionInstanceId++
+  ).__eclipseCodeXtermSessionInstanceId = nextXtermSessionInstanceId++
   terminal.loadAddon(serializeAddon)
   try {
     terminal.loadAddon(unicode11Addon)

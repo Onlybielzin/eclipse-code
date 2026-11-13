@@ -15,9 +15,9 @@ export function createPiHookChannel(): AgentHookChannel {
     source: 'pi_hook',
     validateEnvelope: normalizePiAgentSnapshot,
     buildReservationEnv: (endpoint, token) => ({
-      OPENCOVE_PI_HOOK_ENDPOINT: endpoint,
-      OPENCOVE_PI_HOOK_TOKEN: token,
-      OPENCOVE_PI_STATUS_OWNER_PID: '',
+      ECLIPSE_CODE_PI_HOOK_ENDPOINT: endpoint,
+      ECLIPSE_CODE_PI_HOOK_TOKEN: token,
+      ECLIPSE_CODE_PI_STATUS_OWNER_PID: '',
     }),
     createObservationOwner: () => {
       const owner = new PiAgentObservationOwner()

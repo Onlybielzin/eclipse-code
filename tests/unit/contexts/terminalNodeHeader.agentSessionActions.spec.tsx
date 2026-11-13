@@ -31,7 +31,7 @@ describe('TerminalNodeHeader agent session actions', () => {
           {
             sessionId: 'session-target',
             provider: 'codex',
-            cwd: '/repo/.opencove/worktrees/feat',
+            cwd: '/repo/.eclipse-code/worktrees/feat',
             title: null,
             preview: 'Switch to the restored feature worktree session',
             startedAt: '2026-04-29T00:20:00.000Z',
@@ -62,7 +62,7 @@ describe('TerminalNodeHeader agent session actions', () => {
       expect(onSwitchSession).toHaveBeenCalledWith(
         expect.objectContaining({
           sessionId: 'session-target',
-          cwd: '/repo/.opencove/worktrees/feat',
+          cwd: '/repo/.eclipse-code/worktrees/feat',
         }),
       )
     })

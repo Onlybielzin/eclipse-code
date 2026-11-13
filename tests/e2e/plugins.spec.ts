@@ -35,7 +35,7 @@ interface SavedPluginNode {
 
 async function readPluginState(page: Page) {
   return page.evaluate(async projectId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       settings?: { disabledPluginIds?: string[] }
       workspaces?: Array<{
@@ -48,7 +48,7 @@ async function readPluginState(page: Page) {
     return {
       node: workspace?.nodes.find(candidate => candidate.kind === 'plugin') ?? null,
       disabled: (
-        await window.opencoveApi.controlSurface.invoke<{
+        await window.eclipseCodeApi.controlSurface.invoke<{
           plugins: Array<{ id: string; enabled?: boolean }>
         }>({ kind: 'query', id: 'plugin.list', payload: null })
       ).plugins
@@ -170,7 +170,7 @@ test.describe('Installed plugin window standard', () => {
         { settings: { language: 'en', nodeCreationPixelEffectEnabled: false } },
       )
       const list = await page.evaluate(() =>
-        window.opencoveApi.controlSurface.invoke<{ plugins: unknown[] }>({
+        window.eclipseCodeApi.controlSurface.invoke<{ plugins: unknown[] }>({
           kind: 'query',
           id: 'plugin.list',
           payload: null,

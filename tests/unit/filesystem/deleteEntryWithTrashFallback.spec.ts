@@ -26,7 +26,7 @@ describe('deleteEntryWithTrashFallback', () => {
 
     try {
       const port = createFileSystemPortMock()
-      const targetPath = join(tmpdir(), 'opencove-delete-timeout.txt')
+      const targetPath = join(tmpdir(), 'eclipse-code-delete-timeout.txt')
       const input = { uri: toFileUri(targetPath) }
       const trashItem = vi.fn(() => new Promise<void>(() => undefined))
 

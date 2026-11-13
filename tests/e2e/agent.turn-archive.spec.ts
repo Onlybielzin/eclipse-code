@@ -14,15 +14,15 @@ import type { AgentRunSnapshot } from '../../src/shared/contracts/dto/agentRunSt
 // Deliberately independent of all real-provider helpers. This scenario uses only the strict stub.
 test('exact turn read and wait survive a complete Worker restart, then disappear on node deletion', async () => {
   test.setTimeout(120_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-archive-e2e-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-archive-e2e-'))
   const userDataDir = join(root, 'profile')
   const env = {
-    OPENCOVE_WORKER_CLIENT: '1',
-    OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-    OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-    OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+    ECLIPSE_CODE_WORKER_CLIENT: '1',
+    ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+    ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+    ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
     CLAUDE_CONFIG_DIR: join(root, 'claude'),
-    OPENCOVE_TEST_PROMPT_RECORD: join(root, 'submissions.jsonl'),
+    ECLIPSE_CODE_TEST_PROMPT_RECORD: join(root, 'submissions.jsonl'),
   }
   let app: ElectronApplication | undefined
   const connection = async () =>
@@ -38,7 +38,7 @@ test('exact turn read and wait survive a complete Worker restart, then disappear
       execFile(
         process.execPath,
         [
-          resolve('out/cli/opencove.mjs'),
+          resolve('out/cli/eclipse-code.mjs'),
           ...args,
           '--endpoint',
           `http://${info.hostname}:${info.port}`,
@@ -48,7 +48,7 @@ test('exact turn read and wait survive a complete Worker restart, then disappear
           'json',
         ],
         {
-          env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir },
+          env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir },
           timeout: 20_000,
         },
         (error, stdout, stderr) =>
@@ -112,7 +112,7 @@ test('exact turn read and wait survive a complete Worker restart, then disappear
     const snapshot = () =>
       first.window.evaluate(
         id =>
-          window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+          window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
             kind: 'query',
             id: 'agent.get',
             payload: { sessionId: id },

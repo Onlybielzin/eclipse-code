@@ -125,7 +125,7 @@ function logIncident(
   incident: PerformanceIncident,
   snapshot?: PerformanceDiagnosticsSnapshotResult | null,
 ): void {
-  window.opencoveApi.debug?.logRuntimeDiagnostics?.({
+  window.eclipseCodeApi.debug?.logRuntimeDiagnostics?.({
     source: 'renderer-performance-monitor',
     level: 'info',
     event,
@@ -209,7 +209,7 @@ export function usePerformanceIncidentRecorder({
     setIncidents(current => [incident, ...current].slice(0, MAX_INCIDENTS))
     logIncident('performance-incident', 'Renderer performance incident recorded.', incident)
 
-    void window.opencoveApi.performanceDiagnostics
+    void window.eclipseCodeApi.performanceDiagnostics
       .getSnapshot()
       .then(snapshot => {
         if (!mountedRef.current) {

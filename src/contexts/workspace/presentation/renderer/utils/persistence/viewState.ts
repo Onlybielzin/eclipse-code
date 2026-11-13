@@ -3,7 +3,7 @@ import type { PersistedAppState, WorkspaceViewport } from '../../types'
 import { DEFAULT_WORKSPACE_MINIMAP_VISIBLE, DEFAULT_WORKSPACE_VIEWPORT } from '../../types'
 import { getStorage } from './storage'
 
-const VIEW_STATE_STORAGE_KEY = 'opencove:m5.6:view-state'
+const VIEW_STATE_STORAGE_KEY = 'eclipse-code:m5.6:view-state'
 
 type PersistedWorkspaceViewState = {
   viewport: WorkspaceViewport
@@ -166,13 +166,17 @@ export function applyLocalViewStateToPersistedState(state: PersistedAppState): P
         return workspace
       }
 
+      // The shared state only carries a placeholder (the first root Space); the real open task is
+      // client-local. With Eclipse Code tasks the open Space hides the others, so a local "All"
+      // (null) or a Space that no longer exists must stay "All", never become the placeholder.
+
       const activeSpaceId =
         workspaceView.activeSpaceId &&
         workspace.spaces.some(
           space => space.id === workspaceView.activeSpaceId && !space.parentSpaceId,
         )
           ? workspaceView.activeSpaceId
-          : workspace.activeSpaceId
+          : null
 
       return {
         ...workspace,

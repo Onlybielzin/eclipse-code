@@ -16,7 +16,7 @@ export interface CachedSessionValue {
 }
 
 // 会话目录扫描结果的持久化存储(L2)。复刻 BrowserProfileStore 的写法:打开共享的
-// opencove.db、跑共享 migrate(幂等建表)、用 prepared statement 同步读写。与会话目录
+// eclipse-code.db、跑共享 migrate(幂等建表)、用 prepared statement 同步读写。与会话目录
 // 扫描同处主进程,故读写为同步调用。value 以 JSON 存储,对各 provider 形状不敏感。
 export interface AgentSessionTitleCacheStore {
   read: (filePath: string, fingerprint: SessionFileFingerprint) => CachedSessionValue | null

@@ -30,7 +30,7 @@ describe('PersistenceStore', () => {
     'writes workspace sort_order from the in-memory array order',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>()
       vi.doMock('better-sqlite3', () => ({ default: createMockDatabaseModule(mockDbByPath) }))
 
@@ -88,7 +88,7 @@ describe('PersistenceStore', () => {
     'persists project icons and agent sidebar sort order through sqlite columns',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>()
       vi.doMock('better-sqlite3', () => ({ default: createMockDatabaseModule(mockDbByPath) }))
 
@@ -163,7 +163,7 @@ describe('PersistenceStore', () => {
       vi.setSystemTime(new Date('2026-02-28T00:00:00.000Z'))
 
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       await writeFile(dbPath, 'legacy-db')
 
       const mockDbByPath = new Map<string, MockDbState>()
@@ -176,7 +176,7 @@ describe('PersistenceStore', () => {
       store.dispose()
 
       const files = await readdir(tempDir)
-      const backupFiles = files.filter(name => name.startsWith('opencove.db.bak-'))
+      const backupFiles = files.filter(name => name.startsWith('eclipse-code.db.bak-'))
       expect(backupFiles).toHaveLength(1)
 
       const backupContent = await readFile(join(tempDir, backupFiles[0] as string), 'utf8')
@@ -192,7 +192,7 @@ describe('PersistenceStore', () => {
       vi.setSystemTime(new Date('2026-02-28T00:00:00.000Z'))
 
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       await writeFile(dbPath, 'corrupt-db')
 
       const mockDbByPath = new Map<string, MockDbState>([
@@ -207,9 +207,9 @@ describe('PersistenceStore', () => {
       store.dispose()
 
       const files = await readdir(tempDir)
-      expect(files).toContain('opencove.db.corrupt-2026-02-28T00-00-00-000Z')
+      expect(files).toContain('eclipse-code.db.corrupt-2026-02-28T00-00-00-000Z')
       expect(
-        await readFile(join(tempDir, 'opencove.db.corrupt-2026-02-28T00-00-00-000Z'), 'utf8'),
+        await readFile(join(tempDir, 'eclipse-code.db.corrupt-2026-02-28T00-00-00-000Z'), 'utf8'),
       ).toBe('corrupt-db')
     },
     PERSISTENCE_STORE_TEST_TIMEOUT_MS,
@@ -218,8 +218,8 @@ describe('PersistenceStore', () => {
   it(
     'returns null when no app state has been persisted',
     async () => {
-      tempDir = await mkdtemp(join(tmpdir(), 'opencove-persist-read-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      tempDir = await mkdtemp(join(tmpdir(), 'eclipse-code-persist-read-'))
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>()
       vi.doMock('better-sqlite3', () => ({ default: createMockDatabaseModule(mockDbByPath) }))
       vi.doMock('../../../src/platform/persistence/sqlite/read', async () => {
@@ -244,8 +244,8 @@ describe('PersistenceStore', () => {
   it(
     'rejects when sqlite cannot read app state',
     async () => {
-      tempDir = await mkdtemp(join(tmpdir(), 'opencove-persist-read-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      tempDir = await mkdtemp(join(tmpdir(), 'eclipse-code-persist-read-'))
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>()
       vi.doMock('better-sqlite3', () => ({ default: createMockDatabaseModule(mockDbByPath) }))
       vi.doMock('../../../src/platform/persistence/sqlite/read', async () => {
@@ -314,7 +314,7 @@ describe('PersistenceStore', () => {
       oversizedStore.dispose()
 
       const store = await createPersistenceStore({
-        dbPath: join(tempDir, 'opencove.db'),
+        dbPath: join(tempDir, 'eclipse-code.db'),
         maxRawBytes: rawBytes,
       })
 
@@ -333,7 +333,7 @@ describe('PersistenceStore', () => {
     'rejects overwriting existing workspace state with an automatic empty workspace list',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [
           dbPath,
@@ -394,7 +394,7 @@ describe('PersistenceStore', () => {
     'allows an explicit empty workspace overwrite when requested',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [
           dbPath,

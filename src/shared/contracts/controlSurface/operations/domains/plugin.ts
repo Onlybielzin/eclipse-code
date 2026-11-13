@@ -78,7 +78,7 @@ export const pluginDiscoverOperation = defineOperation({
   kind: 'query',
   scope: 'admin',
   availability: 'always',
-  summary: 'Search GitHub for repositories tagged as OpenCove plugins',
+  summary: 'Search GitHub for repositories tagged as Eclipse Code plugins',
 })
 export const pluginGitApplyOperation = defineOperation({
   input: z.strictObject({ candidateId: z.string() }),

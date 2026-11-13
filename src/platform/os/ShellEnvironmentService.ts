@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import process from 'node:process'
 import { removeElectronRunAsNode } from './ElectronControlEnvironment'
 
-const SHELL_ENV_MARKER = '__OPENCOVE_SHELL_ENV_MARKER__'
+const SHELL_ENV_MARKER = '__ECLIPSE_CODE_SHELL_ENV_MARKER__'
 const SHELL_CAPTURE_TIMEOUT_MS = 2_000
 const DEFAULT_POSIX_SHELL = '/bin/zsh'
 const POSIX_FALLBACK_SHELLS = ['/bin/zsh', '/bin/bash']

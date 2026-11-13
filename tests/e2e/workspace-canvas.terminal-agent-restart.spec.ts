@@ -48,8 +48,8 @@ test.describe('Workspace Canvas - terminal Agent full restart', () => {
       const continuitySentinel = `PRE_RESTART_OUTPUT_${command.toUpperCase()}`
       const env = {
         PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       }
       let initialRuntimeSessionId: string | null = null
       let durableResumeSessionId: string | null = null
@@ -95,7 +95,7 @@ test.describe('Workspace Canvas - terminal Agent full restart', () => {
           await window.evaluate(() => {
             const testWindow = window as MetadataWindow
             testWindow.__terminalAgentRestartMetadata = []
-            window.opencoveApi.pty.onMetadata(event => {
+            window.eclipseCodeApi.pty.onMetadata(event => {
               testWindow.__terminalAgentRestartMetadata?.push(event)
             })
           })

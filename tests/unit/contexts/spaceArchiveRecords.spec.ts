@@ -207,7 +207,7 @@ describe('space archive records', () => {
     const child: WorkspaceSpaceState = {
       id: 'space-child',
       name: 'Child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: '/repo/.eclipse-code/worktrees/api',
       targetMountId: null,
       parentSpaceId: 'space-parent',
       labelColor: 'green',
@@ -230,7 +230,7 @@ describe('space archive records', () => {
     expect(record.nodes.map(node => node.id)).toEqual(['note-parent', 'note-child'])
     expect(record.spaces?.find(space => space.id === 'space-child')).toMatchObject({
       parentSpaceId: 'space-parent',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: '/repo/.eclipse-code/worktrees/api',
       nodeIds: ['note-child'],
     })
   })

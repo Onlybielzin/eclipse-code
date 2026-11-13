@@ -31,7 +31,7 @@ async function createSibling(window: Page): Promise<string> {
     .poll(() =>
       window.evaluate(
         nodeId =>
-          window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(nodeId)
+          window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(nodeId)
             ?.rendererStructuralKind,
         id,
       ),
@@ -76,11 +76,11 @@ test('keeps calibration stable across Windows startup, resize and same-kind term
     await openTerminalCalibration(window)
     await expect(summary).toHaveAttribute('data-calibration-state', 'already-calibrated')
     const before = await window.evaluate(() => ({
-      sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId('calibration-0'),
+      sessionId: window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId('calibration-0'),
       instanceId:
-        window.__opencoveTerminalSelectionTestApi?.getRenderMetrics('calibration-0')?.instanceId,
-      font: window.__opencoveTerminalSelectionTestApi?.getFontOptions('calibration-0'),
-      stored: localStorage.getItem('opencove:terminal-display-calibration:v1'),
+        window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics('calibration-0')?.instanceId,
+      font: window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions('calibration-0'),
+      stored: localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
     }))
     await window.evaluate(() => {
       const attribute = 'data-calibration-state'
@@ -116,7 +116,7 @@ test('keeps calibration stable across Windows startup, resize and same-kind term
       for (let index = 0; index < 12; index += 1) {
         window.dispatchEvent(new Event('resize'))
         window.visualViewport?.dispatchEvent(new Event('resize'))
-        window.dispatchEvent(new StorageEvent('storage', { key: 'opencove:unrelated-setting' }))
+        window.dispatchEvent(new StorageEvent('storage', { key: 'eclipse-code:unrelated-setting' }))
         // Allow a render between notifications so flicker cannot hide in React batching.
         // eslint-disable-next-line no-await-in-loop
         await new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
@@ -134,11 +134,13 @@ test('keeps calibration stable across Windows startup, resize and same-kind term
     await expect(summary).toHaveAttribute('data-calibration-state', 'already-calibrated')
     expect(
       await window.evaluate(() => ({
-        sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId('calibration-0'),
+        sessionId:
+          window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId('calibration-0'),
         instanceId:
-          window.__opencoveTerminalSelectionTestApi?.getRenderMetrics('calibration-0')?.instanceId,
-        font: window.__opencoveTerminalSelectionTestApi?.getFontOptions('calibration-0'),
-        stored: localStorage.getItem('opencove:terminal-display-calibration:v1'),
+          window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics('calibration-0')
+            ?.instanceId,
+        font: window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions('calibration-0'),
+        stored: localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
       })),
     ).toEqual(before)
     await test.info().attach('windows-calibration-active', {
@@ -156,7 +158,9 @@ test('keeps calibration stable across Windows startup, resize and same-kind term
     await expect(summary).toHaveAttribute('data-calibration-state', 'mixed-renderers')
     await expect(summary).toContainText('different display methods')
     expect(
-      await window.evaluate(() => localStorage.getItem('opencove:terminal-display-calibration:v1')),
+      await window.evaluate(() =>
+        localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
+      ),
     ).toBe(before.stored)
     await test.info().attach('windows-calibration-mixed-renderers', {
       body: await summary.screenshot(),

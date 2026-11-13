@@ -151,10 +151,10 @@ export function defaultIssueReportTitle(kind: IssueReportKind): string {
   }
 
   if (kind === 'app_error') {
-    return 'OpenCove app issue'
+    return 'Eclipse Code app issue'
   }
 
-  return 'OpenCove issue'
+  return 'Eclipse Code issue'
 }
 
 function formatJsonBlock(value: unknown): string {
@@ -386,7 +386,7 @@ export function buildGitHubIssueUrl(input: { title: string; body: string }): str
   params.set('title', input.title)
   params.set('body', input.body)
 
-  let url = `https://github.com/DeadWaveWave/opencove/issues/new?${params.toString()}`
+  let url = `https://github.com/Onlybielzin/eclipse-code/issues/new?${params.toString()}`
   if (url.length <= MAX_GITHUB_URL_CHARS) {
     return url
   }
@@ -399,7 +399,7 @@ export function buildGitHubIssueUrl(input: { title: string; body: string }): str
     const nextParams = new URLSearchParams()
     nextParams.set('title', input.title)
     nextParams.set('body', truncateText(input.body, budget, 'github-url-budget'))
-    url = `https://github.com/DeadWaveWave/opencove/issues/new?${nextParams.toString()}`
+    url = `https://github.com/Onlybielzin/eclipse-code/issues/new?${nextParams.toString()}`
     if (url.length <= MAX_GITHUB_URL_CHARS) {
       return url
     }
@@ -409,7 +409,7 @@ export function buildGitHubIssueUrl(input: { title: string; body: string }): str
   const fallbackParams = new URLSearchParams()
   fallbackParams.set('title', input.title)
   fallbackParams.set('body', truncateText(input.body, GITHUB_BODY_MIN_CHARS, 'github-url-budget'))
-  return `https://github.com/DeadWaveWave/opencove/issues/new?${fallbackParams.toString()}`
+  return `https://github.com/Onlybielzin/eclipse-code/issues/new?${fallbackParams.toString()}`
 }
 
 export function resolveIncludedDiagnostics(

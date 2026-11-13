@@ -23,6 +23,8 @@ export const enCommandCenter = {
       togglePrimarySidebarHint: 'Toggle Primary Sidebar',
       addProject: 'Add Project',
       addProjectHint: 'Create a project and mounts',
+      newTask: 'New task',
+      newTaskHint: 'Create a task with its own worktree; its terminals stay in it',
       enterShowcase: 'Enter Showcase Mode',
       exitShowcase: 'Exit Showcase Mode',
       showcaseHint: 'Hide the interface for recordings and demos',

@@ -16,7 +16,7 @@ function deferred<T>() {
 async function fixture(provider: 'claude' | 'codex') {
   const f = (provider === 'claude' ? inMemoryClaudeHookChannel : inMemoryCodexHookChannel)()
   const reservation = await f.channel.reserveSpawn({ residentContext: 'canvas' })
-  const token = reservation.env![`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]!
+  const token = reservation.env![`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]!
   const reading = deferred<void>()
   const setting = deferred<boolean>()
   let reads = 0
@@ -140,7 +140,7 @@ it('does not revoke an accepted Claude reply for a semantically rejected stale c
     f.reservation.commit('pty')
     const startup = f.send()
     await f.reading.promise
-    const token = f.reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!
+    const token = f.reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!
     expect(
       (
         await f.postReply(token, 'SessionStart', String(Date.now() - 20000), {
@@ -171,7 +171,7 @@ it('invalidates an early Claude reply when the private lifecycle observer reject
       reading.resolve()
       return await setting.promise
     })
-    const token = f.reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!
+    const token = f.reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!
     const stale = f.postReply(token, 'SessionStart', String(Date.now() - 20000), {
       hook_event_name: 'SessionStart',
       source: 'clear',

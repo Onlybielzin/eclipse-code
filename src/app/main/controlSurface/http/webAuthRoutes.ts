@@ -112,7 +112,7 @@ function renderLoginPage(options: { redirectPath: string; errorMessage: string |
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OpenCove Web UI</title>
+    <title>Eclipse Code Web UI</title>
     <style>
       :root { color-scheme: dark; }
       body {
@@ -175,7 +175,7 @@ function renderLoginPage(options: { redirectPath: string; errorMessage: string |
   </head>
   <body>
     <div class="card">
-      <h1>OpenCove Web UI</h1>
+      <h1>Eclipse Code Web UI</h1>
       <p>This Worker requires a password. If you’re on a shared network, consider using an SSH tunnel or VPN.</p>
       <form method="post" action="/auth/login">
         <input type="hidden" name="redirectPath" value="${escapeHtml(options.redirectPath)}" />

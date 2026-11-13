@@ -16,7 +16,7 @@ describeWithElectronNativeModules('grant-created Claude lineage and managed owne
   it.each([true, false])(
     'preserves both creation paths with adoption enabled=%s',
     async enabled => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-lineage-launch-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-lineage-launch-'))
       const registry = new AgentRunStateRegistry({
         epoch: 'lineage',
         now: () => 1,

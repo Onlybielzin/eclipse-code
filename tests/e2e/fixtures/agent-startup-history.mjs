@@ -12,7 +12,7 @@ import {
 
 const [provider, cwd, mode, , id] = process.argv.slice(2)
 assert.equal(process.env.NODE_ENV, 'test')
-assert.equal(process.env.OPENCOVE_TEST_USE_REAL_AGENTS, '0')
+assert.equal(process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS, '0')
 assert.equal(mode, 'resume')
 const file =
   provider === 'claude-code'

@@ -236,7 +236,7 @@ describe('TerminalProfileResolver', () => {
 
     expect(result.env.TERM).toBe('xterm-256color')
     expect(result.env.COLORTERM).toBe('truecolor')
-    expect(result.env.TERM_PROGRAM).toBe('OpenCove')
+    expect(result.env.TERM_PROGRAM).toBe('Eclipse Code')
   })
 
   it('matches Windows profile ids case-insensitively during restore', async () => {
@@ -284,7 +284,7 @@ describe('TerminalProfileResolver', () => {
       command: 'codex',
       args: ['resume', 'session-1'],
       env: {
-        OPENCOVE_OPENCODE_SERVER_PORT: '5173',
+        ECLIPSE_CODE_OPENCODE_SERVER_PORT: '5173',
       },
     })
 
@@ -296,7 +296,7 @@ describe('TerminalProfileResolver', () => {
         '--cd',
         '/mnt/c/repo',
         'env',
-        'OPENCOVE_OPENCODE_SERVER_PORT=5173',
+        'ECLIPSE_CODE_OPENCODE_SERVER_PORT=5173',
         'codex',
         'resume',
         'session-1',
@@ -350,7 +350,7 @@ describe('TerminalProfileResolver', () => {
         PATH: 'C:\\Windows\\System32;C:\\Users\\tester\\bin',
       },
       commandEnv: {
-        OPENCOVE_OPENCODE_SERVER_PORT: '5173',
+        ECLIPSE_CODE_OPENCODE_SERVER_PORT: '5173',
       },
     })
 
@@ -360,7 +360,7 @@ describe('TerminalProfileResolver', () => {
       '--cd',
       '/mnt/c/repo',
       'env',
-      'OPENCOVE_OPENCODE_SERVER_PORT=5173',
+      'ECLIPSE_CODE_OPENCODE_SERVER_PORT=5173',
       'claude',
     ])
     expect(result.env.HOST_ONLY).toBe('2')

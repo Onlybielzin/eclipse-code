@@ -1,8 +1,8 @@
 import type { TerminalLinkTarget } from '../linkProviders/terminal-link-snapshot'
 
-export const TERMINAL_LINK_INVALIDATION_EVENT = 'opencove:terminal-links-invalidated'
+export const TERMINAL_LINK_INVALIDATION_EVENT = 'eclipse-code:terminal-links-invalidated'
 
-export const TERMINAL_LINK_EVENT = 'opencove:terminal-link'
+export const TERMINAL_LINK_EVENT = 'eclipse-code:terminal-link'
 
 export interface TerminalLinkIntent {
   action: 'hover' | 'leave' | 'menu' | 'open'

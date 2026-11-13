@@ -5,7 +5,8 @@ import { defineConfig } from '@playwright/test'
  * instead of gating, because absolute frame times move with machine load; compare only runs from
  * the same batch on the same machine. Run with `pnpm test:perf` after `pnpm build`.
  */
-process.env['OPENCOVE_E2E_WINDOW_MODE'] = process.env['OPENCOVE_E2E_WINDOW_MODE'] ?? 'offscreen'
+process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'] =
+  process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'] ?? 'offscreen'
 
 export default defineConfig({
   testDir: '.',

@@ -22,7 +22,7 @@ describe('ptyHost spawn-helper permissions', () => {
   })
 
   it('repairs a non-executable spawn-helper on macOS arm64', () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), 'opencove-spawn-helper-'))
+    const tempRoot = mkdtempSync(join(tmpdir(), 'eclipse-code-spawn-helper-'))
     tempRoots.push(tempRoot)
 
     const packageRoot = join(tempRoot, 'node-pty')

@@ -10,7 +10,7 @@ import {
 
 const [provider, cwd, mode, , sessionId] = process.argv.slice(2)
 assert.equal(process.env.NODE_ENV, 'test')
-assert.equal(process.env.OPENCOVE_TEST_USE_REAL_AGENTS, '0')
+assert.equal(process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS, '0')
 assert.equal(provider, 'claude-code')
 assert.match(
   sessionId ?? '',
@@ -18,9 +18,9 @@ assert.match(
 )
 assert.equal(homedir(), process.env.HOME)
 assert.equal(process.env.CLAUDE_CONFIG_DIR, path.join(homedir(), '.claude'))
-assert.equal(cwd, process.env.OPENCOVE_TEST_WORKSPACE)
-assert.ok(process.env.OPENCOVE_CLAUDE_HOOK_ENDPOINT)
-assert.ok(process.env.OPENCOVE_CLAUDE_HOOK_TOKEN)
+assert.equal(cwd, process.env.ECLIPSE_CODE_TEST_WORKSPACE)
+assert.ok(process.env.ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT)
+assert.ok(process.env.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN)
 
 const projectDirectory = path.join(
   homedir(),
@@ -51,8 +51,8 @@ await appendFile(
 await reportInjectedTerminalSessionStart(provider, cwd, transcriptPath)
 await reportInjectedTerminalTurnCompleted(provider, cwd, transcriptPath)
 await appendFile(
-  process.env.OPENCOVE_TEST_CLAUDE_OWNERSHIP_LOG,
+  process.env.ECLIPSE_CODE_TEST_CLAUDE_OWNERSHIP_LOG,
   `${JSON.stringify({ mode, sessionId, cwd, pid: process.pid })}\n`,
 )
-process.stdout.write(`[opencove-test-claude-ownership] ${mode}\n${sessionId}\n`)
+process.stdout.write(`[eclipse-code-test-claude-ownership] ${mode}\n${sessionId}\n`)
 process.stdin.resume()

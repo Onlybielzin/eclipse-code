@@ -143,7 +143,7 @@ describe('DOM renderer terminal geometry sync', () => {
         callback()
         return 1
       },
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           resize: ptyResize,
         },

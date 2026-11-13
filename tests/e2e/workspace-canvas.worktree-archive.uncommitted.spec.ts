@@ -27,19 +27,19 @@ async function createTempRepoWithDirtyWorktree(): Promise<{
   worktreePath: string
 }> {
   const repoDir = await mkdtemp(
-    path.join(resolveE2ETmpDir(), 'OpenCove Worktree Archive Dirty E2E '),
+    path.join(resolveE2ETmpDir(), 'Eclipse Code Worktree Archive Dirty E2E '),
   )
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
   await runGit(['add', '.'], repoDir)
   await runGit(['commit', '-m', 'init'], repoDir)
 
-  const worktreesRoot = path.join(repoDir, '.opencove', 'worktrees')
+  const worktreesRoot = path.join(repoDir, '.eclipse-code', 'worktrees')
   await mkdir(worktreesRoot, { recursive: true })
 
   const worktreePath = path.join(worktreesRoot, `dirty-space-${Date.now()}`)
@@ -67,7 +67,7 @@ test.describe('Workspace Canvas - Worktree Archive (Uncommitted changes)', () =>
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 

@@ -1,7 +1,7 @@
 # A guide that matches your build
 
-The documentation library is bundled with OpenCove, so it remains available offline.
-The technical references below are the same files returned by `opencove plugin guide`.
+The documentation library is bundled with Eclipse Code, so it remains available offline.
+The technical references below are the same files returned by `eclipse-code plugin guide`.
 Use those contracts when building a plugin for this version.
 
 ## Build and design
@@ -33,7 +33,7 @@ Use those contracts when building a plugin for this version.
 Copy this command into your terminal or Agent task:
 
 ```sh
-opencove plugin guide
+eclipse-code plugin guide
 ```
 
 The result includes local paths an Agent can read. Ask it to use the supplied API
@@ -41,7 +41,7 @@ and visual guide, create the plugin in an independent directory, install it on t
 intended runtime, and verify its declared capabilities. If it contributes a node
 window, verify that real window and its preview; a plugin with only backend
 commands or other contributions does not need a window. A standalone web page is
-not an installed OpenCove plugin.
+not an installed Eclipse Code plugin.
 
 If the launcher needs repair, use **Settings → Connections → CLI → Install CLI**.
 For setup details, start with [Authoring and verification](../AUTHORING.md).

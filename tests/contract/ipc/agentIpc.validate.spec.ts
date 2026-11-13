@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getAppErrorDebugMessage, OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { getAppErrorDebugMessage, EclipseCodeAppError } from '../../../src/shared/errors/appError'
 
 describe('agent IPC validation', () => {
   it.each([undefined, null, false, true])('preserves Codex reuse policy for %j', async value => {
@@ -24,7 +24,7 @@ describe('agent IPC validation', () => {
         prompt: '',
         codexReuseRunningAppServer: value,
       }),
-    ).toThrow(OpenCoveAppError)
+    ).toThrow(EclipseCodeAppError)
   })
 
   it('accepts Windows absolute cwd values on non-Windows runners', async () => {
@@ -108,8 +108,8 @@ describe('agent IPC validation', () => {
       })
       throw new Error('Expected normalizeLaunchAgentPayload to throw')
     } catch (error) {
-      expect(error).toBeInstanceOf(OpenCoveAppError)
-      expect((error as OpenCoveAppError).code).toBe('common.invalid_input')
+      expect(error).toBeInstanceOf(EclipseCodeAppError)
+      expect((error as EclipseCodeAppError).code).toBe('common.invalid_input')
       expect(getAppErrorDebugMessage(error)).toBe('agent:launch requires an absolute cwd')
     }
 
@@ -120,8 +120,8 @@ describe('agent IPC validation', () => {
       })
       throw new Error('Expected normalizeListSessionsPayload to throw')
     } catch (error) {
-      expect(error).toBeInstanceOf(OpenCoveAppError)
-      expect((error as OpenCoveAppError).code).toBe('common.invalid_input')
+      expect(error).toBeInstanceOf(EclipseCodeAppError)
+      expect((error as EclipseCodeAppError).code).toBe('common.invalid_input')
       expect(getAppErrorDebugMessage(error)).toBe('agent:list-sessions requires an absolute cwd')
     }
   })
@@ -134,8 +134,8 @@ describe('agent IPC validation', () => {
       normalizeInstallProviderPayload({ provider: 'unknown' })
       throw new Error('Expected normalizeInstallProviderPayload to throw')
     } catch (error) {
-      expect(error).toBeInstanceOf(OpenCoveAppError)
-      expect((error as OpenCoveAppError).code).toBe('common.invalid_input')
+      expect(error).toBeInstanceOf(EclipseCodeAppError)
+      expect((error as EclipseCodeAppError).code).toBe('common.invalid_input')
       expect(getAppErrorDebugMessage(error)).toBe('Invalid provider')
     }
   })

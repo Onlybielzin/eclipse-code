@@ -41,7 +41,7 @@ vi.mock('../../../src/app/main/controlSurface/controlSurfaceHttpListener', () =>
 import { createControlSurfaceHttpRuntime } from '../../../src/app/main/controlSurface/controlSurfaceHttpRuntime'
 
 it('production Worker issues canvas credentials, exposes shim and whoami, and revokes on kill/exit/shutdown', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'opencove-grant-production-'))
+  const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-grant-production-'))
   const store = createInMemoryPersistenceStore()
   await store.writeAppState(createMinimalState(dir, 'project', 'space'))
   const exits = new Set<(event: { sessionId: string; exitCode: number }) => void>()
@@ -166,27 +166,33 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
     published.workspaces[0].spaces[0].nodeIds = ['node']
     expect(await store.writeAppState(published)).toMatchObject({ ok: true })
     expect(env).toMatchObject({
-      OPENCOVE_ENV: '1',
-      OPENCOVE_NODE_ID: 'node',
-      OPENCOVE_PROJECT_ID: 'project',
-      OPENCOVE_SPACE_ID: 'space',
-      OPENCOVE_CONTROL_URL: 'http://127.0.0.1:12345',
+      ECLIPSE_CODE_ENV: '1',
+      ECLIPSE_CODE_NODE_ID: 'node',
+      ECLIPSE_CODE_PROJECT_ID: 'project',
+      ECLIPSE_CODE_SPACE_ID: 'space',
+      ECLIPSE_CODE_CONTROL_URL: 'http://127.0.0.1:12345',
     })
-    const token = env.OPENCOVE_CONTROL_TOKEN!
+    const token = env.ECLIPSE_CODE_CONTROL_TOKEN!
     expect(token).not.toBe('worker-secret')
     expect(JSON.stringify(launched)).not.toContain(token)
     const bin = env.PATH!.split(delimiter)[0]
-    expect(await readFile(join(bin, 'opencove'), 'utf8')).toContain('"$OPENCOVE_CLI" "$@"')
-    expect(await readFile(join(bin, 'opencove.cmd'), 'utf8')).toContain('"%OPENCOVE_CLI%" %*')
+    expect(await readFile(join(bin, 'eclipse-code'), 'utf8')).toContain('"$ECLIPSE_CODE_CLI" "$@"')
+    expect(await readFile(join(bin, 'eclipse-code.cmd'), 'utf8')).toContain(
+      '"%ECLIPSE_CODE_CLI%" %*',
+    )
     if (process.platform !== 'win32') {
       const cliFixture = join(dir, 'cli fixture.mjs')
       await writeFile(
         cliFixture,
-        'process.stdout.write(JSON.stringify({ args: process.argv.slice(2), hasCredential: !!process.env.OPENCOVE_CONTROL_TOKEN }))',
+        'process.stdout.write(JSON.stringify({ args: process.argv.slice(2), hasCredential: !!process.env.ECLIPSE_CODE_CONTROL_TOKEN }))',
       )
-      const output = await promisify(execFile)(join(bin, 'opencove'), ['argument with spaces'], {
-        env: { ...env, OPENCOVE_CLI: cliFixture },
-      })
+      const output = await promisify(execFile)(
+        join(bin, 'eclipse-code'),
+        ['argument with spaces'],
+        {
+          env: { ...env, ECLIPSE_CODE_CLI: cliFixture },
+        },
+      )
       expect(JSON.parse(output.stdout)).toEqual({
         args: ['argument with spaces'],
         hasCredential: true,
@@ -213,7 +219,8 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
       killCount: () => kill.mock.calls.length,
     })
     expect(createLaunchPlan).toHaveBeenCalledWith(
-      expect.objectContaining({ agentFullAccess: false }),
+      // Eclipse Code launches agents in full access (bypass) by default.
+      expect.objectContaining({ agentFullAccess: true }),
     )
     await delegate()
     const mount = await invoke('mount.create', {
@@ -283,7 +290,7 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
     })
     expect(second.result.ok).toBe(true)
     exits.forEach(emit => emit({ sessionId: second.result.value.sessionId, exitCode: 0 }))
-    const secondToken = spawn.mock.calls.at(-1)![0].env!.OPENCOVE_CONTROL_TOKEN!
+    const secondToken = spawn.mock.calls.at(-1)![0].env!.ECLIPSE_CODE_CONTROL_TOKEN!
     expect(await unauthorized(secondToken)).toBe(401)
     const mounted = await invoke('pty.spawnInMount', {
       mountId: mount.result.value.mount.mountId,
@@ -293,7 +300,7 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
       command: '/bin/sh',
     })
     expect(mounted.result).toMatchObject({ ok: true })
-    expect(spawn.mock.calls.at(-1)![0].env!.OPENCOVE_NODE_ID).toBe('mounted')
+    expect(spawn.mock.calls.at(-1)![0].env!.ECLIPSE_CODE_NODE_ID).toBe('mounted')
     const created = await invoke('node.create', {
       kind: 'terminal',
       space: { kind: 'spaceId', spaceId: 'space' },
@@ -301,9 +308,9 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
     })
     expect(created.result.error).toBeUndefined()
     const createdEnv = spawn.mock.calls.at(-1)![0].env!
-    expect(createdEnv.OPENCOVE_NODE_ID).toBe(created.result.value.node.id)
+    expect(createdEnv.ECLIPSE_CODE_NODE_ID).toBe(created.result.value.node.id)
     const createdSession = (
-      await invoke('system.whoami', {}, createdEnv.OPENCOVE_CONTROL_TOKEN!, 'query')
+      await invoke('system.whoami', {}, createdEnv.ECLIPSE_CODE_CONTROL_TOKEN!, 'query')
     ).result.value.sessionId
     await invoke('session.kill', { sessionId: createdSession })
     const recovered = await invoke('session.prepareOrRevive', {
@@ -312,13 +319,15 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
     })
     expect(recovered.result.error).toBeUndefined()
     const recoveredEnv = spawn.mock.calls.at(-1)![0].env!
-    expect(recoveredEnv.OPENCOVE_NODE_ID).toBe(createdEnv.OPENCOVE_NODE_ID)
-    expect(recoveredEnv.OPENCOVE_CONTROL_TOKEN !== createdEnv.OPENCOVE_CONTROL_TOKEN).toBe(true)
-    expect(await unauthorized(createdEnv.OPENCOVE_CONTROL_TOKEN)).toBe(401)
+    expect(recoveredEnv.ECLIPSE_CODE_NODE_ID).toBe(createdEnv.ECLIPSE_CODE_NODE_ID)
+    expect(recoveredEnv.ECLIPSE_CODE_CONTROL_TOKEN !== createdEnv.ECLIPSE_CODE_CONTROL_TOKEN).toBe(
+      true,
+    )
+    expect(await unauthorized(createdEnv.ECLIPSE_CODE_CONTROL_TOKEN)).toBe(401)
     const denied = await invoke(
       'pty.spawn',
       { cwd: dir, canvasNodeId: 'spoof', workspaceId: 'project' },
-      recoveredEnv.OPENCOVE_CONTROL_TOKEN!,
+      recoveredEnv.ECLIPSE_CODE_CONTROL_TOKEN!,
     )
     expect(denied.result).toMatchObject({ ok: false, error: { code: 'common.forbidden' } })
     const agent = await invoke('session.launchAgent', {
@@ -332,8 +341,8 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
     expect(agent.result.error).toBeUndefined()
     const agentEnv = spawn.mock.calls.at(-1)![0].env!
     expect(
-      (await invoke('system.whoami', {}, agentEnv.OPENCOVE_CONTROL_TOKEN!, 'query')).result.value
-        .nodeId,
+      (await invoke('system.whoami', {}, agentEnv.ECLIPSE_CODE_CONTROL_TOKEN!, 'query')).result
+        .value.nodeId,
     ).toBe('agent')
     const mountedAgent = await invoke('session.launchAgentInMount', {
       mountId: mount.result.value.mount.mountId,
@@ -344,11 +353,11 @@ it('production Worker issues canvas credentials, exposes shim and whoami, and re
       provider: 'codex',
     })
     expect(mountedAgent.result.error).toBeUndefined()
-    expect(spawn.mock.calls.at(-1)![0].env!.OPENCOVE_NODE_ID).toBe('mounted-agent')
+    expect(spawn.mock.calls.at(-1)![0].env!.ECLIPSE_CODE_NODE_ID).toBe('mounted-agent')
     const logPaths = await readdir(join(dir, 'logs')).catch(() => [] as string[])
     const logs = await Promise.all(logPaths.map(path => readFile(join(dir, 'logs', path), 'utf8')))
     for (const [call] of spawn.mock.calls) {
-      const credential = call.env!.OPENCOVE_CONTROL_TOKEN!
+      const credential = call.env!.ECLIPSE_CODE_CONTROL_TOKEN!
       expect([...logs, ...responses].some(value => value.includes(credential))).toBe(false)
     }
     runtime.beginShutdown()

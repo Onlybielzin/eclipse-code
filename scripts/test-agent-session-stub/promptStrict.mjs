@@ -4,8 +4,8 @@ import { appendFile, readFile } from 'node:fs/promises'
 /** Pasted CRs are data; only an unwrapped CR submits. Shared by strict provider fixtures. */
 export async function runPromptStrictScenario(cwd, providerArgs, createHook) {
   const decoder = new StringDecoder('utf8')
-  const recordPath = process.env.OPENCOVE_TEST_PROMPT_RECORD
-  const dialogPath = process.env.OPENCOVE_TEST_PROMPT_DIALOG
+  const recordPath = process.env.ECLIPSE_CODE_TEST_PROMPT_RECORD
+  const dialogPath = process.env.ECLIPSE_CODE_TEST_PROMPT_DIALOG
   const record = async event => {
     if (recordPath) {
       await appendFile(recordPath, JSON.stringify(event) + '\n')

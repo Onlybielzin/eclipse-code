@@ -1,8 +1,8 @@
 import type { PersistWriteResult } from '../contracts/dto/persistence'
-import { OpenCoveAppError, isAppErrorDescriptor, toAppErrorDescriptor } from '../errors/appError'
+import { EclipseCodeAppError, isAppErrorDescriptor, toAppErrorDescriptor } from '../errors/appError'
 export type WriteFailure = Extract<PersistWriteResult, { ok: false }>
 /** Preserve the submission boundary even when an adapter performs preparatory reads. */
-class SubmissionError extends OpenCoveAppError {
+class SubmissionError extends EclipseCodeAppError {
   readonly failure: WriteFailure
   readonly original: unknown
   constructor(error: unknown) {
@@ -31,7 +31,7 @@ export function persistenceWriteFailure(
   }
   const descriptor = toAppErrorDescriptor(error, 'persistence.io_failed')
   const rejected =
-    (isAppErrorDescriptor(error) || error instanceof OpenCoveAppError) &&
+    (isAppErrorDescriptor(error) || error instanceof EclipseCodeAppError) &&
     descriptor.code !== 'persistence.io_failed' &&
     descriptor.code !== 'persistence.unavailable'
   return { ok: false, reason: 'io', error: descriptor, outcome: rejected ? 'rejected' : fallback }

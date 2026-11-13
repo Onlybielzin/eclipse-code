@@ -46,7 +46,7 @@ async function readRolePersistence(window: Page): Promise<{
 }> {
   return await window.evaluate(
     async ({ workspaceId, spaceId }) => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       if (!raw) {
         return {
           roleId: null,
@@ -106,7 +106,7 @@ async function replaceWorkspaceMount(window: Page): Promise<{
 }> {
   return await window.evaluate(
     async ({ workspaceId, rootPath }) => {
-      const mountResult = await window.opencoveApi.controlSurface.invoke<{
+      const mountResult = await window.eclipseCodeApi.controlSurface.invoke<{
         mounts: Array<{ mountId: string; rootPath: string }>
       }>({
         kind: 'query',
@@ -121,7 +121,7 @@ async function replaceWorkspaceMount(window: Page): Promise<{
 
       await Promise.all(
         mountResult.mounts.map(mount =>
-          window.opencoveApi.controlSurface
+          window.eclipseCodeApi.controlSurface
             .invoke({
               kind: 'command',
               id: 'mount.remove',
@@ -131,7 +131,7 @@ async function replaceWorkspaceMount(window: Page): Promise<{
         ),
       )
 
-      const created = await window.opencoveApi.controlSurface.invoke<{
+      const created = await window.eclipseCodeApi.controlSurface.invoke<{
         mount: { mountId: string }
       }>({
         kind: 'command',

@@ -33,12 +33,12 @@ An unregistered Worker selector returns `worker.unavailable` with
 `reason: "worker_not_found"`; a missing endpoint ID returns it with
 `reason: "endpoint_not_found"`. A registered endpoint without a resolved connection
 returns `reason: "endpoint_connection_unavailable"`. All three are non-retryable;
-use `opencove endpoint list` to inspect registered targets. Generic remote failures
+use `eclipse-code endpoint list` to inspect registered targets. Generic remote failures
 without verified refusal use `reason: "connection_failed"` and also remain false.
 
 未注册 Worker、缺失 endpoint、已注册但没有可用连接，分别通过 worker_not_found、
 endpoint_not_found、endpoint_connection_unavailable 区分，均不可原样重试；请用
-`opencove endpoint list` 检查已注册目标。未经确认的其他连接失败标为 connection_failed，
+`eclipse-code endpoint list` 检查已注册目标。未经确认的其他连接失败标为 connection_failed，
 同样保持 false。CLI 不根据消息文本推断任何一种情况。
 
 A mutation dispatch makes the whole command non-retryable, including generic
@@ -98,9 +98,9 @@ Space 列表默认不展开节点对象。其余列表保留原有的显式 `--l
 距离排序。内部选择器、context 和任务关联查询始终读取完整列表，指定节点的操作不受默认上限影响。
 
 ```sh
-opencove node list --fields id,title
-opencove node list --full --fields id,title
-opencove agent list --limit 100 -o table
+eclipse-code node list --fields id,title
+eclipse-code node list --full --fields id,title
+eclipse-code agent list --limit 100 -o table
 ```
 
 ## Terminal reads / 终端读取
@@ -128,8 +128,8 @@ history cleared by the terminal or lost at session replacement is unavailable.
 模式。读取操作不会发送任何输入。
 
 ```sh
-opencove agent read --node "Shell" --screen --lines 20
-opencove agent read --node "Reviewer" --scrollback --lines 500 -o json
+eclipse-code agent read --node "Shell" --screen --lines 20
+eclipse-code agent read --node "Reviewer" --scrollback --lines 500 -o json
 ```
 
 ## Creation identifiers / 创建结果标识
@@ -147,7 +147,7 @@ remain on stderr. There is currently no `space create` command.
 
 A standalone `session run-agent --space <selector>` keeps its session-bound
 interact grant, project/Space identity, connection and CLI shims. It creates no
-canvas node: OPENCOVE_NODE_ID is absent; whoami reports nodeId: null and context
+canvas node: ECLIPSE_CODE_NODE_ID is absent; whoami reports nodeId: null and context
 reports self.nodeId: null and self.node: null. Use explicit --node targets for
 node operations and --space for node list/create. Node @self and implicit
 node-based placement fail with these options in the recovery hint. Space/project
@@ -158,7 +158,7 @@ abilities, including notes, but cannot create agent or terminal runtimes. Ask th
 an agent on the canvas for runtime delegation.
 
 独立的 `session run-agent --space <selector>` 保留绑定当前 session 的 interact 授权、
-project/Space 身份、连接变量及 CLI shims，但不创建画布节点，也不注入 OPENCOVE_NODE_ID。
+project/Space 身份、连接变量及 CLI shims，但不创建画布节点，也不注入 ECLIPSE_CODE_NODE_ID。
 whoami 的 nodeId 为 null，context 的 self.nodeId 和 self.node 也为 null。节点操作请显式
 指定 --node，node list/create 请指定 --space。节点 @self 和依赖节点的默认放置会失败，
 并给出这些选项；session 仍可使用已有作用域的 Space/project @self。session 退出、kill 或

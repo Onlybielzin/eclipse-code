@@ -23,13 +23,13 @@ describe('recovered terminal fresh-output predicate', () => {
     presentation = new TerminalPresentationSession({ sessionId: input.sessionId, ...grid })
     proposed = { ...grid }
     vi.stubGlobal('window', {
-      __opencoveTerminalSelectionTestApi: {
+      __eclipseCodeTerminalSelectionTestApi: {
         getBufferText: (_nodeId: string, marker: string) =>
           readTerminalBufferTextForTest(terminal, marker),
         getSize: () => ({ cols: terminal.cols, rows: terminal.rows }),
         getProposedGeometry: () => proposed,
       },
-      opencoveApi: { pty: { presentationSnapshot: () => presentation.snapshot() } },
+      eclipseCodeApi: { pty: { presentationSnapshot: () => presentation.snapshot() } },
     })
   })
 
@@ -100,7 +100,7 @@ describe('recovered terminal fresh-output predicate', () => {
 
   it('does not accept an unavailable renderer buffer', async () => {
     await write(`${output}\r\n`)
-    vi.spyOn(window.__opencoveTerminalSelectionTestApi!, 'getBufferText').mockReturnValue(null)
+    vi.spyOn(window.__eclipseCodeTerminalSelectionTestApi!, 'getBufferText').mockReturnValue(null)
 
     expect(await recoveredTerminalHasFreshOutput(input)).toBe(false)
   })

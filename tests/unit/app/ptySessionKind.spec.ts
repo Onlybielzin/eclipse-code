@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FakeTerminalProcessEngine } from '../../support/FakeTerminalProcessEngine'
 
 vi.mock('electron', () => ({
-  app: { getPath: () => '/tmp/opencove-reap-test' },
+  app: { getPath: () => '/tmp/eclipse-code-reap-test' },
   webContents: { getAllWebContents: () => [], fromId: () => null },
 }))
 afterEach(() => vi.resetModules())

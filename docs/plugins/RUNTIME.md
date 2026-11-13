@@ -1,7 +1,7 @@
 # Independent plugin runtime
 
 The installation registry is the sole source of available plugins. A fresh
-installation has no bundled validation plugins. Authors do not edit OpenCove,
+installation has no bundled validation plugins. Authors do not edit Eclipse Code,
 register a React component in the host, or run
 a separate development web server. The package and browser API are in [API.md](API.md).
 
@@ -155,7 +155,7 @@ restore, declaration validation, JSON bounds and cleanup; HTTP/WebSocket contrac
 for auth, lease revocation, readiness, addressed replies and resource paths;
 real Desktop/Web tests installing the published example from an independent
 directory. The authoring acceptance test is a fresh Agent that receives product
-requirements and `opencove plugin guide`, without host-source instructions.
+requirements and `eclipse-code plugin guide`, without host-source instructions.
 Command acceptance must also exercise no-window backend execution, real browser
 handlers, multi-client ambiguity, reload/disconnect fencing and lack of retries.
 Singleton tests use durable nodes across projects and concurrent opens; a lease
@@ -164,7 +164,7 @@ count cannot prove singleton correctness.
 The design applies the process and message-boundary principles documented in
 [VS Code's extension host](https://code.visualstudio.com/api/advanced-topics/extension-host)
 and [webview API](https://code.visualstudio.com/api/extension-guides/webview), while
-keeping OpenCove's Worker ownership and persistent canvas windows.
+keeping Eclipse Code's Worker ownership and persistent canvas windows.
 Command metadata and execution remain separate as in
 [VS Code commands](https://code.visualstudio.com/api/extension-guides/command);
 packaged instructions follow the [Agent Skills format](https://agentskills.io/specification).

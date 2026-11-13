@@ -8,9 +8,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
-const port = Number.parseInt(process.env.OPENCOVE_DEFAULT_DEV_AGENT_PORT ?? '9444', 10)
-const pnpmCommand = process.env.OPENCOVE_DEFAULT_DEV_AGENT_PNPM_COMMAND ?? 'pnpm'
-const requestedProvider = process.env.OPENCOVE_DEFAULT_DEV_AGENT_PROVIDER ?? null
+const port = Number.parseInt(process.env.ECLIPSE_CODE_DEFAULT_DEV_AGENT_PORT ?? '9444', 10)
+const pnpmCommand = process.env.ECLIPSE_CODE_DEFAULT_DEV_AGENT_PNPM_COMMAND ?? 'pnpm'
+const requestedProvider = process.env.ECLIPSE_CODE_DEFAULT_DEV_AGENT_PROVIDER ?? null
 const providerMarkers = {
   codex: /OpenAI\s+Codex|Codex/i,
   'claude-code': /Claude\s+Code|Welcome/i,
@@ -70,7 +70,7 @@ async function waitForCdp() {
 
 async function readDevState(page) {
   return await page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw().catch(() => null)
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw().catch(() => null)
     const state =
       typeof raw === 'string' && raw.length > 0
         ? (() => {
@@ -103,7 +103,7 @@ async function readDevState(page) {
 
 async function readTerminalDomSnapshot(page) {
   return await page.evaluate(() => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const terminalNodes = [...document.querySelectorAll('.terminal-node')].map(terminalNode => {
       const flowNode =
         terminalNode.closest('.react-flow__node') ?? terminalNode.closest('[data-id]')
@@ -237,7 +237,7 @@ async function waitForProviderScreen(page, sessionId, provider) {
   while (Date.now() < deadline) {
     latest = await page.evaluate(
       async id =>
-        await window.opencoveApi.pty.presentationSnapshot({ sessionId: id }).catch(error => ({
+        await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }).catch(error => ({
           error: error instanceof Error ? error.message : String(error),
         })),
       sessionId,
@@ -259,7 +259,7 @@ async function waitForProviderScreen(page, sessionId, provider) {
 async function readTerminalGeometry(page, nodeId, sessionId) {
   return await page.evaluate(
     async ({ currentNodeId, currentSessionId }) => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       const flowNode = [...document.querySelectorAll('.react-flow__node')].find(node => {
         if (!(node instanceof HTMLElement)) {
           return false
@@ -294,7 +294,7 @@ async function readTerminalGeometry(page, nodeId, sessionId) {
       const proposedGeometry = api?.getProposedGeometry?.(currentNodeId) ?? null
       const renderMetrics = api?.getRenderMetrics?.(currentNodeId) ?? null
       const fontOptions = api?.getFontOptions?.(currentNodeId) ?? null
-      const snapshot = await window.opencoveApi.pty
+      const snapshot = await window.eclipseCodeApi.pty
         .presentationSnapshot({ sessionId: currentSessionId })
         .catch(() => null)
       const contentWidth =
@@ -361,8 +361,8 @@ async function backupDefaultDevUserData(artifactDir) {
     return null
   }
 
-  const userDataDir = path.join(appData, 'opencove-dev')
-  const backupDir = path.join(artifactDir, 'opencove-dev-backup')
+  const userDataDir = path.join(appData, 'eclipse-code-dev')
+  const backupDir = path.join(artifactDir, 'eclipse-code-dev-backup')
   await cp(userDataDir, backupDir, { recursive: true, force: true }).catch(() => undefined)
   return { userDataDir, backupDir }
 }
@@ -379,7 +379,7 @@ async function main() {
   await mkdir(artifactDir, { recursive: true })
   if (await isCdpAlive()) {
     throw new Error(
-      `[default-dev-agent] remote debugging port ${port} is already in use; close the existing dev app or set OPENCOVE_DEFAULT_DEV_AGENT_PORT`,
+      `[default-dev-agent] remote debugging port ${port} is already in use; close the existing dev app or set ECLIPSE_CODE_DEFAULT_DEV_AGENT_PORT`,
     )
   }
 
@@ -387,8 +387,8 @@ async function main() {
   const logs = []
   const env = {
     ...process.env,
-    OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-    OPENCOVE_TERMINAL_TEST_API: '1',
+    ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+    ECLIPSE_CODE_TERMINAL_TEST_API: '1',
   }
   delete env.ELECTRON_RUN_AS_NODE
 
@@ -424,7 +424,7 @@ async function main() {
       (await context.waitForEvent('page'))
 
     await page.waitForLoadState('domcontentloaded')
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.worker?.getStatus), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.worker?.getStatus), null, {
       timeout: 60_000,
     })
 
@@ -433,13 +433,13 @@ async function main() {
       dom: await readTerminalDomSnapshot(page),
       worker: await page.evaluate(
         async () =>
-          await window.opencoveApi.worker.getStatus().catch(error => ({
+          await window.eclipseCodeApi.worker.getStatus().catch(error => ({
             error: error instanceof Error ? error.message : String(error),
           })),
       ),
       providerAvailability: await page.evaluate(
         async () =>
-          await window.opencoveApi.agent.listInstalledProviders({}).catch(error => ({
+          await window.eclipseCodeApi.agent.listInstalledProviders({}).catch(error => ({
             error: error instanceof Error ? error.message : String(error),
           })),
       ),

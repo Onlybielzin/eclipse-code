@@ -4,6 +4,8 @@ export const zhCNWorkspaceCanvas = {
     newNote: '新建便签',
     newWebsite: '新建网页窗口',
     newTask: '新建任务',
+    createDefaultTeam: 'Create default team (Lead, Devs, Tests, Reviewer)',
+    configureTeam: 'Configure team',
     newRole: '新建角色',
     runAgent: '运行 Agent',
     chooseAgent: '选择 Agent',

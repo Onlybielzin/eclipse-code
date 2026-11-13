@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { WorkerSection } from '../../../src/contexts/settings/presentation/renderer/settingsPanel/WorkerSection'
 
 function installWorkerApi(): void {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       meta: { isPackaged: false },
@@ -42,7 +42,7 @@ function installWorkerApi(): void {
 
 describe('WorkerSection hierarchy', () => {
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 

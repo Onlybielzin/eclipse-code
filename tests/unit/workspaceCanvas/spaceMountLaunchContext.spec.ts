@@ -20,7 +20,7 @@ describe('resolveSpaceMountLaunchContext', () => {
     }
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         controlSurface: {
           invoke: vi.fn(async () => ({
             projectId: 'workspace-1',

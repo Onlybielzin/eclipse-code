@@ -3,7 +3,8 @@ import { expect, type ElectronApplication } from '@playwright/test'
 export async function prepareIdleWebsiteSnapshot(electronApp: ElectronApplication): Promise<void> {
   const observation = await electronApp.evaluate(async ({ BrowserWindow }) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const runtime = win.__opencoveWebsiteWindowManager?.runtimeByNodeId.get('website-freeze-node')
+    const runtime =
+      win.__eclipseCodeWebsiteWindowManager?.runtimeByNodeId.get('website-freeze-node')
     if (!runtime?.view) {
       throw new Error('Website view unavailable')
     }

@@ -87,7 +87,9 @@ for (const appearance of ['dark', 'light'] as const) {
           }
           // The two colours mix: the hue moves toward the light's and stops between them.
           const gap = hueShift(a, palette.spot)
-          if (gap > 20) {
+          // Near-opposite hues (the red Eclipse spot over the green shell light) mix through grey,
+          // so "toward the light" has no shortest direction there.
+          if (gap > 20 && gap < 170) {
             expect(hueShift(b, palette.spot)).toBeLessThan(gap)
             expect(hueShift(a, b) + hueShift(b, palette.spot)).toBeLessThanOrEqual(gap + 2)
             maxShare = Math.max(maxShare, hueShift(a, b) / gap)

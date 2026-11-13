@@ -1,9 +1,9 @@
 /// <reference types="vite/client" />
 
-import { OpenCoveApi } from '../preload/index'
+import { EclipseCodeApi } from '../preload/index'
 
 declare global {
   interface Window {
-    opencoveApi: OpenCoveApi
+    eclipseCodeApi: EclipseCodeApi
   }
 }

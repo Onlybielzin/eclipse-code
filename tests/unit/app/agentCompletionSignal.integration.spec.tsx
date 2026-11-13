@@ -96,7 +96,7 @@ it('flashes and publishes the shockwave for the fixture hook sequence even befor
         url: '/hooks/claude',
         headers: {
           'content-type': 'application/json',
-          'x-opencove-hook-token': reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN,
+          'x-eclipse-code-hook-token': reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN,
         },
         setTimeout: () => {},
         destroy: () => {},

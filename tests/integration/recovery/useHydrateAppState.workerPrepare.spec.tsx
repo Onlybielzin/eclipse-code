@@ -111,7 +111,7 @@ function createHarness(
 describe('useHydrateAppState worker prepare', () => {
   it('prefers the worker prepare/revive path for the initial active workspace', async () => {
     const storage = installMockStorage()
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(createPersistedState()))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(createPersistedState()))
 
     const spawn = vi.fn(async () => ({ sessionId: 'should-not-spawn' }))
     const launch = vi.fn(async () => ({ sessionId: 'should-not-launch' }))
@@ -166,7 +166,7 @@ describe('useHydrateAppState worker prepare', () => {
       }
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -212,7 +212,7 @@ describe('useHydrateAppState worker prepare', () => {
 
   it('shows the active workspace before worker prepare resolves without using local recovery', async () => {
     const storage = installMockStorage()
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(createPersistedState()))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(createPersistedState()))
 
     const prepareDeferred = createDeferred<{
       workspaceId: string
@@ -243,7 +243,7 @@ describe('useHydrateAppState worker prepare', () => {
     const launch = vi.fn(async () => ({ sessionId: 'should-not-launch' }))
     const controlSurfaceInvoke = vi.fn(() => prepareDeferred.promise)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -327,7 +327,7 @@ describe('useHydrateAppState worker prepare', () => {
 
   it('does not fall back to local runtime hydration when worker prepare fails in electron', async () => {
     const storage = installMockStorage()
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(createPersistedState()))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(createPersistedState()))
 
     const spawn = vi.fn(async () => ({ sessionId: 'should-not-spawn' }))
     const launch = vi.fn(async () => ({ sessionId: 'should-not-launch' }))
@@ -335,7 +335,7 @@ describe('useHydrateAppState worker prepare', () => {
       throw new Error('worker unavailable')
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

@@ -12,7 +12,7 @@ import {
 
 export interface TerminalAgentTelemetryAssets {
   readonly bashRcPath: string
-  /** Holds only the `opencove` CLI shims; safe to put on any canvas session's PATH. */
+  /** Holds only the `eclipse-code` CLI shims; safe to put on any canvas session's PATH. */
   readonly cliShimDirectory: string
   readonly launcherPath: string
   readonly planDirectory: string

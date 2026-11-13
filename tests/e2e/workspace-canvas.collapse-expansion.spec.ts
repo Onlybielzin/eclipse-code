@@ -128,7 +128,7 @@ for (const behavior of ['default', 'find-space'] as const) {
         })
       expect(
         await window.evaluate(async id => {
-          const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId: id })
+          const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id })
           return { cols: snapshot.cols, rows: snapshot.rows }
         }, identity.sessionId!),
       ).toEqual(identity.size)

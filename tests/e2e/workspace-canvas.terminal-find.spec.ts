@@ -43,7 +43,7 @@ test.describe('Workspace Canvas - Terminal Find', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(nodeId => {
-            const api = window.__opencoveTerminalSelectionTestApi
+            const api = window.__eclipseCodeTerminalSelectionTestApi
             return api?.getSelection(nodeId) ?? ''
           }, 'node-terminal-find')
         })

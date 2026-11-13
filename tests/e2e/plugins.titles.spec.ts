@@ -33,7 +33,7 @@ test('reports acknowledged SDK titles to CLI while preserving the saved window n
   const source = await createCommandPlugin('single')
   await writeFile(
     join(source.directory, 'view.js'),
-    `const api = window.opencovePlugin;
+    `const api = window.eclipseCodePlugin;
     api.ready.then(async context => {
       const output = document.querySelector('#label');
       const key = 'title-' + context.nodeId;
@@ -104,7 +104,7 @@ test('reports acknowledged SDK titles to CLI while preserving the saved window n
     await capturePlugins(page, info, 'plugin-content-title-cli-agreement')
     await writeFile(
       join(source.directory, 'view.js'),
-      `window.opencovePlugin.ready.then(() => {
+      `window.eclipseCodePlugin.ready.then(() => {
       document.querySelector('#label').textContent = 'No custom title';
       document.querySelector('#ready').textContent = 'Ready';
     });`,

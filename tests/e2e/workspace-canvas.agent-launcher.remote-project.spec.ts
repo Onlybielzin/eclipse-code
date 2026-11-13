@@ -19,7 +19,7 @@ test('remote project context menu launches terminal and agents in its default re
   const remoteToken = `m6-e2e-${randomUUID()}`
   const remotePort = await reserveLoopbackPort()
   const remoteHost = '127.0.0.1'
-  const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-m6-remote-'))
+  const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-'))
   const remoteOnlyDir = path.join(remoteBaseDir, 'remote-only')
   await mkdir(remoteOnlyDir, { recursive: true })
   await writeFile(path.join(remoteOnlyDir, 'space-target.txt'), 'remote Space target verified')
@@ -29,7 +29,7 @@ test('remote project context menu launches terminal and agents in its default re
     createHash('sha1').update(remoteOnlyDirCanonical).digest('hex').slice(0, 12),
   ])
   const remoteWorkerUserDataDir = await mkdtemp(
-    path.join(tmpdir(), 'opencove-e2e-m6-remote-worker-'),
+    path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-worker-'),
   )
   const remoteWorkerHomeDir = remoteBaseDir
   const remoteWorker = await startRemoteWorker({
@@ -45,11 +45,11 @@ test('remote project context menu launches terminal and agents in its default re
     const userDataDir = await createTestUserDataDir()
     const { electronApp, window } = await launchApp({
       userDataDir,
-      env: { OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only' },
+      env: { ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only' },
     })
     try {
       await window.evaluate(async () => {
-        const result = await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        const result = await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -65,7 +65,7 @@ test('remote project context menu launches terminal and agents in its default re
       const remoteEndpointId = await window.evaluate(
         async connection => {
           const result =
-            await window.opencoveApi.controlSurface.invoke<RegisterWorkerEndpointResult>({
+            await window.eclipseCodeApi.controlSurface.invoke<RegisterWorkerEndpointResult>({
               kind: 'command',
               id: 'endpoint.register',
               payload: { ...connection, displayName: 'Remote agent regression worker' },

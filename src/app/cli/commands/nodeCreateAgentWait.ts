@@ -59,8 +59,8 @@ export async function waitForCreatedAgent(
       throw new CliError(
         error.code,
         error.exitCode,
-        'The agent needs the user’s approval or input in OpenCove.',
-        `The agent node was created. Do not repeat node create agent. Resume with opencove agent wait --node ${shellWord(ids.nodeId)} --turn ${shellWord(ids.turnId)}.`,
+        'The agent needs the user’s approval or input in Eclipse Code.',
+        `The agent node was created. Do not repeat node create agent. Resume with eclipse-code agent wait --node ${shellWord(ids.nodeId)} --turn ${shellWord(ids.turnId)}.`,
         { ...(error.details as object), ...ids },
         error.debugMessage,
       )

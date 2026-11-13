@@ -49,7 +49,7 @@ test('morphs a live terminal into its icon and back without remounting or resizi
     expect(await readTerminalIdentity(window)).toEqual(identity)
     expect(
       await window.evaluate(async sessionId => {
-        const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+        const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
         return { cols: snapshot.cols, rows: snapshot.rows }
       }, identity.sessionId!),
     ).toEqual(identity.size)

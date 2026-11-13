@@ -239,7 +239,7 @@ export function useWorkspaceCanvasSpaceExplorer({
       }
 
       const filesystem = resolveFilesystemApiForMount(preview.mountId)
-      const workspace = window.opencoveApi?.workspace
+      const workspace = window.eclipseCodeApi?.workspace
       const mimeType = resolveCanvasImageMimeType(preview.uri)
       if (!filesystem?.readFileBytes || !workspace?.writeCanvasImage || !mimeType) {
         return null

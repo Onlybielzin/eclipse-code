@@ -63,7 +63,7 @@ export function ProjectMountManagerWindow({
       return
     }
 
-    const mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+    const mountResult = await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
       kind: 'query',
       id: 'mount.list',
       payload: { projectId: workspaceId },
@@ -108,7 +108,7 @@ export function ProjectMountManagerWindow({
   useEffect(() => {
     void (async () => {
       try {
-        const config = await window.opencoveApi.workerClient.getConfig()
+        const config = await window.eclipseCodeApi.workerClient.getConfig()
         setHomeWorkerMode(config.mode)
       } catch {
         setHomeWorkerMode(null)
@@ -165,7 +165,7 @@ export function ProjectMountManagerWindow({
 
   const canBrowseLocal =
     typeof window !== 'undefined' &&
-    window.opencoveApi?.meta?.runtime === 'electron' &&
+    window.eclipseCodeApi?.meta?.runtime === 'electron' &&
     homeWorkerMode !== 'remote'
 
   const createLocalMount = async (): Promise<void> => {
@@ -188,7 +188,7 @@ export function ProjectMountManagerWindow({
     setError(null)
     setIsBusy(true)
     try {
-      await window.opencoveApi.controlSurface.invoke<CreateMountResult>({
+      await window.eclipseCodeApi.controlSurface.invoke<CreateMountResult>({
         kind: 'command',
         id: 'mount.create',
         payload: {
@@ -218,7 +218,7 @@ export function ProjectMountManagerWindow({
     setError(null)
     setIsBusy(true)
     try {
-      const selected = await window.opencoveApi.workspace.selectDirectory()
+      const selected = await window.eclipseCodeApi.workspace.selectDirectory()
       if (!selected) {
         return
       }
@@ -254,7 +254,7 @@ export function ProjectMountManagerWindow({
     setError(null)
     setIsBusy(true)
     try {
-      await window.opencoveApi.controlSurface.invoke<CreateMountResult>({
+      await window.eclipseCodeApi.controlSurface.invoke<CreateMountResult>({
         kind: 'command',
         id: 'mount.create',
         payload: {
@@ -280,7 +280,7 @@ export function ProjectMountManagerWindow({
     setError(null)
     setIsBusy(true)
     try {
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'mount.remove',
         payload: { mountId },
@@ -298,7 +298,7 @@ export function ProjectMountManagerWindow({
     setError(null)
     setIsBusy(true)
     try {
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'mount.promote',
         payload: { mountId },

@@ -15,15 +15,15 @@ export const agentPromptCommand = defineCommand({
   usage:
     '--node <target> [--wait [--read]] (<text> | --text <text> | --text-file <path|->) [options]',
   positionals: [{ name: 'text' }],
-  summary: 'Send a prompt to an agent window OpenCove launched',
+  summary: 'Send a prompt to an agent window Eclipse Code launched',
   description: [
-    'Send text to a local Claude Code or Codex agent window OpenCove launched. Inspect drafts/dialogs with agent read --screen first; existing drafts may be submitted too. Choose one text source: positional text, --text or --text-file (- reads stdin).',
+    'Send text to a local Claude Code or Codex agent window Eclipse Code launched. Inspect drafts/dialogs with agent read --screen first; existing drafts may be submitted too. Choose one text source: positional text, --text or --text-file (- reads stdin).',
     'Working agents receive steering by default; --if-busy refuse rejects busy agents. --expect-turn requires that exact active turn. Waiting, unknown/degraded and unsupported sessions refuse. Agent terminals cannot send provider commands or answer dialogs.',
     '--wait confirms delivery, then waits for its exact turn to end. Add --read for the correlated reply; missing replies return reply: null with replyUnavailableReason. Check outcome and reply. Without --wait, save deliveryId and turnId for delivery → wait --turn → read --turn.',
     'Stderr shows "Sending prompt (delivery <id>)." before sending and, with --wait, "Waiting for turn <turnId> of node <nodeId>..." with an interruption-only continuation command. These progress lines preserve IDs; the final JSON and exit status report the result.',
     'With --wait, --timeout covers confirmation and turn waiting (default 20s; minimum 250ms); sending has a separate 15s budget. Without --wait, --timeout controls sending (default 15s; maximum 60s).',
     'Never resend after uncertainty, interruption or textComparison: different. Resume with agent delivery or agent wait --turn using the returned IDs. This command never retries.',
-    'Exit codes: 0 submitted/dispatched, or selected turn ended with --wait; 1 refusal/unconfirmed; 2 invalid input; 4 authorization refusal; 10 waiting for user; 11 target exited; 124 timeout; 130 interruption. Details: opencove skill coordinate.',
+    'Exit codes: 0 submitted/dispatched, or selected turn ended with --wait; 1 refusal/unconfirmed; 2 invalid input; 4 authorization refusal; 10 waiting for user; 11 target exited; 124 timeout; 130 interruption. Details: eclipse-code skill coordinate.',
   ].join('\n\n'),
   execute: promptAndWait,
   options: {
@@ -55,10 +55,10 @@ export const agentPromptCommand = defineCommand({
     },
   },
   examples: [
-    'opencove agent prompt --node node-123 --wait --read --timeout 2m --text "Review the changes"',
-    'opencove agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s',
-    'opencove agent prompt --node node-123 --expect-turn turn-123 --text "Include refunds"',
-    'cat prompt.txt | opencove agent prompt --node node-123 --text-file -',
+    'eclipse-code agent prompt --node node-123 --wait --read --timeout 2m --text "Review the changes"',
+    'eclipse-code agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s',
+    'eclipse-code agent prompt --node node-123 --expect-turn turn-123 --text "Include refunds"',
+    'cat prompt.txt | eclipse-code agent prompt --node node-123 --text-file -',
   ],
   render: {
     ...declaredOutput(
@@ -77,7 +77,7 @@ export const agentPromptCommand = defineCommand({
       {},
     ),
     examples: [
-      'opencove agent prompt --node node-123 --text "Review the changes" --fields deliveryId',
+      'eclipse-code agent prompt --node node-123 --text "Review the changes" --fields deliveryId',
       '{"deliveryId":"d"}',
     ],
   },

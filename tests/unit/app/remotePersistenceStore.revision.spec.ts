@@ -30,7 +30,7 @@ it.each(['persistence.invalid_state'] as const)(
     ]
     const fetchMock = vi.fn(async () => ({
       status: 200,
-      text: async () => JSON.stringify({ __opencoveControlEnvelope: true, ...values.shift() }),
+      text: async () => JSON.stringify({ __eclipseCodeControlEnvelope: true, ...values.shift() }),
     }))
     vi.stubGlobal('fetch', withWorkerCompatibility(fetchMock as typeof fetch))
     try {
@@ -73,7 +73,7 @@ it('returns a non-conflict Worker rejection unchanged', async () => {
     withWorkerCompatibility(
       vi.fn(async () => ({
         status: 200,
-        text: async () => JSON.stringify({ __opencoveControlEnvelope: true, ...values.shift() }),
+        text: async () => JSON.stringify({ __eclipseCodeControlEnvelope: true, ...values.shift() }),
       })) as unknown as typeof fetch,
     ),
   )
@@ -116,7 +116,7 @@ it.each(rejectedManagedClaudeAgents)(
         status: 200,
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ...(request.id === 'sync.state'
               ? { ok: true, value: { revision: 2, state: durable } }
               : { ok: false, error: rejection }),

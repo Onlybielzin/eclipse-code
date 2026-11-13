@@ -28,7 +28,7 @@ describe('control surface IPC handlers', () => {
     const logAgentLaunchError = vi.fn()
 
     vi.doMock('electron', () => ({
-      app: { getPath: vi.fn(() => '/tmp/opencove-user-data') },
+      app: { getPath: vi.fn(() => '/tmp/eclipse-code-user-data') },
       ipcMain,
     }))
     vi.doMock('../../../src/app/main/diagnostics/agentLaunchRuntimeDiagnostics', () => ({

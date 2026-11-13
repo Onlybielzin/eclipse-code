@@ -9,7 +9,7 @@ it.each([
   { input: '\x1b[200~first line\rsecond line\x1b[201~', label: 'STATE_PASTE' },
   { input: 'first line\rsecond line', label: 'STATE_UNBRACKETED' },
 ])('the state-restore fixture truthfully reports $label input', async ({ input, label }) => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-state-stub-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-state-stub-'))
   const child = spawn(
     process.execPath,
     [

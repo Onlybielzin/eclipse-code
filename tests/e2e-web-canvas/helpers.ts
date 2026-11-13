@@ -13,9 +13,9 @@ export function requireEnv(name: string): string {
   return value
 }
 
-export const webCanvasBaseUrl = requireEnv('OPENCOVE_WEB_CANVAS_BASE_URL')
-export const webCanvasToken = requireEnv('OPENCOVE_WEB_CANVAS_TOKEN')
-export const webCanvasWorkspaceRoot = requireEnv('OPENCOVE_WEB_CANVAS_WORKSPACE_ROOT')
+export const webCanvasBaseUrl = requireEnv('ECLIPSE_CODE_WEB_CANVAS_BASE_URL')
+export const webCanvasToken = requireEnv('ECLIPSE_CODE_WEB_CANVAS_TOKEN')
+export const webCanvasWorkspaceRoot = requireEnv('ECLIPSE_CODE_WEB_CANVAS_WORKSPACE_ROOT')
 
 type ControlSurfaceEnvelope<TValue> =
   | { ok: true; value: TValue }
@@ -152,7 +152,7 @@ export function buildAppState(options: {
         id: workspaceId,
         name: options.workspaceName ?? 'web-canvas-workspace',
         path: options.workspacePath,
-        worktreesRoot: path.join(options.workspacePath, '.opencove', 'worktrees'),
+        worktreesRoot: path.join(options.workspacePath, '.eclipse-code', 'worktrees'),
         pullRequestBaseBranchOptions: [],
         viewport: { x: 0, y: 0, zoom: 1 },
         isMinimapVisible: true,
@@ -194,7 +194,7 @@ export async function readSharedState(request: APIRequestContext): Promise<{
 
 export async function readViewState(page: Page): Promise<unknown> {
   return await page.evaluate(() => {
-    const raw = window.localStorage.getItem('opencove:m5.6:view-state')
+    const raw = window.localStorage.getItem('eclipse-code:m5.6:view-state')
     return raw ? (JSON.parse(raw) as unknown) : null
   })
 }

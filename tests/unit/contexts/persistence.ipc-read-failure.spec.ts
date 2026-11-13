@@ -9,14 +9,14 @@ function installPersistenceApi(options: {
   readAppState: () => Promise<never>
   writeAppState: ReturnType<typeof vi.fn>
 }): void {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {
         readAppState: options.readAppState,
         writeAppState: options.writeAppState,
       },
-    } as unknown as Window['opencoveApi'],
+    } as unknown as Window['eclipseCodeApi'],
   })
 }
 
@@ -25,7 +25,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: undefined,
   })

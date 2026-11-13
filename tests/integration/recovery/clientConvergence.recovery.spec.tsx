@@ -49,7 +49,7 @@ it('does not publish after a quit deadline when its captured read completes late
   c = new Client(false, 'local', 'committed')
   await c.step('rename')
   let finish!: (snapshot: unknown) => void
-  window.opencoveApi.persistence.readAppState = vi.fn(
+  window.eclipseCodeApi.persistence.readAppState = vi.fn(
     () =>
       new Promise(resolve => {
         finish = resolve

@@ -29,7 +29,7 @@ function activeOverview(): WorkerEndpointOverviewDto {
 describe('Remote endpoint operation UI', () => {
   afterEach(async () => {
     await applyUiLanguage('en')
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 
@@ -78,7 +78,7 @@ describe('Remote endpoint operation UI', () => {
       }
       throw new Error(`Unexpected command: ${id}`)
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { controlSurface: { invoke } },
     })
@@ -128,7 +128,7 @@ describe('Remote endpoint operation UI', () => {
       }
       throw new Error(`Unexpected command: ${id}`)
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { controlSurface: { invoke } },
     })
@@ -159,11 +159,11 @@ describe('Remote endpoint operation UI', () => {
       operation: null,
       recommendedAction: 'browse',
     }
-    act(() => window.dispatchEvent(new Event('opencove:endpoint-overviews-changed')))
+    act(() => window.dispatchEvent(new Event('eclipse-code:endpoint-overviews-changed')))
     await waitFor(() =>
       expect(screen.getByTestId('remote-directory-picker-path')).toHaveValue('/home/test'),
     )
-    act(() => window.dispatchEvent(new Event('opencove:endpoint-overviews-changed')))
+    act(() => window.dispatchEvent(new Event('eclipse-code:endpoint-overviews-changed')))
     await waitFor(() => expect(screen.getByTestId('remote-directory-picker-select')).toBeEnabled())
     expect(
       invoke.mock.calls.filter(([request]) => request.id === 'endpoint.homeDirectory'),

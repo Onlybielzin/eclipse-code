@@ -7,7 +7,7 @@ import { SidebarAttentionInbox } from './SidebarAttentionInbox'
 const items: AgentActivityReference[] = [
   {
     workspaceId: 'ws-core',
-    projectName: 'opencove',
+    projectName: 'eclipse-code',
     projectIconId: 'terminal',
     nodeId: 'agent-flaky',
     title: 'Fix the flaky E2E',
@@ -52,7 +52,7 @@ describe('SidebarAttentionInbox', () => {
     expect(inbox.querySelector('.workspace-attention-inbox__count')?.textContent).toBe('2')
     const first = screen.getByTestId('workspace-attention-item-ws-core-agent-flaky')
     expect(first.textContent).toContain('Fix the flaky E2E')
-    expect(first.textContent).toContain('opencove · Project canvas')
+    expect(first.textContent).toContain('eclipse-code · Project canvas')
     expect(first.textContent).toContain('Needs your answer')
     const second = screen.getByTestId('workspace-attention-item-ws-site-agent-notes')
     expect(second.textContent).toContain('cove-site · release-0.5')

@@ -22,7 +22,7 @@ export async function resolveSpaceArchiveGitSnapshot({
 
   let pullRequest: SpaceArchiveGitSnapshot['pullRequest'] = null
   if (agentSettings.githubPullRequestsEnabled && resolvedBranch) {
-    const resolver = window.opencoveApi?.integration?.github?.resolvePullRequests
+    const resolver = window.eclipseCodeApi?.integration?.github?.resolvePullRequests
     if (typeof resolver === 'function') {
       try {
         const result = await resolver({

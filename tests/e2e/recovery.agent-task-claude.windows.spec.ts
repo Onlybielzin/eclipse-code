@@ -10,13 +10,13 @@ import {
 } from './workspace-canvas.helpers'
 
 const recoveryEnv = {
-  OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-  OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+  ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+  ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
 } as const
 
 async function readWorkspaceStateRaw(window: Page): Promise<unknown | null> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -85,13 +85,13 @@ async function readFirstAgentGeometry(window: Page): Promise<{
       agentNode.closest('.react-flow__node')?.getAttribute('data-id') ??
       agentNode.closest('[data-id]')?.getAttribute('data-id') ??
       ''
-    const terminalSize = window.__opencoveTerminalSelectionTestApi?.getSize(nodeId) ?? null
+    const terminalSize = window.__eclipseCodeTerminalSelectionTestApi?.getSize(nodeId) ?? null
     const runtimeSessionId =
-      window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(nodeId) ?? null
-    const metrics = window.__opencoveTerminalSelectionTestApi?.getRenderMetrics?.(nodeId) ?? null
+      window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(nodeId) ?? null
+    const metrics = window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics?.(nodeId) ?? null
     const snapshot =
       typeof runtimeSessionId === 'string' && runtimeSessionId.length > 0
-        ? await window.opencoveApi.pty
+        ? await window.eclipseCodeApi.pty
             .presentationSnapshot({ sessionId: runtimeSessionId })
             .catch(() => null)
         : null
@@ -125,7 +125,7 @@ test.describe('Recovery - task Claude agent (Windows)', () => {
     const userDataDir = await createTestUserDataDir()
     const taskDirectory = path.join(
       testWorkspacePath,
-      '.opencove',
+      '.eclipse-code',
       'worktrees',
       `claude-recovery-${String(Date.now())}`,
     )
@@ -219,7 +219,7 @@ test.describe('Recovery - task Claude agent (Windows)', () => {
 
         initialBinding = await readTaskLinkedAgentBinding(window)
         const terminalNode = window.locator('.terminal-node').first()
-        await expect(terminalNode).toContainText('[opencove-test-claude-session] new')
+        await expect(terminalNode).toContainText('[eclipse-code-test-claude-session] new')
         if (!initialBinding.resumeSessionId) {
           throw new Error('Missing newly assigned Claude session ID.')
         }
@@ -247,10 +247,10 @@ test.describe('Recovery - task Claude agent (Windows)', () => {
         const terminalNode = restartedWindow.locator('.terminal-node').first()
         await expect(restartedWindow.locator('.task-node')).toHaveCount(1, { timeout: 30_000 })
         await expect(restartedWindow.locator('.terminal-node')).toHaveCount(1, { timeout: 30_000 })
-        await expect(terminalNode).toContainText('[opencove-test-agent] claude-code resume', {
+        await expect(terminalNode).toContainText('[eclipse-code-test-agent] claude-code resume', {
           timeout: 20_000,
         })
-        await expect(terminalNode).toContainText('[opencove-test-claude-session] resume')
+        await expect(terminalNode).toContainText('[eclipse-code-test-claude-session] resume')
         await expect(terminalNode).toContainText(initialBinding.resumeSessionId!)
         expect(await fs.readFile(transcriptPath, 'utf8')).toBe(initialTranscript)
         expect(await fs.readdir(path.dirname(transcriptPath))).toEqual([

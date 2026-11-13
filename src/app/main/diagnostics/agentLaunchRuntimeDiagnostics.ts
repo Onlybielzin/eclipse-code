@@ -8,8 +8,8 @@ import type {
 } from '../../../shared/contracts/dto'
 
 const AGENT_LAUNCH_DIAGNOSTICS_ENABLED =
-  process.env['OPENCOVE_AGENT_LAUNCH_DIAGNOSTICS'] === '1' ||
-  process.env['OPENCOVE_TERMINAL_DIAGNOSTICS'] === '1'
+  process.env['ECLIPSE_CODE_AGENT_LAUNCH_DIAGNOSTICS'] === '1' ||
+  process.env['ECLIPSE_CODE_TERMINAL_DIAGNOSTICS'] === '1'
 const VALUE_ARG_FLAGS = new Set([
   '--ask-for-approval',
   '--hostname',
@@ -34,7 +34,7 @@ function truncate(value: string, maxLength = 240): string {
 }
 
 function appendRuntimeDiagnosticsFile(line: string): void {
-  const userDataDir = process.env['OPENCOVE_USER_DATA_DIR']?.trim()
+  const userDataDir = process.env['ECLIPSE_CODE_USER_DATA_DIR']?.trim()
   if (!userDataDir) {
     return
   }
@@ -54,7 +54,7 @@ function writeAgentLaunchDiagnosticsLine(payload: RuntimeDiagnosticsLogInput): v
     ...payload,
   })
   const stream = payload.level === 'error' ? process.stderr : process.stdout
-  stream.write(`[opencove-runtime-diagnostics] ${line}\n`)
+  stream.write(`[eclipse-code-runtime-diagnostics] ${line}\n`)
   appendRuntimeDiagnosticsFile(line)
 }
 

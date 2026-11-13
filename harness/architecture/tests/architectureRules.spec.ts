@@ -11,7 +11,7 @@ import {
 const tempRoots: string[] = []
 
 async function createFixture(files: Record<string, string>): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-architecture-rules-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-architecture-rules-'))
   tempRoots.push(root)
   await Promise.all(
     Object.entries(files).map(async ([relativePath, source]) => {
@@ -38,14 +38,14 @@ describe('architecture rules audit', () => {
       'src/contexts/workspace/infrastructure/store.ts':
         'export function loadWorkspace() { return 1 }\n',
       'src/contexts/workspace/presentation/renderer/View.ts':
-        'export function run() {\n  return window.opencoveApi.agent.listInstalledProviders({})\n}\n',
+        'export function run() {\n  return window.eclipseCodeApi.agent.listInstalledProviders({})\n}\n',
     })
 
     const report = await runArchitectureAudit({ root })
     expect(report.summary.errors).toBe(0)
     expect(report.violations.map(violation => violation.ruleId)).toEqual([
       'architecture.layerDependency',
-      'architecture.windowOpenCoveApiBoundary',
+      'architecture.windowEclipseCodeApiBoundary',
     ])
     expect(formatArchitectureReport(report)).toContain('src/contexts/workspace/domain/model.ts:1')
   })
@@ -379,9 +379,9 @@ describe('architecture rules audit', () => {
 
   it('respects configured allowlists for boundary adapters', async () => {
     const root = await createFixture({
-      'src/app/renderer/browser/browserOpenCoveApi.ts': 'window.opencoveApi = {} as never\n',
+      'src/app/renderer/browser/browserEclipseCodeApi.ts': 'window.eclipseCodeApi = {} as never\n',
       'src/contexts/workspace/presentation/renderer/workspaceApi.ts':
-        'export const api = window.opencoveApi.workspace\n',
+        'export const api = window.eclipseCodeApi.workspace\n',
     })
 
     const report = await runArchitectureAudit({ root, config: await loadArchitectureConfig() })

@@ -16,7 +16,7 @@ import {
 
 describe('Control Surface HTTP server (session streaming)', () => {
   it('rejects websocket connections without the subprotocol', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.pty.subprotocol.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -88,7 +88,7 @@ describe('Control Surface HTTP server (session streaming)', () => {
   })
 
   it('requires hello handshake and validates protocol version', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.pty.handshake.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -131,7 +131,7 @@ describe('Control Surface HTTP server (session streaming)', () => {
       const baseUrl = `http://${info.hostname}:${info.port}`
       const wsUrl = toWsUrl(baseUrl, '/pty', { token: 'test-token' })
 
-      const ws = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const ws = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         ws.once('open', resolvePromise)
         ws.once('error', rejectPromise)
@@ -147,7 +147,7 @@ describe('Control Surface HTTP server (session streaming)', () => {
 
       ws.close()
 
-      const wsVersion = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const wsVersion = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         wsVersion.once('open', resolvePromise)
         wsVersion.once('error', rejectPromise)

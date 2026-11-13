@@ -21,8 +21,8 @@ import {
 
 function isTerminalDiagnosticsEnabled(): boolean {
   return (
-    process.env['OPENCOVE_TERMINAL_DIAGNOSTICS'] === '1' ||
-    process.env['OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS'] === '1'
+    process.env['ECLIPSE_CODE_TERMINAL_DIAGNOSTICS'] === '1' ||
+    process.env['ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS'] === '1'
   )
 }
 
@@ -32,7 +32,7 @@ function writeTerminalDiagnosticsLine(payload: TerminalDiagnosticsLogInput): voi
     ...payload,
   })
 
-  process.stdout.write(`[opencove-terminal-diagnostics] ${line}\n`)
+  process.stdout.write(`[eclipse-code-terminal-diagnostics] ${line}\n`)
   appendTerminalDiagnosticsFile(line)
 }
 

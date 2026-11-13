@@ -26,7 +26,7 @@ const REQUIRED_GUIDE_DOCUMENTS = [
   'DISTRIBUTION.md',
   'ROADMAP.md',
   ...[
-    'opencove.plugin.json',
+    'eclipse-code.plugin.json',
     'README.md',
     'main.mjs',
     'index.html',
@@ -164,7 +164,7 @@ async function exportGuideFiles(files, cacheDirectory) {
 
 export async function createPluginGuideResult(
   pluginDirectory = resolvePluginGuideDirectory(),
-  { cacheDirectory = join(homedir(), '.opencove', 'cache', 'plugin-guides') } = {},
+  { cacheDirectory = join(homedir(), '.eclipse-code', 'cache', 'plugin-guides') } = {},
 ) {
   try {
     const files = await readGuideFiles(pluginDirectory)

@@ -8,8 +8,8 @@ import { createPersistenceStore } from '../../../src/platform/persistence/sqlite
 
 describeWithElectronNativeModules('canvas atomic revision writes', () => {
   it('rejects a stale writer inside the SQLite transaction without replacing committed canvas data', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-cas-'))
-    const store = await createPersistenceStore({ dbPath: join(root, 'opencove.db') })
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-cas-'))
+    const store = await createPersistenceStore({ dbPath: join(root, 'eclipse-code.db') })
     try {
       const base = {
         formatVersion: 1,

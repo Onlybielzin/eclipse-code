@@ -68,7 +68,10 @@ test('pins a sidebar space into the top rail, restores it, shares its menu, and 
       ],
     })
 
-    await expect(window.locator('.workspace-space-switcher')).toHaveCount(0)
+    // Eclipse Code: every top-level Space is already a task tab; pinning only orders it first.
+    await expect(
+      window.locator(`[data-testid="workspace-space-switch-${pinnedSpaceId}"]`),
+    ).toBeVisible()
     await window
       .locator(`[data-testid="workspace-space-item-${workspaceId}-${pinnedSpaceId}"]`)
       .click({ button: 'right' })
@@ -83,7 +86,7 @@ test('pins a sidebar space into the top rail, restores it, shares its menu, and 
     await expect
       .poll(async () => {
         const raw = await window!.evaluate(async () => {
-          return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         })
         const parsed = raw
           ? (JSON.parse(raw) as {
@@ -107,6 +110,8 @@ test('pins a sidebar space into the top rail, restores it, shares its menu, and 
     ).toContainText('Unpin space')
     await window.keyboard.press('Escape')
 
+    // The root-canvas note is outside every task: show "All" so it sits under the tabs.
+    await window.getByTestId('workspace-space-switch-all').click()
     const noteMenuButton = window.getByTestId('note-node-more')
     await expect(noteMenuButton).toBeVisible()
     const hitTargetIsNoteButton = await noteMenuButton.evaluate(button => {
@@ -126,7 +131,13 @@ test('pins a sidebar space into the top rail, restores it, shares its menu, and 
 
     await pill.click({ button: 'right' })
     await window.locator(`[data-testid="workspace-space-context-pin-${pinnedSpaceId}"]`).click()
-    await expect(window.locator('.workspace-space-switcher')).toHaveCount(0)
+    // Unpinning only changes the order: the Space stays a task tab.
+    await expect(pill).toBeVisible()
+    await pill.click({ button: 'right' })
+    await expect(
+      window.locator(`[data-testid="workspace-space-context-pin-${pinnedSpaceId}"]`),
+    ).toContainText('Pin space')
+    await window.keyboard.press('Escape')
   } finally {
     await electronApp?.close().catch(() => undefined)
     await removePathWithRetry(userDataDir)

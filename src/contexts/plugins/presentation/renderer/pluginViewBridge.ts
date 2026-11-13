@@ -4,7 +4,7 @@ import { formatAppErrorMessage } from '../../../../shared/errors/appError'
 import type { PluginOpenViewResult } from '../../domain/pluginRuntimeTypes'
 import { pluginErrorMessage } from './pluginErrorMessage'
 
-const CHANNEL = 'opencove-plugin-v1'
+const CHANNEL = 'eclipse-code-plugin-v1'
 
 export function bindPluginViewBridge({
   view,
@@ -29,7 +29,7 @@ export function bindPluginViewBridge({
     }
   }
   const invoke = (method: string, payload: Record<string, unknown>) =>
-    window.opencoveApi.controlSurface.invoke({
+    window.eclipseCodeApi.controlSurface.invoke({
       kind: ['plugin.storage.get', 'plugin.view.preferences.get'].includes(method)
         ? 'query'
         : 'command',
@@ -127,15 +127,15 @@ export function bindPluginViewBridge({
   }
   const onTheme = () => post({ type: 'theme', context: pluginThemeContext() })
   window.addEventListener('message', onMessage)
-  window.addEventListener('opencove-theme-changed', onTheme)
-  window.addEventListener('opencove-ui-font-scale-changed', onTheme)
+  window.addEventListener('eclipse-code-theme-changed', onTheme)
+  window.addEventListener('eclipse-code-ui-font-scale-changed', onTheme)
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
   reducedMotion?.addEventListener?.('change', onTheme)
   return () => {
     disposed = true
     window.removeEventListener('message', onMessage)
-    window.removeEventListener('opencove-theme-changed', onTheme)
-    window.removeEventListener('opencove-ui-font-scale-changed', onTheme)
+    window.removeEventListener('eclipse-code-theme-changed', onTheme)
+    window.removeEventListener('eclipse-code-ui-font-scale-changed', onTheme)
     reducedMotion?.removeEventListener?.('change', onTheme)
   }
 }

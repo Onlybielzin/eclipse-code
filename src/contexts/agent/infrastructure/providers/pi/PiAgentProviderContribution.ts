@@ -50,7 +50,7 @@ export class PiAgentProviderContribution extends TerminalCliAgentProviderContrib
         command.artifacts.track('pi-hook-reservation', reservation)
         try {
           const extension = await createTemporaryProviderConfig(
-            'opencove-pi-hook-',
+            'eclipse-code-pi-hook-',
             'status.ts',
             piAgentStatusExtensionSource,
           )
@@ -80,7 +80,11 @@ export class PiAgentProviderContribution extends TerminalCliAgentProviderContrib
       // Older Pi ignores --; option-like prompts use its official text-file input.
       const file = command.artifacts.track(
         'pi-initial-prompt',
-        await createTemporaryProviderConfig('opencove-pi-prompt-', 'prompt.txt', promptArgument),
+        await createTemporaryProviderConfig(
+          'eclipse-code-pi-prompt-',
+          'prompt.txt',
+          promptArgument,
+        ),
       )
       promptArgument = `@${file.path}`
     }

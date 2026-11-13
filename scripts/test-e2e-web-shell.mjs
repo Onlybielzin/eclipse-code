@@ -140,7 +140,7 @@ async function main() {
   const forwardedArgsRaw = process.argv.slice(2)
   const forwardedArgs = forwardedArgsRaw[0] === '--' ? forwardedArgsRaw.slice(1) : forwardedArgsRaw
 
-  if (!isTruthyEnv(process.env['OPENCOVE_E2E_SKIP_BUILD'])) {
+  if (!isTruthyEnv(process.env['ECLIPSE_CODE_E2E_SKIP_BUILD'])) {
     const buildCode = await runCommand(['build'])
     if (buildCode !== 0) {
       process.exit(buildCode)
@@ -148,10 +148,10 @@ async function main() {
   }
 
   const workerPath = resolve(process.cwd(), 'out', 'main', 'worker.js')
-  const userDataPath = await mkdtemp(resolve(tmpdir(), 'opencove-web-shell-userdata-'))
-  const workspaceRoot = await mkdtemp(resolve(tmpdir(), 'opencove-web-shell-workspace-'))
+  const userDataPath = await mkdtemp(resolve(tmpdir(), 'eclipse-code-web-shell-userdata-'))
+  const workspaceRoot = await mkdtemp(resolve(tmpdir(), 'eclipse-code-web-shell-workspace-'))
   const testFilePath = resolve(workspaceRoot, 'hello.txt')
-  await writeFile(testFilePath, 'hello from opencove web shell e2e\n', 'utf8')
+  await writeFile(testFilePath, 'hello from eclipse-code web shell e2e\n', 'utf8')
 
   const token = randomBytes(16).toString('hex')
   const testFileUri = pathToFileURL(testFilePath).toString()
@@ -172,9 +172,9 @@ async function main() {
 
     const testEnv = {
       ...process.env,
-      OPENCOVE_WEB_SHELL_BASE_URL: baseUrl,
-      OPENCOVE_WEB_SHELL_TOKEN: token,
-      OPENCOVE_WEB_SHELL_TEST_FILE_URI: testFileUri,
+      ECLIPSE_CODE_WEB_SHELL_BASE_URL: baseUrl,
+      ECLIPSE_CODE_WEB_SHELL_TOKEN: token,
+      ECLIPSE_CODE_WEB_SHELL_TEST_FILE_URI: testFileUri,
     }
 
     const code = await runCommand(

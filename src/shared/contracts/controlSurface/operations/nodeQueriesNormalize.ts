@@ -24,7 +24,7 @@ function isManagedNodeKind(value: unknown): value is ManagedCanvasNodeKind {
 function isReadableNodeKind(value: unknown): value is ReadableCanvasNodeKind {
   return (
     isManagedNodeKind(value) ||
-    ['plugin', 'document', 'folder', 'image', 'role'].includes(String(value))
+    ['plugin', 'document', 'folder', 'image', 'role', 'question', 'todos'].includes(String(value))
   )
 }
 

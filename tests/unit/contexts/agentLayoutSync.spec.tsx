@@ -75,7 +75,7 @@ describe('agent terminal layout sync', () => {
       },
     )
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -123,7 +123,7 @@ describe('agent terminal layout sync', () => {
     render(<Harness />)
 
     await waitFor(() => {
-      expect(window.opencoveApi.agent.launch).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.agent.launch).toHaveBeenCalledTimes(1)
     })
 
     await waitFor(() => {
@@ -143,7 +143,7 @@ describe('agent terminal layout sync', () => {
 
     const setNodes = vi.fn()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -209,7 +209,7 @@ describe('agent terminal layout sync', () => {
     ])
     const onRequestPersistFlush = vi.fn()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -290,7 +290,7 @@ describe('agent terminal layout sync', () => {
           },
         ])
 
-      Object.defineProperty(window, 'opencoveApi', {
+      Object.defineProperty(window, 'eclipseCodeApi', {
         configurable: true,
         writable: true,
         value: {

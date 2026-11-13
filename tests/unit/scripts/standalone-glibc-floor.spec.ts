@@ -198,7 +198,7 @@ describe('readelf invocation', () => {
 
 describe('native module rebuild command', () => {
   const base = {
-    nodeExecutable: '/repo/dist/opencove-server-linux-x64/runtime/node/bin/node',
+    nodeExecutable: '/repo/dist/eclipse-code-server-linux-x64/runtime/node/bin/node',
     nodeGypScript: '/repo/node_modules/.pnpm/node-gyp/bin/node-gyp.js',
     moduleCwd: '/repo/node_modules/.pnpm/node-pty@1.1.0/node_modules/node-pty',
     rootDir: '/repo',
@@ -248,7 +248,7 @@ describe('native module rebuild command', () => {
     // path, and overwriting PATH loses the compiler instead (also an opaque Error 127).
     const script = command.args.find(argument => argument.includes('PATH='))
     expect(script).toBe('PATH="$1:$PATH"; export PATH; shift; exec "$@"')
-    expect(command.args).toContain('/repo/dist/opencove-server-linux-x64/runtime/node/bin')
+    expect(command.args).toContain('/repo/dist/eclipse-code-server-linux-x64/runtime/node/bin')
     expect(command.args.some(argument => argument.startsWith('PATH=/'))).toBe(false)
   })
 

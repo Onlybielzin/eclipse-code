@@ -44,7 +44,7 @@ beforeEach(async () => {
     sourceDirectory: '/my-plugins/music',
     logs: ['Music backend ready'],
   })
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
 })
 afterEach(() => {
   cleanup()

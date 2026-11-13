@@ -34,7 +34,7 @@ for (const draggedId of [FILESYSTEM_SPACE, 'files-parent']) {
   }, testInfo) => {
     const fixture = await createFilesystemNodeFixture()
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.root },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.root },
     })
     try {
       await window.setViewportSize({ width: 1520, height: 1040 })

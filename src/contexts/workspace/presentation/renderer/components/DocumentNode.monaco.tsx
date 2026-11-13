@@ -334,7 +334,7 @@ export function DocumentNodeMonacoEditor({
         })
 
         editor.addAction({
-          id: 'opencove.document.save',
+          id: 'eclipse-code.document.save',
           label: 'Save',
           keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
           run: () => {
@@ -436,10 +436,10 @@ export function DocumentNodeMonacoEditor({
     }
 
     handleThemeChange()
-    window.addEventListener('opencove-theme-changed', handleThemeChange)
+    window.addEventListener('eclipse-code-theme-changed', handleThemeChange)
     return () => {
       disposed = true
-      window.removeEventListener('opencove-theme-changed', handleThemeChange)
+      window.removeEventListener('eclipse-code-theme-changed', handleThemeChange)
     }
   }, [status])
 

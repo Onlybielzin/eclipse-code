@@ -127,7 +127,7 @@ describe('WorkspaceCanvas task creation async enrichment', () => {
       }),
     )
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

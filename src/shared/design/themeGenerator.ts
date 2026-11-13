@@ -20,7 +20,8 @@ export type FamilyInput = Omit<ThemeInput, 'appearance' | 'contrast'>
 
 /** Built-in families. Cove is the only one; plugin palettes are generated from it. */
 export const THEME_FAMILY_LIST = [
-  { id: 'cove', baseHue: 248, baseChroma: 0.018, accentHue: 220, accentChroma: 0.13 },
+  // Eclipse: dark wine glass (#180a10 tint) with the #ff4d5e eclipse-red accent.
+  { id: 'cove', baseHue: 353, baseChroma: 0.03, accentHue: 20, accentChroma: 0.21 },
 ] as const
 
 export type ThemeFamilyId = (typeof THEME_FAMILY_LIST)[number]['id']

@@ -18,7 +18,7 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
     )
     const readSession = (id: string) =>
       window.evaluate(
-        nodeId => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(nodeId),
+        nodeId => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(nodeId),
         id,
       )
     await expect
@@ -28,7 +28,9 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
     await expect
       .poll(() =>
         window.evaluate(async nodeIds => {
-          const state = JSON.parse((await window.opencoveApi.persistence.readWorkspaceStateRaw())!)
+          const state = JSON.parse(
+            (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw())!,
+          )
           return nodeIds.every(id =>
             state.workspaces.some((w: { nodes: Array<{ id: string; sessionId?: string }> }) =>
               w.nodes.some(n => n.id === id && Boolean(n.sessionId)),
@@ -46,7 +48,7 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
         release = resolve
       })
       const state = { blocked: false, release, original }
-      Object.assign(globalThis, { __opencoveRecoveryGate: state })
+      Object.assign(globalThis, { __eclipseCodeRecoveryGate: state })
       globalThis.fetch = async (input, init) => {
         if (typeof init?.body === 'string') {
           const request = JSON.parse(init.body)
@@ -66,8 +68,8 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
       .poll(() =>
         electronApp.evaluate(
           () =>
-            (globalThis as unknown as { __opencoveRecoveryGate: { blocked: boolean } })
-              .__opencoveRecoveryGate.blocked,
+            (globalThis as unknown as { __eclipseCodeRecoveryGate: { blocked: boolean } })
+              .__eclipseCodeRecoveryGate.blocked,
         ),
       )
       .toBe(true)
@@ -81,7 +83,7 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
       .poll(() =>
         window.evaluate(
           () =>
-            window.__opencoveTerminalSelectionTestApi?.getBufferText(
+            window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(
               'fast-restore',
               'FAST_INPUT_OK',
             )?.markerAbsoluteLine,
@@ -95,9 +97,9 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
     await electronApp.evaluate(() => {
       const state = (
         globalThis as unknown as {
-          __opencoveRecoveryGate: { release: () => void; original: typeof fetch }
+          __eclipseCodeRecoveryGate: { release: () => void; original: typeof fetch }
         }
-      ).__opencoveRecoveryGate
+      ).__eclipseCodeRecoveryGate
       globalThis.fetch = state.original
       state.release()
     })
@@ -109,9 +111,9 @@ test('keeps a restored terminal interactive while a sibling recovery request is 
       .evaluate(() => {
         const state = (
           globalThis as unknown as {
-            __opencoveRecoveryGate?: { release: () => void; original: typeof fetch }
+            __eclipseCodeRecoveryGate?: { release: () => void; original: typeof fetch }
           }
-        ).__opencoveRecoveryGate
+        ).__eclipseCodeRecoveryGate
         if (state) {
           globalThis.fetch = state.original
           state.release()

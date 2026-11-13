@@ -18,13 +18,13 @@ export function registerHandledIpc<
     try {
       const value = await handler(event as TEvent, payload as TPayload)
       return {
-        __opencoveIpcEnvelope: true,
+        __eclipseCodeIpcEnvelope: true,
         ok: true,
         value,
       }
     } catch (error) {
       return {
-        __opencoveIpcEnvelope: true,
+        __eclipseCodeIpcEnvelope: true,
         ok: false,
         error: toAppErrorDescriptor(error, options.defaultErrorCode),
       }

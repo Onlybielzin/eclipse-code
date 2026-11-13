@@ -40,7 +40,7 @@ describe('CommandEnvironmentService', () => {
   it('uses a sanitized shell snapshot for POSIX command execution by default', async () => {
     setPlatform('darwin')
     process.env.NODE_ENV = 'production'
-    delete process.env.OPENCOVE_TRUST_PROCESS_ENV
+    delete process.env.ECLIPSE_CODE_TRUST_PROCESS_ENV
     delete process.env.DISABLE_AUTO_UPDATE
     delete process.env.ZSH_TMUX_AUTOSTARTED
     delete process.env.ZSH_TMUX_AUTOSTART
@@ -76,7 +76,7 @@ describe('CommandEnvironmentService', () => {
   it('uses the current process environment when a launch marker requests it', async () => {
     setPlatform('darwin')
     process.env.NODE_ENV = 'production'
-    process.env.OPENCOVE_TRUST_PROCESS_ENV = '1'
+    process.env.ECLIPSE_CODE_TRUST_PROCESS_ENV = '1'
     process.env.PATH = '/process/bin'
     process.env.ELECTRON_RUN_AS_NODE = '1'
 
@@ -95,7 +95,7 @@ describe('CommandEnvironmentService', () => {
   it('prepends explicit command PATH without dropping the base command environment PATH', async () => {
     setPlatform('linux')
     process.env.NODE_ENV = 'production'
-    delete process.env.OPENCOVE_TRUST_PROCESS_ENV
+    delete process.env.ECLIPSE_CODE_TRUST_PROCESS_ENV
 
     getShellEnvironmentSnapshotMock.mockResolvedValue({
       env: {

@@ -41,8 +41,8 @@ test.describe('Recovery - Agent focus after restart', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
         },
       })
 
@@ -85,8 +85,8 @@ test.describe('Recovery - Agent focus after restart', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
         },
       })
 

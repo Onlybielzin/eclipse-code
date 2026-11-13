@@ -87,9 +87,9 @@ async function createProviderCommand(options: {
       '  })',
       '} else {',
       "  const claude = provider === 'claude-code'",
-      "  const endpoint = process.env[claude ? 'OPENCOVE_CLAUDE_HOOK_ENDPOINT' : 'OPENCOVE_CODEX_HOOK_ENDPOINT']",
-      "  const token = process.env[claude ? 'OPENCOVE_CLAUDE_HOOK_TOKEN' : 'OPENCOVE_CODEX_HOOK_TOKEN']",
-      "  const sessionId = process.env.OPENCOVE_WINDOWS_PROVIDER_SESSION_ID || 'missing'",
+      "  const endpoint = process.env[claude ? 'ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT' : 'ECLIPSE_CODE_CODEX_HOOK_ENDPOINT']",
+      "  const token = process.env[claude ? 'ECLIPSE_CODE_CLAUDE_HOOK_TOKEN' : 'ECLIPSE_CODE_CODEX_HOOK_TOKEN']",
+      "  const sessionId = process.env.ECLIPSE_CODE_WINDOWS_PROVIDER_SESSION_ID || 'missing'",
       '  if (!claude) {',
       "    const now = new Date(); const directory = join(process.env.CODEX_HOME, 'sessions', String(now.getFullYear()), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0'))",
       '    mkdirSync(directory, { recursive: true })',
@@ -97,12 +97,12 @@ async function createProviderCommand(options: {
       '    await new Promise(resolve => setTimeout(resolve, 1000))',
       '  }',
       "  const body = claude ? { version: 1, state: 'working', hookEventName: 'SessionStart', claudeSessionId: sessionId } : { version: 1, state: 'working', hookEventName: 'SessionStart', codexSessionId: sessionId }",
-      "  const response = endpoint && token ? await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json', 'x-opencove-hook-token': token }, body: JSON.stringify(body) }) : { status: 0 }",
+      "  const response = endpoint && token ? await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json', 'x-eclipse-code-hook-token': token }, body: JSON.stringify(body) }) : { status: 0 }",
       "  process.stdout.write('HOOK_STATUS=' + response.status + '\\n')",
       "  process.stdout.write('ARGS_JSON=' + JSON.stringify(args) + '\\n')",
       "  process.stdout.write('ELECTRON_RUN_AS_NODE=' + (process.env.ELECTRON_RUN_AS_NODE || '') + '\\n')",
-      '  if (process.env.OPENCOVE_WINDOWS_CTRL_C_MARKER) {',
-      "    process.on('SIGINT', () => { writeFileSync(process.env.OPENCOVE_WINDOWS_CTRL_C_MARKER, 'SIGINT'); process.stdout.write('CHILD_SIGINT\\n'); process.exit(130) })",
+      '  if (process.env.ECLIPSE_CODE_WINDOWS_CTRL_C_MARKER) {',
+      "    process.on('SIGINT', () => { writeFileSync(process.env.ECLIPSE_CODE_WINDOWS_CTRL_C_MARKER, 'SIGINT'); process.stdout.write('CHILD_SIGINT\\n'); process.exit(130) })",
       "    process.stdout.write('CTRL_C_READY\\n')",
       '    setInterval(() => {}, 1000)',
       '  } else {',
@@ -121,7 +121,7 @@ async function createProviderCommand(options: {
 
 async function createHarness(options: { provider: TerminalAgentShimProvider; ctrlC?: boolean }) {
   const commandExitCode = options.provider === 'claude-code' ? 37 : 41
-  const root = await mkdtemp(join(tmpdir(), 'OpenCove Windows 路径 with spaces '))
+  const root = await mkdtemp(join(tmpdir(), 'Eclipse Code Windows 路径 with spaces '))
   const fixture = await createProviderCommand({
     root,
     provider: options.provider,
@@ -178,9 +178,9 @@ async function createHarness(options: { provider: TerminalAgentShimProvider; ctr
   env.HOME = home
   env.USERPROFILE = home
   env.CODEX_HOME = join(home, '.codex')
-  env.OPENCOVE_WINDOWS_PROVIDER_SESSION_ID = `${fixture.command}-session-精确`
+  env.ECLIPSE_CODE_WINDOWS_PROVIDER_SESSION_ID = `${fixture.command}-session-精确`
   if (options.ctrlC) {
-    env.OPENCOVE_WINDOWS_CTRL_C_MARKER = ctrlCMarker
+    env.ECLIPSE_CODE_WINDOWS_CTRL_C_MARKER = ctrlCMarker
   }
   const prepared = await service.prepare({
     args: [],
@@ -230,7 +230,7 @@ async function expectPrivateCleanup(harness: Awaited<ReturnType<typeof createHar
   expect(await readdir(harness.published.planDirectory)).toEqual([])
   const args = harness.plans.at(-1)?.args ?? []
   const directArtifact = args.find(argument =>
-    /opencove-claude-settings-.*settings\.json/iu.test(argument),
+    /eclipse-code-claude-settings-.*settings\.json/iu.test(argument),
   )
   if (harness.command === 'claude') {
     expect(directArtifact).toBeTruthy()
@@ -238,7 +238,7 @@ async function expectPrivateCleanup(harness: Awaited<ReturnType<typeof createHar
   }
   const relayMatch = args
     .join('\n')
-    .match(/[A-Za-z]:\\[^'"\n]*opencove-codex-hook-[^'"\n]*\\launch\.ps1/iu)
+    .match(/[A-Za-z]:\\[^'"\n]*eclipse-code-codex-hook-[^'"\n]*\\launch\.ps1/iu)
   if (harness.command === 'codex') {
     expect(relayMatch).toBeNull()
     expect(args).toEqual([])
@@ -454,7 +454,7 @@ test.describe('terminal Agent shim (Windows)', () => {
   })
 
   test('invalid plan JSON still runs finally cleanup and returns control to PowerShell', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'OpenCove invalid plan '))
+    const root = await mkdtemp(join(tmpdir(), 'Eclipse Code invalid plan '))
     const fakeRuntime = join(root, 'fake-runtime.cmd')
     await writeFile(
       fakeRuntime,

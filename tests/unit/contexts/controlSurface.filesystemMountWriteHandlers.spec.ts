@@ -15,7 +15,7 @@ const ctx: ControlSurfaceContext = {
 
 describe('control surface filesystem mount write handlers', () => {
   it('uses the injected local delete implementation for mount deletes', async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-mount-delete-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-mount-delete-'))
     const filePath = join(baseDir, 'delete-me.txt')
     await writeFile(filePath, 'keep until injected delete runs', 'utf8')
 

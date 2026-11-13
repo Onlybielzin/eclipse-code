@@ -11,6 +11,6 @@ export async function residentChannel(provider: 'claude' | 'codex', enabled = as
   const reserve = async (residentContext: 'canvas' | 'none' = 'canvas') =>
     await channel.reserveSpawn({ residentContext })
   const post = async (reservation: Awaited<ReturnType<typeof reserve>>, event = 'SessionStart') =>
-    await postReply(reservation.env![`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]!, event)
+    await postReply(reservation.env![`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]!, event)
   return { channel, reserve, post }
 }

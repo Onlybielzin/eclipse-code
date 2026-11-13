@@ -38,7 +38,7 @@ for (const theme of ['dark', 'light']) {
       page.request,
       buildAppState({
         workspaceId: 'quick-surfaces',
-        workspaceName: 'OpenCove',
+        workspaceName: 'Eclipse Code',
         workspacePath,
         spaces: [
           {

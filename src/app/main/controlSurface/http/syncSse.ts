@@ -1,7 +1,7 @@
 import type { ServerResponse } from 'node:http'
 import type { SyncEventPayload } from '../../../../shared/contracts/dto'
 
-const SYNC_SSE_EVENT_NAME = 'opencove.sync'
+const SYNC_SSE_EVENT_NAME = 'eclipse-code.sync'
 
 export function writeSseEvent(res: ServerResponse, payload: SyncEventPayload): void {
   if (typeof payload.revision === 'number' && Number.isFinite(payload.revision)) {

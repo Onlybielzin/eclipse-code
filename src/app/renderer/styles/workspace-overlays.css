@@ -355,3 +355,8 @@
   min-width: 196px;
   pointer-events: auto;
 }
+
+/* The top-left HUD row (Far/Near + task tabs) owns the corner: other top overlays sit below it. */
+.workspace-canvas:has(.workspace-canvas-hud__leading > *) .workspace-canvas__top-overlays {
+  top: calc(var(--cove-spacing-3) + var(--cove-control-height-sm) + var(--cove-spacing-3));
+}

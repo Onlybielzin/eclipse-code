@@ -32,7 +32,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
   browserName,
 }, testInfo) => {
   void browserName
-  const fixture = await mkdtemp(path.join(tmpdir(), 'opencove-repaint-'))
+  const fixture = await mkdtemp(path.join(tmpdir(), 'eclipse-code-repaint-'))
   const stub = path.join(fixture, 'spinner.mjs')
   await writeFile(
     stub,
@@ -43,10 +43,10 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
   const { electronApp, window } = await launchApp({
     windowMode: 'inactive',
     env: {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_STUB_SCRIPT: stub,
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: stub,
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
     },
   })
   try {
@@ -103,11 +103,11 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
       const target = window as SignalWindow
       const output: NonNullable<SignalWindow['__completionPtyOutput']> = {}
       target.__completionPtyOutput = output
-      const disposeData = window.opencoveApi.pty.onData(event => {
+      const disposeData = window.eclipseCodeApi.pty.onData(event => {
         const session = (output[event.sessionId] ??= { data: '' })
         session.data = (session.data + event.data).slice(-64_000)
       })
-      const disposeExit = window.opencoveApi.pty.onExit(event => {
+      const disposeExit = window.eclipseCodeApi.pty.onExit(event => {
         const session = (output[event.sessionId] ??= { data: '' })
         session.exitCode = event.exitCode
       })
@@ -122,7 +122,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
       'false',
     )
     await expect(window.locator('.terminal-node').first()).toContainText(
-      '[opencove-test-hook] ready',
+      '[eclipse-code-test-hook] ready',
     )
     await expect.poll(async () => await resolveFirstAgentSessionId(window)).not.toBeNull()
     const sessionId = (await resolveFirstAgentSessionId(window))!
@@ -166,7 +166,8 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
     // While it works, the agent sends a low sonar wave across the wall every 2.4s.
     await expect
       .poll(
-        () => window.evaluate(() => window.__opencovePixelWallTestApi?.getSeenRippleKeys() ?? []),
+        () =>
+          window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getSeenRippleKeys() ?? []),
         {
           timeout: 5_000,
         },
@@ -175,7 +176,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
     // Observe a complete 3s repaint stream in the renderer; retained keys cannot miss a wave.
     const repaintCount = await window.evaluate(async observedSessionId => {
       let count = 0
-      const dispose = window.opencoveApi.pty.onData(event => {
+      const dispose = window.eclipseCodeApi.pty.onData(event => {
         if (event.sessionId === observedSessionId && event.data.includes('working 00:01')) {
           count++
         }
@@ -189,7 +190,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
     }, sessionId)
     expect(repaintCount).toBeGreaterThan(20)
     const keys = await window.evaluate(
-      () => window.__opencovePixelWallTestApi?.getSeenRippleKeys() ?? [],
+      () => window.__eclipseCodePixelWallTestApi?.getSeenRippleKeys() ?? [],
     )
     expect(keys).toContain(`sonar:${agentId}`)
     expect(keys).not.toContain(agentId)
@@ -202,7 +203,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
     // The wave may finish before the next Playwright observation on a loaded runner.
     await expect
       .poll(() =>
-        window.evaluate(() => window.__opencovePixelWallTestApi?.getSeenRippleKeys() ?? []),
+        window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getSeenRippleKeys() ?? []),
       )
       .toContain(`complete:${agentId}`)
     await expect
@@ -263,7 +264,7 @@ test('a working agent sends sonar, and a finished run flashes its window and sen
                 output: target.__completionPtyOutput ?? {},
                 // Include output emitted before the renderer subscribed to live PTY events.
                 snapshot: sessionId
-                  ? await window.opencoveApi.pty
+                  ? await window.eclipseCodeApi.pty
                       .snapshot({ sessionId })
                       .catch(error => ({ snapshotError: String(error) }))
                   : null,

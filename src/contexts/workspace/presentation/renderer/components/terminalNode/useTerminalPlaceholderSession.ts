@@ -115,12 +115,12 @@ export function useTerminalPlaceholderSession({
     }
     const shouldHandoffToRuntime = (): boolean => latestSessionIdRef.current.trim().length > 0
 
-    const windowsPty = window.opencoveApi.meta?.windowsPty ?? null
+    const windowsPty = window.eclipseCodeApi.meta?.windowsPty ?? null
     const diagnosticsEnabled =
-      window.opencoveApi.meta?.enableTerminalDiagnostics === true ||
-      window.opencoveApi.meta?.enableTerminalInputDiagnostics === true
+      window.eclipseCodeApi.meta?.enableTerminalDiagnostics === true ||
+      window.eclipseCodeApi.meta?.enableTerminalInputDiagnostics === true
     const logTerminalDiagnostics =
-      window.opencoveApi.debug?.logTerminalDiagnostics ?? (() => undefined)
+      window.eclipseCodeApi.debug?.logTerminalDiagnostics ?? (() => undefined)
     const displayTerminalMetrics = displayTerminalMetricsRef.current
 
     suppressPtyResizeRef.current = false
@@ -222,7 +222,7 @@ export function useTerminalPlaceholderSession({
       }
       applyTerminalTheme()
     }
-    window.addEventListener('opencove-theme-changed', handleThemeChange)
+    window.addEventListener('eclipse-code-theme-changed', handleThemeChange)
 
     const disposePlaceholderInputCapture = (): void => {
       dataDisposable.dispose()
@@ -232,7 +232,7 @@ export function useTerminalPlaceholderSession({
 
     return () => {
       isDisposed = true
-      window.removeEventListener('opencove-theme-changed', handleThemeChange)
+      window.removeEventListener('eclipse-code-theme-changed', handleThemeChange)
       if (
         shouldHandoffToRuntime() &&
         shouldReusePreservedXtermSession({

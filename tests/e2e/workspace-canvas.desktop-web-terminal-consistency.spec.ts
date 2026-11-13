@@ -23,7 +23,7 @@ async function writeMarker(page: Page, marker: string): Promise<void> {
 
 async function readGrid(page: Page): Promise<{ cols: number; rows: number } | null> {
   return await page.evaluate(
-    id => window.__opencoveTerminalSelectionTestApi?.getSize(id) ?? null,
+    id => window.__eclipseCodeTerminalSelectionTestApi?.getSize(id) ?? null,
     nodeId,
   )
 }
@@ -31,20 +31,20 @@ async function readGrid(page: Page): Promise<{ cols: number; rows: number } | nu
 async function readRendererKind(page: Page): Promise<'dom' | 'webgl' | null> {
   return await page.evaluate(id => {
     const kind =
-      window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)?.rendererStructuralKind
+      window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)?.rendererStructuralKind
     return kind === 'dom' || kind === 'webgl' ? kind : null
   }, nodeId)
 }
 
 async function readStoredCalibration(page: Page): Promise<string | null> {
   return await page.evaluate(() =>
-    window.localStorage.getItem('opencove:terminal-display-calibration:v1'),
+    window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
   )
 }
 
 async function hasAppliedAutomaticCalibration(page: Page): Promise<boolean> {
   return await page.evaluate(id => {
-    const raw = window.localStorage.getItem('opencove:terminal-display-calibration:v1')
+    const raw = window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1')
     if (!raw) {
       return false
     }
@@ -55,7 +55,7 @@ async function hasAppliedAutomaticCalibration(page: Page): Promise<boolean> {
       target?: { cols?: number; rows?: number }
       measured?: { cols?: number; rows?: number }
     }
-    const applied = window.__opencoveTerminalSelectionTestApi?.getFontOptions(id) ?? null
+    const applied = window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions(id) ?? null
     return Boolean(
       calibration.target?.cols === calibration.measured?.cols &&
       calibration.target?.rows === calibration.measured?.rows &&
@@ -96,9 +96,11 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
       },
     ])
     await expect(desktop.locator('.terminal-node')).toHaveCount(1)
-    const worker = await desktop.evaluate(async () => await window.opencoveApi.worker.getStatus())
+    const worker = await desktop.evaluate(
+      async () => await window.eclipseCodeApi.worker.getStatus(),
+    )
     const webUiUrl = await desktop.evaluate(
-      async () => await window.opencoveApi.worker.getWebUiUrl(),
+      async () => await window.eclipseCodeApi.worker.getWebUiUrl(),
     )
     expect(worker.status).toBe('running')
     expect(webUiUrl).toBeTruthy()
@@ -106,7 +108,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
 
     const web = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     await web.goto(webUiUrl!, { waitUntil: 'domcontentloaded' })
-    await web.goto(new URL('/?opencoveTerminalTestApi=1', webUiUrl!).toString(), {
+    await web.goto(new URL('/?eclipseCodeTerminalTestApi=1', webUiUrl!).toString(), {
       waitUntil: 'domcontentloaded',
     })
     await expect(web.locator('.terminal-node')).toHaveCount(1, { timeout: 30_000 })
@@ -132,7 +134,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
     }
 
     const desktopSessionId = await desktop.evaluate(
-      id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+      id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
       nodeId,
     )
     expect(desktopSessionId).toBeTruthy()
@@ -140,7 +142,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
     await expect
       .poll(() =>
         web.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
           nodeId,
         ),
       )
@@ -150,18 +152,18 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
       .poll(
         async () => {
           const snapshot = await desktop.evaluate(
-            async sessionId => await window.opencoveApi.pty.presentationSnapshot({ sessionId }),
+            async sessionId => await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }),
             desktopSessionId!,
           )
           const [desktopGrid, webGrid, desktopProposal, webProposal] = await Promise.all([
             readGrid(desktop),
             readGrid(web),
             desktop.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
+              id => window.__eclipseCodeTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
               nodeId,
             ),
             web.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
+              id => window.__eclipseCodeTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
               nodeId,
             ),
           ])
@@ -182,17 +184,17 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
         webProposalReady: true,
       })
     const canonicalSnapshot = await desktop.evaluate(
-      async sessionId => await window.opencoveApi.pty.presentationSnapshot({ sessionId }),
+      async sessionId => await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }),
       desktopSessionId!,
     )
     const canonicalGrid = await readGrid(desktop)
     const webGrid = await readGrid(web)
     const desktopProposal = await desktop.evaluate(
-      id => window.__opencoveTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
+      id => window.__eclipseCodeTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
       nodeId,
     )
     const webProposal = await web.evaluate(
-      id => window.__opencoveTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
+      id => window.__eclipseCodeTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
       nodeId,
     )
     expect(canonicalGrid).toEqual({ cols: canonicalSnapshot.cols, rows: canonicalSnapshot.rows })
@@ -221,7 +223,8 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
             return {
               timeOrigin: performance.timeOrigin,
               instanceId:
-                window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
+                window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ??
+                null,
             }
           }, nodeId),
       ),
@@ -247,7 +250,8 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
             id => ({
               timeOrigin: performance.timeOrigin,
               instanceId:
-                window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
+                window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ??
+                null,
               domToken:
                 (document.querySelector('.terminal-node .xterm') as HTMLElement | null)?.dataset[
                   'multiClientIdentity'
@@ -261,7 +265,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
       identities.map(identity => ({ ...identity, domToken: 'same-xterm' })),
     )
 
-    if (await desktop.evaluate(() => window.opencoveApi.meta.platform !== 'win32')) {
+    if (await desktop.evaluate(() => window.eclipseCodeApi.meta.platform !== 'win32')) {
       const marker = `STTY_${Date.now()}`
       await desktop.locator('.terminal-node .xterm').click()
       await desktop.keyboard.type(`printf '${marker} '; stty size`)
@@ -278,20 +282,20 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
 
     const desktopIdentityBeforeSecurity = await desktop.evaluate(
       async id => ({
-        worker: await window.opencoveApi.worker.getStatus(),
+        worker: await window.eclipseCodeApi.worker.getStatus(),
         timeOrigin: performance.timeOrigin,
         instanceId:
-          window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
-        sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
+        sessionId: window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
       }),
       nodeId,
     )
     await desktop.evaluate(async () => {
-      await window.opencoveApi.workerClient.setWebUiSecurity({
+      await window.eclipseCodeApi.workerClient.setWebUiSecurity({
         exposeOnLan: false,
         password: 'multi-client-password',
       })
-      await window.opencoveApi.workerClient.setWebUiSecurity({
+      await window.eclipseCodeApi.workerClient.setWebUiSecurity({
         exposeOnLan: true,
         password: null,
       })
@@ -301,7 +305,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
         async () =>
           await web.evaluate(async () => {
             try {
-              await window.opencoveApi.controlSurface.invoke({
+              await window.eclipseCodeApi.controlSurface.invoke({
                 kind: 'query',
                 id: 'system.ping',
                 payload: null,
@@ -319,19 +323,19 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
     await writeMarker(desktop, securityMarker)
     await expect(desktop.locator('.terminal-node')).toContainText(securityMarker)
     await desktop.evaluate(async () => {
-      await window.opencoveApi.workerClient.setWebUiSecurity({
+      await window.eclipseCodeApi.workerClient.setWebUiSecurity({
         exposeOnLan: false,
         password: null,
       })
     })
     const refreshedWebUrl = await desktop.evaluate(
-      async () => await window.opencoveApi.worker.getWebUiUrl(),
+      async () => await window.eclipseCodeApi.worker.getWebUiUrl(),
     )
     expect(refreshedWebUrl).toBeTruthy()
     const reauthenticatedWeb = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     await reauthenticatedWeb.goto(refreshedWebUrl!, { waitUntil: 'domcontentloaded' })
     await reauthenticatedWeb.goto(
-      new URL('/?opencoveTerminalTestApi=1', refreshedWebUrl!).toString(),
+      new URL('/?eclipseCodeTerminalTestApi=1', refreshedWebUrl!).toString(),
       { waitUntil: 'domcontentloaded' },
     )
     await expect(reauthenticatedWeb.locator('.terminal-node')).toContainText(securityMarker, {
@@ -341,7 +345,7 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
     await expect
       .poll(() =>
         reauthenticatedWeb.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
           nodeId,
         ),
       )
@@ -354,11 +358,11 @@ test('Desktop and Web share one canonical PTY grid while both remain interactive
 
     const desktopIdentityAfterSecurity = await desktop.evaluate(
       async id => ({
-        worker: await window.opencoveApi.worker.getStatus(),
+        worker: await window.eclipseCodeApi.worker.getStatus(),
         timeOrigin: performance.timeOrigin,
         instanceId:
-          window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
-        sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)?.instanceId ?? null,
+        sessionId: window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
       }),
       nodeId,
     )

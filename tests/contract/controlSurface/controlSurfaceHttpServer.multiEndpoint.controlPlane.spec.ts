@@ -27,7 +27,7 @@ function isEnvelopeErr(value: unknown): value is { ok: false; error: { code?: st
 
 describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
   it('assigns mount sortOrder per project', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-home-sort-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-home-sort-'))
     const connectionFileName = 'control-surface.m6.sort.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -94,8 +94,8 @@ describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
   })
 
   it('does not leak endpoint tokens via endpoint.list or sync.state', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-home-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-m6-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-home-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-workspace-'))
     const connectionFileName = 'control-surface.m6.token.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -163,7 +163,7 @@ describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
   })
 
   it('returns worker.unavailable when remote endpoint is unreachable', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-home-offline-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-home-offline-'))
     const connectionFileName = 'control-surface.m6.offline.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -256,8 +256,8 @@ describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
   })
 
   it('enforces mount root scope for filesystem.*InMount', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-home-scope-'))
-    const basePath = await mkdtemp(join(tmpdir(), 'opencove-m6-scope-root-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-home-scope-'))
+    const basePath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-scope-root-'))
     const mountRootPath = resolve(basePath, 'mount')
     await mkdir(mountRootPath, { recursive: true })
 

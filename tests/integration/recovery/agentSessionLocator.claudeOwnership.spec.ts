@@ -18,7 +18,7 @@ describe('Claude session discovery ownership', () => {
   it.each(['single', 'concurrent', 'parent', 'ambiguous', 'mismatched-content'] as const)(
     'does not bind an unknown node to %s transcript candidates',
     async scenario => {
-      const home = await fs.mkdtemp(join(os.tmpdir(), 'opencove-claude-ownership-'))
+      const home = await fs.mkdtemp(join(os.tmpdir(), 'eclipse-code-claude-ownership-'))
       vi.stubEnv('HOME', home)
       vi.stubEnv('USERPROFILE', home)
       vi.stubEnv('HOMEDRIVE', '')

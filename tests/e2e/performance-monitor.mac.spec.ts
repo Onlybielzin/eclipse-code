@@ -21,9 +21,9 @@ test.describe('Performance Diagnostics (macOS)', () => {
       )
       await expect(diagnosticsSection).not.toContainText(/Reserved memory|已申请内存/)
       await expect(diagnosticsSection).toContainText(/Threads|线程/)
-      await expect(diagnosticsSection).toContainText(/OpenCove main|OpenCove main/)
+      await expect(diagnosticsSection).toContainText(/Eclipse Code main|Eclipse Code main/)
       const mainRow = diagnosticsSection.locator('tbody tr', {
-        hasText: /OpenCove main|OpenCove main/,
+        hasText: /Eclipse Code main|Eclipse Code main/,
       })
       await expect(mainRow.locator('td').nth(4)).not.toHaveText('-')
     } finally {

@@ -24,7 +24,7 @@ function running(pid: number): boolean {
 it.skipIf(process.platform === 'win32').each(['agent', 'shell', 'exitedAgent'] as const)(
   '%s policy with a real detached child (injected fixture identities)',
   async kind => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-reap-signals-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-reap-signals-'))
     const script = join(root, 'root.cjs')
     await writeFile(
       script,

@@ -89,7 +89,7 @@ test.describe('Independent plugin CLI and window ownership', () => {
       )
       expect(isAbsolute(skill.path)).toBe(true)
       expect(await readFile(skill.path, 'utf8')).toBe(skill.content)
-      expect(skill.content).toContain(`opencove plugin windows ${source.id}`)
+      expect(skill.content).toContain(`eclipse-code plugin windows ${source.id}`)
       expect(skill.installPrompt).toContain('has not installed')
 
       await page.getByTestId('app-header-settings').click()
@@ -287,7 +287,7 @@ test.describe('Independent plugin CLI and window ownership', () => {
 
       const beforeWeb = await pluginCli<PluginWindowList>(userDataDir, ['windows', source.id])
       const desktopViewId = beforeWeb.windows[0].views.find(view => view.ready)!.viewId
-      const webUiUrl = await desktop.evaluate(() => window.opencoveApi.worker.getWebUiUrl())
+      const webUiUrl = await desktop.evaluate(() => window.eclipseCodeApi.worker.getWebUiUrl())
       expect(webUiUrl).toBeTruthy()
       const web = await browser.newPage({ viewport: { width: 1450, height: 950 } })
       await web.goto(webUiUrl!, { waitUntil: 'domcontentloaded' })

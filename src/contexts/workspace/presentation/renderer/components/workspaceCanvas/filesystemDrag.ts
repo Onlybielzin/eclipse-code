@@ -1,6 +1,6 @@
 import { isFileUriWithinRoot, normalizeFileUri } from '@shared/utils/fileUriScope'
 
-export const FILESYSTEM_ENTRY_MIME = 'application/x-opencove-filesystem-entry'
+export const FILESYSTEM_ENTRY_MIME = 'application/x-eclipse-code-filesystem-entry'
 
 export interface FilesystemEntryDragData {
   version: 1

@@ -32,7 +32,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
   const remoteOnlyProjectId = await pollFor(
     async () =>
       await window.evaluate(async name => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -54,7 +54,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
     async () =>
       await window.evaluate(
         async ({ projectId, endpointId }) => {
-          const mountResult = await window.opencoveApi.controlSurface.invoke<{
+          const mountResult = await window.eclipseCodeApi.controlSurface.invoke<{
             mounts: Array<{ mountId: string; endpointId: string }>
           }>({
             kind: 'query',
@@ -85,7 +85,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
   await expect(remoteOnlyTerminal.locator('.xterm-helper-textarea')).toBeFocused()
   await window.waitForTimeout(250)
 
-  const remoteOnlyCwdToken = `OPENCOVE_M6_REMOTE_ONLY_CWD_SHA_${Date.now()}:`
+  const remoteOnlyCwdToken = `ECLIPSE_CODE_M6_REMOTE_ONLY_CWD_SHA_${Date.now()}:`
   await window.keyboard.type(
     buildNodeEvalCommand(
       `const crypto = require('crypto')\n` +
@@ -107,18 +107,18 @@ export async function verifyRemoteOnlyProjectDefaultMount({
   await expect(window.locator('.terminal-node')).toHaveCount(terminalCountBeforeAgent + 1)
 
   const agentNode = window.locator('.terminal-node').nth(terminalCountBeforeAgent)
-  await expect(agentNode).toContainText('[opencove-test-agent]')
+  await expect(agentNode).toContainText('[eclipse-code-test-agent]')
 
   const agentSessionId = await pollFor(
     async () =>
       await window.evaluate(async () => {
-        return window.__opencoveWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
+        return window.__eclipseCodeWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
       }),
     { timeoutMs: 20_000, label: 'remote-only agent session id' },
   )
 
   const session = await window.evaluate(async sessionId => {
-    return await window.opencoveApi.controlSurface.invoke<GetSessionResult>({
+    return await window.eclipseCodeApi.controlSurface.invoke<GetSessionResult>({
       kind: 'query',
       id: 'session.get',
       payload: { sessionId },
@@ -138,7 +138,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
   ).toBe(true)
 
   const sessionsBeforeTaskAgent = await window.evaluate(async () => {
-    return window.__opencoveWorkspaceCanvasTestApi?.getAgentSessions?.() ?? []
+    return window.__eclipseCodeWorkspaceCanvasTestApi?.getAgentSessions?.() ?? []
   })
 
   await openWorkspacePaneContextMenu(pane)
@@ -156,7 +156,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
     async () =>
       await window.evaluate(
         async ({ previous }) => {
-          const next = window.__opencoveWorkspaceCanvasTestApi?.getAgentSessions?.() ?? []
+          const next = window.__eclipseCodeWorkspaceCanvasTestApi?.getAgentSessions?.() ?? []
           const previousIds = new Set(
             (previous ?? []).map((item: { sessionId: string }) => item.sessionId),
           )
@@ -170,7 +170,7 @@ export async function verifyRemoteOnlyProjectDefaultMount({
   )
 
   const taskSession = await window.evaluate(async sessionId => {
-    return await window.opencoveApi.controlSurface.invoke<GetSessionResult>({
+    return await window.eclipseCodeApi.controlSurface.invoke<GetSessionResult>({
       kind: 'query',
       id: 'session.get',
       payload: { sessionId },

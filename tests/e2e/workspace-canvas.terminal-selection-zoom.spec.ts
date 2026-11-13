@@ -64,7 +64,7 @@ test.describe('Workspace Canvas - Terminal Selection (Zoom)', () => {
         return await window
           .waitForFunction(
             nodeId => {
-              const api = window.__opencoveTerminalSelectionTestApi
+              const api = window.__eclipseCodeTerminalSelectionTestApi
               if (!api) {
                 return null
               }
@@ -107,7 +107,7 @@ test.describe('Workspace Canvas - Terminal Selection (Zoom)', () => {
 
       const readSelection = async (): Promise<string> => {
         return await window.evaluate(nodeId => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           return api?.getSelection(nodeId) ?? ''
         }, 'node-selection-zoom')
       }
@@ -118,7 +118,7 @@ test.describe('Workspace Canvas - Terminal Selection (Zoom)', () => {
 
       const clearSelection = async (): Promise<void> => {
         await window.evaluate(nodeId => {
-          window.__opencoveTerminalSelectionTestApi?.clearSelection(nodeId)
+          window.__eclipseCodeTerminalSelectionTestApi?.clearSelection(nodeId)
         }, 'node-selection-zoom')
       }
 

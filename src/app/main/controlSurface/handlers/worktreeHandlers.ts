@@ -33,6 +33,7 @@ import { getGitDefaultBranch } from '../../../../contexts/worktree/infrastructur
 import { suggestWorktreeNames } from '../../../../contexts/worktree/infrastructure/git/WorktreeNameSuggester'
 import { computeSpaceDirectoryUpdate } from '../../../../contexts/space/application/updateSpaceDirectory'
 import { resolveWorktreesRoot } from '../../../../contexts/worktree/application/resolveWorktreesRoot'
+import { normalizeComparablePath } from '../../../../contexts/space/application/spaceBoundaryPolicy'
 import { randomUUID } from 'node:crypto'
 
 function resolveCandidateBranchName(spaceName: string, nameOverride: string | null): string {
@@ -156,7 +157,11 @@ export function registerWorktreeHandlers(
       const { workspace, space } = matched
 
       const effectiveDirectory = space.directoryPath.trim().length > 0 ? space.directoryPath : ''
-      if (effectiveDirectory && effectiveDirectory !== workspace.path) {
+      // Compare normalized paths: a project saved as "/repo/" is the same root as "/repo".
+      if (
+        effectiveDirectory &&
+        normalizeComparablePath(effectiveDirectory) !== normalizeComparablePath(workspace.path)
+      ) {
         throw createAppError('common.invalid_input', {
           debugMessage: 'worktree.create requires a root-bound space (directoryPath matches repo).',
         })

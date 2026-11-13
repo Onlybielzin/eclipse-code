@@ -317,7 +317,7 @@ export async function faultHarness(config: FaultCase) {
     })
     registerSessionHandlers(surface, {
       ...admission,
-      userDataPath: '/tmp/opencove-fault-model',
+      userDataPath: '/tmp/eclipse-code-fault-model',
       cleanupUnreferencedSession: id => runtime.owner.cleanup(id),
       getPersistenceStore: async () => store,
       approvedWorkspaces: {

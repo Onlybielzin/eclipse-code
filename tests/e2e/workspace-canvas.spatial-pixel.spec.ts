@@ -68,7 +68,7 @@ async function expectTheme(window: Page, themeId: 'dark' | 'light') {
 
 async function readPersistedTheme(window: Page): Promise<string | null> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -88,7 +88,7 @@ async function attachScreenshot(window: Page, testInfo: TestInfo, name: string) 
 
 async function readTerminalContinuity(window: Page) {
   return await window.evaluate(async nodeId => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const size = api?.getSize(nodeId)
     const instanceId = api?.getRenderMetrics(nodeId)?.instanceId
     const sessionId = api?.getRuntimeSessionId(nodeId)
@@ -98,7 +98,7 @@ async function readTerminalContinuity(window: Page) {
     if (!size || !instanceId || !sessionId || !(body instanceof HTMLElement)) {
       return null
     }
-    const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+    const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
     return {
       sessionId,
       instanceId,
@@ -128,11 +128,12 @@ async function printThroughTerminal(window: Page, phase: string) {
     .poll(async () => {
       return await window.evaluate(
         async ({ nodeId, marker }) => {
-          const sessionId = window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(nodeId)
+          const sessionId =
+            window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(nodeId)
           if (!sessionId) {
             return false
           }
-          const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+          const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
           return snapshot.serializedScreen.includes(marker)
         },
         { nodeId: NODE_ID, marker: expectedOutput },
@@ -239,7 +240,7 @@ test.describe('Workspace Canvas - Spatial Pixel', () => {
       await expect
         .poll(() =>
           window.evaluate(
-            nodeId => window.__opencoveTerminalSelectionTestApi?.getSelection(nodeId) ?? '',
+            nodeId => window.__eclipseCodeTerminalSelectionTestApi?.getSelection(nodeId) ?? '',
             NODE_ID,
           ),
         )

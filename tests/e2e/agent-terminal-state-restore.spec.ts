@@ -6,7 +6,7 @@ import type {} from '../../src/contexts/workspace/presentation/renderer/componen
 
 async function readState(page: Page, nodeId: string) {
   return page.evaluate(async id => {
-    const api = window.__opencoveTerminalSelectionTestApi!
+    const api = window.__eclipseCodeTerminalSelectionTestApi!
     await api.flushOutput(id)
     return {
       modes: api.getEmulationState(id),
@@ -25,8 +25,8 @@ test.describe('Agent terminal state restore', () => {
     }, testInfo) => {
       const { electronApp, window: page } = await launchApp({
         env: {
-          OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'raw-agent-terminal-state-restore',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'raw-agent-terminal-state-restore',
         },
       })
       let sessionId: string | null = null
@@ -41,7 +41,7 @@ test.describe('Agent terminal state restore', () => {
         await mkdir(otherPath, { recursive: true })
         const other = await page.evaluate(
           async directory =>
-            window.opencoveApi.controlSurface.invoke<{ projectId: string }>({
+            window.eclipseCodeApi.controlSurface.invoke<{ projectId: string }>({
               kind: 'command',
               id: 'project.add',
               payload: { path: directory, name: 'State restore other' },
@@ -57,15 +57,15 @@ test.describe('Agent terminal state restore', () => {
         await expect
           .poll(() =>
             page.evaluate(
-              () => window.__opencoveTerminalSelectionTestApi?.getRegisteredNodeIds()[0] ?? null,
+              () => window.__eclipseCodeTerminalSelectionTestApi?.getRegisteredNodeIds()[0] ?? null,
             ),
           )
           .not.toBeNull()
         const nodeId = await page.evaluate(
-          () => window.__opencoveTerminalSelectionTestApi!.getRegisteredNodeIds()[0]!,
+          () => window.__eclipseCodeTerminalSelectionTestApi!.getRegisteredNodeIds()[0]!,
         )
         sessionId = await page.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi!.getRuntimeSessionId(id),
+          id => window.__eclipseCodeTerminalSelectionTestApi!.getRuntimeSessionId(id),
           nodeId,
         )
         await expect
@@ -170,7 +170,7 @@ test.describe('Agent terminal state restore', () => {
       } finally {
         if (sessionId && !page.isClosed()) {
           await page
-            .evaluate(id => window.opencoveApi.pty.kill({ sessionId: id }), sessionId)
+            .evaluate(id => window.eclipseCodeApi.pty.kill({ sessionId: id }), sessionId)
             .catch(() => undefined)
         }
         await electronApp.close()

@@ -35,7 +35,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
     const remoteToken = `m6-e2e-${randomUUID()}`
     const remotePort = await reserveLoopbackPort()
     const remoteHost = '127.0.0.1'
-    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-m6-remote-'))
+    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-'))
     const remoteOnlyDir = path.join(remoteBaseDir, 'remote-only')
     const multiRemoteDir = path.join(remoteBaseDir, 'multi-remote')
     await mkdir(remoteOnlyDir, { recursive: true })
@@ -53,7 +53,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
     const remoteSeedFile = path.join(multiRemoteDir, 'seed.txt')
     await writeFile(remoteSeedFile, 'seed', 'utf8')
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-e2e-m6-remote-worker-'),
+      path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-worker-'),
     )
     const remoteWorkerHomeDir = remoteBaseDir
     const remoteWorker = await startRemoteWorker({
@@ -67,12 +67,12 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
     })
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
       },
     })
     try {
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -128,7 +128,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
       const remoteEndpointId = await pollFor(
         async () =>
           await window.evaluate(async displayName => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({
               kind: 'query',
@@ -209,7 +209,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
       const multiProjectId = await pollFor(
         async () =>
           await window.evaluate(async projectName => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -232,7 +232,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
         async () =>
           await window.evaluate(
             async ({ projectId, endpointId }) => {
-              const mountResult = await window.opencoveApi.controlSurface.invoke<{
+              const mountResult = await window.eclipseCodeApi.controlSurface.invoke<{
                 mounts: Array<{ mountId: string; endpointId: string }>
               }>({
                 kind: 'query',
@@ -274,7 +274,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
         async () =>
           await window.evaluate(
             async ({ projectId, mountId }) => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -346,7 +346,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
         const directWriteAttempt = await window.evaluate(
           async ({ mountId, uri }) => {
             try {
-              await window.opencoveApi.controlSurface.invoke({
+              await window.eclipseCodeApi.controlSurface.invoke({
                 kind: 'command',
                 id: 'filesystem.writeFileTextInMount',
                 payload: { mountId, uri, content: '' },
@@ -418,7 +418,7 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
 
       await expect(remoteTerminal.locator('.xterm-helper-textarea')).toBeFocused()
       await window.waitForTimeout(250)
-      const cwdToken = `OPENCOVE_M6_REMOTE_CWD_SHA_${Date.now()}:`
+      const cwdToken = `ECLIPSE_CODE_M6_REMOTE_CWD_SHA_${Date.now()}:`
       await window.keyboard.type(
         buildNodeEvalCommand(
           `const crypto = require('crypto')\n` +
@@ -442,18 +442,18 @@ test.describe('M6 - Desktop endpoints/mounts integration', () => {
       await window.locator('[data-testid="workspace-context-run-default-agent"]').click()
       await expect(window.locator('.terminal-node')).toHaveCount(terminalCountBeforeAgent + 1)
       const agentNode = window.locator('.terminal-node').nth(terminalCountBeforeAgent)
-      await expect(agentNode).toContainText('[opencove-test-agent]')
+      await expect(agentNode).toContainText('[eclipse-code-test-agent]')
 
       const agentSessionId = await pollFor(
         async () =>
           await window.evaluate(async () => {
-            return window.__opencoveWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
+            return window.__eclipseCodeWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
           }),
         { timeoutMs: 30_000, label: 'agent session id' },
       )
 
       const session = await window.evaluate(async sessionId => {
-        return await window.opencoveApi.controlSurface.invoke<GetSessionResult>({
+        return await window.eclipseCodeApi.controlSurface.invoke<GetSessionResult>({
           kind: 'query',
           id: 'session.get',
           payload: { sessionId },

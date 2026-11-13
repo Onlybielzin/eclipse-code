@@ -8,7 +8,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 ASSET_PATH="$1"
-SMOKE_ROOT="${OPENCOVE_SMOKE_ROOT:-/tmp/opencove-standalone-smoke}"
+SMOKE_ROOT="${ECLIPSE_CODE_SMOKE_ROOT:-/tmp/eclipse-code-standalone-smoke}"
 INSTALL_ROOT="${SMOKE_ROOT}/install"
 BIN_DIR="${SMOKE_ROOT}/bin"
 USER_DATA="${SMOKE_ROOT}/user-data"
@@ -27,16 +27,16 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-export OPENCOVE_STANDALONE_ASSET="${ASSET_PATH}"
-export OPENCOVE_STANDALONE_CHECKSUMS_FILE="${OPENCOVE_STANDALONE_CHECKSUMS_FILE:-$(dirname "${ASSET_PATH}")/SHA256SUMS.txt}"
-export OPENCOVE_INSTALL_ROOT="${INSTALL_ROOT}"
-export OPENCOVE_BIN_DIR="${BIN_DIR}"
+export ECLIPSE_CODE_STANDALONE_ASSET="${ASSET_PATH}"
+export ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE="${ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE:-$(dirname "${ASSET_PATH}")/SHA256SUMS.txt}"
+export ECLIPSE_CODE_INSTALL_ROOT="${INSTALL_ROOT}"
+export ECLIPSE_CODE_BIN_DIR="${BIN_DIR}"
 
-sh scripts/release-assets/opencove-install.sh
+sh scripts/release-assets/eclipse-code-install.sh
 
-LAUNCHER="${BIN_DIR}/opencove"
-NODE_BIN="$(sed -n 's/^# OPENCOVE_NODE_BIN=//p' "${LAUNCHER}")"
-CLI_SCRIPT="$(sed -n 's/^# OPENCOVE_CLI_SCRIPT=//p' "${LAUNCHER}")"
+LAUNCHER="${BIN_DIR}/eclipse-code"
+NODE_BIN="$(sed -n 's/^# ECLIPSE_CODE_NODE_BIN=//p' "${LAUNCHER}")"
+CLI_SCRIPT="$(sed -n 's/^# ECLIPSE_CODE_CLI_SCRIPT=//p' "${LAUNCHER}")"
 APP_ROOT="$(dirname "$(dirname "$(dirname "${CLI_SCRIPT}")")")"
 BUNDLE_ROOT="$(dirname "${APP_ROOT}")"
 CONNECTION_FILE="${USER_DATA}/worker-control-surface.json"

@@ -164,7 +164,7 @@ export async function waitForManagedCanonicalLayout(
   return await waitForEvidence(
     async () => {
       const canonical = await page.evaluate(async targetNodeId => {
-        const snapshot = await window.opencoveApi.persistence.readAppState()
+        const snapshot = await window.eclipseCodeApi.persistence.readAppState()
         const state = snapshot.state as {
           workspaces: Array<{
             nodes: Array<{

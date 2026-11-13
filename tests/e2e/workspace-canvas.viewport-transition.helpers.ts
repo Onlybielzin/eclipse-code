@@ -26,6 +26,7 @@ export async function seedMotionCanvas(
     {
       settings: {
         viewportTransition,
+        canvasWheelBehavior: 'zoom',
         focusNodeTargetZoom: 1,
         focusNodeUseVisibleCanvasCenter: false,
       },
@@ -45,7 +46,7 @@ export async function seedMotionCanvas(
   // Establish an exact initial view before enabling the production animation path.
   await page.locator(spaceButton('motion-space-0')).click()
   await page.evaluate(() => {
-    document.documentElement.dataset.opencoveTestViewportAnimation = 'true'
+    document.documentElement.dataset.eclipseCodeTestViewportAnimation = 'true'
   })
 }
 

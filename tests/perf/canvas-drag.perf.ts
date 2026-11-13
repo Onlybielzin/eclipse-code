@@ -12,7 +12,7 @@ import {
 test('continuous window drag with pixel wall, terminals and Space minimaps', async () => {
   const { electronApp, window } = await launchApp({ deviceScaleFactor: 2 })
   const directory = path.resolve(
-    process.env.OPENCOVE_DRAG_REPORT_DIR ?? 'artifacts/drag-performance',
+    process.env.ECLIPSE_CODE_DRAG_REPORT_DIR ?? 'artifacts/drag-performance',
   )
   await mkdir(directory, { recursive: true })
   try {
@@ -40,14 +40,14 @@ test('continuous window drag with pixel wall, terminals and Space minimaps', asy
       JSON.stringify(
         {
           revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-          mode: process.env.OPENCOVE_E2E_WINDOW_MODE,
+          mode: process.env.ECLIPSE_CODE_E2E_WINDOW_MODE,
           results,
         },
         null,
         2,
       ),
     )
-    if (process.env.OPENCOVE_DRAG_PROFILE === '1') {
+    if (process.env.ECLIPSE_CODE_DRAG_PROFILE === '1') {
       await session.send('Profiler.enable')
       await session.send('Profiler.setSamplingInterval', { interval: 100 })
       await session.send('Profiler.start')

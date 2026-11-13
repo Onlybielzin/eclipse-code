@@ -9,17 +9,17 @@ export async function resolveConnection(
   options: Record<string, unknown>,
   io: CliIo,
 ): Promise<Connection> {
-  if (options.endpoint !== undefined && !options.token && io.env.OPENCOVE_CONTROL_TOKEN) {
+  if (options.endpoint !== undefined && !options.token && io.env.ECLIPSE_CODE_CONTROL_TOKEN) {
     usage(
       'An explicit endpoint requires a paired token.',
-      'Use --endpoint <url> --token <token>, or omit both to use the OpenCove terminal connection.',
+      'Use --endpoint <url> --token <token>, or omit both to use the Eclipse Code terminal connection.',
     )
   }
-  const endpoint = options.endpoint ?? io.env.OPENCOVE_CONTROL_URL
+  const endpoint = options.endpoint ?? io.env.ECLIPSE_CODE_CONTROL_URL
   const token =
     options.token ??
-    (options.endpoint === undefined && io.env.OPENCOVE_CONTROL_URL
-      ? io.env.OPENCOVE_CONTROL_TOKEN
+    (options.endpoint === undefined && io.env.ECLIPSE_CODE_CONTROL_URL
+      ? io.env.ECLIPSE_CODE_CONTROL_TOKEN
       : undefined)
   if (endpoint !== undefined) {
     if (!token) {
@@ -36,7 +36,7 @@ export async function resolveConnection(
     }
     return { endpoint: url.origin, token: String(token) }
   }
-  const explicit = options['user-data'] ?? io.env.OPENCOVE_USER_DATA_DIR
+  const explicit = options['user-data'] ?? io.env.ECLIPSE_CODE_USER_DATA_DIR
   const profiles = explicit !== undefined ? [String(explicit)] : (io.profileCandidates?.() ?? [])
   const candidates: (Connection & {
     userData: string
@@ -92,8 +92,8 @@ export async function resolveConnection(
     throw new CliError(
       'context.unreachable',
       3,
-      'OpenCove is not running for this profile.',
-      'Start the OpenCove app, or run "opencove worker start". Use --user-data <dir> to target another profile.',
+      'Eclipse Code is not running for this profile.',
+      'Start the Eclipse Code app, or run "eclipse-code worker start". Use --user-data <dir> to target another profile.',
       { profiles },
     )
   }

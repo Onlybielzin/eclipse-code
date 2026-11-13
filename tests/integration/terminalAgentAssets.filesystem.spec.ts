@@ -19,7 +19,7 @@ afterEach(async () => {
 })
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-assets-filesystem-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-assets-filesystem-'))
   roots.push(root)
   const diagnostic = vi.fn()
   const store = new TerminalAgentTelemetryAssetStore({
@@ -87,7 +87,7 @@ describe('asset filesystem failure boundaries', () => {
     'does not follow a runtime directory alias below the trusted profile',
     async () => {
       const { root } = await fixture()
-      const outside = await mkdtemp(join(tmpdir(), 'opencove-assets-outside-'))
+      const outside = await mkdtemp(join(tmpdir(), 'eclipse-code-assets-outside-'))
       roots.push(outside)
       await symlink(outside, join(root, 'runtime'))
       const store = new TerminalAgentTelemetryAssetStore({

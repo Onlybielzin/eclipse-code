@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 export function useWebsiteWindowOcclusionSync(occluded: boolean): void {
   useEffect(() => {
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.setOccluded !== 'function') {
       return
     }

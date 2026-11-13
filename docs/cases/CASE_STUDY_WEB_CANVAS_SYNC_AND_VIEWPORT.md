@@ -22,19 +22,19 @@ Run the smallest reproductions first:
 
 ```bash
 # Viewport / out-of-viewport click failure
-OPENCOVE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
+ECLIPSE_CODE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
   tests/e2e-web-canvas/workerWebCanvas.agent-resume.spec.ts --reporter=line
 
 # Multi-client close sync failure
-OPENCOVE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
+ECLIPSE_CODE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
   tests/e2e-web-canvas/workerWebCanvas.sync-between-clients.spec.ts -g "syncs node closes" --reporter=line
 
 # Close-path latency (often shows up only in full-suite context)
-OPENCOVE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
+ECLIPSE_CODE_E2E_SKIP_BUILD=1 pnpm test:e2e:web-canvas -- \
   tests/e2e-web-canvas/workerWebCanvas.sync-resilience.spec.ts -g "keeps closed terminal nodes closed" --reporter=line
 ```
 
-If you changed source, run `pnpm build` once first (or omit `OPENCOVE_E2E_SKIP_BUILD=1`).
+If you changed source, run `pnpm build` once first (or omit `ECLIPSE_CODE_E2E_SKIP_BUILD=1`).
 
 ## Diagnosis Notes
 

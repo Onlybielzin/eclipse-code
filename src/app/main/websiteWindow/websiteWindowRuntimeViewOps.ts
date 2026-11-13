@@ -18,7 +18,7 @@ function reportWebsiteSnapshotFailure(
 ): void {
   const detail = error instanceof Error ? error.message : String(error)
   process.stderr.write(
-    `[opencove-website-window] ${stage} failed: ${JSON.stringify({ nodeId, detail })}\n`,
+    `[eclipse-code-website-window] ${stage} failed: ${JSON.stringify({ nodeId, detail })}\n`,
   )
 }
 

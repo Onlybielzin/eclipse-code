@@ -9,7 +9,7 @@ describe('remote project agent launch', () => {
 
   function mockMounts(mounts: Array<{ mountId: string; rootPath: string }>) {
     const invoke = vi.fn().mockResolvedValue({ mounts })
-    vi.stubGlobal('window', { opencoveApi: { controlSurface: { invoke } } })
+    vi.stubGlobal('window', { eclipseCodeApi: { controlSurface: { invoke } } })
     return invoke
   }
 
@@ -108,7 +108,7 @@ describe('remote project agent launch', () => {
     })
     const localLaunch = vi.fn(async () => ({ sessionId: 'local-session' }))
     vi.stubGlobal('window', {
-      opencoveApi: { controlSurface: { invoke }, agent: { launch: localLaunch } },
+      eclipseCodeApi: { controlSurface: { invoke }, agent: { launch: localLaunch } },
     })
 
     const binding = await resolveWorkspaceAgentLaunchBinding({

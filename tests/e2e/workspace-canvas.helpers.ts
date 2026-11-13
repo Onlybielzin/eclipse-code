@@ -16,8 +16,8 @@ import {
 } from './workspace-canvas.testUtils'
 
 export const testWorkspacePath = path.resolve(__dirname, '../../')
-export const storageKey = 'opencove:m0:workspace-state'
-export const viewStateStorageKey = 'opencove:m5.6:view-state'
+export const storageKey = 'eclipse-code:m0:workspace-state'
+export const viewStateStorageKey = 'eclipse-code:m5.6:view-state'
 export const seededWorkspaceId = 'workspace-seeded'
 export {
   beginDragMouse,
@@ -150,7 +150,7 @@ async function ensureWorkspaceMounts(window: Page, workspaces: SeedWorkspace[]):
       async () => {
         return await window.evaluate(async () => {
           try {
-            await window.opencoveApi.controlSurface.invoke({
+            await window.eclipseCodeApi.controlSurface.invoke({
               kind: 'query',
               id: 'system.ping',
               payload: null,
@@ -173,7 +173,7 @@ async function ensureWorkspaceMounts(window: Page, workspaces: SeedWorkspace[]):
     await Promise.all(
       seeds.map(async seed => {
         const listMounts = async () => {
-          return await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+          return await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
             kind: 'query',
             id: 'mount.list',
             payload: { projectId: seed.projectId },
@@ -181,7 +181,7 @@ async function ensureWorkspaceMounts(window: Page, workspaces: SeedWorkspace[]):
         }
 
         const removeMount = async (mountId: string) => {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'command',
             id: 'mount.remove',
             payload: { mountId },
@@ -189,7 +189,7 @@ async function ensureWorkspaceMounts(window: Page, workspaces: SeedWorkspace[]):
         }
 
         const createMount = async () => {
-          await window.opencoveApi.controlSurface.invoke<CreateMountResult>({
+          await window.eclipseCodeApi.controlSurface.invoke<CreateMountResult>({
             kind: 'command',
             id: 'mount.create',
             payload: {
@@ -244,7 +244,7 @@ async function ensureWorkspaceMounts(window: Page, workspaces: SeedWorkspace[]):
       }),
     )
 
-    window.dispatchEvent(new Event('opencove:topology-changed'))
+    window.dispatchEvent(new Event('eclipse-code:topology-changed'))
   }, mountSeeds)
 }
 
@@ -288,7 +288,7 @@ export async function seedWorkspaceState(
       writeResult = await window.evaluate(
         async ({ state, viewStateKey }) => {
           window.localStorage.removeItem(viewStateKey)
-          return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify(state),
           })
         },
@@ -328,7 +328,7 @@ export async function seedWorkspaceState(
     let seededReady = false
     try {
       seededReady = await window.evaluate(async workspaceExpectations => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return false
         }

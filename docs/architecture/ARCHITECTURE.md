@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-本文档只定义 OpenCove 的**架构标准与组织方法**，不承担“展示完整目标目录”或“列举具体模块内容”的职责。
+本文档只定义 Eclipse Code 的**架构标准与组织方法**，不承担“展示完整目标目录”或“列举具体模块内容”的职责。
 
 架构文档回答两件事：
 - 代码应按什么规则组织。
@@ -12,7 +12,7 @@
 
 ## 1. 核心原则
 
-OpenCove 采用：
+Eclipse Code 采用：
 - **DDD 划分领域**：先确定 context、owner、边界，再决定代码放哪。
 - **Clean 约束依赖**：先确定依赖方向与层职责，再决定实现方式。
 
@@ -47,7 +47,7 @@ OpenCove 采用：
 
 ### `domain`
 - 放业务规则、不变量、状态模型、值对象、领域服务。
-- 不允许依赖 `React / Electron / CLI / DB / FS / network / window.opencoveApi`。
+- 不允许依赖 `React / Electron / CLI / DB / FS / network / window.eclipseCodeApi`。
 
 ### `application`
 - 放 usecase、用户意图、跨对象编排、端口定义。
@@ -102,7 +102,7 @@ journal、快照和进程调用属于 infrastructure。CLI 只路由请求，不
 - 负责 UI 组合、交互绑定、展示状态。
 - 不负责跨边界技术接入与 durable truth 判定。
 
-### `window.opencoveApi`
+### `window.eclipseCodeApi`
 - 只能出现在边界 adapter。
 - 禁止出现在 `domain / application / renderer presentation`。
 
@@ -148,7 +148,7 @@ journal、快照和进程调用属于 infrastructure。CLI 只路由请求，不
 
 ### 9.1 Control Surface（统一控制面）
 
-OpenCove 将外部可驱动能力收敛为一套 **Control Surface**（`command / query / event`），作为 `Desktop(IPC)` / `CLI` / `Web UI` / `Remote Worker` 的共同入口。
+Eclipse Code 将外部可驱动能力收敛为一套 **Control Surface**（`command / query / event`），作为 `Desktop(IPC)` / `CLI` / `Web UI` / `Remote Worker` 的共同入口。
 
 强制要求：
 
@@ -172,7 +172,7 @@ Web UI / Remote Worker 等浏览器或远端入口，都是同一套 Control Sur
 
 以下结构视为违规：
 - 在组件或 hook 中堆 `状态判定 + 外部调用 + fallback/retry + 写回`。
-- 在 renderer 业务流程文件里直接调用 `window.opencoveApi`。
+- 在 renderer 业务流程文件里直接调用 `window.eclipseCodeApi`。
 - 用持久化结构反向定义业务语义。
 - 让非 owner context 判定别人的 durable truth。
 - 通过跨 context 直接写 store/state 传递业务真相。

@@ -169,11 +169,11 @@ it.each([true, false])(
 )
 
 it.each([false, true])(
-  'defaults project only for a window command inside OpenCove (missing env project=%s)',
+  'defaults project only for a window command inside Eclipse Code (missing env project=%s)',
   async missing => {
     const f = await pluginFixture(true, 'window')
     if (missing) {
-      delete f.io.env.OPENCOVE_PROJECT_ID
+      delete f.io.env.ECLIPSE_CODE_PROJECT_ID
     }
     expect(await run(['plugin', 'run', 'sample', 'inspect', '--params', '{"limit":3}'], f.io)).toBe(
       0,
@@ -190,7 +190,7 @@ it.each([false, true])(
   },
 )
 
-it('does not default a project outside OpenCove when a window must be created', async () => {
+it('does not default a project outside Eclipse Code when a window must be created', async () => {
   const f = await pluginFixture(false, 'window')
   expect(await run(['plugin', 'run', 'sample', 'inspect'], f.io)).toBe(1)
   expect(f.error().message).toContain('Specify --project')
@@ -214,7 +214,7 @@ it('keeps explicit forbidden plugin-wide targets visible to the server', async (
   expect(f.plugins.runCommand).not.toHaveBeenCalled()
 })
 
-it('keeps an existing window command usable outside OpenCove without a default project', async () => {
+it('keeps an existing window command usable outside Eclipse Code without a default project', async () => {
   const f = await pluginFixture(false, 'window', true)
   expect(await run(['plugin', 'run', 'sample', 'inspect'], f.io)).toBe(0)
   expect(f.plugins.runCommand).toHaveBeenCalledTimes(1)

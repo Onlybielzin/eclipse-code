@@ -28,12 +28,14 @@ async function runGit(args: string[], cwd: string): Promise<string> {
 }
 
 async function createTempRepo(): Promise<string> {
-  const repoDir = await mkdtemp(path.join(resolveE2ETmpDir(), 'opencove-recovery-worktree-e2e-'))
+  const repoDir = await mkdtemp(
+    path.join(resolveE2ETmpDir(), 'eclipse-code-recovery-worktree-e2e-'),
+  )
 
   try {
     await runGit(['init'], repoDir)
     await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-    await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+    await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
     await runGit(['config', 'core.autocrlf', 'false'], repoDir)
     await runGit(['config', 'core.safecrlf', 'false'], repoDir)
     await writeFile(path.join(repoDir, 'README.md'), '# recovery worktree fixture\n', 'utf8')
@@ -57,7 +59,7 @@ async function listRegisteredWorktreePaths(repoPath: string): Promise<string[]> 
 
 async function expectOwnedWorktreePath(repoPath: string, worktreePath: string): Promise<void> {
   const canonicalRepoPath = await realpath(repoPath)
-  const canonicalWorktreesRoot = await realpath(path.join(repoPath, '.opencove', 'worktrees'))
+  const canonicalWorktreesRoot = await realpath(path.join(repoPath, '.eclipse-code', 'worktrees'))
   const canonicalWorktreePath = await realpath(worktreePath)
   const relativePath = path.relative(canonicalWorktreesRoot, canonicalWorktreePath)
 
@@ -79,7 +81,7 @@ async function readWorktreeTerminalState(window: Page): Promise<{
   agentCount: number
 } | null> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -132,7 +134,7 @@ async function overwriteSpaceTargetMountId(
   payload: { spaceId: string; targetMountId: string | null },
 ): Promise<void> {
   const result = await window.evaluate(async ({ spaceId, targetMountId }) => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       throw new Error('Missing workspace state.')
     }
@@ -154,7 +156,7 @@ async function overwriteSpaceTargetMountId(
     }
 
     space.targetMountId = targetMountId
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(parsed),
     })
   }, payload)
@@ -173,7 +175,7 @@ async function expectTerminalCwdContains(
   terminal: ReturnType<Page['locator']>,
   expectedPathPart: string,
 ): Promise<void> {
-  const cwdToken = `OPENCOVE_WORKTREE_CWD_${Date.now()}:`
+  const cwdToken = `ECLIPSE_CODE_WORKTREE_CWD_${Date.now()}:`
   const normalizeTerminalText = (value: string | null): string => (value ?? '').replace(/\s+/g, '')
   const normalizedToken = normalizeTerminalText(cwdToken)
   const normalizedExpected = normalizeTerminalText(expectedPathPart)
@@ -204,7 +206,7 @@ async function expectTerminalCwdContains(
 test.describe('Recovery - Terminal created after Space worktree', () => {
   test('keeps the first terminal in a newly created Space worktree after app restart', async () => {
     const userDataDir = await createTestUserDataDir()
-    const branchName = `opencove-e2e-wt-terminal-${Date.now()}`
+    const branchName = `eclipse-code-e2e-wt-terminal-${Date.now()}`
     const staleMountId = `mount-stale-${Date.now()}`
     let repoPath = ''
     let createdWorktreePath: string | null = null
@@ -217,7 +219,7 @@ test.describe('Recovery - Terminal created after Space worktree', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 
@@ -264,7 +266,7 @@ test.describe('Recovery - Terminal created after Space worktree', () => {
         })
 
         const mountResult = await window.evaluate(async workspaceId => {
-          return await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+          return await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
             kind: 'query',
             id: 'mount.list',
             payload: { projectId: workspaceId },
@@ -364,7 +366,7 @@ test.describe('Recovery - Terminal created after Space worktree', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 
@@ -402,7 +404,7 @@ test.describe('Recovery - Terminal created after Space worktree', () => {
 
         await expect(restartedWindow.locator('.terminal-node')).toHaveCount(2)
         await expect(restartedWindow.locator('.terminal-node').last()).toContainText(
-          '[opencove-test-agent] codex new',
+          '[eclipse-code-test-agent] codex new',
         )
         await expect
           .poll(async () => await readWorktreeTerminalState(restartedWindow), { timeout: 20_000 })

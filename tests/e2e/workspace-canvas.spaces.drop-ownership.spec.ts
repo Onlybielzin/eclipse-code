@@ -81,7 +81,7 @@ test.describe.skip('Workspace Canvas - Spaces (Drop Ownership)', () => {
             async ({ key, spaceId, nodeId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return false
               }
@@ -126,7 +126,7 @@ test.describe.skip('Workspace Canvas - Spaces (Drop Ownership)', () => {
             async ({ key, spaceId, nodeId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -205,7 +205,7 @@ test.describe.skip('Workspace Canvas - Spaces (Drop Ownership)', () => {
             async ({ key, nodeId, spaceId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return false
               }
@@ -335,7 +335,7 @@ test.describe.skip('Workspace Canvas - Spaces (Drop Ownership)', () => {
             async ({ key, spaceId, nodeAId, nodeBId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return false
               }

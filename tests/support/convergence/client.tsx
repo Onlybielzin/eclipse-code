@@ -54,7 +54,7 @@ export class Client {
   private event: ((event: SyncEventPayload) => void) | undefined
   private delivery: Delivery
   private original = {
-    api: window.opencoveApi,
+    api: window.eclipseCodeApi,
     app: useAppStore.getState(),
     collapse: useCanvasCollapseStore.getState().workspaces,
   }
@@ -95,7 +95,7 @@ export class Client {
     this.hook = renderHook(() => useWorkerSyncStateUpdates({ enabled: true }))
   }
   private installApi() {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         meta: { isTest: true },
@@ -133,7 +133,7 @@ export class Client {
     this.autosaveHook?.unmount()
     this.autosaveHook = null
     // Change the persistence owner before discarding the scheduler; a stale producer cannot run.
-    Object.defineProperty(window, 'opencoveApi', { configurable: true, value: undefined })
+    Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: undefined })
     publication.persistenceScope()
     await flushScheduledPersistedStateWriteAsync()
     useAppStore.setState({
@@ -469,7 +469,10 @@ export class Client {
     this.cacheSpy.mockRestore()
     useAppStore.setState(this.original.app, true)
     useCanvasCollapseStore.setState({ workspaces: this.original.collapse })
-    Object.defineProperty(window, 'opencoveApi', { configurable: true, value: this.original.api })
+    Object.defineProperty(window, 'eclipseCodeApi', {
+      configurable: true,
+      value: this.original.api,
+    })
     window.localStorage.clear()
     vi.unstubAllGlobals()
     vi.useRealTimers()

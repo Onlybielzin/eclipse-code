@@ -104,7 +104,7 @@ describe('WorkspaceCanvas task agent directory', () => {
       resumeSessionId: 'resume-1',
     }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -129,7 +129,7 @@ describe('WorkspaceCanvas task agent directory', () => {
     })
 
     const now = new Date().toISOString()
-    const worktreeDirectory = '/tmp/repo/.opencove/worktrees/demo'
+    const worktreeDirectory = '/tmp/repo/.eclipse-code/worktrees/demo'
 
     const initialNodes: Node<TerminalNodeData>[] = [
       {

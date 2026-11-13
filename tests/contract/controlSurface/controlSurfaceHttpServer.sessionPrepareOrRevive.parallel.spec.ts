@@ -72,8 +72,8 @@ describe('Control Surface HTTP server (session.prepareOrRevive parallel restore)
   it.each(['batch', 'independent'] as const)(
     'prepares %s restores concurrently and shares duplicate in-flight nodes',
     async mode => {
-      const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
-      const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-workspace-'))
+      const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
+      const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-workspace-'))
       const connectionFileName = 'control-surface.pty.prepare-or-revive.parallel.json'
       const connectionFilePath = resolve(userDataPath, connectionFileName)
 

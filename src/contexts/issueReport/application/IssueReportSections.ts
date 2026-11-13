@@ -108,7 +108,7 @@ export function createAppRuntimeSection(input: {
       },
     },
     {
-      summary: `OpenCove ${input.version} on ${input.platform}/${input.arch}.`,
+      summary: `Eclipse Code ${input.version} on ${input.platform}/${input.arch}.`,
       sensitivity: 'safe',
     },
   )

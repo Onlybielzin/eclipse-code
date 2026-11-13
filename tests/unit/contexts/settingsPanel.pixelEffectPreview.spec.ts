@@ -251,7 +251,7 @@ describe('isolated settings pixel preview', () => {
     dispose = undefined
     expect(disconnect).toHaveBeenCalledTimes(2)
     expect(removeMotion).toHaveBeenCalledTimes(1)
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
     document.dispatchEvent(new Event('visibilitychange'))
     expect(frames.size).toBe(0)
     expect(vi.getTimerCount()).toBe(0)

@@ -91,7 +91,7 @@ function fail(title, messages) {
 }
 
 function verifyResultFiles(failures) {
-  const expectedDir = mkdtempSync(join(tmpdir(), 'opencove-architecture-results-'))
+  const expectedDir = mkdtempSync(join(tmpdir(), 'eclipse-code-architecture-results-'))
   try {
     runAuditResults(expectedDir)
     const { missingFiles, unexpectedFiles, changedFiles } = compareResultDirectories(
@@ -127,7 +127,8 @@ const stagedFiles = getStagedFiles()
 const changedContractDocs = stagedFiles.filter(pathname => contractDocs.has(pathname))
 const hasContractSyncEvidence = stagedFiles.some(isContractSyncEvidence)
 const allowDocOnly =
-  process.argv.includes('--allow-doc-only') || process.env.OPENCOVE_ARCH_DOC_NO_RULE_IMPACT === '1'
+  process.argv.includes('--allow-doc-only') ||
+  process.env.ECLIPSE_CODE_ARCH_DOC_NO_RULE_IMPACT === '1'
 
 const failures = []
 
@@ -138,7 +139,7 @@ if (!verifyResults && changedContractDocs.length > 0 && !hasContractSyncEvidence
       ...changedContractDocs.map(pathname => `- ${pathname}`),
       '',
       'Update harness/architecture rules, analyzer code, or ARCHITECTURE_HARNESS.md.',
-      'For wording-only changes, set OPENCOVE_ARCH_DOC_NO_RULE_IMPACT=1 or rerun with --allow-doc-only, then document the no-rule-impact decision in review.',
+      'For wording-only changes, set ECLIPSE_CODE_ARCH_DOC_NO_RULE_IMPACT=1 or rerun with --allow-doc-only, then document the no-rule-impact decision in review.',
     ].join('\n'),
   )
 }

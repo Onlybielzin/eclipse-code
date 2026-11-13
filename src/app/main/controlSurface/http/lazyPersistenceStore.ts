@@ -24,7 +24,7 @@ export function createLazyPersistenceStore(options: {
       return await persistenceStorePromise
     }
 
-    const dbPath = options.dbPath ?? resolve(options.userDataPath, 'opencove.db')
+    const dbPath = options.dbPath ?? resolve(options.userDataPath, 'eclipse-code.db')
     const nextPromise = createPersistenceStore({ dbPath }).catch(error => {
       if (persistenceStorePromise === nextPromise) {
         persistenceStorePromise = null

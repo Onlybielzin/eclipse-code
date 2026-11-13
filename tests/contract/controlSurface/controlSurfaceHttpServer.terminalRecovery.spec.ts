@@ -23,9 +23,9 @@ import { describeWithElectronNativeModules } from '../electronNativeSuite'
 
 describeWithElectronNativeModules('Control Surface terminal recovery durability', () => {
   it('binds persisted terminal nodes and flushes worker-owned output before shutdown', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-terminal-recovery-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-terminal-recovery-workspace-'))
-    const dbPath = resolve(userDataPath, 'opencove.db')
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-recovery-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-recovery-workspace-'))
+    const dbPath = resolve(userDataPath, 'eclipse-code.db')
     const approvedWorkspaces = createApprovedWorkspaceStoreForPath(
       resolve(userDataPath, 'approved-workspaces.json'),
     )
@@ -152,7 +152,7 @@ describeWithElectronNativeModules('Control Surface terminal recovery durability'
       expect(staleRendererWrite.status).toBe(200)
 
       emitData?.({ sessionId: sessionId!, data: 'WORKER_OWNED_OUTPUT\r\n' })
-      const controller = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const controller = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         controller.once('open', resolvePromise)
         controller.once('error', rejectPromise)

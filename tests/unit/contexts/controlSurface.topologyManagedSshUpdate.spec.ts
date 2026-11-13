@@ -144,7 +144,7 @@ describe('control surface managed SSH update', () => {
   })
 
   it('disposes the old tunnel before preparing the persisted replacement configuration', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-update-order-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-update-order-'))
     tempPaths.push(userDataPath)
     const events: string[] = []
     const topology = createWorkerTopologyStore({

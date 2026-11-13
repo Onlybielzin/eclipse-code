@@ -1,6 +1,6 @@
 <div align="center">
 
-# OpenCove 🌌
+# Eclipse Code 🌌
 
 **An infinite canvas for Claude Code, Codex, terminals, tasks, and notes.**
 
@@ -11,23 +11,25 @@
 
 Keep every agent, terminal, task, and note on one infinite canvas.
 
+Eclipse Code is a fork of [OpenCove](https://github.com/DeadWaveWave/opencove) (MIT), with the Eclipse theme: dark wine glass and an eclipse-red accent.
+
 See parallel work at a glance, keep context visible, and resume exactly where you left off.
 
-[Download the latest builds](https://github.com/DeadWaveWave/opencove/releases) · [Read the Chinese README](./README_ZH.md)
+[Download the latest builds](https://github.com/Onlybielzin/eclipse-code/releases) · [Read the Chinese README](./README_ZH.md)
 
-<img src="./assets/images/opencove_header_readme.jpg" alt="OpenCove Header" width="100%" />
+<img src="./assets/images/eclipse_code_header_readme.jpg" alt="Eclipse Code Header" width="100%" />
 
 </div>
 
 ## 📣 Important Announcement
 
-**OpenCove 0.4.0 brings the Pixel workspace, desktop-style collapsed windows, and independently installable plugins and themes. Explore extensions in Settings, or start creating your own with `opencove plugin guide`.**
+**Eclipse Code 0.4.0 brings the Pixel workspace, desktop-style collapsed windows, and independently installable plugins and themes. Explore extensions in Settings, or start creating your own with `eclipse-code plugin guide`.**
 
-## 📖 What is OpenCove?
+## 📖 What is Eclipse Code?
 
-OpenCove is a **spatial development workspace** for people who work with AI coding agents every day.
+Eclipse Code is a **spatial development workspace** for people who work with AI coding agents every day.
 
-Instead of burying work inside tabs, sidebars, and long chat threads, OpenCove puts your **AI agents**, **terminals**, **tasks**, and **notes** on the same infinite 2D canvas, so the full state of your work stays visible.
+Instead of burying work inside tabs, sidebars, and long chat threads, Eclipse Code puts your **AI agents**, **terminals**, **tasks**, and **notes** on the same infinite 2D canvas, so the full state of your work stays visible.
 
 It is built for workflows like:
 
@@ -35,7 +37,7 @@ It is built for workflows like:
 - Keeping task plans, notes, and terminal output in one shared workspace
 - Switching projects without losing layout, context, or execution history
 
-<img src="./assets/images/opencove_app_preview_readme.jpg" alt="OpenCove App Preview" width="100%" />
+<img src="./assets/images/eclipse_code_app_preview_readme.jpg" alt="Eclipse Code App Preview" width="100%" />
 
 ## ✨ Highlights
 
@@ -48,11 +50,11 @@ It is built for workflows like:
 - **🔍 Global search and control center**: Search across the canvas and terminal output, then manage active sessions from one place.
 - **🗂️ Workspace isolation**: Separate projects cleanly with directories and git worktrees.
 
-## 💡 Why OpenCove?
+## 💡 Why Eclipse Code?
 
-OpenCove is designed around a simple idea: **agent workflows are easier to reason about when context is spatial, not hidden**.
+Eclipse Code is designed around a simple idea: **agent workflows are easier to reason about when context is spatial, not hidden**.
 
-| Pain Point (Traditional) | The OpenCove Workspace |
+| Pain Point (Traditional) | The Eclipse Code Workspace |
 | :--- | :--- |
 | **Linear amnesia**: context disappears into long chat histories. | **Spatial context**: important tasks, notes, and execution stay visible on the canvas. |
 | **Single-pane bottlenecks**: tabs and split panes force constant context switching. | **Parallel execution**: compare and monitor multiple agents without losing your place. |
@@ -60,54 +62,54 @@ OpenCove is designed around a simple idea: **agent workflows are easier to reaso
 
 ## 🚀 Getting Started
 
-*OpenCove is currently in Alpha. We recommend it for early adopters and power users who want to explore spatial AI workflows.*
+*Eclipse Code is currently in Alpha. We recommend it for early adopters and power users who want to explore spatial AI workflows.*
 
 ### Download
 
-OpenCove 0.3.0 stable and newer builds are available on the [GitHub Releases](https://github.com/DeadWaveWave/opencove/releases) page for macOS, Windows, and Linux. Nightly prereleases remain available for early testing; they contain newer changes and may have rough edges.
+Eclipse Code 0.3.0 stable and newer builds are available on the [GitHub Releases](https://github.com/Onlybielzin/eclipse-code/releases) page for macOS, Windows, and Linux. Nightly prereleases remain available for early testing; they contain newer changes and may have rough edges.
 
 > **⚠️ macOS note**
 > Current macOS builds are **not signed or notarized** with an Apple Developer ID. If Gatekeeper blocks the app, run this in your terminal:
 > ```bash
-> xattr -dr com.apple.quarantine /Applications/OpenCove.app
+> xattr -dr com.apple.quarantine /Applications/Eclipse Code.app
 > ```
 
 ### CLI and Server Install
 
-You now have two supported ways to install the `opencove` CLI:
+You now have two supported ways to install the `eclipse-code` CLI:
 
 - From the Desktop app: open **Settings → Worker → CLI** and click **Install CLI**.
 - Without Desktop: use a GitHub Release that includes standalone runtime bundles
-  (`opencove-server-*`) plus release-specific installer assets such as
-  `opencove-install-v<tag>.sh` / `opencove-install-v<tag>.ps1`. Stable releases also
-  publish the generic `opencove-install.sh` / `opencove-install.ps1` aliases, which
+  (`eclipse-code-server-*`) plus release-specific installer assets such as
+  `eclipse-code-install-v<tag>.sh` / `eclipse-code-install-v<tag>.ps1`. Stable releases also
+  publish the generic `eclipse-code-install.sh` / `eclipse-code-install.ps1` aliases, which
   always target the latest stable release.
 
-If `releases/latest/download/opencove-install.sh` returns `404`, the latest stable release
+If `releases/latest/download/eclipse-code-install.sh` returns `404`, the latest stable release
 has not published the standalone installer yet. In that case, use the Desktop installer for
 now or wait for a release that includes those assets.
 
 For the latest stable release, install on macOS / Linux with:
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh | sh
 ```
 
 On Windows, use PowerShell:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.ps1 | Invoke-Expression"
 ```
 
 For a nightly or any specific tagged release, use the versioned installer asset from that
 release page:
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.ps1 | Invoke-Expression"
 ```
 
 The standalone installer verifies the downloaded runtime against the release's `SHA256SUMS.txt` before extracting it.
@@ -115,7 +117,7 @@ The standalone installer verifies the downloaded runtime against the release's `
 For a headless server that hosts the Web UI, start the worker directly after install:
 
 ```bash
-opencove worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
+eclipse-code worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
 ```
 
 This prints the Web UI URL and enables password login for browser access. Keep the password set whenever you expose the Web UI beyond localhost.
@@ -131,8 +133,8 @@ This prints the Web UI URL and enables password login for browser access. Keep t
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/DeadWaveWave/opencove.git
-cd opencove
+git clone https://github.com/Onlybielzin/eclipse-code.git
+cd eclipse-code
 
 # 2. Install dependencies
 pnpm install
@@ -145,7 +147,7 @@ pnpm dev
 
 ### Web UI (Experimental)
 
-OpenCove includes an **experimental Worker-hosted Web UI** so you can open the canvas from a browser (including other devices on your LAN).
+Eclipse Code includes an **experimental Worker-hosted Web UI** so you can open the canvas from a browser (including other devices on your LAN).
 
 - In **Settings → Experimental → Worker Web UI**, turn on **Enable Web UI** (optionally set a fixed port), then start the Local Worker.
 - By default it is loopback-only (`127.0.0.1`). For LAN access, enable **LAN Access** and set a Web UI password.
@@ -157,7 +159,7 @@ More details:
 
 ## 🏗️ Technical Architecture
 
-OpenCove is built with modern, high-performance web standards:
+Eclipse Code is built with modern, high-performance web standards:
 
 - **Framework**: Electron + React + TypeScript (via `electron-vite`)
 - **Canvas Engine**: `@xyflow/react` for buttery smooth infinite canvas interactions.
@@ -166,7 +168,7 @@ OpenCove is built with modern, high-performance web standards:
 
 ## 🤝 Contributing
 
-OpenCove is open source. We need your help to define what the IDE of the AI intelligence era should look like.
+Eclipse Code is open source. We need your help to define what the IDE of the AI intelligence era should look like.
 Read our guidelines below:
 
 - [Contributing Guidelines (CONTRIBUTING.md)](./CONTRIBUTING.md)
@@ -176,17 +178,17 @@ Read our guidelines below:
 
 ## 💬 Community Group
 
-Scan the QR code below to join the OpenCove community group and chat with other users.
+Scan the QR code below to join the Eclipse Code community group and chat with other users.
 
 <div align="center">
-  <img src="./assets/images/opencove_qrcode.png" alt="OpenCove Community Group QR Code" width="320" />
+  <img src="./assets/images/eclipse_code_qrcode.png" alt="Eclipse Code Community Group QR Code" width="320" />
 </div>
 
 ---
 
 <div align="center">
 
-<p>Redefining dev environments for the modern web.<br>Built with ❤️ by the OpenCove Team.</p>
+<p>Redefining dev environments for the modern web.<br>Built with ❤️ by the Eclipse Code Team.</p>
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 

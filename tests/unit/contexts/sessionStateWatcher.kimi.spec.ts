@@ -26,7 +26,7 @@ afterEach(() => {
 })
 
 async function createKimiWire(protocolVersion: string, records: unknown[]) {
-  const root = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-controller-'))
+  const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-controller-'))
   const cwd = join(root, 'workspace')
   const sessionId = 'session_kimi'
   const sessionDir = join(root, 'sessions', 'wd_workspace_hash', sessionId)
@@ -130,7 +130,7 @@ describe('session state watcher Kimi pipeline', () => {
   })
 
   it('waits silently for first Kimi evidence, then degrades explicit wire unavailability', async () => {
-    const root = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-controller-unavailable-'))
+    const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-controller-unavailable-'))
     const cwd = join(root, 'workspace')
     const sessionId = 'session_kimi_unavailable'
     const sessionDir = join(root, 'sessions', 'wd_workspace_hash', sessionId)
@@ -174,7 +174,7 @@ describe('session state watcher Kimi pipeline', () => {
   })
 
   it('imports Pi session observations into terminal working/standby state', async () => {
-    const root = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-controller-'))
+    const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-controller-'))
     const cwd = join(root, 'workspace')
     const filePath = join(root, 'project', 'session.jsonl')
     const startedAtMs = Date.now()

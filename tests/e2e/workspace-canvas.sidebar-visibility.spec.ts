@@ -13,7 +13,7 @@ async function seed(page: Page, theme: 'dark' | 'light') {
     workspaces: [
       {
         id: projectId,
-        name: 'OpenCove',
+        name: 'Eclipse Code',
         path: testWorkspacePath,
         nodes: [
           createRailAgent(
@@ -71,7 +71,7 @@ for (const theme of ['dark', 'light'] as const) {
       await expect
         .poll(async () =>
           window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             return raw ? JSON.parse(raw).settings?.sidebarView?.mode : null
           }),
         )

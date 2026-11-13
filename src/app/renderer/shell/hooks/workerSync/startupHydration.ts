@@ -54,7 +54,7 @@ export function startWorkerHydration(
   window.addEventListener('online', retry)
   window.addEventListener('focus', retry)
   window.addEventListener(WORKER_CONNECTION_RETRY_EVENT, retry)
-  const unsubscribe = window.opencoveApi?.sync?.onStateUpdated?.(retry)
+  const unsubscribe = window.eclipseCodeApi?.sync?.onStateUpdated?.(retry)
   run()
   return () => {
     active = false

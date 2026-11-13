@@ -3,10 +3,13 @@ import { cli, launchRealClaude, prompt } from './agent.prompt.real-claude.helper
 
 // Opt-in local acceptance with the installed Claude Code CLI, an isolated config and a local
 // Messages API stand-in (no credentials, no model calls). Run with
-// OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-claude*.spec.ts
+// ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-claude*.spec.ts
 
 test.describe('mid-turn messages with the real Claude Code CLI', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX acceptance')
 
   test('keeps a message typed while Claude works in the current turn and survives compaction', async ({
@@ -16,19 +19,19 @@ test.describe('mid-turn messages with the real Claude Code CLI', () => {
     const real = await launchRealClaude(testInfo)
     const { window, api, userDataDir, sessionId, nodeId, snapshot } = real
     try {
-      // A message typed while Claude works lands in the current OpenCove turn even when Claude
+      // A message typed while Claude works lands in the current Eclipse Code turn even when Claude
       // answers it in a follow-up provider turn: the turn stays working until that follow-up
       // ends, and its reply is the turn's reply.
       const slow = await prompt(userDataDir, nodeId, 'Please SLOW_TEXT now')
       expect(slow.exitCode, JSON.stringify(slow)).toBe(0)
       const slowTurn = JSON.parse(slow.stdout).turnId
       await window.waitForTimeout(2_000)
-      await window.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+      await window.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
         sessionId,
         data: '\x1b[200~Also say CHERRY\x1b[201~',
       })
       await window.waitForTimeout(300)
-      await window.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+      await window.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
         sessionId,
         data: '\r',
       })
@@ -104,12 +107,12 @@ test.describe('mid-turn messages with the real Claude Code CLI', () => {
 
       // /compact starts a new SessionStart (source compact) for the same conversation; the
       // agent must stay promptable afterwards.
-      await window.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+      await window.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
         sessionId,
         data: '/compact',
       })
       await window.waitForTimeout(300)
-      await window.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+      await window.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
         sessionId,
         data: '\r',
       })

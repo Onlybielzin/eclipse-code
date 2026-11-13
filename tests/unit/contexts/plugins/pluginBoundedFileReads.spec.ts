@@ -10,7 +10,7 @@ import {
 import { normalizeFileReadLimit } from '../../../../src/contexts/filesystem/domain/fileReadLimits'
 describe('bounded provider reads', () => {
   it('bounds the actual file handle reads and directory iteration', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-files-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-files-'))
     try {
       await writeFile(join(root, 'small'), '你好')
       await writeFile(join(root, 'large'), 'x'.repeat(1025))

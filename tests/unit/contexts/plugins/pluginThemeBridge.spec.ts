@@ -25,7 +25,7 @@ it('keeps view context and font resources stable across repeated theme events an
   const window = {
     addEventListener: (name: string, callback: (event: unknown) => void) =>
       events.set(name, callback),
-    opencovePlugin: undefined as unknown as {
+    eclipseCodePlugin: undefined as unknown as {
       onThemeChange: (callback: (...args: unknown[]) => void) => () => void
     },
   }
@@ -44,7 +44,7 @@ it('keeps view context and font resources stable across repeated theme events an
     FontFace: Face,
     navigator: { sendBeacon: () => true },
     document: {
-      currentScript: { src: 'http://localhost:9000/plugin-assets/lease/__opencove_bridge.js' },
+      currentScript: { src: 'http://localhost:9000/plugin-assets/lease/__eclipse_code_bridge.js' },
       documentElement: root,
       fonts,
       querySelectorAll: () => [],
@@ -56,7 +56,7 @@ it('keeps view context and font resources stable across repeated theme events an
     events.get('message')?.({
       source: parent,
       origin: 'http://localhost:9000',
-      data: { channel: 'opencove-plugin-v1', type, context },
+      data: { channel: 'eclipse-code-plugin-v1', type, context },
     })
   const context = {
     theme: 'dark',
@@ -69,7 +69,7 @@ it('keeps view context and font resources stable across repeated theme events an
     nodeId: 'node-one',
   }
   const changed = vi.fn()
-  window.opencovePlugin.onThemeChange(changed)
+  window.eclipseCodePlugin.onThemeChange(changed)
   message('init', context)
   message('theme', { ...context, tokens: { ...context.tokens, '--cove-ui-font-scale': '1.1' } })
   expect(created).toHaveLength(1)

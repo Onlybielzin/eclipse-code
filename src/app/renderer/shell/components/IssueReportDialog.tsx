@@ -101,7 +101,7 @@ export function IssueReportDialog({
     setError(null)
 
     try {
-      const nextReport = await window.opencoveApi.issueReport.prepare({
+      const nextReport = await window.eclipseCodeApi.issueReport.prepare({
         kind,
         title: summary,
         description,
@@ -127,7 +127,7 @@ export function IssueReportDialog({
     }
 
     try {
-      await window.opencoveApi.clipboard.writeText(report.markdown)
+      await window.eclipseCodeApi.clipboard.writeText(report.markdown)
       setStatus('copied')
     } catch (copyError) {
       setError(toErrorText(copyError) || t('issueReport.copyFailed'))
@@ -141,7 +141,7 @@ export function IssueReportDialog({
     }
 
     try {
-      await window.opencoveApi.issueReport.openGitHubIssue({
+      await window.eclipseCodeApi.issueReport.openGitHubIssue({
         githubIssueUrl: report.githubIssueUrl,
       })
     } catch (openError) {
@@ -156,7 +156,7 @@ export function IssueReportDialog({
     }
 
     try {
-      await window.opencoveApi.issueReport.showReportFile({ reportPath: report.reportPath })
+      await window.eclipseCodeApi.issueReport.showReportFile({ reportPath: report.reportPath })
     } catch (showError) {
       setError(toErrorText(showError) || t('issueReport.showFileFailed'))
       setStatus('error')

@@ -3,11 +3,11 @@ import type { Command, OptionSpec } from './command'
 import { globals } from './args'
 import { sections, commandExamples } from './helpCatalog'
 import { selectorDescription } from './selectors'
-const footer = 'Global options: see "opencove --help".'
+const footer = 'Global options: see "eclipse-code --help".'
 const discovery = [
-  'Start with "opencove api ops --domains" for a compact domain map.',
-  'Then run "opencove api ops --prefix node --fields id,cliCommand" to explore one domain.',
-  'Run "opencove api ops" only when you need the full catalog.',
+  'Start with "eclipse-code api ops --domains" for a compact domain map.',
+  'Then run "eclipse-code api ops --prefix node --fields id,cliCommand" to explore one domain.',
+  'Run "eclipse-code api ops" only when you need the full catalog.',
 ]
 function rows(entries: [string, string][]) {
   const width = Math.max(...entries.map(([name]) => name.length))
@@ -19,9 +19,9 @@ function option(name: string, spec: OptionSpec) {
 export function help(commands: Command[], path: string[]) {
   if (!path.length) {
     const lines = [
-      'OpenCove CLI — Control projects, spaces, canvas nodes and worker runtimes',
+      'Eclipse Code CLI — Control projects, spaces, canvas nodes and worker runtimes',
       '',
-      'Usage: opencove <command> [options]',
+      'Usage: eclipse-code <command> [options]',
     ]
     for (const [section, entries] of sections) {
       lines.push('', `${section}:`, ...rows(entries))
@@ -30,7 +30,7 @@ export function help(commands: Command[], path: string[]) {
       '',
       'Selectors:',
       '  Node, space and project options accept @self, an exact ID, an exact name (case-sensitive), or a unique ID prefix of 6+ characters.',
-      '  @self uses your terminal identity. Names are scoped by --project or your own project inside OpenCove; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.',
+      '  @self uses your terminal identity. Names are scoped by --project or your own project inside Eclipse Code; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.',
       '',
       'Global options:',
       ...rows(
@@ -42,13 +42,13 @@ export function help(commands: Command[], path: string[]) {
       '',
       'Exit codes: 0 success; 1 operation failure; 2 invalid input; 3 unreachable; 4 unauthorized; 5 incompatible protocol; 6 ambiguous target; 10 waiting observed; 11 agent exited during wait; 124 timeout; 130 interrupted.',
       '',
-      'Run "opencove <group> --help" for commands in a group.',
+      'Run "eclipse-code <group> --help" for commands in a group.',
       ...discovery,
-      'AI agents: run `opencove skill` for a usage guide.',
+      'AI agents: run `eclipse-code skill` for a usage guide.',
     )
     return lines.join('\n') + '\n'
   }
-  const prefix = `opencove ${path.join(' ')}`
+  const prefix = `eclipse-code ${path.join(' ')}`
   const exact = commands.find(c => c.path.join(' ') === path.join(' '))
   if (exact) {
     const required = Object.entries(exact.options ?? {})
@@ -88,12 +88,12 @@ export function help(commands: Command[], path: string[]) {
       lines.push(
         '',
         exact.operation === 'node.list'
-          ? 'Default target inside OpenCove: your current Space. Outside every Space, list all nodes in your project; use --root-canvas to list only root nodes. An explicit --project lists that project.'
+          ? 'Default target inside Eclipse Code: your current Space. Outside every Space, list all nodes in your project; use --root-canvas to list only root nodes. An explicit --project lists that project.'
           : exact.currentContainer
-            ? 'Default target inside OpenCove: your current Space, or the root canvas when you are outside any Space. An explicit --project selects project scope for lists; creation also needs --root-canvas or a Space target.'
+            ? 'Default target inside Eclipse Code: your current Space, or the root canvas when you are outside any Space. An explicit --project selects project scope for lists; creation also needs --root-canvas or a Space target.'
             : exact.options?.space?.defaultSelf
-              ? 'When no target is given, inside OpenCove defaults to your own space; project options default to your own project.'
-              : 'When no project is given, inside OpenCove defaults to your own project.',
+              ? 'When no target is given, inside Eclipse Code defaults to your own space; project options default to your own project.'
+              : 'When no project is given, inside Eclipse Code defaults to your own project.',
       )
     }
     if (exact.targetSpace) {
@@ -101,7 +101,7 @@ export function help(commands: Command[], path: string[]) {
         '',
         exact.currentContainer
           ? 'Target container (choose one):'
-          : `Target space (${exact.options?.space?.defaultSelf ? 'choose one; inside OpenCove defaults to your own space' : exact.targetSpace === 'required' ? 'choose exactly one' : 'optional; choose one'}):`,
+          : `Target space (${exact.options?.space?.defaultSelf ? 'choose one; inside Eclipse Code defaults to your own space' : exact.targetSpace === 'required' ? 'choose exactly one' : 'optional; choose one'}):`,
         ...rows([
           ...(exact.options?.['root-canvas']
             ? [['--root-canvas', exact.options['root-canvas'].description] as [string, string]]
@@ -147,7 +147,7 @@ export function help(commands: Command[], path: string[]) {
       }
       entries.push([
         `${spec.short ? '-' + spec.short + ', ' : ''}${option(name, spec)}`,
-        `${selectorDescription(spec)}${spec.required ? (spec.defaultSelf ? ' (required outside OpenCove)' : ' (required)') : ''}`,
+        `${selectorDescription(spec)}${spec.required ? (spec.defaultSelf ? ' (required outside Eclipse Code)' : ' (required)') : ''}`,
       ])
       if (spec.fileVariant) {
         entries.push([

@@ -30,7 +30,7 @@ function fixture() {
         stderr += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'https://fixture', OPENCOVE_CONTROL_TOKEN: 'token' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'https://fixture', ECLIPSE_CODE_CONTROL_TOKEN: 'token' },
     fetch: vi.fn(),
     now: Date.now,
     readTextFile: vi.fn(),

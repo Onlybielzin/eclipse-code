@@ -70,7 +70,7 @@ function createHarness(options: {
     status: options.status ?? ('reexecuted' as const),
   }))
   const listSessions = vi.fn(async () => ({ provider: 'codex', cwd: '', sessions: [] }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       pty: { reexecAgent },

@@ -27,18 +27,18 @@ export function expectResidentContext(text: string, enabled: boolean) {
   if (enabled) {
     expect(text).toContain(residentContextV1)
   } else {
-    expect(text).not.toContain('You are running inside OpenCove')
+    expect(text).not.toContain('You are running inside Eclipse Code')
   }
 }
 
 export async function clearConversation(page: Page, sessionId: string) {
   // Slash commands need an Enter outside the provider's paste burst.
-  await page.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+  await page.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
     sessionId,
     data: '/clear',
   })
   await page.waitForTimeout(500)
-  await page.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+  await page.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
     sessionId,
     data: '\r',
   })

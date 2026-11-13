@@ -56,7 +56,7 @@ beforeEach(() => {
       [workspaceId]: { ...EMPTY_CANVAS_COLLAPSE, collapsedNodeIds: { compact: true } },
     },
   })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { pty: { kill: vi.fn() } },
   })

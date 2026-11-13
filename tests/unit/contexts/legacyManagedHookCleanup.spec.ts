@@ -7,7 +7,7 @@ import {
   cleanLegacyClaudeSettings,
   cleanLegacyCodexConfigToml,
   cleanLegacyCodexHooksFile,
-  isLegacyOpenCoveCodexHooksFile,
+  isLegacyEclipseCodeCodexHooksFile,
 } from '../../../src/contexts/agent/infrastructure/legacyManagedHookCleanup'
 
 function fixture(name: string): string {
@@ -28,7 +28,7 @@ function eventGroups(value: unknown, eventName: string): unknown[] {
 }
 
 describe('legacy managed-hook residue cleanup', () => {
-  it('INV-B1 removes only OpenCove Claude groups and preserves coexisting groups byte-for-byte', () => {
+  it('INV-B1 removes only Eclipse Code Claude groups and preserves coexisting groups byte-for-byte', () => {
     const input = JSON.parse(fixture('claude-coexist.input.json')) as unknown
     const expected = JSON.parse(fixture('claude-coexist.expected.json')) as unknown
     const originalOrcaGroup = eventGroups(input, 'UserPromptSubmit')[1]
@@ -47,19 +47,19 @@ describe('legacy managed-hook residue cleanup', () => {
     expect(Buffer.from(JSON.stringify(retainedThirdPartyGroup))).toEqual(thirdPartyBytes)
   })
 
-  it('INV-B1 identifies only a Codex hooks file with the exact frozen OpenCove description', () => {
+  it('INV-B1 identifies only a Codex hooks file with the exact frozen Eclipse Code description', () => {
     const managed = {
       description: LEGACY_MANAGED_CODEX_HOOK_DESCRIPTION,
-      hooks: { PreToolUse: [{ hooks: [{ command: 'legacy OpenCove command' }] }] },
+      hooks: { PreToolUse: [{ hooks: [{ command: 'legacy Eclipse Code command' }] }] },
     }
     const thirdParty = {
       ...managed,
       description: `${LEGACY_MANAGED_CODEX_HOOK_DESCRIPTION} (copied)`,
     }
 
-    expect(isLegacyOpenCoveCodexHooksFile(managed)).toBe(true)
-    expect(isLegacyOpenCoveCodexHooksFile(thirdParty)).toBe(false)
-    expect(isLegacyOpenCoveCodexHooksFile(null)).toBe(false)
+    expect(isLegacyEclipseCodeCodexHooksFile(managed)).toBe(true)
+    expect(isLegacyEclipseCodeCodexHooksFile(thirdParty)).toBe(false)
+    expect(isLegacyEclipseCodeCodexHooksFile(null)).toBe(false)
   })
 
   it('INV-B1 preserves third-party Codex groups while removing explicitly marked groups', () => {
@@ -94,7 +94,7 @@ describe('legacy managed-hook residue cleanup', () => {
 
   it('INV-B2 removes empty Claude event and hooks keys while preserving other top-level keys', () => {
     const input = {
-      env: { OPEN_COVE_USER_VALUE: 'keep' },
+      env: { ECLIPSE_CODE_USER_VALUE: 'keep' },
       hooks: {
         Notification: [
           {
@@ -114,7 +114,7 @@ describe('legacy managed-hook residue cleanup', () => {
 
     expect(cleanLegacyClaudeSettings(input)).toEqual({
       content: {
-        env: { OPEN_COVE_USER_VALUE: 'keep' },
+        env: { ECLIPSE_CODE_USER_VALUE: 'keep' },
         theme: 'light',
         attribution: 'keep',
         skipDangerousModePermissionPrompt: false,

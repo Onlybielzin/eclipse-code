@@ -14,9 +14,9 @@ test('uses Cove by default and shows theme-adaptive, switchable Working rims fro
   void browserName
   const { electronApp, window } = await launchApp({
     env: {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-lifecycle',
-      OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-lifecycle',
+      ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
     },
   })
   try {
@@ -55,7 +55,7 @@ test('uses Cove by default and shows theme-adaptive, switchable Working rims fro
     await installPtySessionCapture(window)
     await window.getByTestId('task-node-run-agent').click()
     const agent = window.locator('.terminal-node').first()
-    await expect(agent).toContainText('[opencove-test-codex-hook] ready')
+    await expect(agent).toContainText('[eclipse-code-test-codex-hook] ready')
     await expect.poll(() => resolveFirstAgentSessionId(window)).not.toBeNull()
     const sessionId = (await resolveFirstAgentSessionId(window))!
     const status = agent.locator('.terminal-node__status')
@@ -67,7 +67,7 @@ test('uses Cove by default and shows theme-adaptive, switchable Working rims fro
     await expect(status).toHaveText('Working')
     await expect(layer).toHaveAttribute('data-cove-pixel-working-node-ids', /.+/)
     const verifyZoom = async (zoom: number) => {
-      await window.evaluate(next => window.__opencoveWorkspaceCanvasTestApi!.setZoom(next), zoom)
+      await window.evaluate(next => window.__eclipseCodeWorkspaceCanvasTestApi!.setZoom(next), zoom)
       await expect
         .poll(async () =>
           (await readPixelDrawProbe(window)).some(

@@ -111,11 +111,11 @@ it('attention preserves blockedSummary and all known IDs without retrying creati
     messages
       .filter(text => !text.startsWith('Waiting for turn '))
       .join('')
-      .match(/opencove agent wait --node/g),
+      .match(/eclipse-code agent wait --node/g),
   ).toHaveLength(1)
-  expect(f.error().message).toBe('The agent needs the user’s approval or input in OpenCove.')
+  expect(f.error().message).toBe('The agent needs the user’s approval or input in Eclipse Code.')
   expect(f.error().hint).toBe(
-    `The agent node was created. Do not repeat node create agent. Resume with opencove agent wait --node ${node.id} --turn t.`,
+    `The agent node was created. Do not repeat node create agent. Resume with eclipse-code agent wait --node ${node.id} --turn t.`,
   )
   expect(f.requests.filter(r => r.id === 'node.create')).toHaveLength(1)
   expect(stream.streams[0].cancelled).toBe(true)

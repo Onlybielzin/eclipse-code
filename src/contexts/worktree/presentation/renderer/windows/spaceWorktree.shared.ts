@@ -41,7 +41,7 @@ export type PendingOperation =
 
 const DISALLOWED_BRANCH_CHARACTERS = [' ', '~', '^', ':', '?', '*', '[', '\\']
 
-export type WorktreeApiClient = Window['opencoveApi']['worktree']
+export type WorktreeApiClient = Window['eclipseCodeApi']['worktree']
 
 export function getWorktreeApiMethod<K extends keyof WorktreeApiClient>(
   worktreeApi: Partial<WorktreeApiClient> | null | undefined,
@@ -125,7 +125,7 @@ export function resolveWorktreeRepoRootPath(
 export function resolveWorktreesRoot(workspacePath: string, worktreesRoot: string): string {
   const trimmed = worktreesRoot.trim()
   if (trimmed.length === 0) {
-    return `${workspacePath.replace(/[\\/]+$/, '')}/.opencove/worktrees`
+    return `${workspacePath.replace(/[\\/]+$/, '')}/.eclipse-code/worktrees`
   }
 
   if (/^([a-zA-Z]:[\\/]|\/)/.test(trimmed)) {

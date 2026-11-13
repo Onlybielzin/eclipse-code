@@ -34,8 +34,8 @@ export async function hookChannelFixture(options?: { environment?: Readonly<Node
           'content-type': 'application/json',
           ...(emittedAtMs === undefined
             ? {}
-            : { 'x-opencove-hook-emitted-at': String(emittedAtMs) }),
-          'x-opencove-hook-token': reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN,
+            : { 'x-eclipse-code-hook-emitted-at': String(emittedAtMs) }),
+          'x-eclipse-code-hook-token': reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN,
         },
         setTimeout() {
           return this

@@ -104,7 +104,7 @@ vi.mock('../../../src/contexts/workspace/presentation/renderer/components/TaskNo
 
 describe('WorkspaceCanvas terminal title mode (OpenCode agent renderer)', () => {
   it('keeps opencode agent nodes on the provider-specific renderer path without forcing dark theme', async () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

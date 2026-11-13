@@ -40,8 +40,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  OPENCOVE_RELEASE_TAG: ${{ inputs.tag_name || github.ref_name }}
-  OPENCOVE_RELEASE_TARGET: ${{ inputs.target_commitish || github.sha }}
+  ECLIPSE_CODE_RELEASE_TAG: ${{ inputs.tag_name || github.ref_name }}
+  ECLIPSE_CODE_RELEASE_TARGET: ${{ inputs.target_commitish || github.sha }}
 
 jobs:
   build:
@@ -79,7 +79,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.OPENCOVE_RELEASE_TARGET }}
+          ref: ${{ env.ECLIPSE_CODE_RELEASE_TARGET }}
           fetch-depth: 0
 
       - name: Install pnpm
@@ -105,7 +105,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Align package version with release tag
-        run: node scripts/apply-ci-release-version.mjs "${{ env.OPENCOVE_RELEASE_TAG }}"
+        run: node scripts/apply-ci-release-version.mjs "${{ env.ECLIPSE_CODE_RELEASE_TAG }}"
 
       - name: Build release artifacts
         env:
@@ -119,7 +119,7 @@ jobs:
           # distributions at least as new as this runner. manylinux_2_28 pairs a glibc 2.28 base
           # with a modern gcc, which better-sqlite3's -std=c++20 requires. 2.28 is also exactly
           # what the bundled Node binary itself requires, so it is the bundle's natural floor.
-          OPENCOVE_NATIVE_BUILD_IMAGE: ${{ matrix.artifact_name == 'linux' && 'quay.io/pypa/manylinux_2_28_x86_64' || '' }}
+          ECLIPSE_CODE_NATIVE_BUILD_IMAGE: ${{ matrix.artifact_name == 'linux' && 'quay.io/pypa/manylinux_2_28_x86_64' || '' }}
         run: pnpm build:standalone:asset
 
       - name: Smoke standalone server install (macOS)
@@ -127,23 +127,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          asset="$(find dist -maxdepth 1 -name 'opencove-server-*.tar.gz' -print -quit)"
+          asset="$(find dist -maxdepth 1 -name 'eclipse-code-server-*.tar.gz' -print -quit)"
           test -n "$asset"
           node scripts/generate-checksums.mjs dist
-          export OPENCOVE_STANDALONE_ASSET="$asset"
-          export OPENCOVE_STANDALONE_CHECKSUMS_FILE="$PWD/dist/SHA256SUMS.txt"
-          export OPENCOVE_INSTALL_ROOT="$RUNNER_TEMP/opencove-standalone"
-          export OPENCOVE_BIN_DIR="$RUNNER_TEMP/opencove-bin"
-          sh scripts/release-assets/opencove-install.sh
-          "$OPENCOVE_BIN_DIR/opencove" worker start --help
-          sh scripts/release-assets/opencove-install.sh --uninstall
+          export ECLIPSE_CODE_STANDALONE_ASSET="$asset"
+          export ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE="$PWD/dist/SHA256SUMS.txt"
+          export ECLIPSE_CODE_INSTALL_ROOT="$RUNNER_TEMP/eclipse-code-standalone"
+          export ECLIPSE_CODE_BIN_DIR="$RUNNER_TEMP/eclipse-code-bin"
+          sh scripts/release-assets/eclipse-code-install.sh
+          "$ECLIPSE_CODE_BIN_DIR/eclipse-code" worker start --help
+          sh scripts/release-assets/eclipse-code-install.sh --uninstall
 
       - name: Smoke standalone server in minimal Linux container
         if: matrix.artifact_name == 'linux'
         shell: bash
         run: |
           set -euo pipefail
-          asset="$(find dist -maxdepth 1 -name 'opencove-server-linux-*.tar.gz' -print -quit)"
+          asset="$(find dist -maxdepth 1 -name 'eclipse-code-server-linux-*.tar.gz' -print -quit)"
           test -n "$asset"
           node scripts/generate-checksums.mjs dist
           docker run --rm \
@@ -156,20 +156,20 @@ jobs:
         if: matrix.artifact_name == 'windows'
         shell: pwsh
         run: |
-          $asset = Get-ChildItem -Path dist -Filter 'opencove-server-*.zip' | Select-Object -First 1
+          $asset = Get-ChildItem -Path dist -Filter 'eclipse-code-server-*.zip' | Select-Object -First 1
           if ($null -eq $asset) {
             throw 'Standalone Windows asset was not produced.'
           }
-          $checksumFile = Join-Path $env:RUNNER_TEMP 'opencove-standalone-SHA256SUMS.txt'
+          $checksumFile = Join-Path $env:RUNNER_TEMP 'eclipse-code-standalone-SHA256SUMS.txt'
           $assetHash = (Get-FileHash -LiteralPath $asset.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
           Set-Content -LiteralPath $checksumFile -Value "$assetHash  $($asset.Name)" -Encoding ASCII
-          $env:OPENCOVE_STANDALONE_ASSET = $asset.FullName
-          $env:OPENCOVE_STANDALONE_CHECKSUMS_FILE = $checksumFile
-          $env:OPENCOVE_INSTALL_ROOT = Join-Path $env:RUNNER_TEMP 'opencove-standalone'
-          $env:OPENCOVE_BIN_DIR = Join-Path $env:RUNNER_TEMP 'opencove-bin'
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/release-assets/opencove-install.ps1
-          & (Join-Path $env:OPENCOVE_BIN_DIR 'opencove.cmd') worker start --help
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/release-assets/opencove-install.ps1 -Uninstall
+          $env:ECLIPSE_CODE_STANDALONE_ASSET = $asset.FullName
+          $env:ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE = $checksumFile
+          $env:ECLIPSE_CODE_INSTALL_ROOT = Join-Path $env:RUNNER_TEMP 'eclipse-code-standalone'
+          $env:ECLIPSE_CODE_BIN_DIR = Join-Path $env:RUNNER_TEMP 'eclipse-code-bin'
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/release-assets/eclipse-code-install.ps1
+          & (Join-Path $env:ECLIPSE_CODE_BIN_DIR 'eclipse-code.cmd') worker start --help
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/release-assets/eclipse-code-install.ps1 -Uninstall
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
@@ -182,8 +182,8 @@ jobs:
             dist/*.dmg
             dist/*.exe
             dist/*.zip
-            !dist/opencove-server-*.tar.gz
-            !dist/opencove-server-*.zip
+            !dist/eclipse-code-server-*.tar.gz
+            !dist/eclipse-code-server-*.zip
           if-no-files-found: error
           retention-days: 7
 
@@ -202,8 +202,8 @@ jobs:
         with:
           name: release-assets-${{ matrix.artifact_name }}-standalone
           path: |
-            dist/opencove-server-*.tar.gz
-            dist/opencove-server-*.zip
+            dist/eclipse-code-server-*.tar.gz
+            dist/eclipse-code-server-*.zip
           if-no-files-found: error
           retention-days: 7
 
@@ -220,18 +220,18 @@ jobs:
         id: channel
         shell: bash
         run: |
-          if [[ "${OPENCOVE_RELEASE_TAG}" == *"-nightly."* ]]; then
+          if [[ "${ECLIPSE_CODE_RELEASE_TAG}" == *"-nightly."* ]]; then
             echo "is_nightly=true" >> "$GITHUB_OUTPUT"
-            echo "release_name=Nightly ${OPENCOVE_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Nightly ${ECLIPSE_CODE_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
           else
             echo "is_nightly=false" >> "$GITHUB_OUTPUT"
-            echo "release_name=${OPENCOVE_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${ECLIPSE_CODE_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.OPENCOVE_RELEASE_TARGET }}
+          ref: ${{ env.ECLIPSE_CODE_RELEASE_TARGET }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -248,7 +248,7 @@ jobs:
           path: release-assets
 
       - name: Align package version with release tag
-        run: node scripts/apply-ci-release-version.mjs "${{ env.OPENCOVE_RELEASE_TAG }}"
+        run: node scripts/apply-ci-release-version.mjs "${{ env.ECLIPSE_CODE_RELEASE_TAG }}"
 
       - name: Generate release manifest
         run: node scripts/generate-release-manifest.mjs
@@ -260,15 +260,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s "release-assets/opencove-install-${OPENCOVE_RELEASE_TAG}.sh"
-          test -s "release-assets/opencove-install-${OPENCOVE_RELEASE_TAG}.ps1"
-          test -s "release-assets/opencove-uninstall-${OPENCOVE_RELEASE_TAG}.sh"
-          test -s "release-assets/opencove-uninstall-${OPENCOVE_RELEASE_TAG}.ps1"
-          if [[ "${OPENCOVE_RELEASE_TAG}" != *"-nightly."* ]]; then
-            test -s release-assets/opencove-install.sh
-            test -s release-assets/opencove-install.ps1
-            test -s release-assets/opencove-uninstall.sh
-            test -s release-assets/opencove-uninstall.ps1
+          test -s "release-assets/eclipse-code-install-${ECLIPSE_CODE_RELEASE_TAG}.sh"
+          test -s "release-assets/eclipse-code-install-${ECLIPSE_CODE_RELEASE_TAG}.ps1"
+          test -s "release-assets/eclipse-code-uninstall-${ECLIPSE_CODE_RELEASE_TAG}.sh"
+          test -s "release-assets/eclipse-code-uninstall-${ECLIPSE_CODE_RELEASE_TAG}.ps1"
+          if [[ "${ECLIPSE_CODE_RELEASE_TAG}" != *"-nightly."* ]]; then
+            test -s release-assets/eclipse-code-install.sh
+            test -s release-assets/eclipse-code-install.ps1
+            test -s release-assets/eclipse-code-uninstall.sh
+            test -s release-assets/eclipse-code-uninstall.ps1
           fi
 
       - name: Generate checksums
@@ -278,8 +278,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ env.OPENCOVE_RELEASE_TAG }}
-          target_commitish: ${{ env.OPENCOVE_RELEASE_TARGET }}
+          tag_name: ${{ env.ECLIPSE_CODE_RELEASE_TAG }}
+          target_commitish: ${{ env.ECLIPSE_CODE_RELEASE_TARGET }}
           name: ${{ steps.channel.outputs.release_name }}
           prerelease: true
           make_latest: false
@@ -311,7 +311,7 @@ jobs:
       - name: Checkout exact release source
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.OPENCOVE_RELEASE_TARGET }}
+          ref: ${{ env.ECLIPSE_CODE_RELEASE_TARGET }}
           persist-credentials: false
 
       - name: Setup Node.js
@@ -320,7 +320,7 @@ jobs:
           node-version: 22
 
       - name: Download, install, and start the tag-pinned Worker
-        run: node scripts/smoke-published-standalone-runtime.mjs "${{ env.OPENCOVE_RELEASE_TAG }}"
+        run: node scripts/smoke-published-standalone-runtime.mjs "${{ env.ECLIPSE_CODE_RELEASE_TAG }}"
 
   promote-stable:
     name: Promote Verified Stable Release
@@ -333,7 +333,7 @@ jobs:
       - name: Promote the verified prerelease to latest stable
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "$OPENCOVE_RELEASE_TAG" --prerelease=false --latest --repo "$GITHUB_REPOSITORY"
+        run: gh release edit "$ECLIPSE_CODE_RELEASE_TAG" --prerelease=false --latest --repo "$GITHUB_REPOSITORY"
 
   verify-latest-stable:
     name: Verify Latest Stable Download
@@ -345,7 +345,7 @@ jobs:
       - name: Checkout exact release source
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.OPENCOVE_RELEASE_TARGET }}
+          ref: ${{ env.ECLIPSE_CODE_RELEASE_TARGET }}
           persist-credentials: false
 
       - name: Setup Node.js
@@ -354,4 +354,4 @@ jobs:
           node-version: 22
 
       - name: Download, install, and start through the latest-stable path
-        run: node scripts/smoke-published-standalone-runtime.mjs "${{ env.OPENCOVE_RELEASE_TAG }}" --installer-source=latest
+        run: node scripts/smoke-published-standalone-runtime.mjs "${{ env.ECLIPSE_CODE_RELEASE_TAG }}" --installer-source=latest

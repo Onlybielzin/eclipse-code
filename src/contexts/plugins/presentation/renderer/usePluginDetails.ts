@@ -9,7 +9,7 @@ import {
 
 const store = createPluginDetailsStore(
   async pluginId =>
-    await window.opencoveApi.controlSurface.invoke<PluginDetails>({
+    await window.eclipseCodeApi.controlSurface.invoke<PluginDetails>({
       kind: 'query',
       id: 'plugin.details',
       payload: { pluginId },
@@ -27,7 +27,7 @@ export function usePluginDetails(plugin: PluginManifest | null): PluginDetailSna
     emptySnapshot,
   )
   useEffect(() => {
-    if (entry && plugin && typeof window.opencoveApi?.controlSurface?.invoke === 'function') {
+    if (entry && plugin && typeof window.eclipseCodeApi?.controlSurface?.invoke === 'function') {
       void entry.load(plugin)
     }
   }, [entry, plugin])

@@ -7,7 +7,7 @@ afterEach(() => {
   useAppStore.setState({ agentSettings: DEFAULT_AGENT_SETTINGS })
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
-  delete document.documentElement.dataset.opencoveTestViewportAnimation
+  delete document.documentElement.dataset.eclipseCodeTestViewportAnimation
 })
 
 describe('viewport animation policy', () => {
@@ -27,14 +27,14 @@ describe('viewport animation policy', () => {
 
   it('respects reduced motion even when real test animations are enabled', () => {
     vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList)
-    document.documentElement.dataset.opencoveTestViewportAnimation = 'true'
+    document.documentElement.dataset.eclipseCodeTestViewportAnimation = 'true'
     expect(resolveWorkspaceCanvasViewportAnimation(220).duration).toBe(0)
   })
 
   it('keeps ordinary E2E instantaneous but allows opt-in motion assertions', () => {
-    vi.stubGlobal('opencoveApi', { meta: { isTest: true } })
+    vi.stubGlobal('eclipseCodeApi', { meta: { isTest: true } })
     expect(resolveWorkspaceCanvasViewportAnimation(220).duration).toBe(0)
-    document.documentElement.dataset.opencoveTestViewportAnimation = 'true'
+    document.documentElement.dataset.eclipseCodeTestViewportAnimation = 'true'
     expect(resolveWorkspaceCanvasViewportAnimation(220).duration).toBe(220)
   })
 })

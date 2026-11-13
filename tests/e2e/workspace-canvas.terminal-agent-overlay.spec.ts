@@ -13,7 +13,7 @@ import {
 
 const overlayAdvanceSentinel = '<test-overlay-advance>'
 type MetadataTestWindow = typeof window & {
-  __opencoveTerminalAgentMetadata?: TerminalSessionMetadataEvent[]
+  __eclipseCodeTerminalAgentMetadata?: TerminalSessionMetadataEvent[]
 }
 
 function hasVerifiedTerminalAgentMetadata(event: TerminalSessionMetadataEvent): boolean {
@@ -172,11 +172,11 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
         .toBeTruthy()
       await window.evaluate(() => {
         const testWindow = window as typeof window & {
-          __opencoveForegroundEvents?: Array<{ sessionId: string; shellOnly: boolean }>
+          __eclipseCodeForegroundEvents?: Array<{ sessionId: string; shellOnly: boolean }>
         }
-        testWindow.__opencoveForegroundEvents = []
-        window.opencoveApi.pty.onForeground(event => {
-          testWindow.__opencoveForegroundEvents?.push(event)
+        testWindow.__eclipseCodeForegroundEvents = []
+        window.eclipseCodeApi.pty.onForeground(event => {
+          testWindow.__eclipseCodeForegroundEvents?.push(event)
         })
       })
 
@@ -188,9 +188,9 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
         .poll(() =>
           window.evaluate(() => {
             const testWindow = window as typeof window & {
-              __opencoveForegroundEvents?: Array<{ sessionId: string; shellOnly: boolean }>
+              __eclipseCodeForegroundEvents?: Array<{ sessionId: string; shellOnly: boolean }>
             }
-            return testWindow.__opencoveForegroundEvents ?? []
+            return testWindow.__eclipseCodeForegroundEvents ?? []
           }),
         )
         .toContainEqual(expect.objectContaining({ shellOnly: true }))
@@ -220,7 +220,7 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
       windowMode: 'inactive',
       env: {
         PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       },
     })
 
@@ -256,14 +256,14 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
       expect(initialSessionId).not.toBeNull()
       await window.evaluate(() => {
         const testWindow = window as MetadataTestWindow
-        testWindow.__opencoveTerminalAgentMetadata = []
-        window.opencoveApi.pty.onMetadata(event => {
-          testWindow.__opencoveTerminalAgentMetadata?.push(event)
+        testWindow.__eclipseCodeTerminalAgentMetadata = []
+        window.eclipseCodeApi.pty.onMetadata(event => {
+          testWindow.__eclipseCodeTerminalAgentMetadata?.push(event)
         })
       })
       const readCapturedEvents = async () =>
         await window.evaluate(
-          () => (window as MetadataTestWindow).__opencoveTerminalAgentMetadata ?? [],
+          () => (window as MetadataTestWindow).__eclipseCodeTerminalAgentMetadata ?? [],
         )
 
       await terminal.locator('.xterm-helper-textarea').click()
@@ -299,7 +299,7 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
       await expect(terminal.locator('.terminal-node__status')).toHaveText('Standby')
       await expect
         .poll(async () => (await readPersistedNode(window, 'terminal-reload'))?.scrollback ?? '')
-        .toContain('[opencove-test-overlay] codex ready')
+        .toContain('[eclipse-code-test-overlay] codex ready')
       const persistedBeforeReload = await readPersistedNode(window, 'terminal-reload')
       expect(persistedBeforeReload).toMatchObject({
         id: 'terminal-reload',
@@ -346,8 +346,8 @@ test.describe('Workspace Canvas - Terminal agent overlay', () => {
       windowMode: 'offscreen',
       env: {
         PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       },
     })
 

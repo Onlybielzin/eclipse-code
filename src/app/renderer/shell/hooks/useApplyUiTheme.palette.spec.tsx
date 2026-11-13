@@ -58,7 +58,7 @@ it('generates a palette theme on the Cove family and removes it on switch', () =
   expect(root.dataset.coveFamily).toBe('cove')
   const style = document.querySelector<HTMLStyleElement>('style[data-cove-theme-palette]')
   expect(style?.dataset.coveThemePalette).toBe('plugin:studio:dusk')
-  expect(style?.textContent).toMatch(/^@layer opencove \{/)
+  expect(style?.textContent).toMatch(/^@layer eclipse-code \{/)
   expect(style?.textContent).toContain(
     `:root[data-cove-family='cove'][data-cove-theme-id="plugin:studio:dusk"][data-cove-theme='light'] {`,
   )

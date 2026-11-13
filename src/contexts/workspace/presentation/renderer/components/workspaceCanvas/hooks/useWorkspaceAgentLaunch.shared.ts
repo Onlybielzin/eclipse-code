@@ -112,13 +112,13 @@ async function listWorkspaceMounts(
   }
 
   const controlSurfaceInvoke = (
-    window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-  ).opencoveApi?.controlSurface?.invoke
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
   if (typeof controlSurfaceInvoke !== 'function') {
     return null
   }
 
-  const mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+  const mountResult = await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
     kind: 'query',
     id: 'mount.list',
     payload: { projectId: normalizedWorkspaceId },
@@ -301,7 +301,7 @@ export async function launchWorkspaceAgentSession({
   ): Promise<LaunchAgentSessionResult> => {
     const cwd = nextExecutionDirectory.trim()
     const cwdUri = cwd.length > 0 ? toFileUri(cwd) : null
-    return await window.opencoveApi.controlSurface.invoke<LaunchAgentSessionResult>({
+    return await window.eclipseCodeApi.controlSurface.invoke<LaunchAgentSessionResult>({
       kind: 'command',
       id: 'session.launchAgentInMount',
       clientFeatures: { managedClaudeResumeBindingV1: true },
@@ -434,7 +434,7 @@ export async function launchWorkspaceAgentSession({
     }
   }
 
-  const launched = await window.opencoveApi.agent.launch({
+  const launched = await window.eclipseCodeApi.agent.launch({
     clientFeatures: { managedClaudeResumeBindingV1: true },
     ...(intent ? { intent } : {}),
     canvasNodeId,

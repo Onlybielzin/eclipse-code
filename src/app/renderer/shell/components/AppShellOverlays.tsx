@@ -53,7 +53,7 @@ export function AppShellOverlays({
   // A clicked system notification jumps exactly like a clicked card; the jump answers the Agent.
   useEffect(
     () =>
-      window.opencoveApi?.system?.onNotificationActivated?.(({ id }) => {
+      window.eclipseCodeApi?.system?.onNotificationActivated?.(({ id }) => {
         const target = resolveSystemNotificationTarget(id)
         if (target) {
           onFocusAgentNode(target.workspaceId, target.nodeId)
@@ -94,11 +94,11 @@ export function AppShellOverlays({
         systemNotificationsEnabled={agentSettings.systemNotificationsEnabled}
         soundEnabled={agentSettings.notificationSoundEnabled}
         settingsShortcut={formatKeyChord(
-          window.opencoveApi?.meta?.platform,
+          window.eclipseCodeApi?.meta?.platform,
           resolveCommandKeybinding({
             commandId: 'app.openSettings',
             overrides: agentSettings.keybindings,
-            platform: window.opencoveApi?.meta?.platform,
+            platform: window.eclipseCodeApi?.meta?.platform,
           }),
         )}
         onClose={() => {

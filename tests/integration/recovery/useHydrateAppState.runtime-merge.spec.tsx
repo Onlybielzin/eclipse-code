@@ -86,7 +86,7 @@ describe('useHydrateAppState runtime field merge', () => {
       settings: {},
     }
 
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(persistedState))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(persistedState))
 
     const terminalSpawnDeferred = createDeferred<{ sessionId: string }>()
     const agentLaunchDeferred = createDeferred<{
@@ -102,7 +102,7 @@ describe('useHydrateAppState runtime field merge', () => {
     const spawn = vi.fn(() => terminalSpawnDeferred.promise)
     const launch = vi.fn(() => agentLaunchDeferred.promise)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

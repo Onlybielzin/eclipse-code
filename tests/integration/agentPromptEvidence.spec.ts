@@ -76,7 +76,7 @@ it('keeps prompt evidence on accepted internal receipts and out of public projec
     expect(receipts).toHaveLength(0)
     expect(
       await post(
-        reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+        reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
         'UserPromptSubmit',
         String(Date.now()),
         payload,

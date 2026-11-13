@@ -18,5 +18,5 @@ export function pluginThemePaletteCss(
   }
   const scope = `:root[data-cove-family='cove'][data-cove-theme-id="${escapeAttribute(themeId)}"]`
   const css = renderPaletteStylesheet(scope, { ...theme.palette, appearance: theme.appearance })
-  return `@layer opencove {\n${css}}\n`
+  return `@layer eclipse-code {\n${css}}\n`
 }

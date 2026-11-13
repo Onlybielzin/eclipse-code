@@ -17,7 +17,7 @@ async function copyPath(page: Page, target: Locator, mode: 'Relative' | 'Absolut
 test('filesystem path menus copy breadcrumb and compact or expanded node paths', async () => {
   const fixture = await createFilesystemNodeFixture()
   const { electronApp, window } = await launchApp({
-    env: { OPENCOVE_TEST_WORKSPACE: fixture.root },
+    env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.root },
   })
   const clipboardText = () => electronApp.evaluate(({ clipboard }) => clipboard.readText())
   try {

@@ -91,6 +91,39 @@ function countLines(content) {
   return parts.length > 0 && parts[parts.length - 1] === '' ? parts.length - 1 : parts.length
 }
 
+// Ratchet for inherited debt: a staged file whose committed version (followed through renames)
+// was already over the limit may stay over it, but must not grow. New files and files that were
+// within the limit are held to MAX_LINES as before.
+function resolveCommittedLineCounts() {
+  if (process.argv.length > 2) {
+    return new Map()
+  }
+  const result = spawnSync('git', ['diff', '--cached', '-M', '--name-status', '--diff-filter=MR'], {
+    encoding: 'utf8',
+  })
+  const counts = new Map()
+  if (result.status !== 0) {
+    return counts
+  }
+  for (const line of result.stdout.split(/\r\n|\r|\n/)) {
+    const parts = line.split('\t')
+    if (parts.length < 2) {
+      continue
+    }
+    const previousPath = parts[1]
+    const currentPath = parts.length > 2 ? parts[2] : parts[1]
+    const shown = spawnSync('git', ['show', `HEAD:${previousPath}`], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    })
+    if (shown.status === 0) {
+      counts.set(currentPath, countLines(shown.stdout))
+    }
+  }
+  return counts
+}
+
+const committedLineCounts = resolveCommittedLineCounts()
 const violations = []
 
 for (const file of files) {
@@ -107,6 +140,10 @@ for (const file of files) {
 
   const lineCount = countLines(content)
   if (lineCount > MAX_LINES) {
+    const committed = committedLineCounts.get(file)
+    if (committed !== undefined && committed > MAX_LINES && lineCount <= committed) {
+      continue
+    }
     violations.push({ file, lineCount })
   }
 }

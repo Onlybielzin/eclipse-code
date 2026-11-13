@@ -13,8 +13,8 @@ export const enIssueReport = {
   },
   defaultSummary: {
     runAgentFailed: 'Run Agent failed',
-    appError: 'OpenCove app issue',
-    other: 'OpenCove issue',
+    appError: 'Eclipse Code app issue',
+    other: 'Eclipse Code issue',
   },
   includedDetails: 'Included details',
   includedDetailsSummary: 'Version, OS, worker, agent setup, process snapshot, redacted logs',

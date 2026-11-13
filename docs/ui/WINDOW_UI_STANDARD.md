@@ -1,6 +1,6 @@
 # Window UI Standard
 
-本规范定义 OpenCove 中所有“悬浮窗口/弹窗/面板”的统一视觉语言。
+本规范定义 Eclipse Code 中所有“悬浮窗口/弹窗/面板”的统一视觉语言。
 
 > 关联全局 UI 规范：`docs/ui/README.md`
 

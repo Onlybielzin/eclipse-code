@@ -74,7 +74,7 @@ describe('runtime hydration progress and durable bindings', () => {
     async sessionId => {
       const persisted = fixture()
       let workspace = toShellWorkspaceState(persisted, { dropRuntimeSessionIds: true })
-      Object.defineProperty(window, 'opencoveApi', {
+      Object.defineProperty(window, 'eclipseCodeApi', {
         configurable: true,
         value: {
           controlSurface: {
@@ -118,7 +118,7 @@ describe('runtime hydration progress and durable bindings', () => {
       await gate
       return { workspaceId: workspace.id, nodes: [prepared(request.payload.nodeIds[0]!)] }
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { controlSurface: { invoke } },
     })
@@ -162,7 +162,7 @@ describe('runtime hydration progress and durable bindings', () => {
   it('attaches a ready sibling while another request remains pending, and retains it after failure', async () => {
     const storage = installMockStorage()
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify({
         activeWorkspaceId: 'workspace-1',
         workspaces: [fixture()],
@@ -179,7 +179,7 @@ describe('runtime hydration progress and durable bindings', () => {
         : Promise.resolve({ workspaceId: 'workspace-1', nodes: [prepared('fast')] }),
     )
     const spawn = vi.fn()
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { controlSurface: { invoke }, pty: { spawn } },
     })

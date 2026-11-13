@@ -35,7 +35,7 @@ test('canvas shortcut starts the default Agent once and preserves terminal and i
 
     const agent = window.locator('.terminal-node')
     await expect(agent).toHaveCount(1)
-    await expect(agent).toContainText('[opencove-test-agent] codex new')
+    await expect(agent).toContainText('[eclipse-code-test-agent] codex new')
     await expect(agent.getByTestId('terminal-node-title-display')).toContainText('gpt-5.2-codex')
     await expect(window.getByTestId('workspace-agent-launcher')).toHaveCount(0)
     const terminalInput = agent.locator('.xterm-helper-textarea')
@@ -113,7 +113,9 @@ test('sidebar, settings and Space Explorer keep ownership of the shortcut', asyn
     await expect(canvas).toBeFocused()
     await window.keyboard.press(`${modifier}+a`)
     await expect(window.locator('.terminal-node')).toHaveCount(1)
-    await expect(window.locator('.terminal-node')).toContainText('[opencove-test-agent] codex new')
+    await expect(window.locator('.terminal-node')).toContainText(
+      '[eclipse-code-test-agent] codex new',
+    )
     await testInfo.attach('canvas-shortcut-surface-ownership', {
       body: await window.screenshot(),
       contentType: 'image/png',

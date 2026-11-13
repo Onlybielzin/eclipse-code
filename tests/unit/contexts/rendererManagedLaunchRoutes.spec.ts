@@ -5,7 +5,7 @@ import { launchWorkspaceAgentSession } from '../../../src/contexts/workspace/pre
 import { DEFAULT_AGENT_SETTINGS } from '../../../src/contexts/settings/domain/agentSettings'
 import { toShellWorkspaceState } from '../../../src/app/renderer/shell/hooks/useHydrateAppState.helpers'
 import { fixture } from '../../support/convergence/fixture'
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 const binding = {
   nodeId: 'agent',
   activationId: 'owned',
@@ -16,7 +16,7 @@ const binding = {
   tuple: { resumeSessionId: 'A', resumeSessionIdVerified: true },
 }
 afterEach(() => {
-  window.opencoveApi = original
+  window.eclipseCodeApi = original
 })
 it.each([
   'creation-mount',
@@ -46,10 +46,10 @@ it.each([
       ? { features: { managedClaudeResumeBindingDeliveryV1: true } }
       : launch(request),
   )
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     controlSurface: route.endsWith('legacy') ? undefined : { invoke },
     agent: { launch },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   if (route.startsWith('creation')) {
     await launchWorkspaceAgentSession({
       canvasNodeId:

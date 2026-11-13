@@ -30,7 +30,7 @@
 
 ### 命名与前缀 (Naming)
 
-- 对外/协议/持久化统一使用 `OpenCove` / `opencove`（例如 `window.opencoveApi`、`OPENCOVE_*`、`.opencove/`、`opencove.db`）。
+- 对外/协议/持久化统一使用 `Eclipse Code` / `eclipse-code`（例如 `window.eclipseCodeApi`、`ECLIPSE_CODE_*`、`.eclipse-code/`、`eclipse-code.db`）。
 - UI 设计系统与样式命名空间保留 `cove` 前缀（例如 `--cove-*`、`data-cove-*`、`.cove-window`），作为稳定的内部约定。
 - 历史版本的 localStorage key 可能仍使用 `cove:m0:*` 前缀；当前实现会兼容读取并迁移。
 
@@ -83,16 +83,16 @@
 
 ### 通用参考学习与方案生成法（Research -> Synthesize -> Adapt -> Verify）
 
-凡是行业内大概率已有成熟做法、主流产品 / 框架 / 库已有先例、或问题明显不是 OpenCove 独有时，都应主动查找外部参考，再结合本仓约束提出方案，而不是等用户点名要求后才去看。
+凡是行业内大概率已有成熟做法、主流产品 / 框架 / 库已有先例、或问题明显不是 Eclipse Code 独有时，都应主动查找外部参考，再结合本仓约束提出方案，而不是等用户点名要求后才去看。
 
-1.  **先识别问题类，不先写实现**：先写一句 `这是哪一类已有行业先例的问题`，再写一句 `OpenCove 当前真正不稳定 / 不清晰的承诺是什么`。
+1.  **先识别问题类，不先写实现**：先写一句 `这是哪一类已有行业先例的问题`，再写一句 `Eclipse Code 当前真正不稳定 / 不清晰的承诺是什么`。
 2.  **按四层查参考**：
     - `产品 / 帮助文档 / 规范`：确认外部世界对该问题类承诺的稳定行为。
     - `官方示例 / 源码 / 测试 / RFC`：确认默认策略、owner、边界和 fallback。
     - `issue / discussion / changelog / maintainer comment`：确认 trade-off、平台差异和已知坑。
     - `本仓现有实现`：确认哪些抽象可以复用，避免平行再造。
 3.  **每个参考只提炼五类信息**：`承诺`、`state / authority owner`、`1-3 invariants`、`fallback / override`、`trade-off / 不直接照搬的部分`。
-4.  **提出方案时必须做转译**：按 `行业共识 -> 可迁移原则 -> OpenCove 约束 -> 本地设计` 输出，不直接把外部实现贴进来。
+4.  **提出方案时必须做转译**：按 `行业共识 -> 可迁移原则 -> Eclipse Code 约束 -> 本地设计` 输出，不直接把外部实现贴进来。
 5.  **自动化 / 启发式默认保守**：涉及 `auto-detect / auto-switch / auto-retry / auto-recover / heuristic` 时，高置信才切换，歧义保持稳定，并保留显式兜底。
 6.  **验证仍遵循本文件前文的按风险分层原则**：重点把从外部参考提炼出的规则、不变量和 trade-off 落到最低 meaningful layer；UI 侧手段选择统一见后文“UI 自动化与验证”。
 7.  **最后资产化**：把结论沉淀到 `专项文档 + 测试 + owner / invariant 说明 + review 要点`；否则视为未完成学习闭环。
@@ -166,13 +166,13 @@ E2E 选组规则维护在 `scripts/precommit-e2e-selection.mjs`。快速门禁�
     -   **调研/验收报告默认不入库**：调研分析报告，以及某次 PR 的 review / acceptance 记录，都只是**本地分析与决策产物**，不是仓库资产。它们是某一时刻的快照，会很快过期，却没有人维护。除非明确要求，否则不要提交；评审结论写在 PR 描述/评论里。`docs/` 只收**本项目自身的**长期文档：架构、不变量、开发流程、案例。若调研中得出的结论具有长期价值（如一条不变量），把**结论**写进对应的项目文档，而不是提交整份报告。
 -   **提交前检查（本地快速门禁，合并前 CI 完整回归）**：
     -   运行 staged gates 前，必须先 `git add -A` 暂存本次改动；若已经提交，仍须显式重新暂存后再运行。执行 `git diff --cached --name-only` 逐项确认文件列表，并确保 `git diff --cached --name-only | wc -l` 的结果大于 0。
-    -   对 0 个文件运行的 gate 实际上没有运行；将其报告为“通过”属于错误陈述。需要强制防空时，使用 `OPENCOVE_REQUIRE_STAGED=1 pnpm pre-commit`；随后先执行 `pnpm line-check:staged`，因为行数门禁只检查 staged 文件。
+    -   对 0 个文件运行的 gate 实际上没有运行；将其报告为“通过”属于错误陈述。需要强制防空时，使用 `ECLIPSE_CODE_REQUIRE_STAGED=1 pnpm pre-commit`；随后先执行 `pnpm line-check:staged`，因为行数门禁只检查 staged 文件。
     -   若 staged 文件中存在超过 500 行的文件，先重构/拆分，过门禁后再继续，不要带着超长文件直接运行 `pnpm pre-commit`。
     -   `pnpm pre-commit` 会执行 `pnpm naming-check:staged`：禁止在新代码里重新引入 `cove:*`（对外/协议/持久化），仅允许显式 legacy 迁移用途；UI 设计系统前缀仍保留 `cove`（见上文命名约定）。
     -   若本次改动包含用户可感知变化（新增功能、UX 改动、修复 bug、默认行为变化），应先提交代码并创建 PR；拿到 PR 链接/编号后，再更新 `CHANGELOG.md` 的 `## [Unreleased]` 并单独提交（每个变化一条，尽量附 `#PR` 编号）。`nightly` tag 不要求更新 changelog；发 `stable` 时再把 `Unreleased` 结算进新版本段。
     -   **纯文档（`.md`）提交的门禁例外**：staged 集合只含 `.md` 时，`naming-check` 会报 `no staged files matched — this gate checked NOTHING and is not a pass.`。这是**预期行为，不是缺陷**：对 0 个文件运行的 gate 本就不该报告通过。
         -   **原因**：其扩展名白名单只含代码类后缀（`.ts/.tsx/.js/.mjs/.cjs/.mts/.cts/.json/.yml/.yaml`），不含 `.md`。
-        -   **退出码**：`scripts/check-naming-staged.mjs:189` 为 `process.exit(process.env.OPENCOVE_REQUIRE_STAGED === '1' ? 1 : 0)` —— 裸跑退 0（仅告警），`OPENCOVE_REQUIRE_STAGED=1 pnpm pre-commit` 退 1 并中断整条链。
+        -   **退出码**：`scripts/check-naming-staged.mjs:189` 为 `process.exit(process.env.ECLIPSE_CODE_REQUIRE_STAGED === '1' ? 1 : 0)` —— 裸跑退 0（仅告警），`ECLIPSE_CODE_REQUIRE_STAGED=1 pnpm pre-commit` 退 1 并中断整条链。
         -   **不要放宽**：别为变绿而把 `.md` 加进白名单 —— 实测这会让本文件第 35 行（准确描述历史 `cove:m0:*` 前缀、但不含 `legacy` 豁免词）被判违规。
         -   **正解**：如实记录该 gate 未检查任何文件，并以紧邻的上一次完整产品门禁作为运行时证据。
         -   **别顺带声称后续门禁通过**：链序为 `line-check`(1) → `secret-check`(2) → `naming-check`(3) → … → `format-check`(6)，第 3 步中断后其余**根本不会执行**；需要其结论时单独跑（如 `npx prettier --check <file>`）。
@@ -197,25 +197,25 @@ E2E 选组规则维护在 `scripts/precommit-e2e-selection.mjs`。快速门禁�
 -   **安装依赖**：`pnpm install`
 -   **启动开发环境**：`pnpm dev`
     - 默认使用独立的 `userData` 目录（避免污染已安装版本的数据）
-    - 如需临时复用已安装包的数据：`OPENCOVE_DEV_USE_SHARED_USER_DATA=1 pnpm dev` 或 `pnpm dev -- --shared-user-data`
-    - 如需自定义 dev 的数据目录：`OPENCOVE_DEV_USER_DATA_DIR=/path/to/userData pnpm dev`
+    - 如需临时复用已安装包的数据：`ECLIPSE_CODE_DEV_USE_SHARED_USER_DATA=1 pnpm dev` 或 `pnpm dev -- --shared-user-data`
+    - 如需自定义 dev 的数据目录：`ECLIPSE_CODE_DEV_USER_DATA_DIR=/path/to/userData pnpm dev`
 -   **使用 Worker/Web UI（dev）**：先执行 `pnpm build`
     - Worker 进程运行 `out/main/worker.js`，不会随 `pnpm dev` 的 HMR 自动更新
     - 若遇到“恢复/同步/持久化看起来没生效，但代码明明已改”的情况，先 `pnpm build` 再重启 App
     - 旧数据说明（M6 mounts / locations）：若你的 profile 早于 M6，引入 mounts 后首次启动会尝试自动修复旧项目数据（为缺失 mounts 的本地项目创建一个默认本地位置，并修复 Space 的 target mount 绑定）。若项目是 remote-only 且缺失位置数据，无法凭空推断远程路径，需要在项目菜单中手动添加位置后才能正常运行相关能力。
--   **运行 CLI**：先 `pnpm build`，再 `pnpm opencove --help`；仅 CLI 迭代可用 `pnpm build:cli`，产物为 `out/cli/opencove.mjs`，不随 dev HMR 更新。
+-   **运行 CLI**：先 `pnpm build`，再 `pnpm eclipse-code --help`；仅 CLI 迭代可用 `pnpm build:cli`，产物为 `out/cli/eclipse-code.mjs`，不随 dev HMR 更新。
 -   **运行单元测试**：`pnpm test -- --run`
 -   **运行 E2E 测试**：`pnpm test:e2e`
     -   说明：`pnpm test:e2e` 已包含构建步骤，默认使用 `offscreen` 后台窗口模式；检测到 Electron 崩溃特征时，会按窗口模式链路自动降级并重跑失败用例（例如 `hidden -> offscreen`、`offscreen -> inactive`）。
-    -   可通过 `OPENCOVE_E2E_WINDOW_MODE` 指定窗口模式（`inactive / offscreen / hidden`，禁止 `normal` 以避免抢占焦点）。
-    -   如需关闭自动降级，可设置 `OPENCOVE_E2E_DISABLE_CRASH_FALLBACK=1`。
-    -   `pnpm pre-commit` 与 CI 的 required Electron/Web continuity gates 固定使用 `OPENCOVE_E2E_RETRIES=0` 且关闭 crash fallback；本地诊断命令可以显式覆盖，但 retry/fallback 结果不能作为合并证据。
+    -   可通过 `ECLIPSE_CODE_E2E_WINDOW_MODE` 指定窗口模式（`inactive / offscreen / hidden`，禁止 `normal` 以避免抢占焦点）。
+    -   如需关闭自动降级，可设置 `ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK=1`。
+    -   `pnpm pre-commit` 与 CI 的 required Electron/Web continuity gates 固定使用 `ECLIPSE_CODE_E2E_RETRIES=0` 且关闭 crash fallback；本地诊断命令可以显式覆盖，但 retry/fallback 结果不能作为合并证据。
     -   若需单独执行 Playwright（如 `pnpm exec playwright test tests/e2e/xxx.spec.ts`），必须先执行 `pnpm build`，否则可能仍会使用旧的 `out/` 产物，导致结果与当前源码不一致。
 
 ## 常见问题（FAQ）
 
 -   **为什么我用 `pnpm dev` 启动后，Worker/Web UI 相关功能表现很奇怪（恢复/同步/持久化不生效）？**
-    -   先检查是否启用了本机 Worker 模式（userData 目录下的 `home-worker.json` 中 `mode=local`，或环境变量 `OPENCOVE_WORKER_CLIENT=1`）。
+    -   先检查是否启用了本机 Worker 模式（userData 目录下的 `home-worker.json` 中 `mode=local`，或环境变量 `ECLIPSE_CODE_WORKER_CLIENT=1`）。
     -   然后执行一次 `pnpm build` 并重启 App，确保 `out/main/worker.js` 与当前源码一致。
 
 ## 文档地图（按问题找入口）

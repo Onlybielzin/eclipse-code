@@ -140,7 +140,11 @@ export function toPersistedState(
                           ? node.data.website
                           : node.data.kind === 'plugin'
                             ? (node.data.plugin ?? null)
-                            : node.data.task,
+                            : node.data.kind === 'question'
+                              ? (node.data.question ?? null)
+                              : node.data.kind === 'todos'
+                                ? (node.data.todos ?? null)
+                                : node.data.task,
           }
         }),
       }

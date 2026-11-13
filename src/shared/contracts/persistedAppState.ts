@@ -13,6 +13,7 @@ import type { LabelColor, NodeLabelColorOverride } from '@shared/types/labelColo
 import type { NodeWorkerBinding } from '@shared/types/nodeWorkerBinding'
 import type { ProjectIconId } from '@shared/types/projectIcon'
 import type { SpaceBoundary } from '@shared/types/spaceBoundary'
+import type { QuestionCardData, TodosCardData } from './canvasCards'
 
 export const PERSISTED_WORKSPACE_NODE_KINDS = [
   'terminal',
@@ -25,6 +26,8 @@ export const PERSISTED_WORKSPACE_NODE_KINDS = [
   'folder',
   'website',
   'plugin',
+  'question',
+  'todos',
 ] as const
 
 export type PersistedWorkspaceNodeKind = (typeof PERSISTED_WORKSPACE_NODE_KINDS)[number]
@@ -187,6 +190,8 @@ export type PersistedNodePayload =
   | PersistedFolderNodeData
   | PersistedWebsiteNodeData
   | PersistedPluginNodeData
+  | QuestionCardData
+  | TodosCardData
 
 export interface PersistedNodeContract {
   managedClaudeResumeBindingOwnership?: ManagedClaudeResumeBindingOwnership | null

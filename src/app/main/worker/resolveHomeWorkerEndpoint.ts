@@ -71,7 +71,7 @@ export async function resolveHomeWorkerEndpoint(options: {
   const diagnostics: string[] = []
   const fallbackMode = options.allowStandaloneMode ? 'standalone' : 'local'
 
-  const wantsWorkerClientMode = isTruthyEnv(process.env['OPENCOVE_WORKER_CLIENT'])
+  const wantsWorkerClientMode = isTruthyEnv(process.env['ECLIPSE_CODE_WORKER_CLIENT'])
   if (!options.allowConfig && !wantsWorkerClientMode) {
     const config = createDefaultHomeWorkerConfig({
       allowStandaloneMode: options.allowStandaloneMode,
@@ -105,7 +105,7 @@ export async function resolveHomeWorkerEndpoint(options: {
     }
 
     diagnostics.push(
-      'OPENCOVE_WORKER_CLIENT=1 but no worker control surface connection file was found.',
+      'ECLIPSE_CODE_WORKER_CLIENT=1 but no worker control surface connection file was found.',
     )
     const startedEndpoint = await tryStartLocalWorkerEndpoint(diagnostics)
     return {

@@ -12,7 +12,7 @@ const ctx: ControlSurfaceContext = {
 }
 
 async function createFixture(): Promise<{ baseDir: string; filePath: string }> {
-  const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-fs-'))
+  const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-fs-'))
   const filePath = join(baseDir, 'hello.txt')
   await writeFile(filePath, 'hello', 'utf8')
   await mkdir(join(baseDir, 'subdir'))

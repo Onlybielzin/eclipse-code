@@ -7,7 +7,7 @@ export function hasNativeFileTransfer(transfer: DataTransfer): boolean {
 }
 
 export function readNativeDroppedFiles(transfer: DataTransfer): File[] {
-  const filesystem = window.opencoveApi?.filesystem
+  const filesystem = window.eclipseCodeApi?.filesystem
   if (!filesystem?.resolveDroppedFile || !filesystem.getPathForFile) {
     return []
   }

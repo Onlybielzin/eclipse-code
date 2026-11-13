@@ -9,7 +9,7 @@ afterEach(() => {
 describe('PTY runtime dependency injection', () => {
   it('uses an injected engine without importing infrastructure and owns main cleanup once', async () => {
     vi.doMock('electron', () => ({
-      app: { getPath: vi.fn(() => '/tmp/opencove-user-data') },
+      app: { getPath: vi.fn(() => '/tmp/eclipse-code-user-data') },
       utilityProcess: { fork: vi.fn() },
       webContents: {
         getAllWebContents: () => [],

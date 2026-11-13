@@ -19,7 +19,7 @@ import {
 it.each(['none', 'bearer', 'missing', 'other-project', 'root', 'no-reader', 'no-commit'] as const)(
   'uses only a grant caller from the target project (%s)',
   async mode => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-node-caller-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-node-caller-'))
     try {
       const store = createInMemoryPersistenceStore()
       const rows = new Map<

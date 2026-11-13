@@ -26,7 +26,7 @@ describe.skipIf(process.platform === 'win32').each(['HOME', 'CODEX_HOME'])(
     ])(
       'reuse=$reuse reachable=$reachable skips hooks=$skipped',
       async ({ reuse, reachable, skipped }) => {
-        const root = '/tmp/opencove-daemon-unit-home'
+        const root = '/tmp/eclipse-code-daemon-unit-home'
         vi.stubEnv('HOME', root)
         vi.stubEnv('USERPROFILE', root)
         const codexHome = homeSource === 'HOME' ? `${root}/.codex` : root

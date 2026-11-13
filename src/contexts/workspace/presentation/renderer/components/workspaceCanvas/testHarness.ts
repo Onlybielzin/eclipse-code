@@ -37,7 +37,7 @@ type WorkspaceCanvasTestApi = {
 
 declare global {
   interface Window {
-    __opencoveWorkspaceCanvasTestApi?: WorkspaceCanvasTestApi
+    __eclipseCodeWorkspaceCanvasTestApi?: WorkspaceCanvasTestApi
   }
 }
 
@@ -53,8 +53,8 @@ function getWorkspaceCanvasTestApi(): WorkspaceCanvasTestApi | undefined {
     return undefined
   }
 
-  if (!window.__opencoveWorkspaceCanvasTestApi) {
-    window.__opencoveWorkspaceCanvasTestApi = {
+  if (!window.__eclipseCodeWorkspaceCanvasTestApi) {
+    window.__eclipseCodeWorkspaceCanvasTestApi = {
       getAgentSessions: () => [...agentSessions],
       getFirstAgentSessionId: () => agentSessions[0]?.sessionId ?? null,
       getResumeSessionIdByPtySessionId: ptySessionId => {
@@ -119,7 +119,7 @@ function getWorkspaceCanvasTestApi(): WorkspaceCanvasTestApi | undefined {
     }
   }
 
-  return window.__opencoveWorkspaceCanvasTestApi
+  return window.__eclipseCodeWorkspaceCanvasTestApi
 }
 
 export function bindWorkspaceCanvasArrangeInSpaceTestAction(

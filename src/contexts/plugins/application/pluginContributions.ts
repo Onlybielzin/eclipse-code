@@ -86,6 +86,6 @@ export async function readPluginSkill(
     pluginId: runtime.record.package.id,
     skill: { ...skill },
     ...content,
-    installPrompt: `Install the "${skill.id}" Agent Skill from ${content.path} on the connected OpenCove Worker. Read SKILL.md first, then copy its containing directory and bundled resources to the agent skills directory chosen by the user. This command has not installed or modified any agent skill.`,
+    installPrompt: `Install the "${skill.id}" Agent Skill from ${content.path} on the connected Eclipse Code Worker. Read SKILL.md first, then copy its containing directory and bundled resources to the agent skills directory chosen by the user. This command has not installed or modified any agent skill.`,
   }
 }

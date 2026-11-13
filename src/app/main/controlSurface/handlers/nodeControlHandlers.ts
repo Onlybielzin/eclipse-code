@@ -75,7 +75,7 @@ function createLocatorDeps(
   }
 }
 
-function toNodeControlStateStore(store: PersistenceStore): NodeControlAppStateStore {
+export function toNodeControlStateStore(store: PersistenceStore): NodeControlAppStateStore {
   return {
     nodeLineage: store.nodeLineage,
     commitCreatedNodeState: store.commitCreatedNodeState,

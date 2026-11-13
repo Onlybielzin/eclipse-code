@@ -7,7 +7,7 @@ import { readSshConfigHosts } from '../../../src/app/main/controlSurface/topolog
 const tempRoots: string[] = []
 
 async function createFixture(): Promise<{ root: string; configPath: string }> {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-ssh-config-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-ssh-config-'))
   tempRoots.push(root)
   const sshDirectory = join(root, '.ssh')
   await mkdir(sshDirectory)

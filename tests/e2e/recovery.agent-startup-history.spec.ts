@@ -13,7 +13,7 @@ import {
 
 async function state(window: Page): Promise<AgentRunSnapshot | null> {
   return await window.evaluate(() =>
-    window.opencoveApi.controlSurface.invoke({
+    window.eclipseCodeApi.controlSurface.invoke({
       kind: 'query',
       id: 'agent.get',
       payload: { nodeId: 'history-agent' },
@@ -26,9 +26,9 @@ async function sounds(window: Page) {
     () =>
       (
         window as unknown as {
-          __opencoveNotificationSoundTestLog?: unknown[]
+          __eclipseCodeNotificationSoundTestLog?: unknown[]
         }
-      ).__opencoveNotificationSoundTestLog ?? [],
+      ).__eclipseCodeNotificationSoundTestLog ?? [],
   )
 }
 
@@ -78,14 +78,14 @@ for (const provider of ['claude-code', 'codex'] as const) {
       userDataDir,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'startup-history',
-        OPENCOVE_TEST_AGENT_STUB_SCRIPT: path.resolve(
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'startup-history',
+        ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: path.resolve(
           'tests/e2e/fixtures/agent-startup-history.mjs',
         ),
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
       },
     }
     try {

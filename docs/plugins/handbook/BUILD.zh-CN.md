@@ -6,7 +6,7 @@
 ## 1. 找到匹配的指南
 
 ```sh
-opencove plugin guide
+eclipse-code plugin guide
 ```
 
 这条离线命令会返回 README 和文档目录的路径，不会启动应用或 Worker。
@@ -17,21 +17,21 @@ opencove plugin guide
 
 | 文件 | 职责 |
 | --- | --- |
-| `opencove.plugin.json` | 标识与能力声明 |
+| `eclipse-code.plugin.json` | 标识与能力声明 |
 | `index.html`、`view.js`、`style.css` | 响应式窗口内容 |
 | `main.mjs` | 可选的 Node 后端 |
 | `README.md`、`icon.svg` | 说明文档与插件图标 |
 
-视图使用主机注入的 `window.opencovePlugin` SDK，先等待 `api.ready`。
-脚本与样式放在独立文件中。OpenCove 已经提供标题栏、缩放手柄、收起与关闭控件。
+视图使用主机注入的 `window.eclipseCodePlugin` SDK，先等待 `api.ready`。
+脚本与样式放在独立文件中。Eclipse Code 已经提供标题栏、缩放手柄、收起与关闭控件。
 
 ## 3. 安装并试用示例
 
 保持目标运行环境开启，然后执行：
 
 ```sh
-opencove plugin install /absolute/path/to/hello-clock --pretty
-opencove plugin details hello-clock --pretty
+eclipse-code plugin install /absolute/path/to/hello-clock --pretty
+eclipse-code plugin details hello-clock --pretty
 ```
 
 在设置 → 插件中打开 **Hello Clock**，启动预览，试试 **Read clock** 和标签输入框。
@@ -46,7 +46,7 @@ opencove plugin details hello-clock --pretty
 修改复制后的源文件中的标签或样式，再运行：
 
 ```sh
-opencove plugin reload hello-clock
+eclipse-code plugin reload hello-clock
 ```
 
 重新查看详情，检查新的修订版本。要制作另一个插件，请更换小写 manifest ID、名称和说明，

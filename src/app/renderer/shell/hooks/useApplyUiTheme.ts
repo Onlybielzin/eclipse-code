@@ -69,7 +69,7 @@ export function useApplyUiTheme(uiTheme: UiTheme): void {
     const emit = () => {
       if (!disposed) {
         window.dispatchEvent(
-          new CustomEvent('opencove-theme-changed', {
+          new CustomEvent('eclipse-code-theme-changed', {
             detail: { theme: root.dataset.coveTheme, themeId },
           }),
         )
@@ -93,7 +93,7 @@ export function useApplyUiTheme(uiTheme: UiTheme): void {
         theme ? fonts : [],
       )
       if (changed) {
-        void window.opencoveApi?.windowChrome
+        void window.eclipseCodeApi?.windowChrome
           ?.setTheme?.({ theme: baseScheme })
           .catch(() => undefined)
       }

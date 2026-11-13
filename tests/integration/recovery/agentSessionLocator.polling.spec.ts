@@ -36,8 +36,8 @@ function createRolloutFirstLine({
 
 describe('locateAgentResumeSessionId polling', () => {
   it('uses the effective CODEX_HOME session root', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-user-home-'))
-    const codexHome = await fs.mkdtemp(join(tmpdir(), 'opencove-codex-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-user-home-'))
+    const codexHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-codex-home-'))
     const previousHome = process.env.HOME
     const previousCodexHome = process.env.CODEX_HOME
     process.env.HOME = tempHome

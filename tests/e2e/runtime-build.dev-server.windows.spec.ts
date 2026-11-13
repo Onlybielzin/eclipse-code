@@ -11,7 +11,7 @@ test('loads the Windows desktop through the Vite development server with an embe
   test.skip(process.platform !== 'win32', 'Windows development path regression')
   test.setTimeout(120_000)
   const root = resolve(__dirname, '../..')
-  const cacheDir = await mkdtemp(join(tmpdir(), 'opencove-vite-runtime-build-'))
+  const cacheDir = await mkdtemp(join(tmpdir(), 'eclipse-code-vite-runtime-build-'))
   let server: ViteDevServer | undefined
   let app: ElectronApplication | undefined
   try {

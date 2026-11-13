@@ -1,6 +1,6 @@
 # Current Architecture
 
-本文档概述 OpenCove 当前已实现的运行时能力和主要 owner。更细的规则见同目录专题文档。
+本文档概述 Eclipse Code 当前已实现的运行时能力和主要 owner。更细的规则见同目录专题文档。
 
 ## Runtime Topology
 

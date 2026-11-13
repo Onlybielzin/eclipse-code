@@ -331,8 +331,8 @@ describe('IPC approved workspace guards', () => {
           command: expect.any(String),
           args: expect.any(Array),
           env: expect.objectContaining({
-            OPENCOVE_OPENCODE_SERVER_HOSTNAME: '127.0.0.1',
-            OPENCOVE_OPENCODE_SERVER_PORT: expect.any(String),
+            ECLIPSE_CODE_OPENCODE_SERVER_HOSTNAME: '127.0.0.1',
+            ECLIPSE_CODE_OPENCODE_SERVER_PORT: expect.any(String),
             OPENCODE_TUI_CONFIG: expect.any(String),
           }),
         }),

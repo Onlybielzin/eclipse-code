@@ -4,7 +4,7 @@ A plugin backend runs on its installation Worker. A project or Space can refer
 to another machine. Use the host API when the operation belongs to that project;
 direct Node filesystem and process APIs still run on the backend's own machine.
 
-The same facade is available as `window.opencovePlugin.host` in a real view and
+The same facade is available as `window.eclipseCodePlugin.host` in a real view and
 as `host` in `activate({ host })`. Call it from view actions or backend
 `invoke`/`runCommand` handlers, after activation. Host requests during activation
 are rejected because the candidate has not been published. A declared backend
@@ -43,7 +43,7 @@ differ from the viewer or plugin backend. Show this location before executing.
 Do not infer the current project, construct a local path from a remote path, or
 substitute another machine after a connection error.
 
-Use `opencove project list` to find project IDs. A menu command can use the
+Use `eclipse-code project list` to find project IDs. A menu command can use the
 explicit project/Space context supplied to its handler. A CLI command should
 accept the selection in its declared parameters. Resolve again after a deliberate
 selection change; IDs identify host objects, not permanent path aliases.
@@ -136,7 +136,7 @@ export function activate({ host }) {
 ```
 
 Declare the command with `target: "plugin"` and use the existing
-`opencove plugin run <id> inspect --params <json>`. Validate your own parameters.
+`eclipse-code plugin run <id> inspect --params <json>`. Validate your own parameters.
 Skills must retain the intended runtime/profile and select explicit project/Space
 IDs, then read back the real result. Do not invent additional CLI verbs, import
 private host modules, or copy connection tokens into a plugin.
@@ -152,5 +152,5 @@ rules described there.
 
 The separation follows [VS Code's remote extension guidance](https://code.visualstudio.com/api/advanced-topics/remote-extensions):
 host APIs can route to a workspace while direct Node APIs remain bound to their
-process. OpenCove resolves each explicit project/Space through the mount owner,
+process. Eclipse Code resolves each explicit project/Space through the mount owner,
 rather than inferring a single globally active project.

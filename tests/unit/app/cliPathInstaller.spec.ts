@@ -39,7 +39,7 @@ function resolveFixturePath(filePath: string): string {
 
   for (const [index, binDir] of ['/opt/homebrew/bin', '/usr/local/bin'].entries()) {
     const relativeBinPath = relative(resolve(binDir), normalized)
-    if (relativeBinPath === '' || relativeBinPath.startsWith('opencove')) {
+    if (relativeBinPath === '' || relativeBinPath.startsWith('eclipse-code')) {
       return join(mockRootDir, 'system-bins', String(index), relativeBinPath)
     }
   }
@@ -106,7 +106,7 @@ vi.mock('electron', () => ({
 }))
 
 async function createPackagedCli(resourcesDir: string): Promise<string> {
-  const cliPath = resolve(resourcesDir, 'app.asar', 'out', 'cli', 'opencove.mjs')
+  const cliPath = resolve(resourcesDir, 'app.asar', 'out', 'cli', 'eclipse-code.mjs')
   await mkdir(resolve(resourcesDir, 'app.asar', 'out', 'cli'), { recursive: true })
   await writeFile(cliPath, '#!/usr/bin/env node\n', 'utf8')
   return cliPath
@@ -120,7 +120,7 @@ describe('cliPathInstaller', () => {
     originalPlatform = process.platform
     originalLocalAppData = process.env.LOCALAPPDATA
     originalPath = process.env.PATH
-    mockRootDir = await mkdtemp(join(tmpdir(), 'opencove-cli-installer-'))
+    mockRootDir = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-installer-'))
     mockHomeDir = resolve(mockRootDir, 'home')
     mockAppPath = resolve(mockRootDir, 'app')
     mockIsPackaged = true
@@ -176,13 +176,13 @@ describe('cliPathInstaller', () => {
 
       expect(status.installed).toBe(true)
       expect(status.healthy).toBe(true)
-      expect(status.path).toBe(resolve(mockHomeDir, '.local', 'bin', 'opencove'))
+      expect(status.path).toBe(resolve(mockHomeDir, '.local', 'bin', 'eclipse-code'))
 
       const wrapper = await readFile(status.path ?? '', 'utf8')
-      expect(wrapper).toContain('# OPENCOVE_WRAPPER_KIND=runtime')
-      expect(wrapper).toContain('# OPENCOVE_INSTALL_OWNER=desktop')
+      expect(wrapper).toContain('# ECLIPSE_CODE_WRAPPER_KIND=runtime')
+      expect(wrapper).toContain('# ECLIPSE_CODE_INSTALL_OWNER=desktop')
       expect(wrapper).toContain(
-        resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'opencove.mjs'),
+        resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'eclipse-code.mjs'),
       )
 
       await expect(resolveCliPathStatus()).resolves.toEqual(status)
@@ -196,7 +196,7 @@ describe('cliPathInstaller', () => {
     'installs, updates, and uninstalls a system launcher on %s inside the fixture',
     async (platform, binDir) => {
       setPlatform(platform)
-      const launcherPath = join(binDir, 'opencove')
+      const launcherPath = join(binDir, 'eclipse-code')
       const fixtureLauncherPath = resolveFixturePath(launcherPath)
       await mkdir(resolveFixturePath(binDir), { recursive: true })
       const { installCliToPath, resolveCliPathStatus, uninstallCliFromPath } =
@@ -208,12 +208,12 @@ describe('cliPathInstaller', () => {
         healthy: true,
       })
       await expect(readFile(fixtureLauncherPath, 'utf8')).resolves.toContain(
-        'OPENCOVE_INSTALL_OWNER=desktop',
+        'ECLIPSE_CODE_INSTALL_OWNER=desktop',
       )
 
       await writeFile(
         fixtureLauncherPath,
-        '# __OPENCOVE_CLI_WRAPPER__\n# OPENCOVE_INSTALL_OWNER=desktop\n',
+        '# __ECLIPSE_CODE_CLI_WRAPPER__\n# ECLIPSE_CODE_INSTALL_OWNER=desktop\n',
       )
       await expect(resolveCliPathStatus()).resolves.toEqual({
         installed: true,
@@ -245,7 +245,7 @@ describe('cliPathInstaller', () => {
       await import('../../../src/app/main/cli/cliPathInstaller')
 
     const installed = await installCliToPath()
-    await unlink(resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'opencove.mjs'))
+    await unlink(resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'eclipse-code.mjs'))
 
     await expect(resolveCliPathStatus()).resolves.toEqual({
       installed: true,
@@ -257,7 +257,7 @@ describe('cliPathInstaller', () => {
   it('installs a Windows cmd launcher and adds the user bin dir to PATH', async () => {
     setPlatform('win32')
     const localAppData = resolve(mockHomeDir, '..', 'LocalAppData')
-    const userBinDir = resolve(localAppData, 'OpenCove', 'bin')
+    const userBinDir = resolve(localAppData, 'Eclipse Code', 'bin')
     process.env.LOCALAPPDATA = localAppData
     process.env.PATH = 'C:\\Windows\\System32'
     execFileMock.mockImplementation((_file, _args, options, callback) => {
@@ -273,12 +273,12 @@ describe('cliPathInstaller', () => {
 
     expect(status.installed).toBe(true)
     expect(status.healthy).toBe(true)
-    expect(status.path).toBe(resolve(userBinDir, 'opencove.cmd'))
+    expect(status.path).toBe(resolve(userBinDir, 'eclipse-code.cmd'))
 
     const wrapper = await readFile(status.path ?? '', 'utf8')
-    expect(wrapper).toContain('rem __OPENCOVE_CLI_WRAPPER__')
-    expect(wrapper).toContain('rem OPENCOVE_INSTALL_OWNER=desktop')
-    expect(wrapper).toContain('rem OPENCOVE_WRAPPER_KIND=runtime')
+    expect(wrapper).toContain('rem __ECLIPSE_CODE_CLI_WRAPPER__')
+    expect(wrapper).toContain('rem ECLIPSE_CODE_INSTALL_OWNER=desktop')
+    expect(wrapper).toContain('rem ECLIPSE_CODE_WRAPPER_KIND=runtime')
     expect(wrapper).toContain('set "ELECTRON_RUN_AS_NODE=1"')
     expect(wrapper).toContain('"%ELECTRON_BIN%" "%CLI_SCRIPT%" %*')
     expect(process.env.PATH).toContain(userBinDir)
@@ -290,9 +290,9 @@ describe('cliPathInstaller', () => {
   it('does not report or uninstall a standalone Windows launcher as Desktop-owned', async () => {
     setPlatform('win32')
     const localAppData = resolve(mockHomeDir, '..', 'LocalAppData')
-    const userBinDir = resolve(localAppData, 'OpenCove', 'bin')
-    const launcherPath = resolve(userBinDir, 'opencove.cmd')
-    const cliPath = resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'opencove.mjs')
+    const userBinDir = resolve(localAppData, 'Eclipse Code', 'bin')
+    const launcherPath = resolve(userBinDir, 'eclipse-code.cmd')
+    const cliPath = resolve(process.resourcesPath, 'app.asar', 'out', 'cli', 'eclipse-code.mjs')
     process.env.LOCALAPPDATA = localAppData
     process.env.PATH = `${userBinDir};C:\\Windows\\System32`
     await mkdir(userBinDir, { recursive: true })
@@ -300,11 +300,11 @@ describe('cliPathInstaller', () => {
       launcherPath,
       [
         '@echo off',
-        'rem __OPENCOVE_CLI_WRAPPER__',
-        'rem OPENCOVE_INSTALL_OWNER=standalone',
-        'rem OPENCOVE_WRAPPER_KIND=runtime',
-        `rem OPENCOVE_ELECTRON_BIN=${process.execPath}`,
-        `rem OPENCOVE_CLI_SCRIPT=${cliPath}`,
+        'rem __ECLIPSE_CODE_CLI_WRAPPER__',
+        'rem ECLIPSE_CODE_INSTALL_OWNER=standalone',
+        'rem ECLIPSE_CODE_WRAPPER_KIND=runtime',
+        `rem ECLIPSE_CODE_ELECTRON_BIN=${process.execPath}`,
+        `rem ECLIPSE_CODE_CLI_SCRIPT=${cliPath}`,
         '',
       ].join('\r\n'),
       'utf8',
@@ -324,7 +324,7 @@ describe('cliPathInstaller', () => {
       healthy: false,
     })
     await expect(readFile(launcherPath, 'utf8')).resolves.toContain(
-      'OPENCOVE_INSTALL_OWNER=standalone',
+      'ECLIPSE_CODE_INSTALL_OWNER=standalone',
     )
   })
   it.each([
@@ -340,18 +340,18 @@ describe('cliPathInstaller', () => {
     process.env.LOCALAPPDATA = mockHomeDir
     const target =
       platform === 'win32'
-        ? join(mockHomeDir, 'OpenCove', 'bin', 'opencove.cmd')
-        : join(mockHomeDir, '.local', 'bin', 'opencove')
-    const legacy = resolve(process.resourcesPath, 'app.asar/src/app/cli/opencove.mjs')
+        ? join(mockHomeDir, 'Eclipse Code', 'bin', 'eclipse-code.cmd')
+        : join(mockHomeDir, '.local', 'bin', 'eclipse-code')
+    const legacy = resolve(process.resourcesPath, 'app.asar/src/app/cli/eclipse-code.mjs')
     const prefix = platform === 'win32' ? 'rem' : '#'
     const wrapper = [
-      `${prefix} __OPENCOVE_CLI_WRAPPER__`,
+      `${prefix} __ECLIPSE_CODE_CLI_WRAPPER__`,
       ...(owner
-        ? [`${prefix} OPENCOVE_INSTALL_OWNER=${owner === 'other-desktop' ? 'desktop' : owner}`]
+        ? [`${prefix} ECLIPSE_CODE_INSTALL_OWNER=${owner === 'other-desktop' ? 'desktop' : owner}`]
         : []),
-      `${prefix} OPENCOVE_WRAPPER_KIND=runtime`,
-      `${prefix} OPENCOVE_ELECTRON_BIN=${owner === 'other-desktop' ? '/other/electron' : process.execPath}`,
-      `${prefix} OPENCOVE_CLI_SCRIPT=${legacy}`,
+      `${prefix} ECLIPSE_CODE_WRAPPER_KIND=runtime`,
+      `${prefix} ECLIPSE_CODE_ELECTRON_BIN=${owner === 'other-desktop' ? '/other/electron' : process.execPath}`,
+      `${prefix} ECLIPSE_CODE_CLI_SCRIPT=${legacy}`,
     ].join('\n')
     await mkdir(resolve(target, '..'), { recursive: true })
     await writeFile(target, wrapper)
@@ -359,7 +359,7 @@ describe('cliPathInstaller', () => {
     await repairLegacyCliLaunchers()
     const actual = await readFile(target, 'utf8')
     if (repaired) {
-      expect(actual).toContain(resolve(process.resourcesPath, 'app.asar/out/cli/opencove.mjs'))
+      expect(actual).toContain(resolve(process.resourcesPath, 'app.asar/out/cli/eclipse-code.mjs'))
       expect(actual).not.toContain(legacy)
       if (platform === 'win32') {
         expect(actual).toContain('%*')
@@ -373,27 +373,27 @@ describe('cliPathInstaller', () => {
     const bin = join(mockHomeDir, '.local/bin')
     const { repairLegacyCliLaunchers } = await import('../../../src/app/main/cli/cliPathInstaller')
     await expect(repairLegacyCliLaunchers()).resolves.toBeUndefined()
-    await expect(readFile(join(bin, 'opencove.lock'), 'utf8')).rejects.toMatchObject({
+    await expect(readFile(join(bin, 'eclipse-code.lock'), 'utf8')).rejects.toMatchObject({
       code: 'ENOENT',
     })
     await mkdir(bin, { recursive: true })
-    await writeFile(join(bin, 'opencove'), '#!/bin/sh\necho user-owned\n')
+    await writeFile(join(bin, 'eclipse-code'), '#!/bin/sh\necho user-owned\n')
     await repairLegacyCliLaunchers()
-    await expect(readFile(join(bin, 'opencove.lock'), 'utf8')).rejects.toMatchObject({
+    await expect(readFile(join(bin, 'eclipse-code.lock'), 'utf8')).rejects.toMatchObject({
       code: 'ENOENT',
     })
-    expect(await readFile(join(bin, 'opencove'), 'utf8')).toBe('#!/bin/sh\necho user-owned\n')
+    expect(await readFile(join(bin, 'eclipse-code'), 'utf8')).toBe('#!/bin/sh\necho user-owned\n')
   })
 
   it('excludes a concurrent publisher between the final ownership read and rename', async () => {
     setPlatform('linux')
-    const target = join(mockHomeDir, '.local/bin/opencove')
-    const legacy = resolve(process.resourcesPath, 'app.asar/src/app/cli/opencove.mjs')
-    const desktop = `# __OPENCOVE_CLI_WRAPPER__
-# OPENCOVE_INSTALL_OWNER=desktop
-# OPENCOVE_ELECTRON_BIN=${process.execPath}
-# OPENCOVE_CLI_SCRIPT=${legacy}`
-    const standalone = '# __OPENCOVE_CLI_WRAPPER__\n# OPENCOVE_INSTALL_OWNER=standalone\n'
+    const target = join(mockHomeDir, '.local/bin/eclipse-code')
+    const legacy = resolve(process.resourcesPath, 'app.asar/src/app/cli/eclipse-code.mjs')
+    const desktop = `# __ECLIPSE_CODE_CLI_WRAPPER__
+# ECLIPSE_CODE_INSTALL_OWNER=desktop
+# ECLIPSE_CODE_ELECTRON_BIN=${process.execPath}
+# ECLIPSE_CODE_CLI_SCRIPT=${legacy}`
+    const standalone = '# __ECLIPSE_CODE_CLI_WRAPPER__\n# ECLIPSE_CODE_INSTALL_OWNER=standalone\n'
     await mkdir(resolve(target, '..'), { recursive: true })
     await writeFile(target, desktop)
     const { repairLegacyCliLaunchers } = await import('../../../src/app/main/cli/cliPathInstaller')
@@ -431,16 +431,16 @@ describe('cliPathInstaller', () => {
     process.env.LOCALAPPDATA = mockHomeDir
     try {
       const cli = await createPackagedCli(resources)
-      const target = join(mockHomeDir, 'OpenCove/bin/opencove.cmd')
+      const target = join(mockHomeDir, 'Eclipse Code/bin/eclipse-code.cmd')
       await mkdir(resolve(target, '..'), { recursive: true })
       const encode = (value: string) => value.replaceAll('%', '%%')
       await writeFile(
         target,
         [
-          'rem __OPENCOVE_CLI_WRAPPER__',
-          ...(owner ? [`rem OPENCOVE_INSTALL_OWNER=${owner}`] : []),
-          `rem OPENCOVE_ELECTRON_BIN=${encode(executable)}`,
-          `rem OPENCOVE_CLI_SCRIPT=${encode(resolve(resources, 'app.asar/src/app/cli/opencove.mjs'))}`,
+          'rem __ECLIPSE_CODE_CLI_WRAPPER__',
+          ...(owner ? [`rem ECLIPSE_CODE_INSTALL_OWNER=${owner}`] : []),
+          `rem ECLIPSE_CODE_ELECTRON_BIN=${encode(executable)}`,
+          `rem ECLIPSE_CODE_CLI_SCRIPT=${encode(resolve(resources, 'app.asar/src/app/cli/eclipse-code.mjs'))}`,
         ].join('\n'),
       )
       const { repairLegacyCliLaunchers, resolveCliPathStatus } =

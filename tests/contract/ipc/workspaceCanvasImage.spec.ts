@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { IPC_CHANNELS } from '../../../src/shared/constants/ipc'
 import { invokeHandledIpc } from './ipcTestUtils'
 
-const userDataDir = '/tmp/opencove-user-data'
+const userDataDir = '/tmp/eclipse-code-user-data'
 
 function createValidAssetId(): string {
   return '5b7f2a2e-7c2f-4d2a-8e8b-2c3a9b7a6f10'

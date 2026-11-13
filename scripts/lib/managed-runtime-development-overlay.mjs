@@ -16,7 +16,7 @@ export async function createManagedRuntimeDevelopmentOverlay({
   if (!['linux', 'macos', 'windows'].includes(platform) || !['x64', 'arm64'].includes(arch)) {
     throw new Error('Invalid target platform.')
   }
-  const bundleName = `opencove-server-${platform}-${arch}`
+  const bundleName = `eclipse-code-server-${platform}-${arch}`
   const assetName = `${bundleName}.${platform === 'windows' ? 'zip' : 'tar.gz'}`
   const checksums = await readFile(join(baseDirectory, 'SHA256SUMS.txt'), 'utf8')
   const expected = checksums
@@ -87,20 +87,20 @@ export async function createManagedRuntimeDevelopmentOverlay({
       await rm(target, { recursive: true, force: true })
       if (path === 'src/app/cli') {
         await mkdir(target, { recursive: true })
-        for (const name of ['opencove.mjs', 'publishRuntime.mjs']) {
+        for (const name of ['eclipse-code.mjs', 'publishRuntime.mjs']) {
           await cp(join(root, path, name), join(target, name))
         }
       } else {
         await cp(join(root, path), target, { recursive: true })
       }
     }
-    const manifestPath = join(staging, bundleName, 'opencove-runtime.env')
+    const manifestPath = join(staging, bundleName, 'eclipse-code-runtime.env')
     const manifest = await readFile(manifestPath, 'utf8')
     await writeFile(
       manifestPath,
       manifest.replace(
-        /^OPENCOVE_CLI_SCRIPT_RELATIVE_PATH=.*$/m,
-        'OPENCOVE_CLI_SCRIPT_RELATIVE_PATH=app/out/cli/opencove.mjs',
+        /^ECLIPSE_CODE_CLI_SCRIPT_RELATIVE_PATH=.*$/m,
+        'ECLIPSE_CODE_CLI_SCRIPT_RELATIVE_PATH=app/out/cli/eclipse-code.mjs',
       ),
     )
     await cp(join(root, 'package.json'), join(app, 'package.json'))

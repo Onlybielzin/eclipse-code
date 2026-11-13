@@ -81,18 +81,18 @@ describe('managedSshEndpointRuntime', () => {
 
   it('builds installer URLs that match stable and nightly release asset names', () => {
     expect(buildInstallerAssetUrl('posix', '0.2.1')).toBe(
-      'https://github.com/DeadWaveWave/opencove/releases/download/v0.2.1/opencove-install-v0.2.1.sh',
+      'https://github.com/Onlybielzin/eclipse-code/releases/download/v0.2.1/eclipse-code-install-v0.2.1.sh',
     )
     expect(buildInstallerAssetUrl('windows', '0.2.1-nightly.20260811.1')).toBe(
-      'https://github.com/DeadWaveWave/opencove/releases/download/v0.2.1-nightly.20260811.1/opencove-install-v0.2.1-nightly.20260811.1.ps1',
+      'https://github.com/Onlybielzin/eclipse-code/releases/download/v0.2.1-nightly.20260811.1/eclipse-code-install-v0.2.1-nightly.20260811.1.ps1',
     )
     expect(buildInstallerAssetUrl('posix', null)).toBe(
-      'https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh',
+      'https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh',
     )
 
-    vi.stubEnv('OPENCOVE_RELEASE_BASE_URL', 'https://releases.example.test/custom')
+    vi.stubEnv('ECLIPSE_CODE_RELEASE_BASE_URL', 'https://releases.example.test/custom')
     expect(buildInstallerAssetUrl('posix', '0.2.1')).toBe(
-      'https://releases.example.test/custom/opencove-install.sh',
+      'https://releases.example.test/custom/eclipse-code-install.sh',
     )
   })
 
@@ -135,11 +135,11 @@ describe('managedSshEndpointRuntime', () => {
   it('requires a build identity before it can prepare a remote runtime', () => {
     const script = buildPosixBootstrapScript(createAccess(), {
       devRepoRoot: null,
-      installerUrl: 'https://example.invalid/opencove-install.sh',
+      installerUrl: 'https://example.invalid/eclipse-code-install.sh',
       reinstallRuntime: false,
     })
 
-    expect(script).toContain('[opencove-bootstrap:build_mismatch]')
+    expect(script).toContain('[eclipse-code-bootstrap:build_mismatch]')
     expect(script).not.toContain('worker start')
   })
 
@@ -147,7 +147,7 @@ describe('managedSshEndpointRuntime', () => {
     const script = buildPosixBootstrapScript(createAccess(), {
       devRepoRoot: null,
       runtimeBuild: runtimeBuildFixture,
-      installerUrl: 'https://example.invalid/opencove-install.sh',
+      installerUrl: 'https://example.invalid/eclipse-code-install.sh',
       reinstallRuntime: false,
     })
 
@@ -162,14 +162,14 @@ describe('managedSshEndpointRuntime', () => {
 
   it('requires a development artifact instead of reusing a historical checkout', () => {
     const script = buildPosixBootstrapScript(createAccess(), {
-      devRepoRoot: '/root/opencove-wsl-deploy',
+      devRepoRoot: '/root/eclipse-code-wsl-deploy',
       runtimeBuild: { ...runtimeBuildFixture, channel: 'dev' },
-      installerUrl: 'https://example.invalid/opencove-install.sh',
+      installerUrl: 'https://example.invalid/eclipse-code-install.sh',
       reinstallRuntime: false,
     })
 
-    expect(script).toContain('OPENCOVE_MANAGED_SSH_ARTIFACT_DIR')
-    expect(script).not.toContain('/root/opencove-wsl-deploy')
+    expect(script).toContain('ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR')
+    expect(script).not.toContain('/root/eclipse-code-wsl-deploy')
     expect(script).not.toContain('exec node out/main/worker.js')
     expect(script).not.toContain('curl -fsSL')
   })

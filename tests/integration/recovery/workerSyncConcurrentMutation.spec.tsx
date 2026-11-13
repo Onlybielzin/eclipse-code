@@ -72,7 +72,7 @@ it.each(['before', 'during', 'during-with-ack', 'after-unmount'] as const)(
       return { ok: true, level: 'full', bytes: 1, revision: 11 }
     })
     let emit!: (event: SyncEventPayload) => void
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         persistence: { readAppState, writeAppState },
@@ -166,7 +166,7 @@ it('applies external settings before acknowledging refresh and publishing geomet
     return { ok: true, level: 'full', bytes: 1, revision: 31 }
   })
   let emit!: (event: SyncEventPayload) => void
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

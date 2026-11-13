@@ -62,11 +62,11 @@ function createElectronHarness({ focused }: { focused: boolean }) {
 afterEach(() => {
   vi.resetModules()
   vi.restoreAllMocks()
-  globalThis.__opencoveSystemNotificationTestState = undefined
+  globalThis.__eclipseCodeSystemNotificationTestState = undefined
 })
 
 describe('system notifications', () => {
-  it('are dropped while an OpenCove window is in the foreground', async () => {
+  it('are dropped while an Eclipse Code window is in the foreground', async () => {
     const { created, show } = createElectronHarness({ focused: true })
     await expect(show({ id: 'n1', title: 'Codex', silent: true })).resolves.toEqual({
       shown: false,
@@ -103,7 +103,7 @@ describe('system notifications', () => {
     const { installSystemNotificationTestHarness } =
       await import('../../../src/contexts/system/presentation/main-ipc/systemNotifications')
     installSystemNotificationTestHarness()
-    const harness = globalThis.__opencoveSystemNotificationTestState!
+    const harness = globalThis.__eclipseCodeSystemNotificationTestState!
 
     harness.foreground = true
     await expect(show({ id: 'n1', title: 'Codex' })).resolves.toEqual({ shown: false })

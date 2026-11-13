@@ -43,25 +43,25 @@ export class ManagedSshBootstrapError extends Error {
 
 export function classifyManagedSshBootstrapFailure(detail: string): ManagedSshBootstrapFailureKind {
   const managedCode =
-    /\[opencove-bootstrap:(credential_mismatch|build_mismatch|runtime_busy|runtime_legacy|recovery_required|client_update_required|channel_conflict|conflicting_build|protocol_mismatch|checksum_failed|platform_unsupported)\]/.exec(
+    /\[eclipse-code-bootstrap:(credential_mismatch|build_mismatch|runtime_busy|runtime_legacy|recovery_required|client_update_required|channel_conflict|conflicting_build|protocol_mismatch|checksum_failed|platform_unsupported)\]/.exec(
       detail,
     )?.[1]
   if (managedCode) {
     return managedCode as ManagedSshBootstrapFailureKind
   }
-  if (detail.includes('[opencove-bootstrap:installer_unavailable]')) {
+  if (detail.includes('[eclipse-code-bootstrap:installer_unavailable]')) {
     return 'installer_unavailable'
   }
 
-  if (detail.includes('[opencove-bootstrap:runtime_corrupt]')) {
+  if (detail.includes('[eclipse-code-bootstrap:runtime_corrupt]')) {
     return 'runtime_corrupt'
   }
 
-  if (detail.includes('[opencove-bootstrap:runtime_unmanaged]')) {
+  if (detail.includes('[eclipse-code-bootstrap:runtime_unmanaged]')) {
     return 'runtime_unmanaged'
   }
 
-  if (detail.includes('[opencove-bootstrap:runtime_start_failed]')) {
+  if (detail.includes('[eclipse-code-bootstrap:runtime_start_failed]')) {
     return 'runtime_start_failed'
   }
 
@@ -72,25 +72,25 @@ function toManagedSshBootstrapError(detail: string): ManagedSshBootstrapError {
   const failureKind = classifyManagedSshBootstrapFailure(detail)
   const actionableDetail = detail
     .split(/\r?\n/)
-    .filter(line => !line.includes('[opencove-bootstrap-progress:'))
+    .filter(line => !line.includes('[eclipse-code-bootstrap-progress:'))
     .join('\n')
-    .replaceAll(/\[opencove-bootstrap:[^\]]+\]\s*/g, '')
+    .replaceAll(/\[eclipse-code-bootstrap:[^\]]+\]\s*/g, '')
     .trim()
   return new ManagedSshBootstrapError(failureKind, actionableDetail || 'Remote bootstrap failed.')
 }
 
 function buildReleaseBaseUrl(version: string | null): string {
-  const override = process.env['OPENCOVE_RELEASE_BASE_URL']?.trim()
+  const override = process.env['ECLIPSE_CODE_RELEASE_BASE_URL']?.trim()
   if (override) {
     return override
   }
 
   const normalizedVersion = version?.trim() ?? ''
   if (normalizedVersion.length === 0) {
-    return 'https://github.com/DeadWaveWave/opencove/releases/latest/download'
+    return 'https://github.com/Onlybielzin/eclipse-code/releases/latest/download'
   }
 
-  return `https://github.com/DeadWaveWave/opencove/releases/download/v${normalizedVersion}`
+  return `https://github.com/Onlybielzin/eclipse-code/releases/download/v${normalizedVersion}`
 }
 
 export function buildInstallerAssetUrl(
@@ -100,15 +100,15 @@ export function buildInstallerAssetUrl(
   const ext = platform === 'windows' ? 'ps1' : 'sh'
   const baseUrl = buildReleaseBaseUrl(version)
   const normalizedVersion = version?.trim() ?? ''
-  if (process.env['OPENCOVE_RELEASE_BASE_URL']?.trim()) {
-    return `${baseUrl}/opencove-install.${ext}`
+  if (process.env['ECLIPSE_CODE_RELEASE_BASE_URL']?.trim()) {
+    return `${baseUrl}/eclipse-code-install.${ext}`
   }
 
   if (normalizedVersion.length === 0) {
-    return `${baseUrl}/opencove-install.${ext}`
+    return `${baseUrl}/eclipse-code-install.${ext}`
   }
 
-  return `${baseUrl}/opencove-install-v${normalizedVersion}.${ext}`
+  return `${baseUrl}/eclipse-code-install-v${normalizedVersion}.${ext}`
 }
 
 async function classifyBootstrapPlatform(
@@ -190,7 +190,7 @@ export async function runManagedSshBootstrap(
       ? resolve(__dirname, '../../release/managed-ssh', runtimeBuild.buildId)
       : null
   const localArtifact =
-    process.env.OPENCOVE_MANAGED_SSH_ARTIFACT_DIR ??
+    process.env.ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR ??
     (cachedDevelopmentArtifact && existsSync(cachedDevelopmentArtifact)
       ? cachedDevelopmentArtifact
       : null)
@@ -220,7 +220,7 @@ export async function runManagedSshBootstrap(
         ? buildWindowsBootstrapScript(access, scriptOptions)
         : buildPosixBootstrapScript(access, {
             ...scriptOptions,
-            devRepoRoot: process.env['OPENCOVE_MANAGED_SSH_DEV_REPO_ROOT'] ?? null,
+            devRepoRoot: process.env['ECLIPSE_CODE_MANAGED_SSH_DEV_REPO_ROOT'] ?? null,
           })
     const remoteCommand =
       remotePlatform === 'windows'

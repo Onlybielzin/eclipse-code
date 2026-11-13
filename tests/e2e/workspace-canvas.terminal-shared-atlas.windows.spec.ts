@@ -58,7 +58,7 @@ test('preserves existing glyph pixels when another WebGL terminal is created and
     await expect
       .poll(() =>
         window.evaluate(() =>
-          window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId('atlas-owner'),
+          window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId('atlas-owner'),
         ),
       )
       .toBeTruthy()
@@ -78,8 +78,10 @@ test('preserves existing glyph pixels when another WebGL terminal is created and
       .poll(() =>
         window.evaluate(
           () =>
-            window.__opencoveTerminalSelectionTestApi?.getBufferText('atlas-owner', 'ATLAS_STATIC')
-              ?.viewportLines[0],
+            window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(
+              'atlas-owner',
+              'ATLAS_STATIC',
+            )?.viewportLines[0],
         ),
       )
       .toBe('ATLAS_STATIC_0123456789')
@@ -87,7 +89,7 @@ test('preserves existing glyph pixels when another WebGL terminal is created and
       .poll(() =>
         window.evaluate(
           () =>
-            window.__opencoveTerminalSelectionTestApi?.getRenderMetrics('atlas-owner')
+            window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics('atlas-owner')
               ?.rendererStructuralKind,
         ),
       )
@@ -123,7 +125,7 @@ test('preserves existing glyph pixels when another WebGL terminal is created and
         .poll(() =>
           window.evaluate(
             id =>
-              window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)
+              window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)
                 ?.rendererStructuralKind,
             siblingId,
           ),

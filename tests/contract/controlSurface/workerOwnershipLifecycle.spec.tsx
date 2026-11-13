@@ -17,14 +17,14 @@ import { createAppError } from '../../../src/shared/errors/appError'
 import { useAppStore } from '../../../src/app/renderer/shell/store/useAppStore'
 import type { PtyStreamHub } from '../../../src/app/main/controlSurface/ptyStream/ptyStreamHub'
 import { invokeBrowserControlSurface } from '../../../src/app/renderer/browser/browserControlSurface'
-import { createBrowserAgentApi } from '../../../src/app/renderer/browser/browserOpenCoveApi.agent'
+import { createBrowserAgentApi } from '../../../src/app/renderer/browser/browserEclipseCodeApi.agent'
 import { toAppErrorDescriptor } from '../../../src/shared/errors/appError'
 
-const originalApi = window.opencoveApi,
+const originalApi = window.eclipseCodeApi,
   originalState = useAppStore.getState()
 afterEach(() => {
   vi.unstubAllGlobals()
-  window.opencoveApi = originalApi
+  window.eclipseCodeApi = originalApi
   useAppStore.setState(originalState, true)
 })
 const actions = ['creation', 'relaunch', 'switch', 'task-reuse', 'cold-prepare'] as const
@@ -137,12 +137,12 @@ it.each(
           try {
             const value = await f.invoke(JSON.parse(String(options?.body)))
             return new Response(
-              JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value }),
+              JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value }),
             )
           } catch (error) {
             return new Response(
               JSON.stringify({
-                __opencoveControlEnvelope: true,
+                __eclipseCodeControlEnvelope: true,
                 ok: false,
                 error: toAppErrorDescriptor(error),
               }),
@@ -150,8 +150,8 @@ it.each(
           }
         }),
       )
-      window.opencoveApi = {
-        ...window.opencoveApi,
+      window.eclipseCodeApi = {
+        ...window.eclipseCodeApi,
         controlSurface: { invoke: invokeBrowserControlSurface },
         agent: createBrowserAgentApi(),
       }
@@ -236,7 +236,7 @@ it.each(
       } else {
         expect(worker.store.activateManagedClaudeRuntime).not.toHaveBeenCalled()
         expect(worker.spawn).not.toHaveBeenCalled()
-        expect(window.opencoveApi.pty.kill).not.toHaveBeenCalled()
+        expect(window.eclipseCodeApi.pty.kill).not.toHaveBeenCalled()
         expect(calls).not.toContain('session.prepareOrRevive')
         expect(taskContext.onSpacesChange).not.toHaveBeenCalled()
         expect(taskContext.onRequestPersistFlush).not.toHaveBeenCalled()

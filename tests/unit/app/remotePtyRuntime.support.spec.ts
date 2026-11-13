@@ -58,7 +58,7 @@ describe('remotePtyRuntime support', () => {
         Promise.resolve(
           new Response(
             JSON.stringify({
-              __opencoveControlEnvelope: true,
+              __eclipseCodeControlEnvelope: true,
               ok: false,
               error: {
                 code: 'terminal.runtime_not_ready',
@@ -85,7 +85,7 @@ describe('remotePtyRuntime support', () => {
         errorMessage: 'generic fallback',
       }),
     ).rejects.toMatchObject({
-      name: 'OpenCoveAppError',
+      name: 'EclipseCodeAppError',
       code: 'terminal.runtime_not_ready',
       message: 'Terminal recovery is still in progress. Please wait a moment and try again.',
       details: {

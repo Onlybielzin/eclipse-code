@@ -23,8 +23,8 @@ it('explains agent identity conflicts in both supported languages', async () => 
 it.each([
   [
     'clientUpgradeRequired',
-    'Update OpenCove and reload this window before controlling this agent.',
-    '请更新 OpenCove 并重新加载此窗口，然后再操作此智能体。',
+    'Update Eclipse Code and reload this window before controlling this agent.',
+    '请更新 Eclipse Code 并重新加载此窗口，然后再操作此智能体。',
   ],
   [
     'workerUpgradeRequired',

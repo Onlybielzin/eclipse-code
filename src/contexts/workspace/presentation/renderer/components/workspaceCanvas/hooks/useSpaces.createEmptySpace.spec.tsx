@@ -23,7 +23,7 @@ const remoteMount: MountDto = {
 }
 
 function setup(invoke = vi.fn().mockResolvedValue({ mounts: [remoteMount] })) {
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
   const spacesRef = { current: [] as WorkspaceSpaceState[] }
   const options: Parameters<typeof useCreateEmptySpace>[0] = {
     workspaceId: 'project',

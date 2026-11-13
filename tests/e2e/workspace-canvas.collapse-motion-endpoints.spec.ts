@@ -127,7 +127,7 @@ test('dirty Document disclosure hands its title back beside the unsaved indicato
 }, testInfo) => {
   const fixture = await createMaterialFixture()
   const { electronApp, window } = await launchApp({
-    env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+    env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
   })
   try {
     const documentNode = fixture.nodes.find(node => node.kind === 'document')!

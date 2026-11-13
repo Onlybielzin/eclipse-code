@@ -54,7 +54,7 @@ export function applySelfDefaults(
   command: Command,
   env: CliIo['env'],
 ) {
-  if (env.OPENCOVE_ENV !== '1') {
+  if (env.ECLIPSE_CODE_ENV !== '1') {
     return
   }
   const hasLocator = locatorKeys.some(key => options[key] !== undefined)
@@ -102,7 +102,7 @@ function match(
         ? candidates.filter(candidate => candidate.id.startsWith(selector))
         : []
   const label = kind[0].toUpperCase() + kind.slice(1)
-  const hint = `Run "opencove ${kind} list" to find available targets.`
+  const hint = `Run "eclipse-code ${kind} list" to find available targets.`
   if (!matches.length) {
     const suggestions = closeNames(
       selector,
@@ -244,7 +244,7 @@ export async function resolveSelectors(
   // Scope names and prefixes to the session project, including commands whose only
   // project flag is a lookup filter. An explicit project always takes precedence.
   const scopeProject = async () => {
-    if (!projectId && io.env.OPENCOVE_ENV === '1') {
+    if (!projectId && io.env.ECLIPSE_CODE_ENV === '1') {
       projectId = await identity.self('project')
     }
     if (!projectId) {
@@ -260,7 +260,7 @@ export async function resolveSelectors(
     if (!explicitProject || explicitSpace) {
       return scopeProject()
     }
-    if (io.env.OPENCOVE_ENV === '1') {
+    if (io.env.ECLIPSE_CODE_ENV === '1') {
       return identity.self('project')
     }
     const caller = await identity.whoami()
@@ -301,8 +301,8 @@ export async function resolveSelectors(
         await requireNodeLineage(invoke)
         const result = (await invoke('node.resolveCallerSelector', {
           selector: '@parent',
-          ...(io.env.OPENCOVE_ENV === '1' && io.env.OPENCOVE_NODE_ID
-            ? { expectedCallerNodeId: io.env.OPENCOVE_NODE_ID }
+          ...(io.env.ECLIPSE_CODE_ENV === '1' && io.env.ECLIPSE_CODE_NODE_ID
+            ? { expectedCallerNodeId: io.env.ECLIPSE_CODE_NODE_ID }
             : {}),
         })) as { id: string }
         if (explicitProject && isTarget) {
@@ -393,7 +393,7 @@ export async function resolveSelectors(
               'node.not_found',
               1,
               `Node ${JSON.stringify(id)} was not found in the selected space ${JSON.stringify(o.space)}`,
-              'Run "opencove node list --space <selector>" to find available targets.',
+              'Run "eclipse-code node list --space <selector>" to find available targets.',
             )
           }
           if (target.spaceId !== o.space) {

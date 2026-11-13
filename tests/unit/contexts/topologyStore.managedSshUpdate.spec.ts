@@ -7,7 +7,7 @@ import { createWorkerTopologyStore } from '../../../src/app/main/controlSurface/
 const tempPaths: string[] = []
 
 async function createSubject() {
-  const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-update-'))
+  const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-update-'))
   tempPaths.push(userDataPath)
   const disposeManagedSshEndpointRuntime = vi.fn(async () => undefined)
   return {
@@ -91,7 +91,7 @@ describe('WorkerTopologyStore managed SSH update', () => {
   })
 
   it('preserves a mount created while the previous tunnel is being disposed', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-update-race-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-update-race-'))
     tempPaths.push(userDataPath)
     let markDisposeStarted: () => void = () => undefined
     let releaseDispose: () => void = () => undefined
@@ -140,7 +140,7 @@ describe('WorkerTopologyStore managed SSH update', () => {
   })
 
   it('fails cleanly when the endpoint is removed during runtime disposal', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-update-removed-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-update-removed-'))
     tempPaths.push(userDataPath)
     let markDisposeStarted: () => void = () => undefined
     let releaseDispose: () => void = () => undefined
@@ -206,7 +206,7 @@ describe('WorkerTopologyStore managed SSH update', () => {
   })
 
   it('leaves the durable topology unchanged when old-tunnel disposal fails', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-update-dispose-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-update-dispose-'))
     tempPaths.push(userDataPath)
     const store = createWorkerTopologyStore({
       userDataPath,

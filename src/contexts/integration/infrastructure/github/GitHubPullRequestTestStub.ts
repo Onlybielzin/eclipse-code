@@ -4,7 +4,7 @@ import { isTruthyEnv } from './githubIntegration.shared'
 
 export function shouldUseTestStub(): boolean {
   return (
-    process.env.NODE_ENV === 'test' && isTruthyEnv(process.env.OPENCOVE_TEST_GITHUB_INTEGRATION)
+    process.env.NODE_ENV === 'test' && isTruthyEnv(process.env.ECLIPSE_CODE_TEST_GITHUB_INTEGRATION)
   )
 }
 

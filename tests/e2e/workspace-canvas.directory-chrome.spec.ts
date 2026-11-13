@@ -212,7 +212,7 @@ for (const theme of ['dark', 'light'] as const) {
     }, testInfo) => {
       const fixture = await createFilesystemNodeFixture()
       const { electronApp, window } = await launchApp({
-        env: { OPENCOVE_TEST_WORKSPACE: fixture.root },
+        env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.root },
       })
       try {
         await seedFilesystemWorkspace(window, fixture.root, theme)

@@ -18,7 +18,7 @@ test.describe('Primary Sidebar Project Preview', () => {
           workspaces: [
             {
               id: activeId,
-              name: 'OpenCove',
+              name: 'Eclipse Code',
               path: testWorkspacePath,
               nodes: [
                 createRailAgent(

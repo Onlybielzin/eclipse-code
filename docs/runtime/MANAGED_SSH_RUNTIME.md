@@ -40,7 +40,7 @@ It never removes a runtime that a Worker might still reference. Launchers pin th
 directory so lazy imports and PTY children cannot move to a newer version mid-session.
 
 Managed launchers live under the deployment state directory, separately from an administrator's
-global `opencove` command. Shared immutable artifacts do not imply shared profiles or credentials.
+global `eclipse-code` command. Shared immutable artifacts do not imply shared profiles or credentials.
 Public launchers are replaced atomically after verification. Installation does not require a Windows
 symlink or administrator privileges.
 If the remote host cannot download a pinned release, the connecting host downloads that same archive,
@@ -80,9 +80,9 @@ not claim the remote transaction was cancelled; the next explicit prepare reconc
 
 Build a native standalone bundle on the target platform with `pnpm build:managed-ssh`. It writes the
 archive, checksums and installers into `release/managed-ssh/<buildId>`. Development Desktop discovers
-that exact directory. Set `OPENCOVE_MANAGED_SSH_ARTIFACT_DIR` to explicitly choose another artifact
+that exact directory. Set `ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR` to explicitly choose another artifact
 directory. A missing or different build reports setup requirements and never falls back to historical
-`~/opencove` or `~/opencove-wsl-deploy` files.
+`~/eclipse-code` or `~/eclipse-code-wsl-deploy` files.
 
 For cross-platform JS development with unchanged dependencies, a checksummed matching standalone
 distribution can supply the target native runtime:
@@ -96,7 +96,7 @@ Node/native files, replaces current built application/CLI files, and creates a n
 It never copies Windows `node_modules` into Linux. The remote installer still performs native checks
 before publication. A dependency mismatch requires a new native target build.
 On Windows, Unix overlays use WSL to preserve executable modes from the original distribution.
-Set `OPENCOVE_WSL_DISTRIBUTION` when the required distribution is not the default one.
+Set `ECLIPSE_CODE_WSL_DISTRIBUTION` when the required distribution is not the default one.
 
 ## Verification
 
@@ -105,10 +105,10 @@ Native contracts exercise OS-backed locks, committed WAL snapshots and strict sc
 Bootstrap integration tests execute generated POSIX/PowerShell scripts with isolated CLI fixtures;
 they are not substitutes for actual archive installation and Worker/session smoke tests. Release
 verification must run the bundled Node with SQLite and PTY on each supported target platform.
-For an explicitly selected SSH test host, set `OPENCOVE_TEST_MANAGED_SSH_HOST` and
-`OPENCOVE_MANAGED_SSH_ARTIFACT_DIR`, then run
+For an explicitly selected SSH test host, set `ECLIPSE_CODE_TEST_MANAGED_SSH_HOST` and
+`ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR`, then run
 `pnpm exec vitest run tests/integration/topology/managedRuntime.ssh.spec.ts`. The test creates a unique
 deployment, exercises directory access, PTY output, maintenance refusal while busy and instance reuse,
 then gracefully stops only that test deployment.
 
-The CLI entry is `app/out/cli/opencove.mjs` in a standalone bundle. Development overlays refresh `out`, plugin documentation, the compatibility shim and independent publisher, and the manifest CLI path together. Build with `pnpm build` before creating an overlay. The legacy `app/src/app/cli/opencove.mjs` remains a shim for one release.
+The CLI entry is `app/out/cli/eclipse-code.mjs` in a standalone bundle. Development overlays refresh `out`, plugin documentation, the compatibility shim and independent publisher, and the manifest CLI path together. Build with `pnpm build` before creating an overlay. The legacy `app/src/app/cli/eclipse-code.mjs` remains a shim for one release.

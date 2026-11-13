@@ -2,7 +2,7 @@
 
 Use the same `host` object from backend `activate({ host })` and browser `api.host`.
 A window is not required for backend commands. Preview host access is rejected.
-These methods use OpenCove's node/session owners; they are not an unrestricted
+These methods use Eclipse Code's node/session owners; they are not an unrestricted
 control-surface bridge. Node.js permissions remain unchanged.
 
 ## Addressing and ownership

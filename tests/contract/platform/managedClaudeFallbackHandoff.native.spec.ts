@@ -33,7 +33,7 @@ vi.mock('../../../src/platform/terminal/TerminalProfileResolver', () => ({
 describeWithElectronNativeModules('managed Claude rejected fallback handoff', () => {
   let root: string, f: SnapshotFixture
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-fallback-handoff-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-fallback-handoff-'))
   })
   afterEach(async () => {
     f?.dispose()

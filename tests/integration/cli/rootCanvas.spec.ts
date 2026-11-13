@@ -22,9 +22,9 @@ import {
 } from '../../contract/controlSurface/controlSurfaceHttpServer.sessionStreaming.testUtils'
 
 it('joins CLI target selection to Worker membership, placement and persistence without a socket', async () => {
-  const originalApi = window.opencoveApi
+  const originalApi = window.eclipseCodeApi
   installMockStorage()
-  const root = await mkdtemp(join(tmpdir(), 'opencove-root-integration-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-root-integration-'))
   try {
     const store = createInMemoryPersistenceStore()
     const initial = createMinimalState(root, 'project', 'space')
@@ -52,7 +52,7 @@ it('joins CLI target selection to Worker membership, placement and persistence w
     const caller = (seed.value as CreateNodeResult).node.id
     const published = (await store.readAppState()) as PersistedAppState
     published.workspaces[0].viewport = { x: -8000, y: -6000, zoom: 2 }
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         persistence: {
@@ -90,12 +90,12 @@ it('joins CLI target selection to Worker membership, placement and persistence w
         },
       },
       env: {
-        OPENCOVE_ENV: '1',
-        OPENCOVE_PROJECT_ID: 'project',
-        OPENCOVE_SPACE_ID: 'space',
-        OPENCOVE_NODE_ID: caller,
-        OPENCOVE_CONTROL_URL: 'http://in-memory',
-        OPENCOVE_CONTROL_TOKEN: 'fixture',
+        ECLIPSE_CODE_ENV: '1',
+        ECLIPSE_CODE_PROJECT_ID: 'project',
+        ECLIPSE_CODE_SPACE_ID: 'space',
+        ECLIPSE_CODE_NODE_ID: caller,
+        ECLIPSE_CODE_CONTROL_URL: 'http://in-memory',
+        ECLIPSE_CODE_CONTROL_TOKEN: 'fixture',
       },
       fetch: async (_url, init) =>
         new Response(JSON.stringify(await surface.invoke(ctx, JSON.parse(String(init?.body))))),
@@ -145,7 +145,7 @@ it('joins CLI target selection to Worker membership, placement and persistence w
     const persisted = (await store.readAppState()) as NodeControlAppState
     expect(persisted.workspaces[0].spaces[0].nodeIds).toEqual([inSpace.node.id])
   } finally {
-    Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+    Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
     await rm(root, { recursive: true, force: true })
   }
 })

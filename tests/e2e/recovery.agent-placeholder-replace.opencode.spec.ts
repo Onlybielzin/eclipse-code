@@ -12,7 +12,7 @@ const OPENCODE_DISCOVERY_TIMEOUT_MS = 45_000
 
 async function readWorkspaceStateRaw(window: Page): Promise<unknown | null> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -80,12 +80,12 @@ async function readRestoredTerminalGeometry(
   return await window.evaluate(
     async payload => {
       const terminalSize =
-        window.__opencoveTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
+        window.__eclipseCodeTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
       const metrics =
-        window.__opencoveTerminalSelectionTestApi?.getRenderMetrics?.(payload.nodeId) ?? null
+        window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics?.(payload.nodeId) ?? null
       const snapshot =
-        typeof window.opencoveApi.pty.presentationSnapshot === 'function'
-          ? await window.opencoveApi.pty
+        typeof window.eclipseCodeApi.pty.presentationSnapshot === 'function'
+          ? await window.eclipseCodeApi.pty
               .presentationSnapshot({ sessionId: payload.sessionId })
               .catch(() => null)
           : null
@@ -179,8 +179,8 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'opencode-idle-with-message',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'opencode-idle-with-message',
         },
       })
 
@@ -273,8 +273,10 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
 
         const snapshot = await window.evaluate(
           async payload => {
-            const result = await window.opencoveApi.pty.snapshot({ sessionId: payload.sessionId })
-            await window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback({
+            const result = await window.eclipseCodeApi.pty.snapshot({
+              sessionId: payload.sessionId,
+            })
+            await window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback({
               nodeId: payload.nodeId,
               scrollback: result.data,
             })
@@ -283,7 +285,7 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
           { nodeId: agentInfo.linkedAgentNodeId, sessionId: agentInfo.sessionId },
         )
 
-        expect(snapshot).toContain('[opencove-test-agent] opencode new')
+        expect(snapshot).toContain('[eclipse-code-test-agent] opencode new')
       } finally {
         await electronApp.close()
       }
@@ -293,8 +295,8 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'opencode-idle-with-message',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'opencode-idle-with-message',
         },
       })
 
@@ -303,7 +305,7 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
         await expect(restartedWindow.locator('.terminal-node')).toHaveCount(1, { timeout: 30_000 })
 
         const terminalNode = restartedWindow.locator('.terminal-node').first()
-        await expect(terminalNode).toContainText('[opencove-test-agent] opencode resume', {
+        await expect(terminalNode).toContainText('[eclipse-code-test-agent] opencode resume', {
           timeout: 20_000,
         })
 
@@ -315,7 +317,7 @@ test.describe('Recovery - Agent placeholder replacement (OpenCode)', () => {
             },
             { timeout: 10_000 },
           )
-          .not.toContain('[opencove-test-agent] opencode new')
+          .not.toContain('[eclipse-code-test-agent] opencode new')
 
         if (initialAgentNodeId) {
           const hydratedInfo = await readTaskLinkedAgentInfo(restartedWindow)

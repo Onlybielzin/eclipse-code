@@ -1,6 +1,6 @@
 # Plugin commands, windows and skills
 
-Use `opencove plugin list` and `opencove plugin details <id>` to discover each
+Use `eclipse-code plugin list` and `eclipse-code plugin details <id>` to discover each
 installation's `commands` and `skills`. Their declarations come from the active
 immutable package, so editing the source has no effect until a successful reload.
 There are no dynamically registered top-level CLI commands.
@@ -75,7 +75,7 @@ CLI backend commands receive `pluginId` in `commandContext`; host-menu invocatio
 can also supply a validated explicit selection, documented in
 [Host extensions](./HOST_EXTENSIONS.md). Use activation's `dataDirectory` for
 private data. Neither the caller's working directory nor an active project is
-inferred. `opencove plugin run <id> status` works without a connected Desktop or
+inferred. `eclipse-code plugin run <id> status` works without a connected Desktop or
 Web UI, provided the Worker is running and the plugin is enabled and healthy.
 Plugin-target commands reject node, view and project selectors.
 
@@ -87,7 +87,7 @@ your own view. It is not the CLI entry and is not exposed by inventing a view le
 Register a single handler in the actual page:
 
 ```js
-const api = window.opencovePlugin
+const api = window.eclipseCodePlugin
 const context = await api.ready
 const unsubscribe = api.onCommand(async (commandId, params) => {
   if (commandId !== 'select') throw new Error(`Unknown command: ${commandId}`)
@@ -130,10 +130,10 @@ If conflicting singleton nodes already exist, the host reports the conflict rath
 than silently deleting or selecting one.
 
 ```sh
-opencove plugin open <id> --project <project-id>
-opencove plugin windows <id>
-opencove plugin run <id> select --node <node-id> --params '{"itemId":"example"}'
-opencove plugin run <id> select --node <node-id> --view <view-id> --params '{"itemId":"example"}'
+eclipse-code plugin open <id> --project <project-id>
+eclipse-code plugin windows <id>
+eclipse-code plugin run <id> select --node <node-id> --params '{"itemId":"example"}'
+eclipse-code plugin run <id> select --node <node-id> --view <view-id> --params '{"itemId":"example"}'
 ```
 
 `open` accepts `--project` and `--space` for placement, or `--node` to select an
@@ -207,7 +207,7 @@ side effects or incompatible migrations on the shared private data directory.
 ## Skills
 
 ```sh
-opencove plugin skill <id> plugin-workflow
+eclipse-code plugin skill <id> plugin-workflow
 ```
 
 The query returns `{ pluginId, skill, content, path, installPrompt }`. `skill.path`
@@ -219,7 +219,7 @@ The file must exist at installation and end with `SKILL.md`. Author it using the
 [Agent Skills format](https://agentskills.io/specification): YAML frontmatter with
 `name` and `description`, followed by Markdown instructions. Keep the skill's name
 consistent with its containing directory; retain any referenced resources beside
-it. OpenCove uses manifest metadata for discovery and preserves the skill body.
+it. Eclipse Code uses manifest metadata for discovery and preserves the skill body.
 
 Reading a skill works for disabled installations and does not start a special
 backend, execute its instructions, or modify agent configuration. `installPrompt`
@@ -230,24 +230,24 @@ There is no implicit global or project skill installation.
 ### Required operational instructions for Skill authors
 
 A contributed Skill must guide an agent through the complete workflow, including
-when its intended OpenCove instance is stopped. Include these instructions in
+when its intended Eclipse Code instance is stopped. Include these instructions in
 `SKILL.md`, with the plugin's actual commands and readback checks:
 
 1. **Keep the intended runtime identity.** Identify the user's existing Worker
    profile or explicit remote endpoint before operating. Keep that selection on
-   every command: `OPENCOVE_USER_DATA_DIR` restricts regular CLI discovery to a
+   every command: `ECLIPSE_CODE_USER_DATA_DIR` restricts regular CLI discovery to a
    known local profile; local lifecycle commands also take `--user-data`. Do not
    silently select another running instance, create a fresh profile, or reinstall
    the plugin elsewhere when the intended instance is unavailable.
-2. **Recover that same instance through public tools.** Consult `opencove --help`
-   and this build's offline `opencove plugin guide`. For a known local profile,
-   inspect `opencove worker status --user-data <profile> --pretty`; if stopped,
+2. **Recover that same instance through public tools.** Consult `eclipse-code --help`
+   and this build's offline `eclipse-code plugin guide`. For a known local profile,
+   inspect `eclipse-code worker status --user-data <profile> --pretty`; if stopped,
    help start or reopen that same runtime using the documented CLI/launcher and
    its existing configuration. Verify its status and installed plugin again.
    For an unavailable remote Worker, help restore its connection instead of
    launching a local replacement. If the intended profile, endpoint or startup
    settings are unknown, resolve that uncertainty before starting anything.
-3. **Discover an explicit project before creation.** Run `opencove project list
+3. **Discover an explicit project before creation.** Run `eclipse-code project list
    --pretty` on the selected runtime. Match a returned project ID to the user's
    request, resolving ambiguous names with the user. Every new plugin window
    requires `--project`, even with one project. A client's visible/active project

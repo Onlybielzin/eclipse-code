@@ -7,7 +7,7 @@ it.each(['prompt', 'wait', 'read'])(
   action => {
     const description = commands.find(c => c.path.join(' ') === `agent ${action}`)!.description!
     expect(description.split(/\s+/).length).toBeLessThan(250)
-    expect(description).toContain('opencove skill')
+    expect(description).toContain('eclipse-code skill')
     expect(description).toMatch(/never resend/i)
     expect(description).toContain('Exit codes:')
   },

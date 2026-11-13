@@ -13,7 +13,7 @@ beforeEach(async () => {
     dirty: true,
     history: [{ revision: 'previous-revision', version: '0.9.0' }],
   })
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
   vi.spyOn(registry, 'changeInstalledPlugin').mockResolvedValue({ status: 'updated' })
 })
 afterEach(() => {
@@ -105,7 +105,7 @@ describe('plugin source actions', () => {
       ],
     })
     const clipboard = vi.fn().mockResolvedValue(undefined)
-    vi.stubGlobal('opencoveApi', {
+    vi.stubGlobal('eclipseCodeApi', {
       controlSurface: { invoke },
       clipboard: { writeText: clipboard },
     })

@@ -15,7 +15,7 @@ describeWithElectronNativeModules('client persistence SQLite wire contracts', ()
   it.each(['web', 'remote'] as const)(
     'reads canonical SQLite nulls after an unchanged %s write',
     async adapter => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-client-wire-')),
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-client-wire-')),
         store = await createPersistenceStore({
           dbPath: join(root, 'state.db'),
           strictRecovery: true,
@@ -46,7 +46,7 @@ describeWithElectronNativeModules('client persistence SQLite wire contracts', ()
   it.each(['web', 'remote'] as const)(
     'recognizes authoritative %s rejections and then writes valid state',
     async adapter => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-adapter-rejection-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-adapter-rejection-'))
       const store = await createPersistenceStore({
         dbPath: join(root, 'state.db'),
         strictRecovery: true,
@@ -74,7 +74,7 @@ describeWithElectronNativeModules('client persistence SQLite wire contracts', ()
     },
   )
   it('preserves SQLite validation rejection envelopes for local and raw consumers', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-rejection-wire-')),
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-rejection-wire-')),
       store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
     try {
       for (const result of [

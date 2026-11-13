@@ -12,7 +12,7 @@ vi.mock('./PluginIcon', () => ({ PluginIcon: () => <span /> }))
 vi.mock('@app/renderer/i18n', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 beforeEach(() => {
   mocks.invoke.mockReset()
-  window.opencoveApi = { controlSurface: { invoke: mocks.invoke } } as never
+  window.eclipseCodeApi = { controlSurface: { invoke: mocks.invoke } } as never
   mocks.plugins = [
     {
       id: 'p',

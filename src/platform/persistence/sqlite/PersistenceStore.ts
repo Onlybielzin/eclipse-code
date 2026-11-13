@@ -11,6 +11,8 @@ import {
 } from '../../../contexts/workspace/infrastructure/nodeLineage/SqliteNodeLineageRepository'
 import type { NodeLineageRecord } from '../../../contexts/workspace/domain/nodeLineage'
 import type { NodeLineageRepository } from '../../../contexts/workspace/application/nodeLineage/NodeLineageRepository'
+import { createSqliteTaskDecisionLog } from '../../../contexts/workspace/infrastructure/taskDecisions/SqliteTaskDecisionLog'
+import type { TaskDecisionLog } from '../../../contexts/workspace/application/canvasCards/canvasCardUseCases'
 import { mkdir } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import Database from 'better-sqlite3'
@@ -26,7 +28,7 @@ import { writeNormalizedAppState, writeNormalizedScrollbacks } from './write'
 import {
   createAppError,
   createAppErrorDescriptor,
-  OpenCoveAppError,
+  EclipseCodeAppError,
 } from '../../../shared/errors/appError'
 import { PersistenceRevisionConflict } from './revisionConflict'
 import type { ManagedClaudeResumeBindingStore } from '../../../shared/contracts/managedClaudeResumeBinding'
@@ -48,6 +50,7 @@ export interface PersistenceStore {
   activateManagedClaudeRuntime?: ManagedClaudeResumeBindingStore['activateManagedClaudeRuntime']
   onAppStateCommitted?: (listener: (event: AppStateCommittedObservation) => void) => () => void
   nodeLineage?: NodeLineageRepository
+  taskDecisions?: TaskDecisionLog
   commitCreatedNodeState?: (
     state: unknown,
     options: { expectedRevision: number; lineage: NodeLineageRecord },
@@ -246,7 +249,7 @@ export async function createPersistenceStore(storeOptions: {
       return { ok: true, level: 'full', bytes: rawBytes, ...result }
     } catch (error) {
       if (
-        error instanceof OpenCoveAppError &&
+        error instanceof EclipseCodeAppError &&
         error.code === 'persistence.owned_node_identity_conflict'
       ) {
         return { ok: false, reason: 'unknown', error: error.toDescriptor() }
@@ -302,14 +305,14 @@ export async function createPersistenceStore(storeOptions: {
       return { ok: true, level: 'full', bytes, ...result }
     } catch (error) {
       if (
-        error instanceof OpenCoveAppError &&
+        error instanceof EclipseCodeAppError &&
         error.code === 'persistence.owned_node_identity_conflict'
       ) {
         return { ok: false, reason: 'unknown', error: error.toDescriptor() }
       }
       if (
         error instanceof PersistenceRevisionConflict ||
-        (error instanceof OpenCoveAppError && error.code === 'persistence.invalid_state')
+        (error instanceof EclipseCodeAppError && error.code === 'persistence.invalid_state')
       ) {
         return invalidStateResult(error.message)
       }
@@ -334,6 +337,7 @@ export async function createPersistenceStore(storeOptions: {
 
   return {
     nodeLineage: createSqliteNodeLineageRepository(sqlite),
+    taskDecisions: createSqliteTaskDecisionLog(sqlite),
     commitCreatedNodeState: atCleanBoundary((state, options) =>
       persistAppState(state, { expectedRevision: options.expectedRevision }, options.lineage),
     ),

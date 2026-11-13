@@ -258,7 +258,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
 
       const beforeViewport = await readCanvasViewport(window)
       const beforeTerminalViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'trackpad-canvas-owner-persists-node-hover')
 
       await window.mouse.wheel(18, 0)
@@ -272,7 +272,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
         .toBeGreaterThan(8)
 
       const afterTerminalViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'trackpad-canvas-owner-persists-node-hover')
       expect(beforeTerminalViewportY).not.toBeNull()
       expect(afterTerminalViewportY).toBe(beforeTerminalViewportY)
@@ -338,7 +338,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
       await window.waitForTimeout(280)
       await expect(canvas).toHaveAttribute('data-cove-wheel-gesture-capture-active', 'false')
       const beforeViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'trackpad-terminal-scroll-after-pan')
 
       await terminal.hover()
@@ -346,7 +346,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
       await window.waitForTimeout(120)
 
       const afterViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'trackpad-terminal-scroll-after-pan')
       expect(beforeViewportY).not.toBeNull()
       expect(afterViewportY).not.toBeNull()
@@ -394,7 +394,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
       await window.keyboard.press('Enter')
       await expect(terminal).toContainText('AUTO_WHEEL_SCROLL_260')
       const beforeViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'auto-terminal-wheel-scroll-node')
 
       await terminal.hover()
@@ -402,7 +402,7 @@ test.describe('Workspace Canvas - Trackpad Gestures', () => {
       await window.waitForTimeout(120)
 
       const afterViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'auto-terminal-wheel-scroll-node')
       expect(beforeViewportY).not.toBeNull()
       expect(afterViewportY).not.toBeNull()

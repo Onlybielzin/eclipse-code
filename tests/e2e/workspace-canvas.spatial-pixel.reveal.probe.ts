@@ -31,7 +31,7 @@ interface RevealProbe {
 }
 type ProbeWindow = Window & {
   __pixelRevealProbe?: RevealProbe
-  __opencoveTerminalSelectionTestApi?: {
+  __eclipseCodeTerminalSelectionTestApi?: {
     getRenderMetrics: (nodeId: string) => TerminalRenderMetricsTestProjection | null
   }
 }
@@ -63,7 +63,7 @@ export async function installRevealCapture(electronApp: ElectronApplication): Pr
     const registry = globalThis as unknown as { __pixelRevealCaptures: RevealCapture[] }
     registry.__pixelRevealCaptures = []
     target.webContents.on('console-message', details => {
-      const prefix = 'OPENCOVE_PIXEL_REVEAL_CAPTURE:'
+      const prefix = 'ECLIPSE_CODE_PIXEL_REVEAL_CAPTURE:'
       if (!details.message.startsWith(prefix)) {
         return
       }
@@ -178,7 +178,7 @@ export async function installRevealProbe(page: Page, capture = false): Promise<v
       const parsed = Number.parseFloat(style.getPropertyValue('--cove-pixel-reveal-front'))
       const terminal = node.querySelector<HTMLElement>('.terminal-node__terminal')
       const metrics = terminal
-        ? host.__opencoveTerminalSelectionTestApi?.getRenderMetrics(node.dataset.id ?? '')
+        ? host.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(node.dataset.id ?? '')
         : null
       const surfaceReady =
         !!metrics &&
@@ -222,7 +222,7 @@ export async function installRevealProbe(page: Page, capture = false): Promise<v
       marker.style.top = `${point.y - 7}px`
       // eslint-disable-next-line no-console
       console.info(
-        `OPENCOVE_PIXEL_REVEAL_CAPTURE:${JSON.stringify({
+        `ECLIPSE_CODE_PIXEL_REVEAL_CAPTURE:${JSON.stringify({
           id: node.dataset.id,
           phase,
           front: value.front,
@@ -315,14 +315,14 @@ export async function installRevealProbe(page: Page, capture = false): Promise<v
     }
     const observer = new MutationObserver(discover)
     observer.observe(document, { childList: true, subtree: true })
-    window.addEventListener('opencove-workspace-node-creation-prepared', onPrepared)
+    window.addEventListener('eclipse-code-workspace-node-creation-prepared', onPrepared)
     window.addEventListener('pointerdown', onPointer, true)
     probe.dispose = () => {
       disposed = true
       cancelAnimationFrame(raf)
       observer.disconnect()
       marker.remove()
-      window.removeEventListener('opencove-workspace-node-creation-prepared', onPrepared)
+      window.removeEventListener('eclipse-code-workspace-node-creation-prepared', onPrepared)
       window.removeEventListener('pointerdown', onPointer, true)
     }
   }, capture)

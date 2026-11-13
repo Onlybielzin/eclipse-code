@@ -14,7 +14,7 @@ it.each(['application-error', 'serialized-descriptor'] as const)(
       async (
         input: Parameters<ControlSurfacePtyRuntime['spawnSession']>[0],
       ): Promise<{ sessionId: string }> => {
-        token = input.env!.OPENCOVE_CONTROL_TOKEN!
+        token = input.env!.ECLIPSE_CODE_CONTROL_TOKEN!
         const descriptor = {
           code: 'common.unavailable' as const,
           details: { reason: 'native_wsl_worker_required', payload: input.env },

@@ -35,7 +35,7 @@ import {
 
 export const PTY_STREAM_PROTOCOL_VERSION = 1 as const
 export const PTY_STREAM_WS_PATH = '/pty'
-export const PTY_STREAM_WS_SUBPROTOCOL = 'opencove-pty.v1'
+export const PTY_STREAM_WS_SUBPROTOCOL = 'eclipse-code-pty.v1'
 
 function normalizeSessionId(value: unknown): string | null {
   const sessionId = normalizeOptionalString(value)
@@ -105,14 +105,14 @@ export function createPtyStreamService(options: {
         .then(result => {
           if (result.status === 'degraded') {
             process.stderr.write(
-              `[opencove] terminal recovery exit retire degraded for ${sessionId}: ${JSON.stringify(result.failures)}\n`,
+              `[eclipse-code] terminal recovery exit retire degraded for ${sessionId}: ${JSON.stringify(result.failures)}\n`,
             )
           }
         })
         .catch(error => {
           const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
           process.stderr.write(
-            `[opencove] terminal recovery exit retire failed for ${sessionId}: ${detail}\n`,
+            `[eclipse-code] terminal recovery exit retire failed for ${sessionId}: ${detail}\n`,
           )
         })
     }

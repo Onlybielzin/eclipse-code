@@ -27,7 +27,7 @@ async function seedZoomedWorkspace(
 ) {
   const result = await window.evaluate(
     async ({ seededWorkspaceId, seededNodeId, workspacePath, compensationEnabled, reference }) => {
-      return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+      return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
         raw: JSON.stringify({
           formatVersion: 1,
           activeWorkspaceId: seededWorkspaceId,
@@ -36,7 +36,7 @@ async function seedZoomedWorkspace(
               id: seededWorkspaceId,
               name: 'terminal display reference',
               path: workspacePath,
-              worktreesRoot: `${workspacePath}/.opencove/worktrees`,
+              worktreesRoot: `${workspacePath}/.eclipse-code/worktrees`,
               pullRequestBaseBranchOptions: [],
               environmentVariables: {},
               spaceArchiveRecords: [],
@@ -104,7 +104,7 @@ async function readPersistedTerminalDisplayReference(
   window: Awaited<ReturnType<typeof launchApp>>['window'],
 ): Promise<PersistedTerminalDisplayReference> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -275,7 +275,7 @@ test.describe('Settings - Terminal Display Calibration', () => {
         .not.toBeNull()
       expect(
         await window.evaluate(() =>
-          window.localStorage.getItem('opencove:terminal-display-calibration:v1'),
+          window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
         ),
       ).toBeNull()
 
@@ -292,11 +292,11 @@ test.describe('Settings - Terminal Display Calibration', () => {
         if (element) {
           element.dataset['calibrationIdentity'] = 'same-terminal'
         }
-        window.__opencoveTerminalSelectionTestApi?.scrollToLine(id, 3)
-        window.__opencoveTerminalSelectionTestApi?.selectAll(id)
+        window.__eclipseCodeTerminalSelectionTestApi?.scrollToLine(id, 3)
+        window.__eclipseCodeTerminalSelectionTestApi?.selectAll(id)
       }, nodeId)
       const before = await window.evaluate(id => {
-        const api = window.__opencoveTerminalSelectionTestApi
+        const api = window.__eclipseCodeTerminalSelectionTestApi
         const buffer = api?.getBufferText(id, 'CALIBRATION_HISTORY') ?? null
         return {
           timeOrigin: performance.timeOrigin,
@@ -335,7 +335,9 @@ test.describe('Settings - Terminal Display Calibration', () => {
         .poll(
           async () => {
             calibration = await window.evaluate(() => {
-              const raw = window.localStorage.getItem('opencove:terminal-display-calibration:v1')
+              const raw = window.localStorage.getItem(
+                'eclipse-code:terminal-display-calibration:v1',
+              )
               return raw ? JSON.parse(raw) : null
             })
             return calibration
@@ -346,7 +348,7 @@ test.describe('Settings - Terminal Display Calibration', () => {
       await window.locator('[data-testid="settings-panel-close"]').click()
 
       const after = await window.evaluate(id => {
-        const api = window.__opencoveTerminalSelectionTestApi
+        const api = window.__eclipseCodeTerminalSelectionTestApi
         const buffer = api?.getBufferText(id, 'CALIBRATION_HISTORY') ?? null
         return {
           timeOrigin: performance.timeOrigin,
@@ -381,7 +383,7 @@ test.describe('Settings - Terminal Display Calibration', () => {
       })
       const snapshot = await window.evaluate(
         async sessionId =>
-          sessionId ? await window.opencoveApi.pty.presentationSnapshot({ sessionId }) : null,
+          sessionId ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }) : null,
         after.sessionId,
       )
       expect(snapshot).toMatchObject({ cols: after.size?.cols, rows: after.size?.rows })

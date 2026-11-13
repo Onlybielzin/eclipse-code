@@ -26,11 +26,11 @@ async function setup() {
     overrides: Record<string, unknown> = {},
     token?: string,
   ) => {
-    const response = await fetch(reservation.env!.OPENCOVE_PI_HOOK_ENDPOINT!, {
+    const response = await fetch(reservation.env!.ECLIPSE_CODE_PI_HOOK_ENDPOINT!, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-opencove-hook-token': token ?? reservation.env!.OPENCOVE_PI_HOOK_TOKEN!,
+        'x-eclipse-code-hook-token': token ?? reservation.env!.ECLIPSE_CODE_PI_HOOK_TOKEN!,
       },
       body: JSON.stringify({
         version: 1,

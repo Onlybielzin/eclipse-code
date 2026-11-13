@@ -193,13 +193,13 @@ type TerminalRenderIntrospection = {
       }
     }
   }
-  __opencoveDprDebug?: {
+  __eclipseCodeDprDebug?: {
     lastDecision?: unknown
     hookAtBottom?: unknown
     hookViewportY?: unknown
     hookBaseY?: unknown
   }
-  __opencoveXtermSessionInstanceId?: number
+  __eclipseCodeXtermSessionInstanceId?: number
 }
 
 function finiteNumberOrNull(value: unknown): number | null {
@@ -243,7 +243,7 @@ export function readTerminalRenderMetricsForTest(
   const deviceCanvas = dimensions.device?.canvas
   const cssCanvas = dimensions.css?.canvas
   const cssCell = dimensions.css?.cell
-  const dprDebug = terminal.__opencoveDprDebug
+  const dprDebug = terminal.__eclipseCodeDprDebug
   const renderer = renderService?._renderer?.value
   const rendererConstructorName = renderer?.constructor?.name
   const rendererDomRowElementCount = Array.isArray(renderer?._rowElements)
@@ -283,7 +283,7 @@ export function readTerminalRenderMetricsForTest(
     hookAtBottom: typeof dprDebug?.hookAtBottom === 'boolean' ? dprDebug.hookAtBottom : null,
     hookViewportY: finiteNumberOrNull(dprDebug?.hookViewportY),
     hookBaseY: finiteNumberOrNull(dprDebug?.hookBaseY),
-    instanceId: finiteNumberOrNull(terminal.__opencoveXtermSessionInstanceId),
+    instanceId: finiteNumberOrNull(terminal.__eclipseCodeXtermSessionInstanceId),
   }
 }
 

@@ -51,7 +51,7 @@ export class BrowserPtySocketLifecycle {
     let settled = false
     let readyPromise!: Promise<BrowserPtySocketLease>
     readyPromise = new Promise((resolve, reject) => {
-      const socket = new WebSocket(resolvePtyWebSocketUrl(), ['opencove-pty.v1'])
+      const socket = new WebSocket(resolvePtyWebSocketUrl(), ['eclipse-code-pty.v1'])
       this.socket = socket
       const isCurrent = (): boolean =>
         this.socketAttempts.isCurrent(lease) &&

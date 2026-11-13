@@ -61,7 +61,7 @@ const stateWaitRender = {
     { listKey: 'agents' },
   ),
   examples: [
-    'opencove agent wait --node node-123 --until idle --fields nodeId,state',
+    'eclipse-code agent wait --node node-123 --until idle --fields nodeId,state',
     '{"until":"idle","mode":"all","agents":[{"nodeId":"node-123","state":"idle"}]}',
   ],
 }
@@ -87,7 +87,7 @@ export const agentQueryCommands = [
     operation: 'agent.list',
     summary: 'List live agent run states and node titles',
     description:
-      'Returns {epoch, seq, agents}, one row per live agent session. Exited sessions are excluded by agent.list (so --state exited returns no rows); use agent get or wait for a known exited node. taskNodeId is the task whose linkedAgentNodeId points here (null if absent/ambiguous). Titles come from node metadata; null means unbound or deleted. turn.startedAt is epoch milliseconds, or absent when no turn is active. Inside OpenCove, the default scope is your space; --project selects a whole project.',
+      'Returns {epoch, seq, agents}, one row per live agent session. Exited sessions are excluded by agent.list (so --state exited returns no rows); use agent get or wait for a known exited node. taskNodeId is the task whose linkedAgentNodeId points here (null if absent/ambiguous). Titles come from node metadata; null means unbound or deleted. turn.startedAt is epoch milliseconds, or absent when no turn is active. Inside Eclipse Code, the default scope is your space; --project selects a whole project.',
     options: {
       space: { ...stringOption('Space ID'), defaultSelfUnless: ['spawned-by'] },
       'spawned-by': spawnedByOption,
@@ -133,8 +133,8 @@ export const agentQueryCommands = [
       ],
     },
     examples: [
-      'opencove agent list -o table',
-      'opencove agent list --space "Review" --state waiting --fields nodeId,title,state,blockedReason',
+      'eclipse-code agent list -o table',
+      'eclipse-code agent list --space "Review" --state waiting --fields nodeId,title,state,blockedReason',
     ],
     async execute(ctx) {
       const result = (await ctx.invoke('agent.list', ctx.input)) as {
@@ -190,8 +190,8 @@ export const agentQueryCommands = [
       fieldDescriptions: lineageFieldDescriptions,
     },
     examples: [
-      'opencove agent get --node "Reviewer" --pretty',
-      'opencove agent get --node @self --fields state,quality,turn',
+      'eclipse-code agent get --node "Reviewer" --pretty',
+      'eclipse-code agent get --node @self --fields state,quality,turn',
     ],
     async execute(ctx) {
       const snapshot = (await ctx.invoke('agent.get', ctx.input)) as AgentRunSnapshot | null
@@ -203,7 +203,7 @@ export const agentQueryCommands = [
           'agent.not_found',
           1,
           `${JSON.stringify(node.title)} is ${kindWithArticle(node.kind)}, not an agent window.`,
-          'Use "opencove node get --node <selector>" to inspect this node, or "opencove agent list" to find agent windows.',
+          'Use "eclipse-code node get --node <selector>" to inspect this node, or "eclipse-code agent list" to find agent windows.',
         )
       }
       if (snapshot === null) {
@@ -211,7 +211,7 @@ export const agentQueryCommands = [
           'agent.not_found',
           1,
           `${JSON.stringify(node?.title ?? nodeId)} has no registered agent run state.`,
-          'Start or resume an agent window, then run "opencove agent list" to inspect its run state.',
+          'Start or resume an agent window, then run "eclipse-code agent list" to inspect its run state.',
         )
       }
       return {
@@ -232,8 +232,8 @@ export const agentQueryCommands = [
     description: [
       'Wait without sending input. Save turnId: prompt → delivery status → wait --turn <turnId> → read --turn <turnId>. Never resend after timeout.',
       '--turn selects one exact turn and includes provider continuations. All ended outcomes exit 0; check outcome. --until selects idle, waiting, exited or a future turn-end. Idle requires no active turn and nondegraded evidence. --all remembers fulfilled bindings; a session change resets progress; --any stops on the first success OR waiting/exited observation of an unfulfilled target.',
-      'Exit codes: 0 condition met; 1 unavailable history; 2 invalid input; 4 authentication or grant-policy refusal; 10 waiting observed (the agent may need the user — inspect before acting); 11 target exited before the condition was met (a PTY exit that ends the selected turn succeeds with outcome unknown); 124 timeout; 130 interruption. --through-waiting continues when waiting is reported; it does not suppress 11. Resolve in OpenCove, inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Prefer --turn: turn-end cannot resume an already observed completion. Details: opencove skill wait.',
-      'deliveryIds are retained correlations, including refused or uncertain attempts; membership proves neither submission nor consumption. Records expire 30 minutes after resolving and clear on restart: inspect each deliveryId with opencove agent delivery <id>. promptIds are the provider prompt IDs, not delivery IDs.',
+      'Exit codes: 0 condition met; 1 unavailable history; 2 invalid input; 4 authentication or grant-policy refusal; 10 waiting observed (the agent may need the user — inspect before acting); 11 target exited before the condition was met (a PTY exit that ends the selected turn succeeds with outcome unknown); 124 timeout; 130 interruption. --through-waiting continues when waiting is reported; it does not suppress 11. Resolve in Eclipse Code, inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Prefer --turn: turn-end cannot resume an already observed completion. Details: eclipse-code skill wait.',
+      'deliveryIds are retained correlations, including refused or uncertain attempts; membership proves neither submission nor consumption. Records expire 30 minutes after resolving and clear on restart: inspect each deliveryId with eclipse-code agent delivery <id>. promptIds are the provider prompt IDs, not delivery IDs.',
     ].join('\n\n'),
     options: {
       node: { ...stringOption('Node ID', true), multiple: true },
@@ -245,7 +245,7 @@ export const agentQueryCommands = [
         description: 'Condition to observe',
       },
       turn: {
-        ...stringOption('Exact OpenCove turn ID returned by agent prompt'),
+        ...stringOption('Exact Eclipse Code turn ID returned by agent prompt'),
         valueName: 'turnId',
         conflicts: ['until', 'any'],
       },
@@ -329,9 +329,9 @@ export const agentQueryCommands = [
           )
         : stateWaitRender,
     examples: [
-      'opencove agent wait --node node-123 --turn turn-123 --timeout 2m',
-      'opencove agent wait --node "Reviewer" --until idle --timeout 2m',
-      'opencove agent wait --node node-123 --node node-456 --until waiting --any --timeout 30s',
+      'eclipse-code agent wait --node node-123 --turn turn-123 --timeout 2m',
+      'eclipse-code agent wait --node "Reviewer" --until idle --timeout 2m',
+      'eclipse-code agent wait --node node-123 --node node-456 --until waiting --any --timeout 30s',
     ],
     async execute(ctx) {
       return waitForAgents({

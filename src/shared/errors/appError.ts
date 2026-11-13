@@ -18,7 +18,7 @@ function createMessageMap(): Record<AppErrorCode, string> {
     'worker.external_owner_unreachable':
       'Another Worker owns this data directory but is unreachable or incompatible. Stop it explicitly before retrying.',
     'worker.stop_not_owned':
-      'This Worker was started outside OpenCove Desktop. Stop it where it was started, for example with opencove worker stop.',
+      'This Worker was started outside Eclipse Code Desktop. Stop it where it was started, for example with eclipse-code worker stop.',
     'worker.unavailable': 'Worker is unavailable.',
     'endpoint.operation_in_progress': 'Another endpoint operation is already in progress.',
     'space.not_found': 'Space not found.',
@@ -57,8 +57,8 @@ function createMessageMap(): Record<AppErrorCode, string> {
     'filesystem.read_directory_failed': 'Unable to load the directory.',
     'filesystem.stat_failed': 'Unable to read file details.',
     'worktree.api_unavailable':
-      'Worktree API is unavailable. Please restart OpenCove and try again.',
-    'worktree.git_unavailable': 'Git is unavailable. Install Git and restart OpenCove.',
+      'Worktree API is unavailable. Please restart Eclipse Code and try again.',
+    'worktree.git_unavailable': 'Git is unavailable. Install Git and restart Eclipse Code.',
     'worktree.not_a_git_repo': 'This directory is not a Git repository.',
     'worktree.list_branches_failed': 'Unable to load Git branches.',
     'worktree.list_worktrees_failed': 'Unable to load Git worktrees.',
@@ -128,7 +128,7 @@ function createMessageMap(): Record<AppErrorCode, string> {
 const APP_ERROR_MESSAGES = createMessageMap()
 
 function normalizeDebugMessage(error: unknown): string | undefined {
-  if (error instanceof OpenCoveAppError) {
+  if (error instanceof EclipseCodeAppError) {
     return error.debugMessage
   }
 
@@ -168,7 +168,7 @@ export function isAppErrorDescriptor(value: unknown): value is AppErrorDescripto
   return typeof record.code === 'string' && record.code in APP_ERROR_MESSAGES
 }
 
-export class OpenCoveAppError extends Error {
+export class EclipseCodeAppError extends Error {
   public readonly code: AppErrorCode
   public readonly params: AppErrorParams | undefined
   public readonly details: unknown | undefined
@@ -176,7 +176,7 @@ export class OpenCoveAppError extends Error {
 
   public constructor(descriptor: AppErrorDescriptor) {
     super(formatAppErrorMessage(descriptor))
-    this.name = 'OpenCoveAppError'
+    this.name = 'EclipseCodeAppError'
     this.code = descriptor.code
     this.params = descriptor.params
     this.details = descriptor.details
@@ -199,20 +199,20 @@ export function createAppError(
     details?: unknown
     debugMessage?: string
   } = {},
-): OpenCoveAppError {
+): EclipseCodeAppError {
   const descriptor =
     typeof codeOrDescriptor === 'string'
       ? createAppErrorDescriptor(codeOrDescriptor, options)
       : codeOrDescriptor
 
-  return new OpenCoveAppError(descriptor)
+  return new EclipseCodeAppError(descriptor)
 }
 
 export function toAppErrorDescriptor(
   error: unknown,
   fallbackCode: AppErrorCode = 'common.unexpected',
 ): AppErrorDescriptor {
-  if (error instanceof OpenCoveAppError) {
+  if (error instanceof EclipseCodeAppError) {
     return error.toDescriptor()
   }
 
@@ -225,8 +225,8 @@ export function toAppErrorDescriptor(
   })
 }
 
-export function formatAppErrorMessage(error: AppErrorDescriptor | OpenCoveAppError): string {
-  const descriptor = error instanceof OpenCoveAppError ? error.toDescriptor() : error
+export function formatAppErrorMessage(error: AppErrorDescriptor | EclipseCodeAppError): string {
+  const descriptor = error instanceof EclipseCodeAppError ? error.toDescriptor() : error
   const spawnApplication = publicTerminalSpawnApplicationError(descriptor)
   if (spawnApplication) {
     return spawnApplication.debugMessage
@@ -258,13 +258,13 @@ export function formatAppErrorMessage(error: AppErrorDescriptor | OpenCoveAppErr
 }
 
 export function getAppErrorDebugMessage(
-  error: AppErrorDescriptor | OpenCoveAppError | Error | string | null | undefined,
+  error: AppErrorDescriptor | EclipseCodeAppError | Error | string | null | undefined,
 ): string | undefined {
   if (!error) {
     return undefined
   }
 
-  if (error instanceof OpenCoveAppError) {
+  if (error instanceof EclipseCodeAppError) {
     return error.debugMessage
   }
 
@@ -281,5 +281,5 @@ export function isIpcInvokeResult<T>(value: unknown): value is IpcInvokeResult<T
   }
 
   const record = value as Record<string, unknown>
-  return record.__opencoveIpcEnvelope === true && typeof record.ok === 'boolean'
+  return record.__eclipseCodeIpcEnvelope === true && typeof record.ok === 'boolean'
 }

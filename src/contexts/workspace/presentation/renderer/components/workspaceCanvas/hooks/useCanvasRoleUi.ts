@@ -9,6 +9,7 @@ import { useWorkspaceCanvasRoleActions } from './useRoleActions'
 type RoleViewProps = Pick<
   WorkspaceCanvasViewProps,
   | 'openRoleCreator'
+  | 'createDefaultTeam'
   | 'projectRoles'
   | 'runProjectRoleFromContextMenu'
   | 'openRoleEditor'
@@ -81,6 +82,7 @@ export function useWorkspaceCanvasRoleUi({
 
   return {
     openRoleCreator: roleActions.openRoleCreator,
+    createDefaultTeam: roleActions.createDefaultTeam,
     projectRoles: agentSettings.projectRolesByWorkspaceId[workspaceId] ?? [],
     runProjectRoleFromContextMenu: roleActions.runProjectRoleFromContextMenu,
     openRoleEditor: roleActions.openRoleEditor,

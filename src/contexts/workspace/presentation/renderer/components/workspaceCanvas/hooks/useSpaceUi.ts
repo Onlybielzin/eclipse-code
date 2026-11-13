@@ -128,7 +128,7 @@ export function useWorkspaceCanvasSpaceUi({
 
   const openSpaceActionMenu = useCallback(
     (spaceId: string, anchor: { x: number; y: number }) => {
-      const listPathOpeners = window.opencoveApi?.workspace?.listPathOpeners
+      const listPathOpeners = window.eclipseCodeApi?.workspace?.listPathOpeners
       if (typeof listPathOpeners === 'function') {
         void listPathOpeners()
           .then(result => {
@@ -154,7 +154,7 @@ export function useWorkspaceCanvasSpaceUi({
   const copySpacePath = useCallback(
     async (spaceId: string) => {
       const path = resolveSpacePath(spaceId)
-      const copyPath = window.opencoveApi?.workspace?.copyPath
+      const copyPath = window.eclipseCodeApi?.workspace?.copyPath
       if (typeof copyPath !== 'function') {
         try {
           const clipboard =
@@ -176,7 +176,7 @@ export function useWorkspaceCanvasSpaceUi({
 
   const openSpacePath = useCallback(
     async (spaceId: string, openerId: WorkspacePathOpenerId) => {
-      const openPath = window.opencoveApi?.workspace?.openPath
+      const openPath = window.eclipseCodeApi?.workspace?.openPath
       if (typeof openPath !== 'function') {
         return
       }

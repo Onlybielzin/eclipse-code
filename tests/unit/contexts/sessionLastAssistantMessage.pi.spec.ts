@@ -21,7 +21,7 @@ function reply(id: string, parentId: string | null, text: string) {
 }
 
 async function readSession(records: unknown[], suffix = '', version = 3) {
-  const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-message-'))
+  const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-message-'))
   directories.push(directory)
   const filePath = join(directory, 'session.jsonl')
   const header = {

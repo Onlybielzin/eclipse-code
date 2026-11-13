@@ -15,7 +15,7 @@ const frameArgument = (value: string) =>
   `'${process.platform === 'win32' ? value.replaceAll('"', '\\"') : value}'`
 
 test('a canvas terminal discovers its identity, neighbors and scope through the CLI', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-identity-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-identity-'))
   const workspace = join(root, 'project')
   const profile = join(root, 'profile')
   let app: ElectronApplication | undefined
@@ -25,10 +25,10 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
         // Let the app own its isolated local Worker and its shutdown lifecycle.
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -75,7 +75,7 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
     // Do not seed a terminal/session or inject identity variables: creation must issue P1-A's grant.
     const created = await page.evaluate(
       async payload => {
-        return await window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        return await window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -107,7 +107,9 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       'PTY must be ready for input',
     ).toHaveAttribute('aria-busy', 'false', { timeout: 20_000 })
 
-    const identity = jsonOutput(await terminalCommand(page, binding, 'opencove whoami', 'WHOAMI'))
+    const identity = jsonOutput(
+      await terminalCommand(page, binding, 'eclipse-code whoami', 'WHOAMI'),
+    )
     expect(identity).toEqual({
       caller: 'session-grant',
       scope: 'interact',
@@ -118,7 +120,9 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
     })
     expect(identity).not.toHaveProperty('token')
 
-    const context = jsonOutput(await terminalCommand(page, binding, 'opencove context', 'CONTEXT'))
+    const context = jsonOutput(
+      await terminalCommand(page, binding, 'eclipse-code context', 'CONTEXT'),
+    )
     expect(context).toMatchObject({
       self: {
         caller: 'session-grant',
@@ -144,7 +148,12 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
     expect((context.nodes as { id: string }[]).some(node => node.id === nodeId)).toBe(false)
 
     const self = jsonOutput(
-      await terminalCommand(page, binding, 'opencove node get --node "@self" --fields id', 'SELF'),
+      await terminalCommand(
+        page,
+        binding,
+        'eclipse-code node get --node "@self" --fields id',
+        'SELF',
+      ),
     )
     expect(self).toEqual({ node: { id: nodeId } })
 
@@ -152,7 +161,7 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       await terminalCommand(
         page,
         binding,
-        `opencove context --space ${otherSpaceId}`,
+        `eclipse-code context --space ${otherSpaceId}`,
         'OTHER_CONTEXT',
       ),
     )
@@ -182,7 +191,7 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       }
     }
     const sized = await frameCommand(
-      `opencove node create note --text Sized --frame ${frameArgument('{"width":320,"height":240}')}`,
+      `eclipse-code node create note --text Sized --frame ${frameArgument('{"width":320,"height":240}')}`,
       'NOTE_FRAME_EXACT',
       false,
     )
@@ -194,7 +203,7 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       // Commands share one PTY and must run sequentially.
       // eslint-disable-next-line no-await-in-loop
       const result = await frameCommand(
-        `opencove node create note --text Bounded --frame ${frameArgument(frame)}`,
+        `eclipse-code node create note --text Bounded --frame ${frameArgument(frame)}`,
         label,
         true,
       )
@@ -208,14 +217,14 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
         await terminalCommand(
           page,
           binding,
-          `opencove node get --node ${result.node.id} --fields frame`,
+          `eclipse-code node get --node ${result.node.id} --fields frame`,
           `${label}_GET`,
         ),
       )
       expect(persisted).toMatchObject({ node: { frame: result.appliedFrame } })
     }
     const updated = await frameCommand(
-      `opencove node update note --node ${sized.node.id} --frame ${frameArgument('{"width":400,"height":300}')}`,
+      `eclipse-code node update note --node ${sized.node.id} --frame ${frameArgument('{"width":400,"height":300}')}`,
       'NOTE_FRAME_UPDATE',
       true,
     )
@@ -228,7 +237,7 @@ test('a canvas terminal discovers its identity, neighbors and scope through the 
       await terminalCommand(
         page,
         binding,
-        "opencove api call workspace.approveRoot --input '{}' -o json",
+        "eclipse-code api call workspace.approveRoot --input '{}' -o json",
         'SCOPE',
       )
     ).replaceAll('\n', '')

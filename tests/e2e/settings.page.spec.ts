@@ -72,7 +72,7 @@ async function readCanvasRuntime(page: Page) {
   return page.evaluate(terminalId => {
     const terminal = document.querySelector(`[data-id="${terminalId}"] .xterm`)
     const canvas = document.querySelector('.workspace-main')!
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     return {
       canvasBounds: canvas.getBoundingClientRect().toJSON(),
       viewport: document.querySelector<HTMLElement>('.react-flow__viewport')?.style.transform,
@@ -153,7 +153,7 @@ test.describe('Settings canvas page', () => {
       const originalValue = await slider.inputValue()
       const readSavedZoom = () =>
         page.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           return raw ? JSON.parse(raw).settings?.focusNodeTargetZoom : null
         })
       const savedZoom = await readSavedZoom()

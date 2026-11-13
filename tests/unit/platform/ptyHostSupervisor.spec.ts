@@ -119,7 +119,7 @@ describe('PtyHostSupervisor', () => {
     })
 
     const spawnPromise = supervisor.spawn({
-      command: '/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+      command: '/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
       args: ['/tmp/test-agent-session-stub.mjs'],
       cwd: '/',
       env: { ELECTRON_RUN_AS_NODE: '1' },

@@ -188,7 +188,7 @@
   outline-offset: 2px;
 }
 
-/* The project's name, then the branch its checkout is on (Tide prototype: "opencove feat/jwt");
+/* The project's name, then the branch its checkout is on (Tide prototype: "eclipse-code feat/jwt");
    the name keeps priority and both truncate. */
 .workspace-sidebar__project-name {
   min-width: 0;

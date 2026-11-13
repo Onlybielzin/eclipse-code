@@ -37,7 +37,7 @@ export function WebsiteNodeHomePage({
   onInteractionStart?: () => void
 }): JSX.Element {
   const { t } = useTranslation()
-  const browserApi = window.opencoveApi?.browserProfile ?? null
+  const browserApi = window.eclipseCodeApi?.browserProfile ?? null
   const scope = useMemo(() => resolveScope(sessionMode, profileId), [profileId, sessionMode])
   const [query, setQuery] = useState('')
   const [bookmarks, setBookmarks] = useState<BrowserBookmark[]>([])

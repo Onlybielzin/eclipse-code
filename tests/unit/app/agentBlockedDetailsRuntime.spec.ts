@@ -19,7 +19,7 @@ it('transports bounded dialogs through the authenticated channel, Worker, and We
   runtime.captureLaunchIdentity('s', 'n')
   runtime.metadata({ sessionId: 's', agentProvider: 'claude-code', resumeSessionId: null })
   const { channel, reservation, post } = await hookChannelFixture({
-    environment: { CLAUDE_CONFIG_DIR: '/tmp/opencove-no-config' },
+    environment: { CLAUDE_CONFIG_DIR: '/tmp/eclipse-code-no-config' },
   })
   const dispose = channel.onState(event => runtime.observe(event))
   reservation.commit('s')

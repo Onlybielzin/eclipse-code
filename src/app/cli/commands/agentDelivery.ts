@@ -12,8 +12,8 @@ export const agentDeliveryCommand = defineCommand({
   description:
     'evidenceWindow (open/closed) describes collecting delivery evidence, not the agent’s work. Records live in the executing Worker. Missing, expired or restarted records are unavailable, never proof that nothing was sent. --wait polls fresh evidence. Self-wait returns immediately so the caller can release its tool call. Exit 0 submitted; 1 not_sent/ambiguous/unknown/unavailable; 124 timeout. Dispatched is still awaiting confirmation.',
   examples: [
-    'opencove agent delivery delivery-123',
-    'opencove agent delivery delivery-123 --wait --timeout 2m',
+    'eclipse-code agent delivery delivery-123',
+    'eclipse-code agent delivery delivery-123 --wait --timeout 2m',
   ],
   positionals: [{ name: 'id', required: true }],
   options: {

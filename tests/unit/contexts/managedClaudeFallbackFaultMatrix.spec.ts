@@ -66,13 +66,13 @@ cases.push(
   ),
 )
 const selected =
-  process.env.OPENCOVE_FALLBACK_FAULT_CASES === 'eventless'
+  process.env.ECLIPSE_CODE_FALLBACK_FAULT_CASES === 'eventless'
     ? cases.filter(value => value.event === 'none')
     : cases
 const coverage: (ShellCase & { faultReached: boolean; eventReached: boolean })[] = []
 afterAll(() => {
-  if (process.env.OPENCOVE_FALLBACK_FAULT_COVERAGE) {
-    writeFileSync(process.env.OPENCOVE_FALLBACK_FAULT_COVERAGE, JSON.stringify(coverage))
+  if (process.env.ECLIPSE_CODE_FALLBACK_FAULT_COVERAGE) {
+    writeFileSync(process.env.ECLIPSE_CODE_FALLBACK_FAULT_COVERAGE, JSON.stringify(coverage))
   }
   if (coverage.length !== cases.length) {
     return

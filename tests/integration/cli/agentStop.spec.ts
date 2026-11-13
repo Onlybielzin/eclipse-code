@@ -76,7 +76,7 @@ it.each(['idle', 'exited', 'exit-during-read'])(
       error = ''
     const requests: string[] = []
     const io: CliIo = {
-      env: { OPENCOVE_CONTROL_URL: 'http://in-memory', OPENCOVE_CONTROL_TOKEN: 'test' },
+      env: { ECLIPSE_CODE_CONTROL_URL: 'http://in-memory', ECLIPSE_CODE_CONTROL_TOKEN: 'test' },
       stdout: {
         write: value => {
           output += value

@@ -9,7 +9,7 @@ import { expect, it } from 'vitest'
 it.each([false, true])(
   'finishes a one-shot command despite retained native handles (failure=%s)',
   async failure => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-runtime-command-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-command-'))
     try {
       const source = await readFile('src/app/managedRuntime/runManagedRuntimeCommand.ts', 'utf8')
       await writeFile(

@@ -29,7 +29,7 @@ export async function withManagedSshProgress(
   settings: { uiTheme: 'light' | 'dark'; language: 'en' | 'zh-CN'; failureKind?: string },
   run: (fixture: ProgressFixture) => Promise<void>,
 ): Promise<void> {
-  const root = await mkdtemp(path.join(tmpdir(), 'opencove-ssh-progress-'))
+  const root = await mkdtemp(path.join(tmpdir(), 'eclipse-code-ssh-progress-'))
   const gates = path.join(root, 'gates')
   const appUserData = path.join(root, 'app')
   const remoteHome = path.join(root, 'home')
@@ -44,14 +44,14 @@ export async function withManagedSshProgress(
       userDataDir: appUserData,
       env: {
         PATH: `${fakeSsh}${path.delimiter}${process.env.PATH ?? ''}`,
-        OPENCOVE_FAKE_SSH_GATE_DIR: gates,
-        ...(settings.failureKind ? { OPENCOVE_FAKE_SSH_FAILURE: settings.failureKind } : {}),
+        ECLIPSE_CODE_FAKE_SSH_GATE_DIR: gates,
+        ...(settings.failureKind ? { ECLIPSE_CODE_FAKE_SSH_FAILURE: settings.failureKind } : {}),
       },
     })
     const { window } = app
     const seeded = await window.evaluate(
       async preferences =>
-        await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -63,7 +63,7 @@ export async function withManagedSshProgress(
     )
     expect(seeded.ok).toBe(true)
     const endpointId = await window.evaluate(async port => {
-      const result = await window.opencoveApi.controlSurface.invoke<{
+      const result = await window.eclipseCodeApi.controlSurface.invoke<{
         endpoint: { endpointId: string }
       }>({
         kind: 'command',
@@ -96,7 +96,7 @@ export async function withManagedSshProgress(
         await pollFor(
           async () => {
             const log = await readFile(path.join(gates, 'phases.log'), 'utf8').catch(() => '')
-            return log.split('\n').includes(`[opencove-bootstrap-progress:v1] ${phase}`)
+            return log.split('\n').includes(`[eclipse-code-bootstrap-progress:v1] ${phase}`)
               ? true
               : null
           },

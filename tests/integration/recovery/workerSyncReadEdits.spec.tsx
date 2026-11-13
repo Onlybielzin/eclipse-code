@@ -18,10 +18,10 @@ import {
 import type { PersistedAppState } from '../../../src/contexts/workspace/presentation/renderer/types'
 
 const originalState = useAppStore.getState(),
-  originalApi = window.opencoveApi
+  originalApi = window.eclipseCodeApi
 afterEach(async () => {
   await flushScheduledPersistedStateWriteAsync()
-  window.opencoveApi = originalApi
+  window.eclipseCodeApi = originalApi
   useAppStore.setState(originalState, true)
 })
 
@@ -63,7 +63,7 @@ it.each(
       }
       return { ok: true, level: 'full', bytes: 1, revision: ++revision, corrected: wasCorrected }
     })
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       persistence: { readAppState: read, writeAppState: write },
       sync: {
         onStateUpdated: (listener: typeof emit) => {
@@ -71,7 +71,7 @@ it.each(
           return () => {}
         },
       },
-    } as unknown as typeof window.opencoveApi
+    } as unknown as typeof window.eclipseCodeApi
     useAppStore.setState({
       workspaces: durable.workspaces.map(toShellWorkspaceState),
       activeWorkspaceId: durable.activeWorkspaceId,

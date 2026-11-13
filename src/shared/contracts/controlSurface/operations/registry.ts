@@ -1,6 +1,7 @@
 import { agentOperations } from './domains/agent'
 import { authOperations } from './domains/auth'
 import { canvasOperations } from './domains/canvas'
+import { cardOperations } from './domains/cards'
 import { endpointOperations } from './domains/endpoint'
 import { filesystemOperations } from './domains/filesystem'
 import { gitWorktreeOperations } from './domains/gitWorktree'
@@ -10,6 +11,7 @@ import { mountTargetOperations } from './domains/mountTarget'
 import { nodeOperations } from './domains/node'
 import { noteOperations } from './domains/note'
 import { pluginOperations } from './domains/plugin'
+import { roleOperations } from './domains/roles'
 import { projectOperations } from './domains/project'
 import { ptyOperations } from './domains/pty'
 import { sessionOperations } from './domains/session'
@@ -23,6 +25,7 @@ export const CONTROL_SURFACE_OPERATIONS = Object.freeze([
   ...agentOperations,
   ...authOperations,
   ...canvasOperations,
+  ...cardOperations,
   ...endpointOperations,
   ...filesystemOperations,
   ...gitWorktreeOperations,
@@ -34,6 +37,7 @@ export const CONTROL_SURFACE_OPERATIONS = Object.freeze([
   ...pluginOperations,
   ...projectOperations,
   ...ptyOperations,
+  ...roleOperations,
   ...sessionOperations,
   ...spaceOperations,
   ...syncOperations,

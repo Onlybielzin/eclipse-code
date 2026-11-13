@@ -12,7 +12,7 @@ async function readWorkspaceSummary(window: Page): Promise<{
   nodeIds: string[]
 } | null> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -75,7 +75,7 @@ test.describe('Recovery - Empty Workspace Overwrite Guard', () => {
         })
 
         const rejectedWrite = await window.evaluate(async () => {
-          return await window.opencoveApi.persistence.writeAppState({
+          return await window.eclipseCodeApi.persistence.writeAppState({
             state: {
               formatVersion: 1,
               activeWorkspaceId: null,

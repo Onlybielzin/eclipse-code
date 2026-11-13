@@ -16,7 +16,7 @@ async function launch(providerArgument, userArgs) {
   const provider = normalizeProvider(providerArgument);
   const executable = findExecutable(providerCommand(provider), ownShimDirectories());
   if (!executable) {
-    process.stderr.write('OpenCove could not resolve the real ' + providerCommand(provider) + ' executable.\n');
+    process.stderr.write('Eclipse Code could not resolve the real ' + providerCommand(provider) + ' executable.\n');
     process.exitCode = 127;
     return;
   }
@@ -74,8 +74,8 @@ async function prepareWindows(providerArgument, planPath, userArgs) {
     executable,
     args: plan?.args || [],
     env: plan?.env || {},
-    endpoint: process.env.OPENCOVE_TERMINAL_AGENT_ENDPOINT || '',
-    token: process.env.OPENCOVE_TERMINAL_AGENT_TOKEN || '',
+    endpoint: process.env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT || '',
+    token: process.env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN || '',
     invocationId,
     generation: plan?.generation || null
   }), { encoding: 'utf8', mode: 0o600, flag: 'wx' });
@@ -91,13 +91,13 @@ async function completeWindows(planPath) {
 }
 
 async function prepare(provider, executablePath, invocationId, userArgs) {
-  const endpoint = process.env.OPENCOVE_TERMINAL_AGENT_ENDPOINT;
-  const token = process.env.OPENCOVE_TERMINAL_AGENT_TOKEN;
-  if (!endpoint || !token || process.env.OPENCOVE_PI_STATUS_OWNER_PID) return null;
+  const endpoint = process.env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT;
+  const token = process.env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN;
+  if (!endpoint || !token || process.env.ECLIPSE_CODE_PI_STATUS_OWNER_PID) return null;
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-opencove-terminal-agent-token': token },
+      headers: { 'content-type': 'application/json', 'x-eclipse-code-terminal-agent-token': token },
       body: JSON.stringify({
         operation: 'prepare', provider, invocationId, cwd: process.cwd(), executablePath,
         arguments: userArgs, environment: process.env
@@ -115,8 +115,8 @@ async function prepare(provider, executablePath, invocationId, userArgs) {
 
 async function complete(invocationId, generation) {
   await reportComplete(
-    process.env.OPENCOVE_TERMINAL_AGENT_ENDPOINT,
-    process.env.OPENCOVE_TERMINAL_AGENT_TOKEN,
+    process.env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT,
+    process.env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN,
     invocationId,
     generation
   );
@@ -127,7 +127,7 @@ async function reportComplete(endpoint, token, invocationId, generation) {
   try {
     await fetch(endpoint, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-opencove-terminal-agent-token': token },
+      headers: { 'content-type': 'application/json', 'x-eclipse-code-terminal-agent-token': token },
       body: JSON.stringify({ operation: 'complete', invocationId, generation }),
       signal: AbortSignal.timeout(750)
     });
@@ -163,7 +163,7 @@ function normalizeCase(value) { return process.platform === 'win32' ? value.toLo
 // not name them, or a shim on PATH would resolve back to this launcher forever.
 function ownShimDirectories() {
   return [
-    process.env.OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY || '',
+    process.env.ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY || '',
     join(dirname(fileURLToPath(import.meta.url)), 'bin'),
   ];
 }
@@ -247,14 +247,14 @@ export const terminalAgentCmdShimScript = [
 
 export const terminalAgentPosixShellLauncherScript = [
   '#!/bin/sh',
-  'real_shell=${OPENCOVE_TERMINAL_AGENT_REAL_SHELL:-${SHELL:-/bin/sh}}',
+  'real_shell=${ECLIPSE_CODE_TERMINAL_AGENT_REAL_SHELL:-${SHELL:-/bin/sh}}',
   'shell_name=${real_shell##*/}',
   'case "$shell_name" in',
   '  bash)',
-  '    exec "$real_shell" --noprofile --rcfile "$OPENCOVE_TERMINAL_AGENT_BASH_RC" -i "$@"',
+  '    exec "$real_shell" --noprofile --rcfile "$ECLIPSE_CODE_TERMINAL_AGENT_BASH_RC" -i "$@"',
   '    ;;',
   '  zsh)',
-  '    export ZDOTDIR="$OPENCOVE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY"',
+  '    export ZDOTDIR="$ECLIPSE_CODE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY"',
   '    exec "$real_shell" -i "$@"',
   '    ;;',
   '  *) exec "$real_shell" "$@" ;;',
@@ -265,49 +265,49 @@ export const terminalAgentPosixShellLauncherScript = [
 // Shared by Bash and every Zsh startup relay; use builtins even when user PATH is empty.
 // Prepend providers first, then the CLI, removing only our own duplicate entries.
 const restoreSessionShimPaths = [
-  'for _opencove_directory in "${OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY:-}" "${OPENCOVE_CLI_SHIM_DIRECTORY:-}"; do',
-  '  [ -n "$_opencove_directory" ] || continue',
-  '  _opencove_remaining_path=$PATH',
-  '  _opencove_filtered_path=',
-  '  _opencove_path_separator=',
+  'for _eclipse_code_directory in "${ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY:-}" "${ECLIPSE_CODE_CLI_SHIM_DIRECTORY:-}"; do',
+  '  [ -n "$_eclipse_code_directory" ] || continue',
+  '  _eclipse_code_remaining_path=$PATH',
+  '  _eclipse_code_filtered_path=',
+  '  _eclipse_code_path_separator=',
   '  while :; do',
-  '    _opencove_path_entry=${_opencove_remaining_path%%:*}',
-  '    if [ "$_opencove_path_entry" != "$_opencove_directory" ]; then',
-  '      _opencove_filtered_path="$_opencove_filtered_path$_opencove_path_separator$_opencove_path_entry"',
-  '      _opencove_path_separator=:',
+  '    _eclipse_code_path_entry=${_eclipse_code_remaining_path%%:*}',
+  '    if [ "$_eclipse_code_path_entry" != "$_eclipse_code_directory" ]; then',
+  '      _eclipse_code_filtered_path="$_eclipse_code_filtered_path$_eclipse_code_path_separator$_eclipse_code_path_entry"',
+  '      _eclipse_code_path_separator=:',
   '    fi',
-  '    case "$_opencove_remaining_path" in',
-  '      *:*) _opencove_remaining_path=${_opencove_remaining_path#*:} ;;',
+  '    case "$_eclipse_code_remaining_path" in',
+  '      *:*) _eclipse_code_remaining_path=${_eclipse_code_remaining_path#*:} ;;',
   '      *) break ;;',
   '    esac',
   '  done',
-  '  export PATH="$_opencove_directory${_opencove_path_separator:+:$_opencove_filtered_path}"',
+  '  export PATH="$_eclipse_code_directory${_eclipse_code_path_separator:+:$_eclipse_code_filtered_path}"',
   'done',
-  'unset _opencove_directory _opencove_remaining_path _opencove_filtered_path _opencove_path_separator _opencove_path_entry',
+  'unset _eclipse_code_directory _eclipse_code_remaining_path _eclipse_code_filtered_path _eclipse_code_path_separator _eclipse_code_path_entry',
 ]
 
 export const terminalAgentBashRcScript = [
-  '_opencove_user_bash_rc=${HOME:+$HOME/.bashrc}',
-  'if [ -n "$_opencove_user_bash_rc" ] && [ -r "$_opencove_user_bash_rc" ] && [ "$_opencove_user_bash_rc" != "$OPENCOVE_TERMINAL_AGENT_BASH_RC" ]; then',
-  '  . "$_opencove_user_bash_rc"',
+  '_eclipse_code_user_bash_rc=${HOME:+$HOME/.bashrc}',
+  'if [ -n "$_eclipse_code_user_bash_rc" ] && [ -r "$_eclipse_code_user_bash_rc" ] && [ "$_eclipse_code_user_bash_rc" != "$ECLIPSE_CODE_TERMINAL_AGENT_BASH_RC" ]; then',
+  '  . "$_eclipse_code_user_bash_rc"',
   'fi',
   ...restoreSessionShimPaths,
-  'unset _opencove_user_bash_rc',
+  'unset _eclipse_code_user_bash_rc',
   '',
 ].join('\n')
 
 export const terminalAgentZshEnvScript = [
-  '_opencove_wrapper_zdotdir=$OPENCOVE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY',
-  '_opencove_user_zdotdir=${OPENCOVE_TERMINAL_AGENT_ORIGINAL_ZDOTDIR:-${HOME:-}}',
-  'if [ -n "$_opencove_user_zdotdir" ] && [ "$_opencove_user_zdotdir" != "$_opencove_wrapper_zdotdir" ] && [ -r "$_opencove_user_zdotdir/.zshenv" ]; then',
-  '  export ZDOTDIR="$_opencove_user_zdotdir"',
-  '  . "$_opencove_user_zdotdir/.zshenv"',
-  '  _opencove_user_zdotdir=${ZDOTDIR:-${HOME:-}}',
+  '_eclipse_code_wrapper_zdotdir=$ECLIPSE_CODE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY',
+  '_eclipse_code_user_zdotdir=${ECLIPSE_CODE_TERMINAL_AGENT_ORIGINAL_ZDOTDIR:-${HOME:-}}',
+  'if [ -n "$_eclipse_code_user_zdotdir" ] && [ "$_eclipse_code_user_zdotdir" != "$_eclipse_code_wrapper_zdotdir" ] && [ -r "$_eclipse_code_user_zdotdir/.zshenv" ]; then',
+  '  export ZDOTDIR="$_eclipse_code_user_zdotdir"',
+  '  . "$_eclipse_code_user_zdotdir/.zshenv"',
+  '  _eclipse_code_user_zdotdir=${ZDOTDIR:-${HOME:-}}',
   'fi',
   ...restoreSessionShimPaths,
-  'export OPENCOVE_TERMINAL_AGENT_USER_ZDOTDIR="$_opencove_user_zdotdir"',
-  'export ZDOTDIR="$_opencove_wrapper_zdotdir"',
-  'unset _opencove_user_zdotdir _opencove_wrapper_zdotdir',
+  'export ECLIPSE_CODE_TERMINAL_AGENT_USER_ZDOTDIR="$_eclipse_code_user_zdotdir"',
+  'export ZDOTDIR="$_eclipse_code_wrapper_zdotdir"',
+  'unset _eclipse_code_user_zdotdir _eclipse_code_wrapper_zdotdir',
   '',
 ].join('\n')
 
@@ -320,27 +320,27 @@ function createZshStartupRelay(
   prependShimPath: boolean,
   restoreOnlyForNonLogin: boolean,
 ): string {
-  const userStartupPath = posix.join('$_opencove_user_zdotdir', startupFile)
+  const userStartupPath = posix.join('$_eclipse_code_user_zdotdir', startupFile)
   return [
-    '_opencove_wrapper_zdotdir=$OPENCOVE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY',
-    '_opencove_user_zdotdir=${OPENCOVE_TERMINAL_AGENT_USER_ZDOTDIR:-${OPENCOVE_TERMINAL_AGENT_ORIGINAL_ZDOTDIR:-${HOME:-}}}',
-    `if [ -n "$_opencove_user_zdotdir" ] && [ "$_opencove_user_zdotdir" != "$_opencove_wrapper_zdotdir" ] && [ -r "${userStartupPath}" ]; then`,
-    '  export ZDOTDIR="$_opencove_user_zdotdir"',
+    '_eclipse_code_wrapper_zdotdir=$ECLIPSE_CODE_TERMINAL_AGENT_ZSH_DOT_DIRECTORY',
+    '_eclipse_code_user_zdotdir=${ECLIPSE_CODE_TERMINAL_AGENT_USER_ZDOTDIR:-${ECLIPSE_CODE_TERMINAL_AGENT_ORIGINAL_ZDOTDIR:-${HOME:-}}}',
+    `if [ -n "$_eclipse_code_user_zdotdir" ] && [ "$_eclipse_code_user_zdotdir" != "$_eclipse_code_wrapper_zdotdir" ] && [ -r "${userStartupPath}" ]; then`,
+    '  export ZDOTDIR="$_eclipse_code_user_zdotdir"',
     `  . "${userStartupPath}"`,
-    '  _opencove_user_zdotdir=${ZDOTDIR:-$_opencove_user_zdotdir}',
+    '  _eclipse_code_user_zdotdir=${ZDOTDIR:-$_eclipse_code_user_zdotdir}',
     'fi',
-    'export OPENCOVE_TERMINAL_AGENT_USER_ZDOTDIR="$_opencove_user_zdotdir"',
+    'export ECLIPSE_CODE_TERMINAL_AGENT_USER_ZDOTDIR="$_eclipse_code_user_zdotdir"',
     ...(prependShimPath ? restoreSessionShimPaths : []),
     ...(restoreOnlyForNonLogin
       ? [
-          'if [[ ! -o login ]]; then export ZDOTDIR="$_opencove_user_zdotdir"; else export ZDOTDIR="$_opencove_wrapper_zdotdir"; fi',
+          'if [[ ! -o login ]]; then export ZDOTDIR="$_eclipse_code_user_zdotdir"; else export ZDOTDIR="$_eclipse_code_wrapper_zdotdir"; fi',
         ]
       : [
           startupFile === '.zlogin'
-            ? 'export ZDOTDIR="$_opencove_user_zdotdir"'
-            : 'export ZDOTDIR="$_opencove_wrapper_zdotdir"',
+            ? 'export ZDOTDIR="$_eclipse_code_user_zdotdir"'
+            : 'export ZDOTDIR="$_eclipse_code_wrapper_zdotdir"',
         ]),
-    'unset _opencove_user_zdotdir _opencove_wrapper_zdotdir',
+    'unset _eclipse_code_user_zdotdir _eclipse_code_wrapper_zdotdir',
     '',
   ].join('\n')
 }

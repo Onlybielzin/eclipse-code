@@ -8,11 +8,11 @@ import {
 } from './workspace-canvas.helpers'
 
 type RecoveryGate = { blocked: boolean; release: () => void; original: typeof fetch }
-type GateGlobal = typeof globalThis & { __opencoveStartupRecoveryGate?: RecoveryGate }
+type GateGlobal = typeof globalThis & { __eclipseCodeStartupRecoveryGate?: RecoveryGate }
 
 async function releaseRecovery(app: ElectronApplication): Promise<void> {
   await app.evaluate(() => {
-    const state = (globalThis as GateGlobal).__opencoveStartupRecoveryGate
+    const state = (globalThis as GateGlobal).__eclipseCodeStartupRecoveryGate
     if (state) {
       globalThis.fetch = state.original
       state.release()
@@ -39,7 +39,7 @@ async function openCanvasMenu(window: Page): Promise<void> {
 test('creates interactive terminal and Agent sessions before cold recovery completes', async () => {
   test.skip(process.platform !== 'win32', 'Windows cold startup with real PTYs')
   const userDataDir = await createTestUserDataDir()
-  const env = { OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo' }
+  const env = { ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo' }
   let app: ElectronApplication | null = null
   try {
     const initial = await launchApp({ userDataDir, cleanupUserDataDir: false, env })
@@ -88,7 +88,7 @@ test('creates interactive terminal and Agent sessions before cold recovery compl
         release = resolve
       })
       const state = { blocked: false, release, original }
-      ;(globalThis as GateGlobal).__opencoveStartupRecoveryGate = state
+      ;(globalThis as GateGlobal).__eclipseCodeStartupRecoveryGate = state
       globalThis.fetch = async (input, init) => {
         if (typeof init?.body === 'string') {
           const request = JSON.parse(init.body)
@@ -105,11 +105,11 @@ test('creates interactive terminal and Agent sessions before cold recovery compl
     })
     await window.locator('.workspace-item').filter({ hasText: 'Recovering workspace' }).click()
     const recoveryBlocked = () =>
-      app!.evaluate(() => (globalThis as GateGlobal).__opencoveStartupRecoveryGate?.blocked)
+      app!.evaluate(() => (globalThis as GateGlobal).__eclipseCodeStartupRecoveryGate?.blocked)
     await expect.poll(recoveryBlocked).toBe(true)
     const oldSession = () =>
       window.evaluate(() =>
-        window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId('slow-restore'),
+        window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId('slow-restore'),
       )
     expect(await oldSession()).toBeNull()
 
@@ -154,7 +154,7 @@ test('creates interactive terminal and Agent sessions before cold recovery compl
     )
     const readBindings = () =>
       window.evaluate(async () => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         const state = JSON.parse(raw!) as {
           workspaces: Array<{ id: string; nodes: Array<{ id: string; sessionId?: string }> }>
         }
@@ -179,7 +179,7 @@ test('creates interactive terminal and Agent sessions before cold recovery compl
           nodes =>
             nodes.every(
               node =>
-                window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(node.id) ===
+                window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(node.id) ===
                 node.sessionId,
             ),
           bindings,

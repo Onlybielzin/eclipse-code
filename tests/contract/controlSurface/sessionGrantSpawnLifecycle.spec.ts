@@ -24,7 +24,7 @@ function fixture(spawn: ControlSurfacePtyRuntime['spawnSession']) {
       },
     },
     ensureAssets: async () => ({ cliShimDirectory: '/cli-shims' }),
-    cliPath: '/app/out/cli/opencove.mjs',
+    cliPath: '/app/out/cli/eclipse-code.mjs',
     controlUrl: () => 'http://localhost:1234',
   })
   return {
@@ -41,7 +41,7 @@ it('pending grant is unusable, failed spawn leaks no credential, and shutdown fe
   })
   let token = ''
   const f = fixture(async options => {
-    token = options.env!.OPENCOVE_CONTROL_TOKEN!
+    token = options.env!.ECLIPSE_CODE_CONTROL_TOKEN!
     await barrier
     return { sessionId: 'late' }
   })
@@ -59,7 +59,7 @@ it('pending grant is unusable, failed spawn leaks no credential, and shutdown fe
 it('exit before spawn resolves never activates its grant', async () => {
   let token = ''
   const f = fixture(async options => {
-    token = options.env!.OPENCOVE_CONTROL_TOKEN!
+    token = options.env!.ECLIPSE_CODE_CONTROL_TOKEN!
     f.exit('early')
     return { sessionId: 'early' }
   })
@@ -79,7 +79,7 @@ it('concurrent spawn contexts stay isolated and exit/kill revoke synchronously',
     const env = options.env!
     captured.push(env)
     await Promise.resolve()
-    return { sessionId: env.OPENCOVE_NODE_ID! }
+    return { sessionId: env.ECLIPSE_CODE_NODE_ID! }
   })
   try {
     await Promise.all(
@@ -87,22 +87,22 @@ it('concurrent spawn contexts stay isolated and exit/kill revoke synchronously',
         canvasSpawnIdentity.run({ ...identity, nodeId }, () =>
           f.runtime.spawnSession({
             ...input,
-            env: { OPENCOVE_CONTROL_TOKEN: 'spoof', OPENCOVE_NODE_ID: 'spoof' },
+            env: { ECLIPSE_CODE_CONTROL_TOKEN: 'spoof', ECLIPSE_CODE_NODE_ID: 'spoof' },
           }),
         ),
       ),
     )
     for (const env of captured) {
-      expect(f.grants.verify(env.OPENCOVE_CONTROL_TOKEN!)).toMatchObject({
-        nodeId: env.OPENCOVE_NODE_ID,
-        sessionId: env.OPENCOVE_NODE_ID,
+      expect(f.grants.verify(env.ECLIPSE_CODE_CONTROL_TOKEN!)).toMatchObject({
+        nodeId: env.ECLIPSE_CODE_NODE_ID,
+        sessionId: env.ECLIPSE_CODE_NODE_ID,
       })
-      expect(env.OPENCOVE_CONTROL_TOKEN).not.toBe('spoof')
+      expect(env.ECLIPSE_CODE_CONTROL_TOKEN).not.toBe('spoof')
     }
     f.exit('a')
     f.runtime.kill('b')
     for (const env of captured) {
-      expect(f.grants.verify(env.OPENCOVE_CONTROL_TOKEN!)).toBeNull()
+      expect(f.grants.verify(env.ECLIPSE_CODE_CONTROL_TOKEN!)).toBeNull()
     }
   } finally {
     f.dispose()
@@ -112,7 +112,7 @@ it('concurrent spawn contexts stay isolated and exit/kill revoke synchronously',
 it('sanitizes environment-bearing spawn failures without logging tokens', async () => {
   let token = ''
   const f = fixture(async options => {
-    token = options.env!.OPENCOVE_CONTROL_TOKEN!
+    token = options.env!.ECLIPSE_CODE_CONTROL_TOKEN!
     throw new Error(JSON.stringify(options))
   })
   const log = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -135,7 +135,7 @@ it('treats a caller environment as complete and never re-adds the hosting proces
     return { sessionId: `s${captured.length}` }
   })
   vi.stubEnv('ELECTRON_RUN_AS_NODE', '1')
-  vi.stubEnv('OPENCOVE_TEST_HOST_ONLY', 'host')
+  vi.stubEnv('ECLIPSE_CODE_TEST_HOST_ONLY', 'host')
   try {
     // The agent launcher strips Electron control mode from the environment it passes.
     await canvasSpawnIdentity.run(identity, () =>
@@ -145,23 +145,23 @@ it('treats a caller environment as complete and never re-adds the hosting proces
     await canvasSpawnIdentity.run(identity, () => f.runtime.spawnSession(input))
     await f.runtime.spawnSession({
       ...input,
-      env: { PATH: '/usr/bin', OPENCOVE_CLI_SHIM_DIRECTORY: '/spoofed' },
+      env: { PATH: '/usr/bin', ECLIPSE_CODE_CLI_SHIM_DIRECTORY: '/spoofed' },
     })
 
     const [explicit, inherited, plain] = captured
     expect(explicit.ELECTRON_RUN_AS_NODE).toBeUndefined()
-    expect(explicit.OPENCOVE_TEST_HOST_ONLY).toBeUndefined()
+    expect(explicit.ECLIPSE_CODE_TEST_HOST_ONLY).toBeUndefined()
     expect(explicit.LANG).toBe('C')
     expect(explicit.PATH).toBe(
       ['/cli-shims', '/usr/bin'].join(process.platform === 'win32' ? ';' : ':'),
     )
-    expect(explicit.OPENCOVE_NODE_ID).toBe('n')
-    expect(explicit.OPENCOVE_CLI_SHIM_DIRECTORY).toBe('/cli-shims')
-    expect(plain.OPENCOVE_CLI_SHIM_DIRECTORY).toBeUndefined()
+    expect(explicit.ECLIPSE_CODE_NODE_ID).toBe('n')
+    expect(explicit.ECLIPSE_CODE_CLI_SHIM_DIRECTORY).toBe('/cli-shims')
+    expect(plain.ECLIPSE_CODE_CLI_SHIM_DIRECTORY).toBeUndefined()
     expect(inherited.ELECTRON_RUN_AS_NODE).toBeUndefined()
-    expect(inherited.OPENCOVE_TEST_HOST_ONLY).toBe('host')
+    expect(inherited.ECLIPSE_CODE_TEST_HOST_ONLY).toBe('host')
     expect(plain.ELECTRON_RUN_AS_NODE).toBeUndefined()
-    expect(plain.OPENCOVE_TEST_HOST_ONLY).toBeUndefined()
+    expect(plain.ECLIPSE_CODE_TEST_HOST_ONLY).toBeUndefined()
   } finally {
     vi.unstubAllEnvs()
     f.dispose()

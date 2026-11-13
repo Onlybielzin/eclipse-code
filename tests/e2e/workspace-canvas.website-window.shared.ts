@@ -34,7 +34,7 @@ export async function readWebsiteRuntimeState(
 ): Promise<WebsiteRuntimeState | null> {
   return await electronApp.evaluate(async ({ BrowserWindow }, targetNodeId) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const manager = win.__opencoveWebsiteWindowManager
+    const manager = win.__eclipseCodeWebsiteWindowManager
     const runtime = manager?.runtimeByNodeId.get(targetNodeId) ?? null
     if (!runtime) {
       return null
@@ -70,7 +70,7 @@ export async function readWebsiteRuntimeState(
 
 export async function enableWebsiteWindowPolicy(window: Page): Promise<void> {
   await window.evaluate(async policy => {
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.configurePolicy !== 'function') {
       throw new Error('Website window API unavailable')
     }

@@ -63,16 +63,16 @@ describe('performance diagnostics formatting', () => {
     expect(isUsingElectronMetricsFallback(snapshot)).toBe(true)
     expect(getDisplayProcessSummary(snapshot)).toEqual([
       {
-        kind: 'opencove-main',
-        scope: 'opencove',
+        kind: 'eclipse-code-main',
+        scope: 'eclipse-code',
         count: 1,
         workingSetBytes: 128 * 1024,
         privateBytes: 64 * 1024,
         threadCount: null,
       },
       {
-        kind: 'opencove-renderer',
-        scope: 'opencove',
+        kind: 'eclipse-code-renderer',
+        scope: 'eclipse-code',
         count: 1,
         workingSetBytes: 512 * 1024,
         privateBytes: 256 * 1024,
@@ -91,8 +91,8 @@ describe('performance diagnostics formatting', () => {
     expect(
       sortProcessSummaryByMemory([
         {
-          kind: 'opencove-main',
-          scope: 'opencove',
+          kind: 'eclipse-code-main',
+          scope: 'eclipse-code',
           count: 1,
           workingSetBytes: 10,
           privateBytes: 500,
@@ -107,6 +107,6 @@ describe('performance diagnostics formatting', () => {
           threadCount: 4,
         },
       ]),
-    ).toMatchObject([{ kind: 'external-agent-codex' }, { kind: 'opencove-main' }])
+    ).toMatchObject([{ kind: 'external-agent-codex' }, { kind: 'eclipse-code-main' }])
   })
 })

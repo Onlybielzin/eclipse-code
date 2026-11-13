@@ -7,7 +7,7 @@
   },
   "byRule": {
     "architecture.layerDependency": 474,
-    "architecture.windowOpenCoveApiBoundary": 289
+    "architecture.windowEclipseCodeApiBoundary": 289
   },
   "topAreas": [
     {

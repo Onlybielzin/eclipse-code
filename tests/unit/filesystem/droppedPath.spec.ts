@@ -26,7 +26,7 @@ describe('native dropped path approval', () => {
   beforeEach(async () => {
     electron.app.isPackaged = false
     vi.stubEnv('ELECTRON_RENDERER_URL', '')
-    root = await mkdtemp(join(tmpdir(), 'opencove-drop-approval-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-drop-approval-'))
     await mkdir(join(root, 'docs'))
     await writeFile(join(root, 'note.md'), 'Native file')
     await writeFile(join(root, 'sibling.md'), 'Keep private')

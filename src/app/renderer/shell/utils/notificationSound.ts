@@ -5,7 +5,7 @@ type NotificationSoundTestEntry = { sound: NotificationSound; volume: number }
 
 declare global {
   interface Window {
-    __opencoveNotificationSoundTestLog?: NotificationSoundTestEntry[]
+    __eclipseCodeNotificationSoundTestLog?: NotificationSoundTestEntry[]
   }
 }
 
@@ -91,9 +91,9 @@ export function playNotificationSound(sound: NotificationSound, volume: number):
   if (volume <= 0) {
     return
   }
-  if (window.opencoveApi?.meta?.isTest === true) {
-    window.__opencoveNotificationSoundTestLog ??= []
-    window.__opencoveNotificationSoundTestLog.push({ sound, volume })
+  if (window.eclipseCodeApi?.meta?.isTest === true) {
+    window.__eclipseCodeNotificationSoundTestLog ??= []
+    window.__eclipseCodeNotificationSoundTestLog.push({ sound, volume })
     return
   }
   if (typeof AudioContext === 'undefined') {

@@ -14,23 +14,23 @@ it.each([
   async ({ args, exitCode }) => {
     const result = await runCommand(
       process.execPath,
-      [resolve('out/cli/opencove.mjs'), ...args, '--endpoint', 'http://127.0.0.1:1'],
+      [resolve('out/cli/eclipse-code.mjs'), ...args, '--endpoint', 'http://127.0.0.1:1'],
       process.cwd(),
       { timeoutMs: 3000 },
     )
     expect(result.exitCode, result.stderr).toBe(exitCode)
-    expect(result.stdout).toContain('OpenCove CLI')
+    expect(result.stdout).toContain('Eclipse Code CLI')
     expect(result.stderr).toBe('')
   },
 )
 
 it('worker start --help exits without a Worker or profile, even with runtime launch flags', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-help-regression-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-help-regression-'))
   try {
     const result = await runCommand(
       process.execPath,
       [
-        resolve('out/cli/opencove.mjs'),
+        resolve('out/cli/eclipse-code.mjs'),
         'worker',
         'start',
         '--help',

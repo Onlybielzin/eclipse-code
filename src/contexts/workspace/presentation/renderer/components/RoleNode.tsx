@@ -195,6 +195,15 @@ export function RoleNode({
           onChange={event => {
             setInputDraft(event.target.value)
           }}
+          onKeyDown={event => {
+            // Ctrl+Enter (Cmd+Enter on macOS) runs the role; plain Enter keeps a new line.
+            if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+              event.preventDefault()
+              event.stopPropagation()
+              commitInput()
+              onRun(inputDraft)
+            }
+          }}
         />
       </label>
 

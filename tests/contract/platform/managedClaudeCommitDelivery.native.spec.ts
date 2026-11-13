@@ -11,7 +11,7 @@ import { stateWithAgent, tupleA, tupleB } from './managedClaudeResumeBindingFixt
 
 describeWithElectronNativeModules('managed Claude buffered commit delivery', () => {
   it('publishes exact revisions in transaction order before awaited consumers, including rebind and settlement', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-commit-delivery-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-commit-delivery-'))
     const store = await createPersistenceStore({ dbPath: join(root, 'state.db') })
     const buffer: SyncEventPayload[] = []
     const unsub = store.onAppStateCommitted(event => {

@@ -21,7 +21,7 @@ interface EndpointProbe {
   originalAnimate: typeof Element.prototype.animate
 }
 
-type EndpointWindow = Window & { __opencoveCollapseEndpoint?: EndpointProbe }
+type EndpointWindow = Window & { __eclipseCodeCollapseEndpoint?: EndpointProbe }
 
 export async function seedIdentityEndpointFixture(
   page: Page,
@@ -97,7 +97,7 @@ export async function pausePresentationAnimations(page: Page, selector: string) 
   await page.evaluate(targetSelector => {
     const originalAnimate = Element.prototype.animate
     const probe: EndpointProbe = { animations: [], originalAnimate }
-    ;(window as EndpointWindow).__opencoveCollapseEndpoint = probe
+    ;(window as EndpointWindow).__eclipseCodeCollapseEndpoint = probe
     Element.prototype.animate = function (keyframes, options) {
       const animation = originalAnimate.call(this, keyframes, options)
       if (this.closest(targetSelector)) {
@@ -122,7 +122,7 @@ export async function seekCollapseProgress(
 ) {
   return page.evaluate(
     ({ fraction, phase: targetPhase }) => {
-      const probe = (window as EndpointWindow).__opencoveCollapseEndpoint
+      const probe = (window as EndpointWindow).__eclipseCodeCollapseEndpoint
       if (!probe?.animations.length) {
         throw new Error('The real disclosure action did not start any animations')
       }
@@ -146,7 +146,7 @@ export async function seekCollapseProgress(
 export async function resumePresentationAnimations(page: Page) {
   await page.evaluate(async () => {
     const host = window as EndpointWindow
-    const probe = host.__opencoveCollapseEndpoint
+    const probe = host.__eclipseCodeCollapseEndpoint
     if (!probe?.animations.length) {
       throw new Error('Missing presentation animations')
     }
@@ -156,14 +156,14 @@ export async function resumePresentationAnimations(page: Page) {
       animation.play()
     }
     await completed
-    delete host.__opencoveCollapseEndpoint
+    delete host.__eclipseCodeCollapseEndpoint
   })
 }
 
 export async function finishCollapseAnimations(page: Page, nodeId: string) {
   await page.evaluate(() => {
     const host = window as EndpointWindow
-    const probe = host.__opencoveCollapseEndpoint
+    const probe = host.__eclipseCodeCollapseEndpoint
     if (!probe) {
       throw new Error('Missing disclosure animations')
     }
@@ -171,7 +171,7 @@ export async function finishCollapseAnimations(page: Page, nodeId: string) {
     for (const animation of probe.animations) {
       animation.finish()
     }
-    delete host.__opencoveCollapseEndpoint
+    delete host.__eclipseCodeCollapseEndpoint
   })
   await expect(
     page.locator(`.react-flow__node[data-id="${nodeId}"] .cove-node-presentation`),

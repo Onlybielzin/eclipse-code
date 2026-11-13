@@ -8,8 +8,9 @@ function resolveProviderSessionId(provider, sessionFilePath) {
 async function reportInjectedTerminalHook(provider, cwd, sessionFilePath, hookEventName) {
   const isClaude = provider === 'claude-code'
   const endpoint =
-    process.env[isClaude ? 'OPENCOVE_CLAUDE_HOOK_ENDPOINT' : 'OPENCOVE_CODEX_HOOK_ENDPOINT']
-  const token = process.env[isClaude ? 'OPENCOVE_CLAUDE_HOOK_TOKEN' : 'OPENCOVE_CODEX_HOOK_TOKEN']
+    process.env[isClaude ? 'ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT' : 'ECLIPSE_CODE_CODEX_HOOK_ENDPOINT']
+  const token =
+    process.env[isClaude ? 'ECLIPSE_CODE_CLAUDE_HOOK_TOKEN' : 'ECLIPSE_CODE_CODEX_HOOK_TOKEN']
   if (!endpoint || !token) {
     return null
   }
@@ -33,7 +34,7 @@ async function reportInjectedTerminalHook(provider, cwd, sessionFilePath, hookEv
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-opencove-hook-token': token,
+      'x-eclipse-code-hook-token': token,
     },
     body: JSON.stringify(body),
   })

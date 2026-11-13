@@ -11,7 +11,7 @@ import {
   type SeedWorkspace,
 } from './workspace-canvas.helpers'
 
-export const spaceComparisonCommand = `opencove space get --space ${shellWord('@self')} --fields id,name,directoryPath,boundary,nodeIds,nodeCount,projectId,nodes`
+export const spaceComparisonCommand = `eclipse-code space get --space ${shellWord('@self')} --fields id,name,directoryPath,boundary,nodeIds,nodeCount,projectId,nodes`
 
 export const projectId = 'cli-output-project'
 export const spaceId = 'cli-output-space'
@@ -23,7 +23,7 @@ export async function createOutputTerminal(
 ): Promise<Binding> {
   const result = await page.evaluate(
     async ({ kind, targetSpaceId, shell }) => {
-      return window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+      return window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
         kind: 'command',
         id: 'node.create',
         payload: {
@@ -45,7 +45,7 @@ export async function createOutputTerminal(
     throw new Error('Created node has no PTY session')
   }
   await page.evaluate(async nodeId => {
-    await window.opencoveApi.controlSurface.invoke({
+    await window.eclipseCodeApi.controlSurface.invoke({
       kind: 'command',
       id: 'canvas.focus',
       payload: { target: { kind: 'node', nodeId } },
@@ -61,7 +61,7 @@ export async function withOutputWorkspace(
   nodes: SeedWorkspace['nodes'],
   execute: (page: Page, shell: Binding) => Promise<void>,
 ) {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-output-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-output-'))
   const workspace = join(root, 'project'),
     profile = join(root, 'profile')
   let app: Awaited<ReturnType<typeof launchApp>>['electronApp'] | undefined
@@ -71,11 +71,11 @@ export async function withOutputWorkspace(
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
         CODEX_HOME: join(profile, 'home', '.codex'),
         CLAUDE_CONFIG_DIR: join(profile, 'home', '.claude'),
       },

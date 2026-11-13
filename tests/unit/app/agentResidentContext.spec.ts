@@ -16,7 +16,7 @@ describe.each(['claude', 'codex'] as const)('%s resident context', provider => {
       expect(before.headers['content-type']).toBe('application/json')
       expect(JSON.parse(before.body)).toMatchObject({
         v: 1,
-        context: expect.stringContaining('opencove whoami'),
+        context: expect.stringContaining('eclipse-code whoami'),
       })
       expect(Buffer.byteLength(JSON.parse(before.body).context)).toBeLessThanOrEqual(2048)
       reservation.commit('pty')
@@ -105,7 +105,7 @@ describe.each(['claude', 'codex'] as const)('%s resident context', provider => {
     f.channel.setResidentContextEnabled!(async () => true)
     try {
       const reservation = await f.channel.reserveSpawn({ residentContext: 'canvas' })
-      const token = reservation.env![`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]!
+      const token = reservation.env![`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]!
       reservation.commit('lifecycle')
       const results = []
       const base = Date.now() - 10000

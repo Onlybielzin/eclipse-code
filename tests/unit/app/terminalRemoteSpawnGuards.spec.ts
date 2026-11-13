@@ -16,7 +16,11 @@ it.each(['context', 'lifecycle', 'none'])(
   async failure => {
     vi.mocked(invokeControlSurface).mockResolvedValue({
       httpStatus: 200,
-      result: { __opencoveControlEnvelope: true, ok: true, value: { sessionId: 'remote-shell' } },
+      result: {
+        __eclipseCodeControlEnvelope: true,
+        ok: true,
+        value: { sessionId: 'remote-shell' },
+      },
     })
     const surface = createControlSurface()
     const entered = deferred<void>(),

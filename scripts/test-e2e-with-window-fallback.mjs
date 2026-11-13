@@ -65,7 +65,7 @@ function readAvailableBytes(targetDir) {
 }
 
 function resolvePreferredE2ETmpDir() {
-  const configuredTmpDir = process.env['OPENCOVE_E2E_TMPDIR']?.trim()
+  const configuredTmpDir = process.env['ECLIPSE_CODE_E2E_TMPDIR']?.trim()
   if (configuredTmpDir) {
     return configuredTmpDir
   }
@@ -103,7 +103,7 @@ async function cleanupE2ETempDirs() {
 
   await Promise.all(
     [...candidates].map(baseDir =>
-      rm(path.join(baseDir, 'opencove-e2e'), { recursive: true, force: true }).catch(
+      rm(path.join(baseDir, 'eclipse-code-e2e'), { recursive: true, force: true }).catch(
         () => undefined,
       ),
     ),
@@ -114,7 +114,7 @@ function resolveWindowMode(rawValue) {
   const normalized = rawValue?.trim().toLowerCase()
   if (normalized === 'normal') {
     throw new Error(
-      '[e2e] OPENCOVE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
+      '[e2e] ECLIPSE_CODE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
     )
   }
 
@@ -189,12 +189,12 @@ function runCommand(args, env = process.env) {
 
 async function main() {
   const isCi = isTruthyEnv(process.env.CI)
-  const currentWindowMode = resolveWindowMode(process.env['OPENCOVE_E2E_WINDOW_MODE'])
+  const currentWindowMode = resolveWindowMode(process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'])
   const fallbackWindowMode = resolveFallbackWindowMode(currentWindowMode)
   const preferredE2ETmpDir = resolvePreferredE2ETmpDir()
 
   try {
-    if (!isTruthyEnv(process.env['OPENCOVE_E2E_SKIP_BUILD'])) {
+    if (!isTruthyEnv(process.env['ECLIPSE_CODE_E2E_SKIP_BUILD'])) {
       const buildResult = await runCommand(['build'])
       if (buildResult.code !== 0) {
         return buildResult.code
@@ -204,14 +204,14 @@ async function main() {
     const firstRunArgs = ['exec', 'playwright', 'test', ...forwardedArgs]
     const firstRun = await runCommand(firstRunArgs, {
       ...process.env,
-      OPENCOVE_E2E_TMPDIR: preferredE2ETmpDir,
-      OPENCOVE_E2E_WINDOW_MODE: currentWindowMode,
+      ECLIPSE_CODE_E2E_TMPDIR: preferredE2ETmpDir,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: currentWindowMode,
     })
     if (firstRun.code === 0) {
       return 0
     }
 
-    if (isTruthyEnv(process.env['OPENCOVE_E2E_DISABLE_CRASH_FALLBACK'])) {
+    if (isTruthyEnv(process.env['ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK'])) {
       return firstRun.code
     }
 
@@ -226,15 +226,15 @@ async function main() {
     const rerunDescription =
       fallbackWindowMode === currentWindowMode
         ? `Rerunning last failed tests once more in ${fallbackWindowMode} mode to recover a transient crash-like failure.`
-        : `Rerunning last failed tests with OPENCOVE_E2E_WINDOW_MODE=${fallbackWindowMode}.`
+        : `Rerunning last failed tests with ECLIPSE_CODE_E2E_WINDOW_MODE=${fallbackWindowMode}.`
     writeStderr(
       `[e2e-fallback] Detected crash-like failure in ${currentWindowMode} mode. ${rerunDescription}`,
     )
 
     const fallbackRun = await runCommand(['exec', 'playwright', 'test', '--last-failed'], {
       ...process.env,
-      OPENCOVE_E2E_TMPDIR: preferredE2ETmpDir,
-      OPENCOVE_E2E_WINDOW_MODE: fallbackWindowMode,
+      ECLIPSE_CODE_E2E_TMPDIR: preferredE2ETmpDir,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: fallbackWindowMode,
     })
 
     if (fallbackRun.code === 0) {

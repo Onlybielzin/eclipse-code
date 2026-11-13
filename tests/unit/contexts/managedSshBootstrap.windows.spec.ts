@@ -13,23 +13,23 @@ import { runtimeBuildFixture } from '../../helpers/runtimeBuild'
 const windows = process.platform === 'win32' ? describe : describe.skip
 windows('generated managed SSH PowerShell bootstrap', () => {
   it('executes isolated installer and launcher, emitting incremental allowlisted stages', async () => {
-    const root = await mkdtemp(path.join(tmpdir(), 'opencove-ssh-windows-'))
+    const root = await mkdtemp(path.join(tmpdir(), 'eclipse-code-ssh-windows-'))
     const fixtureScript = path.join(root, 'runtime-fixture.cjs')
     await writeFile(
       fixtureScript,
       `if (process.argv[3] === 'inspect') console.log(JSON.stringify(${JSON.stringify(runtimeBuildFixture)}));
-else { const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8').replace(/^\\uFEFF/, '')); require('node:fs').writeFileSync(process.env.OPENCOVE_SSH_TEST_LAUNCHED, JSON.stringify(input)); console.log('[opencove-bootstrap-progress:v1] waiting_for_runtime'); }`,
+else { const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8').replace(/^\\uFEFF/, '')); require('node:fs').writeFileSync(process.env.ECLIPSE_CODE_SSH_TEST_LAUNCHED, JSON.stringify(input)); console.log('[eclipse-code-bootstrap-progress:v1] waiting_for_runtime'); }`,
     )
-    const launcher = `@echo off\r\nrem __OPENCOVE_CLI_WRAPPER__\r\n"${process.execPath}" "${fixtureScript}" %*\r\nexit /b %ERRORLEVEL%\r\n`
+    const launcher = `@echo off\r\nrem __ECLIPSE_CODE_CLI_WRAPPER__\r\n"${process.execPath}" "${fixtureScript}" %*\r\nexit /b %ERRORLEVEL%\r\n`
     const launched = path.join(root, 'launched.json')
     let downloads = 0
     const server = createServer((request, response) => {
       if (request.url === '/installer.ps1') {
         downloads += 1
         response.writeHead(200, { 'content-type': 'text/plain' })
-        response.end(`New-Item -ItemType Directory -Path $env:OPENCOVE_BIN_DIR -Force | Out-Null
-[IO.File]::WriteAllBytes((Join-Path $env:OPENCOVE_BIN_DIR 'opencove.cmd'), [Convert]::FromBase64String('${Buffer.from(launcher).toString('base64')}'))
-[IO.File]::WriteAllText($env:OPENCOVE_SSH_TEST_INSTALLED, 'installed')\n`)
+        response.end(`New-Item -ItemType Directory -Path $env:ECLIPSE_CODE_BIN_DIR -Force | Out-Null
+[IO.File]::WriteAllBytes((Join-Path $env:ECLIPSE_CODE_BIN_DIR 'eclipse-code.cmd'), [Convert]::FromBase64String('${Buffer.from(launcher).toString('base64')}'))
+[IO.File]::WriteAllText($env:ECLIPSE_CODE_SSH_TEST_INSTALLED, 'installed')\n`)
         return
       }
       response.writeHead(404)
@@ -77,8 +77,8 @@ else { const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8').repla
             ...process.env,
             LOCALAPPDATA: path.join(root, 'local'),
             APPDATA: path.join(root, 'roaming'),
-            OPENCOVE_SSH_TEST_INSTALLED: path.join(root, 'installed'),
-            OPENCOVE_SSH_TEST_LAUNCHED: launched,
+            ECLIPSE_CODE_SSH_TEST_INSTALLED: path.join(root, 'installed'),
+            ECLIPSE_CODE_SSH_TEST_LAUNCHED: launched,
           },
         },
       )

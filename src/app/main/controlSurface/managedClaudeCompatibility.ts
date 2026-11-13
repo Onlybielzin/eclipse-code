@@ -3,7 +3,7 @@ import type { PersistenceStore } from '../../../platform/persistence/sqlite/Pers
 import { createAppError } from '../../../shared/errors/appError'
 
 export function managedClaudeWritesEnabled(): boolean {
-  return process.env.OPENCOVE_MANAGED_CLAUDE_BINDINGS !== '0'
+  return process.env.ECLIPSE_CODE_MANAGED_CLAUDE_BINDINGS !== '0'
 }
 export function assertManagedClaudeMutationAllowed(
   ctx: ControlSurfaceContext,
@@ -20,7 +20,7 @@ export function assertManagedClaudeMutationAllowed(
       details: { nodeId, reason },
       debugMessage:
         reason === 'clientUpgradeRequired'
-          ? 'Update OpenCove and reload this window before controlling this agent.'
+          ? 'Update Eclipse Code and reload this window before controlling this agent.'
           : 'Managed Claude restarts are paused. Ask the Worker administrator to enable them.',
     })
   }

@@ -32,6 +32,9 @@ import { registerPtyMountHandlers } from './handlers/ptyMountHandlers'
 import { registerSyncHandlers } from './handlers/syncHandlers'
 import { registerTopologyHandlers } from './handlers/topologyHandlers'
 import { registerAuthHandlers } from './handlers/authHandlers'
+import { registerCanvasCardHandlers } from './handlers/canvasCardHandlers'
+import { registerProjectRoleHandlers } from './handlers/projectRoleHandlers'
+import { startWorkerTeamTurnRelay } from './teamTurnRelayWiring'
 import { registerNodeControlHandlers } from './handlers/nodeControlHandlers'
 import { registerPluginHandlers } from './handlers/pluginHandlers'
 import { registerPluginCommandHandlers } from './handlers/pluginCommandHandlers'
@@ -183,6 +186,16 @@ export function registerControlSurfaceHandlers(
     terminalSpawnAdmission: deps.terminalSpawnAdmission,
     terminalAgentActivity: deps.terminalAgentActivity,
   })
+  registerCanvasCardHandlers(controlSurface, { getPersistenceStore: deps.getPersistenceStore })
+  registerProjectRoleHandlers(controlSurface, { getPersistenceStore: deps.getPersistenceStore })
+  const agentRunRegistry = deps.ptyStreamHub.agentRuns?.registry
+  if (typeof agentRunRegistry?.subscribe === 'function') {
+    startWorkerTeamTurnRelay(controlSurface, {
+      context: deps.context,
+      registry: agentRunRegistry,
+      getPersistenceStore: deps.getPersistenceStore,
+    })
+  }
   registerNodeControlHandlers(controlSurface, {
     killExactSession: id => deps.ptyRuntime.kill(id),
     agentSpawnRuntime: deps.agentSpawnRuntime

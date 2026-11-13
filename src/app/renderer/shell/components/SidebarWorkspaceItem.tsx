@@ -7,11 +7,14 @@ import {
   LayoutIcon,
   MoreIcon,
   PinIcon,
+  PackageIcon,
 } from '@app/renderer/components/ui/pixelIcons'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from '@app/renderer/i18n'
 import { Tooltip } from '@app/renderer/components/ui/Tooltip'
+import { IconButton } from '@app/renderer/components/ui/IconButton'
+import { requestCloseTask } from '@contexts/workspace/presentation/renderer/components/workspaceCanvas/tasks/taskEvents'
 import type { ProjectContextMenuState } from '../types'
 import { type SidebarProjectTreeModel, type SidebarSpaceGroupModel } from '../utils/sidebarTree'
 import { SidebarAgentItems } from './SidebarAgentItems'
@@ -207,6 +210,32 @@ function SpaceGroup({
               >
                 <PinIcon size={18} />
               </button>
+            ) : null}
+            {group.space && !group.space.parentSpaceId ? (
+              <IconButton
+                label={t('taskSwitcher.closeTaskShort')}
+                size="sm"
+                className="workspace-sidebar__more workspace-space-item__close-task"
+                data-testid={`workspace-space-close-task-${workspaceId}-${group.id}`}
+                onClick={event => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const spaceId = group.id
+                  // Open the task first so its canvas is the mounted one, then ask it to archive.
+                  onSelectSpace(workspaceId, spaceId)
+                  window.setTimeout(
+                    () =>
+                      requestCloseTask(spaceId, {
+                        x: Math.round(rect.right),
+                        y: Math.round(rect.bottom),
+                      }),
+                    0,
+                  )
+                }}
+              >
+                <PackageIcon size={18} />
+              </IconButton>
             ) : null}
             <button
               type="button"

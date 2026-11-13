@@ -16,7 +16,7 @@ export async function createAgentHookRelay(options: {
 }): Promise<AgentHookRelayInvocation> {
   const { provider, runtimeExecutable, runtimePlatform, artifacts } = options
   const relay = await createTemporaryProviderConfig(
-    `opencove-${provider}-hook-`,
+    `eclipse-code-${provider}-hook-`,
     'relay.mjs',
     `const provider = ${JSON.stringify(provider)};\n${agentHookReplyScript}\n${relayScript}`,
   )
@@ -30,7 +30,7 @@ export async function createAgentHookRelay(options: {
   }
 
   const launcher = await createTemporaryProviderConfig(
-    `opencove-${provider}-hook-`,
+    `eclipse-code-${provider}-hook-`,
     'launch.ps1',
     createWindowsLauncher(runtimeExecutable, relay.path),
   )
@@ -107,7 +107,7 @@ function shrinkText(value) {
 // Telemetry cannot keep the provider waiting, including on an unclosed stdin or socket.
 const deadline = setTimeout(() => process.exit(0), 2000);
 try {
-  const prefix = provider === 'codex' ? 'OPENCOVE_CODEX_HOOK_' : 'OPENCOVE_CLAUDE_HOOK_';
+  const prefix = provider === 'codex' ? 'ECLIPSE_CODE_CODEX_HOOK_' : 'ECLIPSE_CODE_CLAUDE_HOOK_';
   const endpoint = process.env[prefix + 'ENDPOINT'];
   const token = process.env[prefix + 'TOKEN'];
   if (endpoint && token && validEndpoint(endpoint)) {

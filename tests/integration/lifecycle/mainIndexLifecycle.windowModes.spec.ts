@@ -17,7 +17,7 @@ function createMockApp() {
       },
     })),
     waitForStartup: () => startup,
-    getPath: vi.fn((_name: string) => '/tmp/opencove-test-userdata'),
+    getPath: vi.fn((_name: string) => '/tmp/eclipse-code-test-userdata'),
     setPath: vi.fn(),
     commandLine: {
       appendSwitch: vi.fn(),
@@ -200,8 +200,8 @@ describe('main process lifecycle window modes', () => {
   it('shows window without focusing during E2E no-focus mode', async () => {
     await withProcessEnv(
       {
-        OPENCOVE_E2E_NO_FOCUS: '1',
-        OPENCOVE_E2E_WINDOW_MODE: undefined,
+        ECLIPSE_CODE_E2E_NO_FOCUS: '1',
+        ECLIPSE_CODE_E2E_WINDOW_MODE: undefined,
         NODE_ENV: 'test',
       },
       async () => {
@@ -237,11 +237,11 @@ describe('main process lifecycle window modes', () => {
     )
   })
 
-  it('does not focus window when OPENCOVE_E2E_WINDOW_MODE=normal during tests', async () => {
+  it('does not focus window when ECLIPSE_CODE_E2E_WINDOW_MODE=normal during tests', async () => {
     await withProcessEnv(
       {
-        OPENCOVE_E2E_NO_FOCUS: undefined,
-        OPENCOVE_E2E_WINDOW_MODE: 'normal',
+        ECLIPSE_CODE_E2E_NO_FOCUS: undefined,
+        ECLIPSE_CODE_E2E_WINDOW_MODE: 'normal',
         NODE_ENV: 'test',
       },
       async () => {
@@ -276,8 +276,8 @@ describe('main process lifecycle window modes', () => {
   it('keeps E2E window hidden for visual regression mode', async () => {
     await withProcessEnv(
       {
-        OPENCOVE_E2E_NO_FOCUS: undefined,
-        OPENCOVE_E2E_WINDOW_MODE: 'hidden',
+        ECLIPSE_CODE_E2E_NO_FOCUS: undefined,
+        ECLIPSE_CODE_E2E_WINDOW_MODE: 'hidden',
         NODE_ENV: 'test',
       },
       async () => {
@@ -318,8 +318,8 @@ describe('main process lifecycle window modes', () => {
   it('shows E2E window in offscreen inactive mode', async () => {
     await withProcessEnv(
       {
-        OPENCOVE_E2E_NO_FOCUS: undefined,
-        OPENCOVE_E2E_WINDOW_MODE: 'offscreen',
+        ECLIPSE_CODE_E2E_NO_FOCUS: undefined,
+        ECLIPSE_CODE_E2E_WINDOW_MODE: 'offscreen',
         NODE_ENV: 'test',
       },
       async () => {

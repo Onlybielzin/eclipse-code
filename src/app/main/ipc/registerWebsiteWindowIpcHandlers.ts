@@ -44,8 +44,8 @@ function resolveManager(
   }
 
   const existing =
-    (targetWindow as unknown as { __opencoveWebsiteWindowManager?: WebsiteWindowManager })
-      .__opencoveWebsiteWindowManager ?? null
+    (targetWindow as unknown as { __eclipseCodeWebsiteWindowManager?: WebsiteWindowManager })
+      .__eclipseCodeWebsiteWindowManager ?? null
   if (existing) {
     return existing
   }
@@ -53,8 +53,8 @@ function resolveManager(
   const nextManager = new WebsiteWindowManager(targetWindow, getBrowserProfileStore)
   const unregisterManager = registerWebsiteWindowManager(nextManager)
   ;(
-    targetWindow as unknown as { __opencoveWebsiteWindowManager?: WebsiteWindowManager }
-  ).__opencoveWebsiteWindowManager = nextManager
+    targetWindow as unknown as { __eclipseCodeWebsiteWindowManager?: WebsiteWindowManager }
+  ).__eclipseCodeWebsiteWindowManager = nextManager
 
   targetWindow.once('closed', () => {
     unregisterManager()

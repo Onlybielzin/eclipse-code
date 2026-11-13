@@ -22,8 +22,8 @@ test.describe('Terminal Agent completion banner', () => {
       const { electronApp, window } = await launchApp({
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
         },
       })
       try {

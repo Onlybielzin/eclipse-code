@@ -7,7 +7,7 @@ import {
   formatAppErrorMessage,
   getAppErrorDebugMessage,
   isAppErrorDescriptor,
-  OpenCoveAppError,
+  EclipseCodeAppError,
 } from '@shared/errors/appError'
 import type { Point, Size, TaskPriority, TerminalNodeData, WorkspaceSpaceState } from '../../types'
 import { providerTitlePrefix } from '../../utils/agentTitle'
@@ -15,7 +15,7 @@ import { TASK_PRIORITIES } from './constants'
 import type { TrackpadGestureAction, TrackpadGestureTarget } from './types'
 
 function isTestEnvironment(): boolean {
-  return typeof window !== 'undefined' && window.opencoveApi?.meta?.isTest === true
+  return typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.isTest === true
 }
 
 export function resolveWorkspaceCanvasAnimationDuration(duration: number): number {
@@ -29,7 +29,7 @@ export function resolveWorkspaceCanvasAnimationDuration(duration: number): numbe
   }
   const testAnimationEnabled =
     typeof document !== 'undefined' &&
-    document.documentElement.dataset.opencoveTestViewportAnimation === 'true'
+    document.documentElement.dataset.eclipseCodeTestViewportAnimation === 'true'
   return isTestEnvironment() && !testAnimationEnabled ? 0 : duration
 }
 
@@ -398,7 +398,7 @@ export function validateSpaceTransfer(
 }
 
 export function toErrorMessage(error: unknown): string {
-  if (error instanceof OpenCoveAppError || isAppErrorDescriptor(error)) {
+  if (error instanceof EclipseCodeAppError || isAppErrorDescriptor(error)) {
     if (error.code === 'agent.managed_launch_commit_failed') {
       return translate('messages.managedAgentLaunchUncertain')
     }
@@ -418,12 +418,12 @@ export function toErrorMessage(error: unknown): string {
     }
   }
   if (
-    (error instanceof OpenCoveAppError || isAppErrorDescriptor(error)) &&
+    (error instanceof EclipseCodeAppError || isAppErrorDescriptor(error)) &&
     error.code === 'persistence.owned_node_identity_conflict'
   ) {
     return translate('messages.managedAgentChanged')
   }
-  if (error instanceof OpenCoveAppError) {
+  if (error instanceof EclipseCodeAppError) {
     if (error.code === 'terminal.runtime_not_ready') {
       return translate('common.terminalRuntimeNotReady')
     }
@@ -483,7 +483,7 @@ export function normalizeDirectoryPath(workspacePath: string, customDirectory: s
 
 export function toSuggestedWorktreePath(workspacePath: string, provider: AgentProvider): string {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  return `${workspacePath}/.opencove/worktrees/${providerTitlePrefix(provider)}-${stamp}`
+  return `${workspacePath}/.eclipse-code/worktrees/${providerTitlePrefix(provider)}-${stamp}`
 }
 
 export function sanitizeSpaces(nextSpaces: WorkspaceSpaceState[]): WorkspaceSpaceState[] {

@@ -76,7 +76,7 @@ it('kills the local-view placeholder mutation at cold restore', async () => {
   await c.step('autosave')
   await c.localViews.checkColdRestore()
   window.localStorage.setItem(
-    'opencove:m5.6:view-state',
+    'eclipse-code:m5.6:view-state',
     JSON.stringify({
       activeWorkspaceId: 'project',
       workspaces: {

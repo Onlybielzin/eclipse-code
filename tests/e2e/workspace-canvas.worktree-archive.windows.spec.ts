@@ -52,18 +52,18 @@ async function createTempRepoWithWorktree(): Promise<{
   worktreePath: string
   branchName: string
 }> {
-  const repoDir = await mkdtemp(path.join(resolveE2ETmpDir(), 'OpenCove Worktree Archive E2E '))
+  const repoDir = await mkdtemp(path.join(resolveE2ETmpDir(), 'Eclipse Code Worktree Archive E2E '))
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
   await runGit(['add', '.'], repoDir)
   await runGit(['commit', '-m', 'init'], repoDir)
 
-  const worktreesRoot = path.join(repoDir, '.opencove', 'worktrees with spaces')
+  const worktreesRoot = path.join(repoDir, '.eclipse-code', 'worktrees with spaces')
   await mkdir(worktreesRoot, { recursive: true })
 
   const worktreePath = path.join(worktreesRoot, `space archive warning ${Date.now()}`)
@@ -99,7 +99,7 @@ test.describe('Workspace Canvas - Worktree Archive (Windows)', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 
@@ -168,7 +168,7 @@ test.describe('Workspace Canvas - Worktree Archive (Windows)', () => {
         await expect
           .poll(async () => {
             return await window.evaluate(async () => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

@@ -94,7 +94,7 @@ const plugin: PluginManifest = {
   actionBar: false,
   contextMenu: false,
 }
-const original = { state: useAppStore.getState(), api: window.opencoveApi }
+const original = { state: useAppStore.getState(), api: window.eclipseCodeApi }
 let types: ReturnType<typeof useWorkspaceCanvasNodeTypes>['nodeTypes']
 const selected: string[] = []
 function Canvas() {
@@ -130,7 +130,7 @@ function Shell() {
 afterEach(() => {
   cleanup()
   useAppStore.setState(original.state, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original.api })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original.api })
   vi.useRealTimers()
 })
 it('retains React types, live iframe and editor identities across canonical refreshes and preference updates', async () => {
@@ -178,7 +178,7 @@ it('retains React types, live iframe and editor identities across canonical refr
       : null,
   )
   const write = vi.fn(async () => ({ ok: true, level: 'full', bytes: 0, revision }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

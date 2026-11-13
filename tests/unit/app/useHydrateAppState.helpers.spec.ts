@@ -121,7 +121,7 @@ describe('mergeHydratedNode', () => {
   })
 
   it('keeps a provider hint non-authoritative without inventing a recovery error', async () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         controlSurface: {
@@ -215,8 +215,8 @@ describe('repairRuntimeNodeFrame', () => {
           launchMode: 'new',
           resumeSessionId: null,
           resumeSessionIdVerified: false,
-          executionDirectory: 'D:\\Development\\opencove',
-          expectedDirectory: 'D:\\Development\\opencove',
+          executionDirectory: 'D:\\Development\\eclipse-code',
+          expectedDirectory: 'D:\\Development\\eclipse-code',
           directoryMode: 'workspace',
           customDirectory: null,
           shouldCreateDirectory: false,
@@ -245,8 +245,8 @@ describe('repairRuntimeNodeFrame', () => {
           launchMode: 'new',
           resumeSessionId: null,
           resumeSessionIdVerified: false,
-          executionDirectory: 'D:\\Development\\opencove',
-          expectedDirectory: 'D:\\Development\\opencove',
+          executionDirectory: 'D:\\Development\\eclipse-code',
+          expectedDirectory: 'D:\\Development\\eclipse-code',
           directoryMode: 'workspace',
           customDirectory: null,
           shouldCreateDirectory: false,

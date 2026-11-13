@@ -82,7 +82,7 @@ function Chip({
 /**
  * One Agent that needs you, as a pixel window under the pill: its window icon, its title, a
  * blinking amber light, its context and a row of 12 pixel cells that go out over six seconds.
- * Then it retracts into the pill, unless the pointer or focus rests on the stack or OpenCove
+ * Then it retracts into the pill, unless the pointer or focus rests on the stack or Eclipse Code
  * is behind another app.
  */
 export function AgentIslandCard({

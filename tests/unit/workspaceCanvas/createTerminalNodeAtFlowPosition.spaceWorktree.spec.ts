@@ -66,7 +66,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
     }
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -82,7 +82,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
                   spaces: [
                     {
                       ...staleSpace,
-                      directoryPath: '/repo/.opencove/worktrees/feature-a',
+                      directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
                       targetMountId: 'mount-1',
                     },
                   ],
@@ -125,7 +125,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
         workspaceId: 'workspace-1',
         spaceId: 'space-1',
         mountId: 'mount-1',
-        cwdUri: 'file:///repo/.opencove/worktrees/feature-a',
+        cwdUri: 'file:///repo/.eclipse-code/worktrees/feature-a',
         profileId: null,
         cols: expectedGeometry.cols,
         rows: expectedGeometry.rows,
@@ -137,8 +137,8 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
         nodeId: '00000000-0000-4000-8000-000000000001',
         sessionId: 'session-worktree',
         terminalGeometry: expectedGeometry,
-        executionDirectory: '/repo/.opencove/worktrees/feature-a',
-        expectedDirectory: '/repo/.opencove/worktrees/feature-a',
+        executionDirectory: '/repo/.eclipse-code/worktrees/feature-a',
+        expectedDirectory: '/repo/.eclipse-code/worktrees/feature-a',
       }),
     )
     expect(result).toEqual({
@@ -149,7 +149,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
       expect.objectContaining({
         id: 'space-1',
         name: 'Feature',
-        directoryPath: '/repo/.opencove/worktrees/feature-a',
+        directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
         targetMountId: 'mount-1',
         nodeIds: ['00000000-0000-4000-8000-000000000001'],
       }),
@@ -202,7 +202,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
     })
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -218,7 +218,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
                   spaces: [
                     {
                       ...originalSpace,
-                      directoryPath: '/repo/.opencove/worktrees/feature-a',
+                      directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
                       targetMountId: 'mount-1',
                     },
                   ],
@@ -249,7 +249,7 @@ describe('createTerminalNodeAtFlowPosition space worktree launch', () => {
 
     expect(ptySpawn).toHaveBeenCalledWith(
       expect.objectContaining({
-        cwd: '/repo/.opencove/worktrees/feature-a',
+        cwd: '/repo/.eclipse-code/worktrees/feature-a',
       }),
     )
     expect(onSpacesChange).toHaveBeenCalledWith([

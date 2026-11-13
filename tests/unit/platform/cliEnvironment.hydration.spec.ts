@@ -67,7 +67,7 @@ describe('CliEnvironment hydration', () => {
       return
     }
 
-    const fixtureRoot = await mkdtemp(join(tmpdir(), 'opencove-cli-env-'))
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-env-'))
     const fakeBinDir = join(fixtureRoot, 'fakebin')
     const codexPath = join(fakeBinDir, 'codex')
 
@@ -92,7 +92,7 @@ describe('CliEnvironment hydration', () => {
       process.env.SHELL = '/bin/zsh'
       process.env.ZDOTDIR = fixtureRoot
       process.env.PATH = '/usr/bin:/bin'
-      delete process.env.OPENCOVE_TRUST_PROCESS_ENV
+      delete process.env.ECLIPSE_CODE_TRUST_PROCESS_ENV
 
       await expect(execFileAsync(codexPath, [], { env: process.env })).rejects.toMatchObject({
         code: 127,

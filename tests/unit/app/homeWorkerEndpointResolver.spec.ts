@@ -18,7 +18,7 @@ describe('home worker endpoint resolver', () => {
   })
 
   async function createTempUserDataDir(): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'opencove-test-home-worker-endpoint-'))
+    const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-home-worker-endpoint-'))
     userDataDir = dir
     return dir
   }

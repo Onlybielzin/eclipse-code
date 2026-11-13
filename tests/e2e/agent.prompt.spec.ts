@@ -29,7 +29,7 @@ test.describe('agent.prompt from a canvas terminal', () => {
             provider === 'codex' && process.platform === 'win32',
             'Windows Codex uses file-only telemetry',
           )
-          const root = await mkdtemp(join(tmpdir(), 'opencove-prompt-'))
+          const root = await mkdtemp(join(tmpdir(), 'eclipse-code-prompt-'))
           const record = join(root, 'records.jsonl'),
             dialog = join(root, 'dialog'),
             prompt = join(root, 'prompt.txt')
@@ -46,13 +46,13 @@ test.describe('agent.prompt from a canvas terminal', () => {
               ...(commandDirectory
                 ? { PATH: `${commandDirectory}:${process.env.PATH ?? ''}` }
                 : {}),
-              OPENCOVE_TEST_AGENT_SESSION_SCENARIO:
+              ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO:
                 provider === 'codex' ? 'codex-prompt-strict' : 'claude-prompt-strict',
-              OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-              OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
-              OPENCOVE_TEST_USE_REAL_AGENTS: provider === 'codex' ? '1' : '0',
-              OPENCOVE_TEST_PROMPT_RECORD: record,
-              OPENCOVE_TEST_PROMPT_DIALOG: dialog,
+              ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+              ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+              ECLIPSE_CODE_TEST_USE_REAL_AGENTS: provider === 'codex' ? '1' : '0',
+              ECLIPSE_CODE_TEST_PROMPT_RECORD: record,
+              ECLIPSE_CODE_TEST_PROMPT_DIALOG: dialog,
             },
           })
           try {
@@ -95,7 +95,7 @@ test.describe('agent.prompt from a canvas terminal', () => {
             const snapshot = () =>
               window.evaluate(
                 id =>
-                  window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+                  window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
                     kind: 'query',
                     id: 'agent.get',
                     payload: { sessionId: id },
@@ -118,10 +118,10 @@ test.describe('agent.prompt from a canvas terminal', () => {
               process.platform === 'win32'
                 ? `"${value.replaceAll('"', '\\"')}"`
                 : `'${value.replaceAll("'", `'"'"'`)}'`
-            const cliCommand = `node ${quote(resolve('out/cli/opencove.mjs'))} agent prompt --node ${quote(nodeId)} --text-file ${quote(prompt)} --timeout 10s${waitRead ? ' --wait --read' : ''}`
+            const cliCommand = `node ${quote(resolve('out/cli/eclipse-code.mjs'))} agent prompt --node ${quote(nodeId)} --text-file ${quote(prompt)} --timeout 10s${waitRead ? ' --wait --read' : ''}`
             const terminal = await window.evaluate(
               async ({ projectId, shell }) =>
-                window.opencoveApi.controlSurface.invoke<{
+                window.eclipseCodeApi.controlSurface.invoke<{
                   node: { id: string; sessionId: string }
                 }>({
                   kind: 'command',

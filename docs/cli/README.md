@@ -1,4 +1,4 @@
-# OpenCove CLI
+# Eclipse Code CLI
 
 CLI 是 Control Surface client；业务状态由 Worker/application owner 管理。CLI 不直接修改业务数据库。
 
@@ -34,9 +34,9 @@ Options that take a value accept leading dashes literally: `--text "-v"` and `--
 `plugin install-git --build-output <path>` 指定构建产物目录。
 
 ```sh
-opencove fs write --mount mount-123 --uri file:///notes.txt --content-file ./notes.txt
-opencove session run-agent --space space-123 --prompt-file ./task.txt
-opencove plugin run sample status --params-file ./params.json
+eclipse-code fs write --mount mount-123 --uri file:///notes.txt --content-file ./notes.txt
+eclipse-code session run-agent --space space-123 --prompt-file ./task.txt
+eclipse-code plugin run sample status --params-file ./params.json
 ```
 
 Space 创建、更新与项目添加 / Space creation, updates and project addition: [命令、输出与授权说明](SPACE_PROJECT_CREATION.md)。
@@ -66,7 +66,7 @@ Plugin distribution 返回 `failed`/`conflict` 时 exit 1，candidate 结果位�
 | 124  | 请求、agent wait 或 PTY 握手超时                                  |
 | 130  | 中断（agent wait 关闭流）或 PTY detach                            |
 
-Exit 5 also covers operations missing from an older Worker. Restart or update OpenCove, then retry. Ordinary invalid input still exits 2.
+Exit 5 also covers operations missing from an older Worker. Restart or update Eclipse Code, then retry. Ordinary invalid input still exits 2.
 
 `pty attach` 是流式例外：stdout 只有原始终端输出，远端退出 0 → CLI 0，其他退出 → CLI 1，Ctrl-C detach → 130。
 `worker start` 前台运行，结束后返回状态 JSON。Windows 通过父进程 IPC 请求 Worker 自身完成 drain 和 lock release；超过共享停止预算才强制终止。
@@ -76,22 +76,22 @@ Exit 5 also covers operations missing from an older Worker. Restart or update Op
 
 ## Connection and context
 
-连接 URL/token：环境 token 只随 `OPENCOVE_CONTROL_URL` 使用。显式 `--endpoint` 必须配 `--token`，即使 URL 与环境相同；profile discovery 使用该记录自己的 token，不借用环境 token。
-没有 URL 时，`--user-data` 优先于 `OPENCOVE_USER_DATA_DIR`；显式 profile 不回退到其他目录。
-未指定 profile 时搜索平台应用数据目录中的 `opencove-dev` 和 `opencove`。
+连接 URL/token：环境 token 只随 `ECLIPSE_CODE_CONTROL_URL` 使用。显式 `--endpoint` 必须配 `--token`，即使 URL 与环境相同；profile discovery 使用该记录自己的 token，不借用环境 token。
+没有 URL 时，`--user-data` 优先于 `ECLIPSE_CODE_USER_DATA_DIR`；显式 profile 不回退到其他目录。
+未指定 profile 时搜索平台应用数据目录中的 `eclipse-code-dev` 和 `eclipse-code`。
 普通命令检查 `control-surface.json` 和 `worker-control-surface.json`，忽略无效/已退出 PID；多个有效连接记录返回歧义错误。
 `worker status/stop` 使用本地生命周期模块，仅检查 worker 记录；不接受 `--endpoint`。
 Space locator 不推断 cwd：使用 `--space`、`--space-name` 或 `--worker` 与 `--branch`/`--path`，必要时用 `--project` 收窄。
 
-`node create` 支持 `--root-canvas`，在项目画布上创建、不加入任何 Space；外部调用需同时指定 `--project <selector>`。在 OpenCove 内不指定目标时，`node create` 使用调用者节点的当前 Space，或在调用者不属于任何 Space 时使用 root canvas。`node list` 在后一种情况下默认列整个项目；`node list --root-canvas` 仅列 root 节点。显式 `--project` 单独用于创建仍会报错，需补 Space 目标或 `--root-canvas`。未指定 x/y 时，在 OpenCove 内优先放在你的节点或所在 Space 旁边；调用者节点属于其他项目时从原点寻找空位，不保证可见；若会话绑定的节点已删除，需从有效节点继续；用 `--focus` 显示新节点。详见 [Canvas node control](CANVAS_NODE_CONTROL.md)。
+`node create` 支持 `--root-canvas`，在项目画布上创建、不加入任何 Space；外部调用需同时指定 `--project <selector>`。在 Eclipse Code 内不指定目标时，`node create` 使用调用者节点的当前 Space，或在调用者不属于任何 Space 时使用 root canvas。`node list` 在后一种情况下默认列整个项目；`node list --root-canvas` 仅列 root 节点。显式 `--project` 单独用于创建仍会报错，需补 Space 目标或 `--root-canvas`。未指定 x/y 时，在 Eclipse Code 内优先放在你的节点或所在 Space 旁边；调用者节点属于其他项目时从原点寻找空位，不保证可见；若会话绑定的节点已删除，需从有效节点继续；用 `--focus` 显示新节点。详见 [Canvas node control](CANVAS_NODE_CONTROL.md)。
 
 ## Help and introspection
 
-`opencove --help` 显示分组及全局选项；`opencove <group> --help` 列子命令；命令级 `--help` 显示参数、示例与全局选项提示，不连接 Worker。
-`api ops` 在 OpenCove session 外离线列出 operation；session 内使用 Worker 返回的 `access` 和 `policyVersion`，旧 Worker 则报告 `access: unknown`；`api schema` 只为有 schema 的 operation 提供输入 JSON Schema；session 内同时附带 Worker 的 access、reason、policyVersion 和受限字段 rejectedFields，字段出现在 schema 中不代表允许使用。
+`eclipse-code --help` 显示分组及全局选项；`eclipse-code <group> --help` 列子命令；命令级 `--help` 显示参数、示例与全局选项提示，不连接 Worker。
+`api ops` 在 Eclipse Code session 外离线列出 operation；session 内使用 Worker 返回的 `access` 和 `policyVersion`，旧 Worker 则报告 `access: unknown`；`api schema` 只为有 schema 的 operation 提供输入 JSON Schema；session 内同时附带 Worker 的 access、reason、policyVersion 和受限字段 rejectedFields，字段出现在 schema 中不代表允许使用。
 `api call <operation-id> --input-file request.json` 使用同一验证与连接路径。
 
-开发构建：`pnpm build:cli`；入口为 `node out/cli/opencove.mjs`。
+开发构建：`pnpm build:cli`；入口为 `node out/cli/eclipse-code.mjs`。
 
 CLI help golden 更新使用 `pnpm exec vitest run tests/unit/app/cliInputOutput.spec.ts tests/unit/app/cliOutputBehavior.spec.ts --update`，不要手改生成的 snapshot。
 
@@ -129,26 +129,26 @@ queries. Joins cover the target project, including tasks outside the agent's spa
 
 ## Agent orchestration and bundled skill
 
-`opencove skill` prints the version-matched SKILL.md bundled in the CLI, without a
+`eclipse-code skill` prints the version-matched SKILL.md bundled in the CLI, without a
 Worker connection or source checkout. `-o json` returns `{version, content}`. The
 core guide covers identity, authority, sharing results, coordination and exit codes.
-Load details on demand with `opencove skill canvas|coordinate|wait|read|access` (choose one topic).
+Load details on demand with `eclipse-code skill canvas|coordinate|wait|read|access` (choose one topic).
 The core index lists all topics; an unknown topic exits 2 and lists valid names.
 Topic JSON adds `topic` to the same `{version, content}` shape; `--fields` supports all three fields.
 Start with the core when coordinating agents. Resident canvas guidance can introduce
-supported agents at SessionStart; configure Suggest or Off in Settings → Agent → Tell agents about OpenCove.
+supported agents at SessionStart; configure Suggest or Off in Settings → Agent → Tell agents about Eclipse Code.
 See [eligibility and limitations](../agent/README.md#resident-canvas-guidance).
 
 ```sh
-opencove agent list --space @self -o table
-opencove agent get --node "Reviewer" --pretty
-opencove agent read --node "Reviewer" --screen
-opencove agent prompt --node "Reviewer" --wait --read --timeout 2m --text-file ./assignment.txt
+eclipse-code agent list --space @self -o table
+eclipse-code agent get --node "Reviewer" --pretty
+eclipse-code agent read --node "Reviewer" --screen
+eclipse-code agent prompt --node "Reviewer" --wait --read --timeout 2m --text-file ./assignment.txt
 # To keep working meanwhile, split the same steps:
-opencove agent prompt --node "Reviewer" --text-file ./assignment.txt
-opencove agent delivery delivery-123 --wait --timeout 2m
-opencove agent wait --node node-123 --turn turn-123 --timeout 2m
-opencove agent read --node node-123 --turn turn-123 -o json
+eclipse-code agent prompt --node "Reviewer" --text-file ./assignment.txt
+eclipse-code agent delivery delivery-123 --wait --timeout 2m
+eclipse-code agent wait --node node-123 --turn turn-123 --timeout 2m
+eclipse-code agent read --node node-123 --turn turn-123 -o json
 ```
 
 Give a window a stable name with `node create agent --title "Reviewer"` (also supported for terminals).
@@ -157,7 +157,7 @@ Names are trimmed, saved and displayed literally, including any provider prefix 
 Pinned names also take precedence over pending renderer auto-titles during publication and guarded rebasing. Title and pin/literal flags are reconciled as one naming intent; competing explicit renames retain the existing three-way conflict rules.
 Agent/terminal updates accept a nonblank title and/or a frame and reject all data fields. A frame-only update preserves the existing title and pin.
 
-`opencove agent stop --node "Lead"` stops the bound session and keeps the canvas node.
+`eclipse-code agent stop --node "Lead"` stops the bound session and keeps the canvas node.
 It supports agent windows and terminals with a live observed agent; for terminals it stops the entire session, including the shell.
 An exited terminal agent is an idempotent no-op: its surviving shell and unrelated foreground work are kept running. The Worker rechecks agent eligibility immediately before stopping.
 Remote agent-stop targets are refused before dispatch until the executing Worker can perform a conditional stop. No unconditional remote session kill is sent.
@@ -185,11 +185,11 @@ To do other work meanwhile, keep the four-step loop and save `deliveryId` and `t
 use the same node selector throughout. Prompt → confirm delivery → wait `--turn <turnId>`
 → read the same turn. Check `outcome` and the reply. Claude and Codex lifecycle replies
 are correlated; turn end alone does not prove a steer was consumed. Use `--until idle`
-only for node-level readiness. Host waiting strategies are in `opencove skill coordinate`.
+only for node-level readiness. Host waiting strategies are in `eclipse-code skill coordinate`.
 
 All commands have offline `--help`, examples and declared projectable fields.
 Node/Space selectors reuse exact IDs, exact names, unique prefixes and `@self`.
-Inside OpenCove, `agent list` defaults to the caller's Space; explicit `--project`
+Inside Eclipse Code, `agent list` defaults to the caller's Space; explicit `--project`
 selects project scope. `--state working|waiting|idle|exited|unknown` filters the
 Worker's `agent.list`. That operation lists live sessions only, excluding exited
 sessions; get/wait can address a known exited node. An unbound/deleted node's title
@@ -231,8 +231,8 @@ claiming success; the latest snapshot's `turnOutcome` remains unchanged.
 
 Wait now stops by default at waiting (exit 10) or an unfulfilled target's exit (11).
 Waiting observed; the agent may need the user — inspect before acting. Ask the user
-to resolve it in OpenCove (Desktop or this Worker's Web UI); inspect with
-`opencove agent read --node <id> --screen` using the same connection options and
+to resolve it in Eclipse Code (Desktop or this Worker's Web UI); inspect with
+`eclipse-code agent read --node <id> --screen` using the same connection options and
 matching session/turn IDs, then repeat the wait. Prefer `--turn` for resumable completion.
 `--through-waiting` continues when waiting is reported, without suppressing 11.
 See [wait semantics](../agent/WAIT.md) for status details, precedence and freshness.
@@ -255,7 +255,7 @@ with a start/resume hint.
 
 Final-message read tries `agent.finalMessage {nodeId}` first: newest observed ended
 turn, including empty/whitespace-only content. `--turn <turnId>` selects the exact
-OpenCove ID returned by prompt, never a prefix, another turn or a transcript.
+Eclipse Code ID returned by prompt, never a prefix, another turn or a transcript.
 Only a read without `--turn` may fall back to `session.finalMessage {nodeId}`, and
 only for `agent.final_message_unavailable` with reason `no_ended_turn` or
 `provider_sent_no_message`. All other errors remain errors, including unsupported
@@ -305,7 +305,7 @@ Wait uses the condition-wait pattern documented by
 [Kubernetes](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_wait/)
 and UTF-8, multiline-data, comment and newline framing from the
 [HTML SSE standard](https://html.spec.whatwg.org/multipage/server-sent-events.html),
-adapted to OpenCove's explicit epoch/seq query cursors and bearer authentication.
+adapted to Eclipse Code's explicit epoch/seq query cursors and bearer authentication.
 Fake-stream unit tests exercise these invariants without opening local listeners.
 
 ## 安装与运行
@@ -314,15 +314,15 @@ Desktop、standalone 与 server 安装方式见 [CLI 安装指南](INSTALLATION.
 
 ## Canvas 终端身份
 
-Hosting Worker 在 canvas PTY spawn 时注入 `OPENCOVE_ENV=1`、`OPENCOVE_NODE_ID`、
-`OPENCOVE_SPACE_ID`、`OPENCOVE_PROJECT_ID`、`OPENCOVE_CONTROL_URL`、session-scoped
-`OPENCOVE_CONTROL_TOKEN` 和 `OPENCOVE_CLI`；PTY host 分配实际 session ID 后注入
-`OPENCOVE_SESSION_ID`。不属于 Space 的节点使用空 `OPENCOVE_SPACE_ID`。Worker 全权限
+Hosting Worker 在 canvas PTY spawn 时注入 `ECLIPSE_CODE_ENV=1`、`ECLIPSE_CODE_NODE_ID`、
+`ECLIPSE_CODE_SPACE_ID`、`ECLIPSE_CODE_PROJECT_ID`、`ECLIPSE_CODE_CONTROL_URL`、session-scoped
+`ECLIPSE_CODE_CONTROL_TOKEN` 和 `ECLIPSE_CODE_CLI`；PTY host 分配实际 session ID 后注入
+`ECLIPSE_CODE_SESSION_ID`。不属于 Space 的节点使用空 `ECLIPSE_CODE_SPACE_ID`。Worker 全权限
 bearer 不进入该环境，调用者提供的身份/控制环境变量会被覆盖。
 
-现有 shim directory 提供 `opencove`（POSIX sh）和 `opencove.cmd`，并被放在 PATH 首部。
+现有 shim directory 提供 `eclipse-code`（POSIX sh）和 `eclipse-code.cmd`，并被放在 PATH 首部。
 Launcher 使用本 Worker 的 runtime executable；CLI 从环境读取 endpoint/token，显式 CLI
-指定 `--endpoint` 时必须配 `--token`。`OPENCOVE_CLI` 指向构建产物 `out/cli/opencove.mjs`。
+指定 `--endpoint` 时必须配 `--token`。`ECLIPSE_CODE_CLI` 指向构建产物 `out/cli/eclipse-code.mjs`。
 
 `node.create` 和 UI 创建流程在 spawn 前预留 node ID；Worker 校验已有节点的所属记录，
 恢复使用 Worker 保存的身份。远端由实际 hosting Worker 签发 grant。凭证在 spawn 注册完成后
@@ -342,9 +342,9 @@ explicitly selected project continues to constrain IDs. Names remain case-sensit
 and ambiguity always fails without choosing a target. For example:
 
 ```sh
-opencove node get --node "Progress" --space "Main" --fields id,data.text
-opencove node update note --node "Progress" --space "Main" --text "Ready for review"
-opencove node delete --node "Progress" --space "Main"
+eclipse-code node get --node "Progress" --space "Main" --fields id,data.text
+eclipse-code node update note --node "Progress" --space "Main" --text "Ready for review"
+eclipse-code node delete --node "Progress" --space "Main"
 ```
 
 Ambiguous node candidates include `spaceId` and `spaceName`. Note candidates also
@@ -383,8 +383,8 @@ nested fields with `--fields id,name,nodes.id`. These compact queries remain use
 for finding a space and checking its membership:
 
 ```sh
-opencove space list --project "@self" --limit 10 --fields id,name,directoryPath,nodeCount
-opencove node list --space "Main" --limit 10 --fields id,kind,title
+eclipse-code space list --project "@self" --limit 10 --fields id,name,directoryPath,nodeCount
+eclipse-code node list --space "Main" --limit 10 --fields id,kind,title
 ```
 
 `context.space.directoryPath` uses the same spelling as `space get` and `space list`.
@@ -400,22 +400,22 @@ Errors give an example built from the input when possible; relative examples use
 `/path/to/project` as a placeholder, never the CLI cwd. Find the target's real root:
 
 ```sh
-opencove mount list --project "@self" --fields mountId,rootUri
-opencove fs read --uri file:///workspace/README.md
+eclipse-code mount list --project "@self" --fields mountId,rootUri
+eclipse-code fs read --uri file:///workspace/README.md
 ```
 
 Unknown `api schema` / `api call` IDs suggest nearby IDs and a domain catalog query.
 Catalog rows expose `cliCommand` (when a dedicated command exists) and `scope`
-(`read`, `interact`, `admin`). Inside OpenCove, `access` comes from the Worker policy:
+(`read`, `interact`, `admin`). Inside Eclipse Code, `access` comes from the Worker policy:
 `allowed`, `denied` (with a reason), or `constrained`, plus `policyVersion`.
 `allowed` is a compatibility boolean only for allowed/denied rows; constrained or
 unknown access omits it. Offline or with an older Worker, `access` is `unknown`.
-`api schema` keeps the input JSON Schema and adds the same Worker access information inside OpenCove, including `rejectedFields` and their reasons for constrained launches. A schema field does not grant permission to use it. Operation preconditions and resource permissions still apply. Domain summaries use
+`api schema` keeps the input JSON Schema and adds the same Worker access information inside Eclipse Code, including `rejectedFields` and their reasons for constrained launches. A schema field does not grant permission to use it. Operation preconditions and resource permissions still apply. Domain summaries use
 `commandOperations` for the number of command-kind operations.
 
 ```sh
-opencove api ops --domains --fields domain,operations,commandOperations
-opencove api ops --prefix node --fields id,cliCommand,scope,access --limit 10
+eclipse-code api ops --domains --fields domain,operations,commandOperations
+eclipse-code api ops --prefix node --fields id,cliCommand,scope,access --limit 10
 ```
 
 创建并等待首条回复：见 [Create an agent and wait](NODE_CREATE_AGENT_WAIT.md)。
@@ -431,22 +431,22 @@ without relaunching the agent, and return the original node/session IDs. JSON in
 The executing Worker stores final reply text (≤64 KiB UTF-8), outcome, IDs, timestamps
 and truncation/intermediate metadata in a separate archive file. It stores no prompt
 text, hook evidence or S2 delivery records. S1 provider continuations archive once at
-the final OpenCove end; uncertainty stays `unknown`/`messageKind: intermediate` and
+the final Eclipse Code end; uncertainty stays `unknown`/`messageKind: intermediate` and
 never grants readiness or proves steering consumption. Retention upper bounds are
 60 turns/node, 30 days, 20,000 global records and 128 MiB of message text; metadata-only
 ends count. Smaller memory caches may evict earlier. Oversized purges leave new turns
 memory-only (`retention_backlog`) while bounded cleanup makes room for future records.
 
-Deleting the node removes queryable OpenCove history, including caches; it does not
+Deleting the node removes queryable Eclipse Code history, including caches; it does not
 erase provider transcripts, existing backups or forensic remnants.
-`opencove agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and labelled transcript fallback
+`eclipse-code agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and labelled transcript fallback
 retain current-incarnation semantics. Remote history is not routed across Workers.
 
 Help goldens are generated by Vitest: `pnpm exec vitest run tests/unit/app/cliCore.spec.ts tests/unit/app/cliInputOutput.spec.ts tests/unit/app/cliAgentQueries.spec.ts tests/unit/app/cliSchemaValidation.spec.ts --update`. Never edit generated snapshots by hand.
 
 An unfinished `agent read --turn` retains `agent.final_message_unavailable` and
 `details.reason: turn_not_ended`, and adds `state` and `blockedReason`. Waiting
-asks the user to resolve the permission, question or plan in OpenCove; working
+asks the user to resolve the permission, question or plan in Eclipse Code; working
 retains the exact-turn wait command. Unavailable or replaced observations report
 unknown; they never replace the original read error or trigger another prompt.
 
@@ -454,7 +454,7 @@ Question summaries and their compatibility rules: [Agent dialog summaries](AGENT
 
 ## Creation lineage and parent selectors
 
-`@parent` selects the node that created your node through an OpenCove session grant.
+`@parent` selects the node that created your node through an Eclipse Code session grant.
 The Worker resolves it from your authenticated identity. It can be a terminal or another node
 kind; each command still checks whether the target supports that action. A root has no parent,
 and a deleted parent cannot be addressed. A node literally named `@parent` must be selected by ID.

@@ -22,7 +22,7 @@ function postJson(endpoint: string, token: string, payload: unknown): Promise<nu
       headers: {
         'content-type': 'application/json',
         'content-length': Buffer.byteLength(body),
-        'x-opencove-hook-token': token,
+        'x-eclipse-code-hook-token': token,
       },
     })
     outgoing.once('error', reject)
@@ -63,7 +63,7 @@ describe('managed Claude SessionStart identity', () => {
       const sendStart = (id: string) =>
         postJson(
           channel.getEndpoint()!,
-          reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+          reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
           claudeEvent(id),
         )
       if (timing === 'after') {
@@ -96,14 +96,14 @@ describe('managed Claude SessionStart identity', () => {
     expect(
       await postJson(
         channel.getEndpoint()!,
-        second.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+        second.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
         claudeEvent('claude-b'),
       ),
     ).toBe(204)
     expect(
       await postJson(
         channel.getEndpoint()!,
-        first.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+        first.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
         claudeEvent('claude-a'),
       ),
     ).toBe(204)
@@ -116,7 +116,7 @@ describe('managed Claude SessionStart identity', () => {
   it('rejects unauthenticated or disposed launches and does not infer identity from turn events', async () => {
     const { channel, metadata } = await createChannel()
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!
+    const token = reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!
     const endpoint = channel.getEndpoint()!
     reservation.commit('managed-pty')
 
@@ -151,7 +151,7 @@ describe('managed Claude SessionStart identity', () => {
       expect(
         await postJson(
           channel.getEndpoint()!,
-          reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+          reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
           claudeEvent('terminal-claude-session'),
         ),
       ).toBe(204)
@@ -186,7 +186,7 @@ describe('managed Claude SessionStart identity', () => {
       expect(
         await postJson(
           channel.getEndpoint()!,
-          reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+          reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
           claudeEvent('unowned-session'),
         ),
       ).toBe(204)
@@ -199,7 +199,7 @@ describe('managed Claude SessionStart identity', () => {
     const reservation = await channel.reserveSpawn()
     reservation.commit('codex-pty')
     expect(
-      await postJson(channel.getEndpoint()!, reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!, {
+      await postJson(channel.getEndpoint()!, reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!, {
         version: 1,
         state: 'working',
         hookEventName: 'SessionStart',

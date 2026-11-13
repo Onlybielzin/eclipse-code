@@ -55,7 +55,7 @@ function availability(status: AgentProviderAvailability['status']): AgentProvide
 }
 
 function installApi(listInstalledProviders: ReturnType<typeof vi.fn>, installProvider = vi.fn()) {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { agent: { listInstalledProviders, installProvider } },
   })
@@ -64,7 +64,7 @@ function installApi(listInstalledProviders: ReturnType<typeof vi.fn>, installPro
 afterEach(async () => {
   await applyUiLanguage('en')
   vi.restoreAllMocks()
-  delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+  delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
 })
 
 describe('Agent list and provider detail', () => {
@@ -96,7 +96,7 @@ describe('Agent list and provider detail', () => {
       })
       expect(toggle).toHaveProperty('checked', enabled)
       expect(toggle).toHaveAccessibleDescription(
-        "When a running Codex app-server is reused, OpenCove can't send prompts to the agent and has only limited status. Applies to newly launched agents.",
+        "When a running Codex app-server is reused, Eclipse Code can't send prompts to the agent and has only limited status. Applies to newly launched agents.",
       )
       fireEvent.click(toggle)
       expect(props.onChangeCodexReuseRunningAppServer).toHaveBeenCalledExactlyOnceWith(!enabled)
@@ -114,7 +114,7 @@ describe('Agent list and provider detail', () => {
     })
     expect(toggle).not.toBeChecked()
     expect(toggle).toHaveAccessibleDescription(
-      '复用正在运行的 Codex app-server 时，OpenCove 无法向 Agent 发送提示词，状态跟踪也受限。仅对新启动的 Agent 生效。',
+      '复用正在运行的 Codex app-server 时，Eclipse Code 无法向 Agent 发送提示词，状态跟踪也受限。仅对新启动的 Agent 生效。',
     )
   })
 

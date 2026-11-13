@@ -48,11 +48,11 @@ it('orients a session, separates self from neighbors and chooses task versus run
       { id: 'note', kind: 'note', title: 'Notes', state: null },
     ],
     next: [
-      'opencove node get --node "@self"',
-      'opencove node list --space "@self"',
-      'opencove space get --space "@self"',
-      'opencove node create note --space "@self" --text \'Progress update\'',
-      'opencove node list --space "@self" --kind task --fields id,title,data.status',
+      'eclipse-code node get --node "@self"',
+      'eclipse-code node list --space "@self"',
+      'eclipse-code space get --space "@self"',
+      'eclipse-code node create note --space "@self" --text \'Progress update\'',
+      'eclipse-code node list --space "@self" --kind task --fields id,title,data.status',
     ],
   })
   expect(f.out()).not.toContain('secret')
@@ -80,7 +80,7 @@ it('rejects invalid context projection before connecting', async () => {
 })
 
 it.each(['--space', '--project'])(
-  'orients outside OpenCove using %s and omits identity',
+  'orients outside Eclipse Code using %s and omits identity',
   async flag => {
     const f = identityFixture(false)
     expect(await run(['context', flag, flag === '--space' ? 'Main' : 'Project'], f.io)).toBe(0)
@@ -97,7 +97,7 @@ it.each(['--space', '--project'])(
   },
 )
 
-it('requires explicit context outside OpenCove', async () => {
+it('requires explicit context outside Eclipse Code', async () => {
   const f = identityFixture(false)
   expect(await run(['context'], f.io)).toBe(2)
   expect(f.fetch).not.toHaveBeenCalled()
@@ -105,7 +105,7 @@ it('requires explicit context outside OpenCove', async () => {
 
 it('supports token-only @self context', async () => {
   const f = identityFixture()
-  f.io.env = { OPENCOVE_CONTROL_URL: 'http://fixture', OPENCOVE_CONTROL_TOKEN: 'secret' }
+  f.io.env = { ECLIPSE_CODE_CONTROL_URL: 'http://fixture', ECLIPSE_CODE_CONTROL_TOKEN: 'secret' }
   expect(await run(['context', '--space', '@self'], f.io)).toBe(0)
   expect(JSON.parse(f.out())).toMatchObject({
     self: { caller: 'session-grant' },

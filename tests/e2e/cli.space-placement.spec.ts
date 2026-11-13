@@ -9,7 +9,7 @@ import { createTerminalInSpace, focusSpace } from './cli.space.helpers'
 
 // Use the public CLI for both creation and geometry reads, with a real terminal grant.
 test('a note created in a full child Space grows its boundary inside its parent', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-space-placement-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-space-placement-'))
   const workspace = join(root, 'project')
   const projectId = 'placement-project'
   const parentId = 'placement-main'
@@ -21,9 +21,9 @@ test('a note created in a full child Space grows its boundary inside its parent'
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -64,7 +64,7 @@ test('a note created in a full child Space grows its boundary inside its parent'
       await terminalCommand(
         page,
         binding,
-        'opencove space create --name "Release 1.2" --in @self --move "Brief"',
+        'eclipse-code space create --name "Release 1.2" --in @self --move "Brief"',
         'CREATE_CHILD',
       ),
     )
@@ -75,7 +75,7 @@ test('a note created in a full child Space grows its boundary inside its parent'
       await terminalCommand(
         page,
         binding,
-        `opencove node create note --space ${childId} --title Progress --text "Brief archived"`,
+        `eclipse-code node create note --space ${childId} --title Progress --text "Brief archived"`,
         'CREATE_NOTE',
       ),
     )
@@ -84,13 +84,23 @@ test('a note created in a full child Space grows its boundary inside its parent'
     expect(note.frame.x).toBeGreaterThanOrEqual((child.rect as Rect).x + (child.rect as Rect).width)
 
     const childGet = jsonOutput(
-      await terminalCommand(page, binding, `opencove space get --space ${childId}`, 'GET_CHILD'),
+      await terminalCommand(
+        page,
+        binding,
+        `eclipse-code space get --space ${childId}`,
+        'GET_CHILD',
+      ),
     ).space as { rect: Rect; nodeIds: string[] }
     const parentGet = jsonOutput(
-      await terminalCommand(page, binding, `opencove space get --space ${parentId}`, 'GET_PARENT'),
+      await terminalCommand(
+        page,
+        binding,
+        `eclipse-code space get --space ${parentId}`,
+        'GET_PARENT',
+      ),
     ).space as { rect: Rect; nodeIds: string[] }
     const noteGet = jsonOutput(
-      await terminalCommand(page, binding, `opencove node get --node ${note.id}`, 'GET_NOTE'),
+      await terminalCommand(page, binding, `eclipse-code node get --node ${note.id}`, 'GET_NOTE'),
     ).node as { frame: Rect }
     expect(noteGet.frame).toEqual(note.frame)
     expect(childGet.nodeIds).toEqual([briefId, note.id])
@@ -98,7 +108,7 @@ test('a note created in a full child Space grows its boundary inside its parent'
     expect(contains(childGet.rect, noteGet.frame, 24)).toBe(true)
     expect(contains(parentGet.rect, childGet.rect, 24)).toBe(true)
     const brief = jsonOutput(
-      await terminalCommand(page, binding, `opencove node get --node ${briefId}`, 'GET_BRIEF'),
+      await terminalCommand(page, binding, `eclipse-code node get --node ${briefId}`, 'GET_BRIEF'),
     ).node as { frame: Rect }
     expect(brief.frame).toEqual({ x: 80, y: 90, width: 280, height: 300 })
     expect(contains(childGet.rect, brief.frame)).toBe(true)

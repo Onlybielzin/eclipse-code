@@ -93,7 +93,7 @@ if (files.length === 0) {
       '[gate:vitest-related] WARNING: no staged files matched — this gate checked NOTHING and is not a pass.\n' +
         'Stage your changes first (git add -A) and confirm: git diff --cached --name-only\n',
     )
-    process.exit(process.env.OPENCOVE_REQUIRE_STAGED === '1' ? 1 : 0)
+    process.exit(process.env.ECLIPSE_CODE_REQUIRE_STAGED === '1' ? 1 : 0)
   }
   process.exit(0)
 }

@@ -19,9 +19,9 @@ export function WorkerSection(): React.JSX.Element {
 
   const load = async (): Promise<void> => {
     const [config, status, cli] = await Promise.all([
-      window.opencoveApi.workerClient.getConfig(),
-      window.opencoveApi.worker.getStatus(),
-      window.opencoveApi.cli.getStatus(),
+      window.eclipseCodeApi.workerClient.getConfig(),
+      window.eclipseCodeApi.worker.getStatus(),
+      window.eclipseCodeApi.cli.getStatus(),
     ])
 
     setSavedMode(config.mode)
@@ -48,7 +48,7 @@ export function WorkerSection(): React.JSX.Element {
     setError(null)
     setIsBusy(true)
     try {
-      const status = await window.opencoveApi.worker.start()
+      const status = await window.eclipseCodeApi.worker.start()
       setLocalStatus(status)
     } catch (caughtError) {
       setError(toErrorMessage(caughtError))
@@ -61,7 +61,7 @@ export function WorkerSection(): React.JSX.Element {
     setError(null)
     setIsBusy(true)
     try {
-      const status = await window.opencoveApi.worker.stop()
+      const status = await window.eclipseCodeApi.worker.stop()
       setLocalStatus(status)
     } catch (caughtError) {
       setError(toErrorMessage(caughtError))
@@ -75,7 +75,7 @@ export function WorkerSection(): React.JSX.Element {
       return
     }
 
-    await window.opencoveApi.clipboard.writeText(toBaseUrl(localConnection))
+    await window.eclipseCodeApi.clipboard.writeText(toBaseUrl(localConnection))
   }
 
   const copyLocalToken = async (): Promise<void> => {
@@ -83,14 +83,14 @@ export function WorkerSection(): React.JSX.Element {
       return
     }
 
-    await window.opencoveApi.clipboard.writeText(localConnection.token)
+    await window.eclipseCodeApi.clipboard.writeText(localConnection.token)
   }
 
   const installCli = async (): Promise<void> => {
     setError(null)
     setIsBusy(true)
     try {
-      const next = await window.opencoveApi.cli.install()
+      const next = await window.eclipseCodeApi.cli.install()
       setCliStatus(next)
     } catch (caughtError) {
       setError(toErrorMessage(caughtError))
@@ -103,7 +103,7 @@ export function WorkerSection(): React.JSX.Element {
     setError(null)
     setIsBusy(true)
     try {
-      const next = await window.opencoveApi.cli.uninstall()
+      const next = await window.eclipseCodeApi.cli.uninstall()
       setCliStatus(next)
     } catch (caughtError) {
       setError(toErrorMessage(caughtError))

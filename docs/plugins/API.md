@@ -3,12 +3,12 @@
 This is a development contract. See [Compatibility](./COMPATIBILITY.md) for host
 version ranges, platforms, release policy and data migration expectations.
 Declare `apiVersion: 1`; incompatible values fail
-installation. There is no package to download for the view SDK. OpenCove injects
+installation. There is no package to download for the view SDK. Eclipse Code injects
 it into your HTML before your external scripts execute.
 
 ## Package
 
-The root of the install directory contains `opencove.plugin.json`:
+The root of the install directory contains `eclipse-code.plugin.json`:
 
 ```json
 {
@@ -63,7 +63,7 @@ Optional fields:
 | `contributes.sidebar` | Host-rendered project trees; see [Sidebar](./SIDEBAR.md) |
 | `contributes.preferences`, `contributes.themes` | Standard preference fields and advanced visual themes; see [Host extensions](./HOST_EXTENSIONS.md) |
 | `platforms` | Supported backend OS values: `darwin`, `linux`, `win32`; omit for all |
-| `engines.opencove` | Optional npm SemVer range for the installation's Worker version; incompatible artifacts are rejected before activation |
+| `engines.eclipseCode` | Optional npm SemVer range for the installation's Worker version; incompatible artifacts are rejected before activation |
 
 An icon may be `{ "type": "builtin", "name": "puzzle" }` (or `git-branch`), or
 `{ "type": "asset", "path": "icon.svg", "light": "icon-light.svg", "dark":
@@ -75,7 +75,7 @@ IDs are installation-wide lowercase slugs, not display names. Do not change an I
 on reload. Installing an already installed ID fails with a reload instruction;
 the existing installation is never silently replaced. The host derives one node kind from each local
 plugin ID when it has a view. Packages without a view have no node kind, preview,
-or window creation entries. Commands are addressed through `opencove plugin run`,
+or window creation entries. Commands are addressed through `eclipse-code plugin run`,
 not registered as arbitrary host operations. A `window` command requires a view;
 a `plugin` command requires `main`.
 
@@ -93,7 +93,7 @@ operations. It is shared with backend `activate({ host })`; see
 [Project targets](./TARGETS.md) for method shapes, limits and lifecycle rules.
 
 ```js
-const api = window.opencovePlugin
+const api = window.eclipseCodePlugin
 const context = await api.ready
 ```
 
@@ -142,7 +142,7 @@ see [title selection](./COMMANDS.md#window-identity-and-selection) for shared no
 
 Declared preferences use the dedicated preference methods, shared with Settings →
 Plugins; see [Host extensions](./HOST_EXTENSIONS.md#preferences). The storage key
-`opencove.host.preferences` is reserved and cannot be accessed through generic
+`eclipse-code.host.preferences` is reserved and cannot be accessed through generic
 storage. Preview preferences are isolated and start with schema defaults.
 
 Storage is shared across real views of the plugin on this runtime. Use your own

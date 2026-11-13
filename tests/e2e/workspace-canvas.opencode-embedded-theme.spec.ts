@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { clearAndSeedWorkspace, launchApp, selectCoveOption } from './workspace-canvas.helpers'
 
 function wantsRealOpenCode(): boolean {
-  const flag = process.env['OPENCOVE_TEST_USE_REAL_AGENTS']
+  const flag = process.env['ECLIPSE_CODE_TEST_USE_REAL_AGENTS']
   if (!flag) {
     return false
   }
@@ -11,14 +11,14 @@ function wantsRealOpenCode(): boolean {
 }
 
 test.describe('Workspace Canvas - OpenCode Embedded Theme', () => {
-  test.skip(!wantsRealOpenCode(), 'Requires OPENCOVE_TEST_USE_REAL_AGENTS=1')
+  test.skip(!wantsRealOpenCode(), 'Requires ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1')
 
   test('captures theme switching render state inside opencode tui', async ({
     browserName,
   }, testInfo) => {
     void browserName
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TEST_USE_REAL_AGENTS: '1' },
+      env: { ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1' },
     })
 
     try {

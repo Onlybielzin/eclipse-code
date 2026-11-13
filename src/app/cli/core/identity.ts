@@ -29,8 +29,8 @@ export const identityFields = ['caller', 'scope', 'projectId', 'spaceId', 'nodeI
 
 export function selfUnavailable(kind: string): never {
   usage(
-    `@self for ${kind} only works inside an OpenCove terminal.`,
-    'It reads OPENCOVE_NODE_ID, OPENCOVE_SPACE_ID and OPENCOVE_PROJECT_ID, with system.whoami as a fallback for a session token.',
+    `@self for ${kind} only works inside an Eclipse Code terminal.`,
+    'It reads ECLIPSE_CODE_NODE_ID, ECLIPSE_CODE_SPACE_ID and ECLIPSE_CODE_PROJECT_ID, with system.whoami as a fallback for a session token.',
   )
 }
 
@@ -41,8 +41,8 @@ export function sessionIdentity(env: Record<string, string | undefined>, invoke:
   return {
     whoami,
     async self(kind: 'node' | 'space' | 'project'): Promise<string> {
-      const fromEnv = env[`OPENCOVE_${kind.toUpperCase()}_ID`]
-      if (env.OPENCOVE_ENV === '1' && fromEnv) {
+      const fromEnv = env[`ECLIPSE_CODE_${kind.toUpperCase()}_ID`]
+      if (env.ECLIPSE_CODE_ENV === '1' && fromEnv) {
         return fromEnv
       }
       const identity = await whoami()
@@ -61,8 +61,8 @@ export function sessionIdentity(env: Record<string, string | undefined>, invoke:
       }
       if (identity.caller === 'session-grant' && kind === 'space' && !id) {
         usage(
-          'This OpenCove terminal does not belong to a space.',
-          'Use --space <selector> to choose a space, or run "opencove context" to inspect your project.',
+          'This Eclipse Code terminal does not belong to a space.',
+          'Use --space <selector> to choose a space, or run "eclipse-code context" to inspect your project.',
         )
       }
       if (identity.caller !== 'session-grant' || !id) {

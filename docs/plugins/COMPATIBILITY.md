@@ -2,15 +2,15 @@
 
 The plugin contract is still **development API 1**. A host version requirement is
 an installation check, not a declaration that this API is stable. Use the guide
-shipped with the Worker being targeted (`opencove plugin guide`) and record the
-exact tested OpenCove build in the plugin's README during development.
+shipped with the Worker being targeted (`eclipse-code plugin guide`) and record the
+exact tested Eclipse Code build in the plugin's README during development.
 
 ## Manifest declarations
 
 ```json
 {
   "apiVersion": 1,
-  "engines": { "opencove": ">=0.3.2 <0.4.0" },
+  "engines": { "eclipseCode": ">=0.3.2 <0.4.0" },
   "platforms": ["darwin", "linux", "win32"]
 }
 ```
@@ -20,7 +20,7 @@ These are optional additions to a complete manifest, not a complete plugin.
 | Declaration | Meaning |
 | --- | --- |
 | `apiVersion` | Required protocol generation. This build accepts exactly `1`. It does not promise all development builds expose identical capabilities. |
-| `engines.opencove` | Optional npm SemVer range for the OpenCove **Worker** that owns the installation. Examples: `>=0.3.2 <0.4.0`, `^0.3.2`, or `^0.3.2 || ^0.4.0`. |
+| `engines.eclipseCode` | Optional npm SemVer range for the Eclipse Code **Worker** that owns the installation. Examples: `>=0.3.2 <0.4.0`, `^0.3.2`, or `^0.3.2 || ^0.4.0`. |
 | `platforms` | Optional supported Worker operating systems: `darwin`, `linux`, `win32`. Omission keeps the existing all-platform behavior. |
 | `version` | Plugin release version, independent of both host version and API generation. |
 
@@ -117,6 +117,6 @@ Before publishing a stable plugin contract, release review must establish:
 This follows the separation between extension host ranges and package versions in
 [VS Code's manifest](https://code.visualstudio.com/api/references/extension-manifest),
 [npm engine ranges](https://docs.npmjs.com/cli/configuring-npm/package-json#engines),
-and [Semantic Versioning](https://semver.org/). OpenCove enforces a declared range
+and [Semantic Versioning](https://semver.org/). Eclipse Code enforces a declared range
 at plugin admission; unlike npm's default advisory engine checks, incompatible
 plugin code is not activated.

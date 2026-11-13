@@ -8,7 +8,7 @@ import { createControlSurface } from '../../../src/app/main/controlSurface/contr
 import { identityFixture } from './cliIdentity.helpers'
 
 const olderWorkerMessage = (id: string) =>
-  `The connected OpenCove Worker is older than this CLI and does not support ${id}. Restart or update OpenCove.`
+  `The connected Eclipse Code Worker is older than this CLI and does not support ${id}. Restart or update Eclipse Code.`
 
 it.each([
   { args: ['ping'], id: 'system.ping' },

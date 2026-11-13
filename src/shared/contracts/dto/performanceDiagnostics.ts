@@ -1,16 +1,16 @@
 export type PerformanceProcessScope =
-  | 'opencove'
+  | 'eclipse-code'
   | 'external-agent'
   | 'platform'
   | 'diagnostics'
   | 'other'
 
 export type PerformanceProcessKind =
-  | 'opencove-main'
-  | 'opencove-renderer'
-  | 'opencove-utility'
-  | 'opencove-pty-host'
-  | 'opencove-worker'
+  | 'eclipse-code-main'
+  | 'eclipse-code-renderer'
+  | 'eclipse-code-utility'
+  | 'eclipse-code-pty-host'
+  | 'eclipse-code-worker'
   | 'external-agent-codex'
   | 'external-agent-claude'
   | 'external-agent-opencode'

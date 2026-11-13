@@ -74,6 +74,10 @@ export function normalizeNodeKind(value: unknown): WorkspaceNodeKind {
     return 'plugin'
   }
 
+  if (value === 'question' || value === 'todos') {
+    return value
+  }
+
   return 'terminal'
 }
 

@@ -60,14 +60,14 @@ test.describe('Workspace Canvas - Terminal Wheel', () => {
       await xterm.click()
       const terminalInput = terminal.locator('.xterm-helper-textarea')
       await expect(terminalInput).toBeFocused()
-      await window.keyboard.type(buildEchoSequenceCommand('OPENCOVE_SCROLL', 260))
+      await window.keyboard.type(buildEchoSequenceCommand('ECLIPSE_CODE_SCROLL', 260))
       await window.keyboard.press('Enter')
-      await expect(terminal).toContainText('OPENCOVE_SCROLL_260')
+      await expect(terminal).toContainText('ECLIPSE_CODE_SCROLL_260')
 
       const viewport = terminal.locator('.xterm-viewport')
       await expect(viewport).toBeVisible()
       const beforeViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'node-scroll')
 
       await terminal.hover()
@@ -75,7 +75,7 @@ test.describe('Workspace Canvas - Terminal Wheel', () => {
       await window.waitForTimeout(120)
 
       const afterViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'node-scroll')
       expect(beforeViewportY).not.toBeNull()
       expect(afterViewportY).not.toBeNull()
@@ -126,16 +126,16 @@ test.describe('Workspace Canvas - Terminal Wheel', () => {
       await xterm.click()
       const terminalInput = agentNode.locator('.xterm-helper-textarea')
       await expect(terminalInput).toBeFocused()
-      await window.keyboard.type(buildEchoSequenceCommand('OPENCOVE_AGENT_SCROLL', 260))
+      await window.keyboard.type(buildEchoSequenceCommand('ECLIPSE_CODE_AGENT_SCROLL', 260))
       await window.keyboard.press('Enter')
-      await expect(agentNode).toContainText('OPENCOVE_AGENT_SCROLL_260')
+      await expect(agentNode).toContainText('ECLIPSE_CODE_AGENT_SCROLL_260')
 
       const canvasViewport = window.locator('.react-flow__viewport')
       const beforeTransform = await canvasViewport.getAttribute('style')
       const terminalViewport = agentNode.locator('.xterm-viewport')
       await expect(terminalViewport).toBeVisible()
       const beforeViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'node-agent-scroll')
 
       await agentNode.hover()
@@ -143,7 +143,7 @@ test.describe('Workspace Canvas - Terminal Wheel', () => {
       await window.waitForTimeout(120)
 
       const afterViewportY = await window.evaluate(nodeId => {
-        return window.__opencoveTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
+        return window.__eclipseCodeTerminalSelectionTestApi?.getViewportY(nodeId) ?? null
       }, 'node-agent-scroll')
       const afterTransform = await canvasViewport.getAttribute('style')
       expect(beforeViewportY).not.toBeNull()

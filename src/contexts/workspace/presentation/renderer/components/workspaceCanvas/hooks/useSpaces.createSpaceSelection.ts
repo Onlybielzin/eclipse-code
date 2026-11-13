@@ -66,7 +66,7 @@ export function createSpaceFromSelectedNodesWithMounts({
 
     void (async () => {
       try {
-        let mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+        let mountResult = await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
           kind: 'query',
           id: 'mount.list',
           payload: { projectId: workspaceId },
@@ -76,7 +76,7 @@ export function createSpaceFromSelectedNodesWithMounts({
           const rootPath = workspacePath.trim()
           if (workspaceId.trim().length > 0 && rootPath.length > 0 && isAbsolutePath(rootPath)) {
             try {
-              await window.opencoveApi.controlSurface.invoke({
+              await window.eclipseCodeApi.controlSurface.invoke({
                 kind: 'command',
                 id: 'mount.create',
                 payload: {
@@ -86,7 +86,7 @@ export function createSpaceFromSelectedNodesWithMounts({
                   name: null,
                 },
               })
-              mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+              mountResult = await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
                 kind: 'query',
                 id: 'mount.list',
                 payload: { projectId: workspaceId },

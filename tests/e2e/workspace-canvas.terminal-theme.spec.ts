@@ -60,7 +60,7 @@ test.describe('Workspace Canvas - Terminal Theme', () => {
 
       const readTerminalSize = async () =>
         await window.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi?.getSize?.(id) ?? null,
+          id => window.__eclipseCodeTerminalSelectionTestApi?.getSize?.(id) ?? null,
           nodeId,
         )
       await expect.poll(readTerminalSize).toBeTruthy()

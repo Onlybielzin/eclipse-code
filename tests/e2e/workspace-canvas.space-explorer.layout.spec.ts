@@ -18,7 +18,7 @@ test.describe('Workspace Canvas - Space Explorer', () => {
   }, testInfo) => {
     const fixtureDir = path.join(
       resolveE2ETmpDir(),
-      'opencove-e2e-unapproved-space-explorer',
+      'eclipse-code-e2e-unapproved-space-explorer',
       randomUUID(),
     )
 

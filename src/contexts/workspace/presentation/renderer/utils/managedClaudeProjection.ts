@@ -144,11 +144,13 @@ export async function confirmManagedClaudeRuntime(
   const observation = proposed.managedClaudeBindingObservation
   const scope = persistenceScope()
   if (observation && !observation.nodeSeen) {
-    const result = await window.opencoveApi.controlSurface.invoke<GetManagedClaudeBindingResult>({
-      kind: 'query',
-      id: 'node.managedClaudeBinding',
-      payload: { nodeId },
-    })
+    const result = await window.eclipseCodeApi.controlSurface.invoke<GetManagedClaudeBindingResult>(
+      {
+        kind: 'query',
+        id: 'node.managedClaudeBinding',
+        payload: { nodeId },
+      },
+    )
     if (
       persistenceScope() !== scope ||
       result.retired ||

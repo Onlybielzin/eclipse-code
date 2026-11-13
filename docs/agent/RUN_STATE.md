@@ -271,7 +271,7 @@ A terminal invocation cannot be upgraded by a later metadata refresh. New incarn
 clear missing provenance; remote sessions remain unsupported.
 
 Prompt admission requires managed provenance before readiness checks. Only local Claude
-Code/Codex agent windows OpenCove launched are eligible. Agents typed into shells refuse
+Code/Codex agent windows Eclipse Code launched are eligible. Agents typed into shells refuse
 with `terminal_agent_unsupported`, including when a suspended/killed agent leaves stale
 Stop evidence and the foreground scanner reports shell-only. Gateway coverage metadata
 remains useful for observation but never authorizes prompting.
@@ -293,7 +293,7 @@ reconstructs readiness. Unqualified node lookup still selects the current incarn
 
 Claude start identity is private: provider session, validated prompt ID, and the
 relay emitted-at time of the accepted UserPromptSubmit that opened the turn
-(`x-opencove-hook-emitted-at`, range-checked at ingress). Duplicate submits and
+(`x-eclipse-code-hook-emitted-at`, range-checked at ingress). Duplicate submits and
 state refreshes do not replace that start time. A conflicting identified end is
 rejected before source replacement/arbitration. A distinct-prompt UserPromptSubmit
 in the same provider session may supersede the active turn only when both relay
@@ -317,7 +317,7 @@ cannot attach message text.
 PTY exit may end an active turn as unknown, without hook content. Stop is an observed
 boundary; other provider hooks may continue it, and StopFailure remains failed.
 
-The query accepts one node/session locator and optionally one OpenCove `turnId` or
+The query accepts one node/session locator and optionally one Eclipse Code `turnId` or
 provider `promptId`. It selects only the newest ended turn by default, even if that
 turn lacks content. Errors distinguish no ended history, unknown selected turn,
 active selected turn and no provider message; eviction cannot be distinguished from
@@ -349,13 +349,13 @@ without relaunching the agent, and return the original node/session IDs. JSON in
 The executing Worker stores final reply text (≤64 KiB UTF-8), outcome, IDs, timestamps
 and truncation/intermediate metadata in a separate archive file. It stores no prompt
 text, hook evidence or S2 delivery records. S1 provider continuations archive once at
-the final OpenCove end; uncertainty stays `unknown`/`messageKind: intermediate` and
+the final Eclipse Code end; uncertainty stays `unknown`/`messageKind: intermediate` and
 never grants readiness or proves steering consumption. Retention upper bounds are
 60 turns/node, 30 days, 20,000 global records and 128 MiB of message text; metadata-only
 ends count. Smaller memory caches may evict earlier. Oversized purges leave new turns
 memory-only (`retention_backlog`) while bounded cleanup makes room for future records.
 
-Deleting the node removes queryable OpenCove history, including caches; it does not
+Deleting the node removes queryable Eclipse Code history, including caches; it does not
 erase provider transcripts, existing backups or forensic remnants.
-`opencove agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and labelled transcript fallback
+`eclipse-code agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and labelled transcript fallback
 retain current-incarnation semantics. Remote history is not routed across Workers.

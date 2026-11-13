@@ -15,10 +15,10 @@ export async function readLiveTerminalFrame(
   nodeId: string,
 ): Promise<LiveTerminalFrame> {
   return await page.evaluate(async id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const sessionId = api?.getRuntimeSessionId(id) ?? null
     const snapshot = sessionId
-      ? await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+      ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
       : null
     // Read the current renderer together, after the asynchronous Worker observation.
     return {

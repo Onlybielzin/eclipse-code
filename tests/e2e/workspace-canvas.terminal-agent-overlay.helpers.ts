@@ -13,7 +13,7 @@ export async function createAgentCommandPath(options?: {
   invocationLogPath?: string
   scenario?: string
 }): Promise<string> {
-  const directory = await mkdtemp(path.join(tmpdir(), 'opencove-agent-overlay-'))
+  const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-overlay-'))
   await Promise.all(
     (
       [
@@ -26,7 +26,7 @@ export async function createAgentCommandPath(options?: {
         executablePath,
         `#!/bin/sh\n${
           command === 'codex'
-            ? `for _opencove_arg in "$@"; do\n  if [ "$_opencove_arg" = "app-server" ]; then exec ${JSON.stringify(process.execPath)} ${JSON.stringify(testCodexAppServerStubScript)} "$@"; fi\ndone\n`
+            ? `for _eclipse_code_arg in "$@"; do\n  if [ "$_eclipse_code_arg" = "app-server" ]; then exec ${JSON.stringify(process.execPath)} ${JSON.stringify(testCodexAppServerStubScript)} "$@"; fi\ndone\n`
             : ''
         }${
           options?.invocationLogPath
@@ -46,7 +46,7 @@ export async function createAgentCommandPath(options?: {
 }
 
 export async function createFailedCodexCommandPath(): Promise<string> {
-  const directory = await mkdtemp(path.join(tmpdir(), 'opencove-agent-launch-failure-'))
+  const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-launch-failure-'))
   const executablePath = path.join(directory, 'codex')
   await writeFile(executablePath, "#!/bin/sh\nprintf '\\033]133;D;127\\007'\nexit 127\n", 'utf8')
   await chmod(executablePath, 0o755)
@@ -55,13 +55,13 @@ export async function createFailedCodexCommandPath(): Promise<string> {
 
 export async function readRuntimeSessionId(window: Page, nodeId: string): Promise<string | null> {
   return await window.evaluate(id => {
-    return window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
+    return window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
   }, nodeId)
 }
 
 export async function readPersistedTerminalAgentNode(window: Page, nodeId: string) {
   return await window.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const parsed = raw
       ? (JSON.parse(raw) as {
           workspaces?: Array<{
@@ -94,5 +94,5 @@ export async function expectOverlayStubReady(
 ): Promise<void> {
   await expect
     .poll(async () => (await terminal.locator('.terminal-node__transcript').textContent()) ?? '')
-    .toContain(`[opencove-test-overlay] ${provider} ready`)
+    .toContain(`[eclipse-code-test-overlay] ${provider} ready`)
 }

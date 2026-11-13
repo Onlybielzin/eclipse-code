@@ -114,7 +114,7 @@ it.each(['turn_not_found', 'no_ended_turn'])(
     await expect(f.wait()).rejects.toMatchObject({
       exitCode: 1,
       code: 'agent.wait_turn_unavailable',
-      hint: expect.stringContaining('opencove agent get --node a'),
+      hint: expect.stringContaining('eclipse-code agent get --node a'),
       details: { reason, nodeId: 'a', sessionId: 'session-a', turnId: active.id },
     })
   },

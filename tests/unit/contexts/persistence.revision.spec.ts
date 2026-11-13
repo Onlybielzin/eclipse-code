@@ -3,9 +3,9 @@ import { acceptPersistedStateSnapshot } from '@contexts/workspace/presentation/r
 import { writePersistedState } from '@contexts/workspace/presentation/renderer/utils/persistence/write'
 import { DEFAULT_AGENT_SETTINGS } from '@contexts/settings/domain/agentSettings'
 
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 afterEach(() => {
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original })
 })
 
 it('dedupes canonical content, passes the accepted revision and refreshes merged writes', async () => {
@@ -13,7 +13,7 @@ it('dedupes canonical content, passes the accepted revision and refreshes merged
     .fn()
     .mockResolvedValueOnce({ ok: true, level: 'full', bytes: 1, revision: 8, merged: true })
     .mockResolvedValue({ ok: true, level: 'full', bytes: 1, revision: 9 })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { persistence: { writeAppState: write } },
   })
@@ -30,7 +30,7 @@ it('dedupes canonical content, passes the accepted revision and refreshes merged
   })
   expect(write).not.toHaveBeenCalled()
   const event = vi.fn()
-  window.addEventListener('opencove.localSyncWrite', event)
+  window.addEventListener('eclipse-code.localSyncWrite', event)
   try {
     const local = {
       ...state,
@@ -49,7 +49,7 @@ it('dedupes canonical content, passes the accepted revision and refreshes merged
     await writePersistedState(state)
     expect(write).toHaveBeenCalledTimes(2)
   } finally {
-    window.removeEventListener('opencove.localSyncWrite', event)
+    window.removeEventListener('eclipse-code.localSyncWrite', event)
   }
 })
 
@@ -71,7 +71,7 @@ it.each([false, true])('publishes undo after a merged write (read failure: %s)',
       return { ok: true, level: 'full', bytes: 1, revision: 9 }
     })
   const read = vi.fn(async () => ({ state: durable, revision: 8, recovery: null }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { persistence: { readAppState: read, writeAppState: write } },
   })
@@ -83,12 +83,12 @@ it.each([false, true])('publishes undo after a merged write (read failure: %s)',
     expect(write).toHaveBeenCalledTimes(1)
   }
   const echo = vi.fn()
-  window.addEventListener('opencove.localSyncWrite', echo)
+  window.addEventListener('eclipse-code.localSyncWrite', echo)
   try {
     expect(await writePersistedState(base)).toMatchObject({ ok: true, merged: true })
     expect(echo).not.toHaveBeenCalled()
   } finally {
-    window.removeEventListener('opencove.localSyncWrite', echo)
+    window.removeEventListener('eclipse-code.localSyncWrite', echo)
   }
   expect(write).toHaveBeenCalledTimes(2)
   expect(write.mock.calls[1][0].baseRevision).toBe(8)

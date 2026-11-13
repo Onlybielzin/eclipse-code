@@ -145,7 +145,7 @@ describe('snapshot geometry at application time', () => {
           }
           return worker.snapshot()
         })
-        Object.assign(window.opencoveApi.pty, { presentationSnapshot: requestSnapshot })
+        Object.assign(window.eclipseCodeApi.pty, { presentationSnapshot: requestSnapshot })
         const pending = requestPresentationSnapshotAfterGeometry({
           sessionId,
           expectedGeometry: { cols: 80, rows: 24, geometryRevision: 7 },

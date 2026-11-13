@@ -33,7 +33,7 @@ function startClaudeStub(cwd: string, temporaryHome: string, providerArgs: strin
         USERPROFILE: temporaryHome,
         CLAUDE_CONFIG_DIR: join(temporaryHome, '.claude'),
         NODE_ENV: 'test',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
         SystemRoot: process.env.SystemRoot,
       },
       stdio: 'pipe',
@@ -66,7 +66,7 @@ describe('Claude test session JSONL identity', () => {
   let projectDirectory: string
 
   beforeEach(async () => {
-    temporaryHome = await mkdtemp(join(os.tmpdir(), 'opencove-claude-identity-'))
+    temporaryHome = await mkdtemp(join(os.tmpdir(), 'eclipse-code-claude-identity-'))
     vi.spyOn(os, 'homedir').mockReturnValue(temporaryHome)
     vi.stubEnv('HOME', temporaryHome)
     vi.stubEnv('USERPROFILE', temporaryHome)
@@ -176,7 +176,7 @@ describe('Claude test session JSONL identity', () => {
       await vi.waitFor(
         () =>
           expect(stub.output().stdout).toContain(
-            `[opencove-test-claude-session] new\n${assignedSessionId}\n`,
+            `[eclipse-code-test-claude-session] new\n${assignedSessionId}\n`,
           ),
         { timeout: 4_000, interval: 20 },
       )
@@ -192,7 +192,7 @@ describe('Claude test session JSONL identity', () => {
 
     try {
       expect(await stub.closed).toBe(1)
-      expect(stub.output().stdout).toContain('[opencove-test-agent] claude-code resume')
+      expect(stub.output().stdout).toContain('[eclipse-code-test-agent] claude-code resume')
       expect(stub.output().stderr).toContain('Claude fixture cannot resume')
       expect(await readdir(temporaryHome)).toEqual(['workspace'])
     } finally {

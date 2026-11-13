@@ -5,13 +5,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 describe('ReleaseNotesService', () => {
   afterEach(() => {
-    delete process.env.OPENCOVE_RELEASE_NOTES_MANIFEST_PATH
+    delete process.env.ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH
     vi.resetModules()
     vi.clearAllMocks()
   })
 
   it('loads localized release notes from the embedded manifest path override', async () => {
-    const tempDir = await mkdtemp(resolve(tmpdir(), 'opencove-release-notes-'))
+    const tempDir = await mkdtemp(resolve(tmpdir(), 'eclipse-code-release-notes-'))
     const manifestPath = resolve(tempDir, 'release-manifest.json')
 
     await writeFile(
@@ -43,7 +43,7 @@ describe('ReleaseNotesService', () => {
       'utf8',
     )
 
-    process.env.OPENCOVE_RELEASE_NOTES_MANIFEST_PATH = manifestPath
+    process.env.ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH = manifestPath
     vi.doMock('electron', () => ({
       app: { isPackaged: false },
     }))
@@ -65,7 +65,7 @@ describe('ReleaseNotesService', () => {
   })
 
   it('falls back to the default locale when the requested locale is missing', async () => {
-    const tempDir = await mkdtemp(resolve(tmpdir(), 'opencove-release-notes-'))
+    const tempDir = await mkdtemp(resolve(tmpdir(), 'eclipse-code-release-notes-'))
     const manifestPath = resolve(tempDir, 'release-manifest.json')
 
     await writeFile(
@@ -96,7 +96,7 @@ describe('ReleaseNotesService', () => {
       'utf8',
     )
 
-    process.env.OPENCOVE_RELEASE_NOTES_MANIFEST_PATH = manifestPath
+    process.env.ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH = manifestPath
     vi.doMock('electron', () => ({
       app: { isPackaged: false },
     }))
@@ -127,7 +127,7 @@ describe('ReleaseNotesService', () => {
     await expect(service.getCurrent({ currentVersion: '9.9.9' })).resolves.toMatchObject({
       provenance: 'fallback',
       items: [],
-      compareUrl: 'https://github.com/DeadWaveWave/opencove/blob/main/CHANGELOG.md',
+      compareUrl: 'https://github.com/Onlybielzin/eclipse-code/blob/main/CHANGELOG.md',
     })
   })
 })

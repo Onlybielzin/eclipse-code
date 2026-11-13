@@ -7,13 +7,13 @@ allowed. Never print tokens or seek another agent's credentials.
 ## Discover current access
 
 ```sh
-opencove whoami
-opencove api ops --prefix node --fields id,cliCommand,scope,access --limit 10
-opencove api schema session.launchAgent
-opencove api schema agent.prompt
+eclipse-code whoami
+eclipse-code api ops --prefix node --fields id,cliCommand,scope,access --limit 10
+eclipse-code api schema session.launchAgent
+eclipse-code api schema agent.prompt
 ```
 
-Inside OpenCove, `api ops` and `api schema` report the Worker's access policy and policyVersion.
+Inside Eclipse Code, `api ops` and `api schema` report the Worker's access policy and policyVersion.
 Access is allowed, denied (with a reason), constrained, or unknown. Schema fields alone do not
 authorize their use. Constrained launch schemas also list rejectedFields and their reasons. Offline
 or with an older Worker, access is unknown. `scope` is the read/interact/admin ceiling; it does not
@@ -29,19 +29,19 @@ operation IDs fail closed.
 
 ## What requires the user
 
-Ask the user in OpenCove for endpoint/mount administration, project addition/root approval, private
+Ask the user in Eclipse Code for endpoint/mount administration, project addition/root approval, private
 settings, permission policy, Worker administration, and plugin distribution or execution. Grants
 cannot run plugin commands, invoke plugin code, or open plugin views/windows. They can read listed
 plugin metadata; this does not authorize running it.
 
 Raw `session.writeNode` is refused: send authorized task messages with `agent prompt`. Only the user
-answers permission prompts, questions and plan dialogs in OpenCove. Observation, recovery and saved
-terminal history are managed by OpenCove. A refusal is not permission to try another route.
+answers permission prompts, questions and plan dialogs in Eclipse Code. Observation, recovery and saved
+terminal history are managed by Eclipse Code. A refusal is not permission to try another route.
 Authentication and grant-policy refusals exit 4.
 
 ## Constrained agent launches
 
-From a canvas-bound session, use `opencove node create agent` or `opencove node create terminal`.
+From a canvas-bound session, use `eclipse-code node create agent` or `eclipse-code node create terminal`.
 These are the only grant routes that start runtimes. The caller must still be the canvas node’s
 current local session. Raw launch operations, including `session run-agent`, cannot be used by grants.
 A user can still start a standalone session with bearer authority. Its grant keeps reads, notes and
@@ -68,13 +68,13 @@ interpret it as a command. Start prompts with words, not command prefixes:
 
 Checks ignore initial whitespace. A prefix later in the text is ordinary message text.
 Provider-command grant refusals use field_denied and exit 4 before input or a delivery record.
-Launch permission does not establish prompt eligibility; see `opencove skill coordinate`.
+Launch permission does not establish prompt eligibility; see `eclipse-code skill coordinate`.
 
 ## Resident canvas guidance
 
 Supported local Claude Code and Codex agents can receive fixed canvas guidance at SessionStart. It
 introduces identity, sharing notes, `ai_done`, and asking before delegation. Configure Suggest
-(default) or Off in Settings → Agent → Tell agents about OpenCove. The executing Worker's setting
+(default) or Off in Settings → Agent → Tell agents about Eclipse Code. The executing Worker's setting
 applies to the next SessionStart; Off cannot retract text already delivered. Missing/invalid
 settings use Suggest.
 

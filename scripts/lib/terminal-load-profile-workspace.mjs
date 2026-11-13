@@ -23,7 +23,7 @@ function createWorkspaceState({ repoPath, nodes }) {
         id: workspaceId,
         name: 'terminal load profile',
         path: repoPath,
-        worktreesRoot: path.join(repoPath, '.opencove', 'worktrees'),
+        worktreesRoot: path.join(repoPath, '.eclipse-code', 'worktrees'),
         pullRequestBaseBranchOptions: [],
         environmentVariables: {},
         spaceArchiveRecords: [],
@@ -58,8 +58,8 @@ function createWorkspaceState({ repoPath, nodes }) {
 export async function seedWorkspace(window, { repoPath, nodes }) {
   const state = createWorkspaceState({ repoPath, nodes })
   const result = await window.evaluate(async rawState => {
-    window.localStorage.removeItem('opencove:m5.6:view-state')
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    window.localStorage.removeItem('eclipse-code:m5.6:view-state')
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(rawState),
     })
   }, state)
@@ -115,7 +115,7 @@ export async function spawnTerminalSessions(
   for (let index = 0; index < terminalCount; index += 1) {
     const result = await window.evaluate(
       async input => {
-        return await window.opencoveApi.pty.spawn({
+        return await window.eclipseCodeApi.pty.spawn({
           cwd: input.cwd,
           cols: 80,
           rows: 24,
@@ -140,7 +140,7 @@ export async function spawnTerminalSessions(
     })
     await window.evaluate(
       async input => {
-        await window.opencoveApi.pty.write({
+        await window.eclipseCodeApi.pty.write({
           sessionId: input.sessionId,
           data: `${input.commandLine}\r`,
           encoding: 'utf8',

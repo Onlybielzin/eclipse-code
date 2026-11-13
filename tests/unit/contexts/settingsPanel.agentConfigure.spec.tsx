@@ -90,7 +90,7 @@ function renderSettingsPanel(onChange: React.ComponentProps<typeof SettingsPanel
 describe('SettingsPanel agent configure panel', () => {
   afterEach(() => {
     vi.restoreAllMocks()
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
   })
 
   it('configures model and environment from the agent list', () => {

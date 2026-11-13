@@ -201,7 +201,7 @@ export function resolveNativeModuleRebuildCommand({
     'sh',
     '-c',
     'PATH="$1:$PATH"; export PATH; shift; exec "$@"',
-    'opencove-native-build',
+    'eclipse-code-native-build',
     nodeBinDirectory,
     nodeExecutable,
     ...nodeGypArgs,

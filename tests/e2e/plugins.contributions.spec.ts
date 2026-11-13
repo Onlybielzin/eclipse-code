@@ -15,7 +15,7 @@ type PluginRecord = { id: string; kind: string; task: unknown }
 
 async function readPluginPreferences(page: Page) {
   return page.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       settings?: {
         disabledPluginIds?: string[]
@@ -25,7 +25,7 @@ async function readPluginPreferences(page: Page) {
     }
     return {
       disabled: (
-        await window.opencoveApi.controlSurface.invoke<{
+        await window.eclipseCodeApi.controlSurface.invoke<{
           plugins: Array<{ id: string; enabled?: boolean }>
         }>({ kind: 'query', id: 'plugin.list', payload: null })
       ).plugins

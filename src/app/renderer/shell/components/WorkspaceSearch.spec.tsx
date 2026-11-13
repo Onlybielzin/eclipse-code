@@ -27,7 +27,7 @@ const baseNodeData = {
 
 const workspace: WorkspaceState = {
   id: 'project',
-  name: 'OpenCove',
+  name: 'Eclipse Code',
   path: '/repo',
   worktreesRoot: '',
   viewport: { x: 0, y: 0, zoom: 1 },

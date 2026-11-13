@@ -59,7 +59,7 @@ export function DiagnosticsSection({
       return
     }
 
-    await window.opencoveApi.clipboard.writeText(
+    await window.eclipseCodeApi.clipboard.writeText(
       JSON.stringify(
         {
           snapshot,

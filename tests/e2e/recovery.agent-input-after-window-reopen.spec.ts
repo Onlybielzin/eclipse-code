@@ -7,9 +7,9 @@ import {
 } from './workspace-canvas.helpers'
 
 const restoredAgentTestEnv = {
-  OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-  OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
-  OPENCOVE_TEST_KEEP_APP_ALIVE_ON_WINDOW_ALL_CLOSED: '1',
+  ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+  ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+  ECLIPSE_CODE_TEST_KEEP_APP_ALIVE_ON_WINDOW_ALL_CLOSED: '1',
 } as const
 
 const restoredAgentSettings = {
@@ -33,7 +33,7 @@ async function resolveSingleAgentBinding(window: Page): Promise<{
   sessionId: string | null
 }> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -64,9 +64,9 @@ async function readTranscript(window: Page, nodeId: string, transcript?: Locator
   const mirroredText = await window.evaluate(currentNodeId => {
     const reader = (
       window as Window & {
-        __OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__?: (targetNodeId: string) => string
+        __ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__?: (targetNodeId: string) => string
       }
-    ).__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__
+    ).__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__
     return typeof reader === 'function' ? reader(currentNodeId) : ''
   }, nodeId)
 

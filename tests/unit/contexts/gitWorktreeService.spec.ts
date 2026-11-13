@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, realpath, rm, stat, utimes, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, realpath, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import { promisify } from 'node:util'
@@ -26,7 +26,7 @@ async function createTempRepo(): Promise<string> {
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
 
@@ -42,7 +42,7 @@ async function createTempRepoWithoutCommit(): Promise<string> {
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
 
@@ -66,7 +66,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitWorktrees } =
@@ -87,6 +87,20 @@ describe('GitWorktreeService', () => {
 
       const after = await listGitWorktrees({ repoPath: canonicalRepoDir })
       expect(after.worktrees.some(entry => entry.path === created.path)).toBe(true)
+
+      // The in-repo worktrees root is hidden locally (info/exclude), so git status stays clean,
+      // and a second worktree does not repeat the line.
+      const status = await runGit(['status', '--porcelain', '--untracked-files=all'], repoDir)
+      expect(status.stdout.trim()).toBe('')
+      await createGitWorktree({
+        repoPath: canonicalRepoDir,
+        worktreesRoot,
+        branchMode: { kind: 'new', name: 'space-b', startPoint: 'HEAD' },
+      })
+      const exclude = await readFile(join(repoDir, '.git', 'info', 'exclude'), 'utf8')
+      expect(exclude.split('\n').filter(line => line === '/.eclipse-code/worktrees/')).toHaveLength(
+        1,
+      )
     },
     GIT_WORKTREE_TEST_TIMEOUT_MS,
   )
@@ -96,7 +110,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepoWithoutCommit()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree } =
@@ -120,7 +134,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitBranches, listGitWorktrees, removeGitWorktree } =
@@ -159,7 +173,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitBranches, listGitWorktrees, removeGitWorktree } =
@@ -200,7 +214,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitWorktrees, removeGitWorktree } =
@@ -236,7 +250,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitBranches, listGitWorktrees, renameGitBranch } =
@@ -352,7 +366,7 @@ describe('GitWorktreeService', () => {
     async () => {
       repoDir = await createTempRepo()
       const canonicalRepoDir = await realpath(repoDir)
-      const worktreesRoot = join(repoDir, '.opencove', 'worktrees')
+      const worktreesRoot = join(repoDir, '.eclipse-code', 'worktrees')
       await mkdir(worktreesRoot, { recursive: true })
 
       const { createGitWorktree, listGitWorktrees } =

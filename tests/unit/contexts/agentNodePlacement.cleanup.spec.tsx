@@ -40,10 +40,10 @@ function fixture(cleanupSupport = false) {
     }
     return result.value
   })
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     pty: { kill },
     controlSurface: { invoke },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   // Force exhausted geometry only; exercise the real creation hook, wrapper and registry.
   const geometry = vi.spyOn(placement, 'resolveNodesPlacement').mockReturnValue({
     placement: { x: 0, y: 0 },

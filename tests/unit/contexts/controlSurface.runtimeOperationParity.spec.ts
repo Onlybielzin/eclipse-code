@@ -173,7 +173,7 @@ for (const [id, base] of Object.entries(bases)) {
   }
   if (id === 'pty.spawnInMount') {
     for (const env of [
-      { ' A ': 'v', OPENCOVE_X: 'x', BAD: 1 },
+      { ' A ': 'v', ECLIPSE_CODE_X: 'x', BAD: 1 },
       { ['A'.repeat(257)]: 'x' },
       { A: 'x'.repeat(32769) },
       Object.fromEntries(Array.from({ length: 101 }, (_, i) => ['K' + i, 'v'])),

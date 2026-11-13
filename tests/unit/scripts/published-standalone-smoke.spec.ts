@@ -15,13 +15,13 @@ describe('published standalone release smoke contract', () => {
     expect(
       resolvePublishedCommandInvocation({
         platform: 'win32',
-        command: 'C:\\Temp Space\\opencove.cmd',
+        command: 'C:\\Temp Space\\eclipse-code.cmd',
         args: ['worker', 'start', '--help'],
         comspec: 'C:\\Windows\\System32\\cmd.exe',
       }),
     ).toEqual({
       command: 'C:\\Windows\\System32\\cmd.exe',
-      args: ['/d', '/s', '/c', '""C:\\Temp Space\\opencove.cmd" "worker" "start" "--help""'],
+      args: ['/d', '/s', '/c', '""C:\\Temp Space\\eclipse-code.cmd" "worker" "start" "--help""'],
       windowsVerbatimArguments: true,
     })
   })
@@ -29,9 +29,9 @@ describe('published standalone release smoke contract', () => {
   it.runIf(process.platform === 'win32')(
     'executes an installed launcher in a Windows path containing spaces',
     async () => {
-      const root = await mkdtemp(path.join(tmpdir(), 'opencove launcher '))
+      const root = await mkdtemp(path.join(tmpdir(), 'eclipse-code launcher '))
       try {
-        const launcher = path.join(root, 'opencove.cmd')
+        const launcher = path.join(root, 'eclipse-code.cmd')
         await writeFile(
           launcher,
           [
@@ -81,23 +81,23 @@ describe('published standalone release smoke contract', () => {
     ).toMatchObject({
       version: '0.3.0',
       stable: true,
-      installerName: 'opencove-install-v0.3.0.sh',
-      uninstallerName: 'opencove-uninstall-v0.3.0.sh',
-      latestInstallerName: 'opencove-install.sh',
-      latestUninstallerName: 'opencove-uninstall.sh',
-      bundleName: 'opencove-server-linux-x64.tar.gz',
+      installerName: 'eclipse-code-install-v0.3.0.sh',
+      uninstallerName: 'eclipse-code-uninstall-v0.3.0.sh',
+      latestInstallerName: 'eclipse-code-install.sh',
+      latestUninstallerName: 'eclipse-code-uninstall.sh',
+      bundleName: 'eclipse-code-server-linux-x64.tar.gz',
       installerUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/download/v0.3.0/opencove-install-v0.3.0.sh',
+        'https://github.com/Onlybielzin/eclipse-code/releases/download/v0.3.0/eclipse-code-install-v0.3.0.sh',
       uninstallerUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/download/v0.3.0/opencove-uninstall-v0.3.0.sh',
+        'https://github.com/Onlybielzin/eclipse-code/releases/download/v0.3.0/eclipse-code-uninstall-v0.3.0.sh',
       bundleUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/download/v0.3.0/opencove-server-linux-x64.tar.gz',
+        'https://github.com/Onlybielzin/eclipse-code/releases/download/v0.3.0/eclipse-code-server-linux-x64.tar.gz',
       latestInstallerUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh',
+        'https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh',
       latestUninstallerUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-uninstall.sh',
+        'https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-uninstall.sh',
       latestBundleUrl:
-        'https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-server-linux-x64.tar.gz',
+        'https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-server-linux-x64.tar.gz',
     })
   })
 
@@ -110,11 +110,11 @@ describe('published standalone release smoke contract', () => {
       }),
     ).toMatchObject({
       stable: false,
-      installerName: 'opencove-install-v0.3.1-nightly.20260904.1.ps1',
-      uninstallerName: 'opencove-uninstall-v0.3.1-nightly.20260904.1.ps1',
+      installerName: 'eclipse-code-install-v0.3.1-nightly.20260904.1.ps1',
+      uninstallerName: 'eclipse-code-uninstall-v0.3.1-nightly.20260904.1.ps1',
       latestInstallerName: null,
       latestUninstallerName: null,
-      bundleName: 'opencove-server-windows-x64.zip',
+      bundleName: 'eclipse-code-server-windows-x64.zip',
     })
   })
 
@@ -134,23 +134,23 @@ describe('published standalone release smoke contract', () => {
 
     expect(() => assertPublishedChecksumInventory(checksums, target)).not.toThrow()
     expect(() => assertPublishedChecksumInventory(`aaa  ${target.installerName}`, target)).toThrow(
-      /opencove-uninstall-v0\.3\.0\.sh/u,
+      /eclipse-code-uninstall-v0\.3\.0\.sh/u,
     )
   })
 
   it('compares downloaded bytes with the release checksum instead of trusting filenames', () => {
     const content = Buffer.from('published installer')
     const sha256 = '71e9a493e408da448a75fd544de41d29171d4f64cbc0acbe77c4657909a814c5'
-    const checksums = `${sha256}  opencove-install-v0.3.0.sh\n`
+    const checksums = `${sha256}  eclipse-code-install-v0.3.0.sh\n`
 
     expect(() =>
-      assertPublishedAssetChecksum(content, checksums, 'opencove-install-v0.3.0.sh'),
+      assertPublishedAssetChecksum(content, checksums, 'eclipse-code-install-v0.3.0.sh'),
     ).not.toThrow()
     expect(() =>
       assertPublishedAssetChecksum(
         Buffer.from('tampered installer'),
         checksums,
-        'opencove-install-v0.3.0.sh',
+        'eclipse-code-install-v0.3.0.sh',
       ),
     ).toThrow(/SHA256 mismatch/u)
   })

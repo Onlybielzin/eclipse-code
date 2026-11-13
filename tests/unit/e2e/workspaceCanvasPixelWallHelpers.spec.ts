@@ -13,16 +13,16 @@ const timers: ReturnType<typeof setInterval>[] = []
 afterEach(() => {
   timers.forEach(clearInterval)
   timers.length = 0
-  delete window.__opencovePixelWallTestApi
+  delete window.__eclipseCodePixelWallTestApi
   document.body.replaceChildren()
   vi.restoreAllMocks()
 })
 
 function probe(animated = 20, total = 42) {
-  window.__opencovePixelWallTestApi = {
+  window.__eclipseCodePixelWallTestApi = {
     getFrameCount: () => total,
     getAnimatedFrameCount: () => animated,
-  } as NonNullable<Window['__opencovePixelWallTestApi']>
+  } as NonNullable<Window['__eclipseCodePixelWallTestApi']>
   return { advance: () => animated++ }
 }
 
@@ -40,7 +40,7 @@ describe('pixel wall animation assertion', () => {
     }, 250)
     timers.push(timer)
     await expectAnimatedWall(page, { attach })
-    expect(window.__opencovePixelWallTestApi!.getAnimatedFrameCount()).toBe(23)
+    expect(window.__eclipseCodePixelWallTestApi!.getAnimatedFrameCount()).toBe(23)
     expect(attach).not.toHaveBeenCalled()
   })
 

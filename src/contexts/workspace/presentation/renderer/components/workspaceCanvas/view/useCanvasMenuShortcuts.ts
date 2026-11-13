@@ -20,8 +20,8 @@ export type CanvasMenuShortcuts = {
  */
 export function useCanvasMenuShortcuts(keybindings: KeybindingOverrides): CanvasMenuShortcuts {
   const platform =
-    typeof window !== 'undefined' && window.opencoveApi?.meta?.platform
-      ? window.opencoveApi.meta.platform
+    typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform
+      ? window.eclipseCodeApi.meta.platform
       : undefined
 
   return useMemo(() => {

@@ -407,9 +407,9 @@ export function registerRuntimeRendererAndThemeSync(options: {
     options.reportOpenCodeThemeMode()
   }
 
-  window.addEventListener('opencove-theme-changed', handleThemeChange)
+  window.addEventListener('eclipse-code-theme-changed', handleThemeChange)
   return () => {
-    window.removeEventListener('opencove-theme-changed', handleThemeChange)
+    window.removeEventListener('eclipse-code-theme-changed', handleThemeChange)
     runtimeRendererHealth.dispose()
   }
 }

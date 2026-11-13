@@ -64,7 +64,7 @@ function renderHeader(overrides: Partial<React.ComponentProps<typeof AppHeader>>
 
 describe('AppHeader fullscreen toggle', () => {
   afterEach(() => {
-    delete (window as unknown as { opencoveApi?: unknown }).opencoveApi
+    delete (window as unknown as { eclipseCodeApi?: unknown }).eclipseCodeApi
     delete (document as unknown as { fullscreenElement?: unknown }).fullscreenElement
     delete (document as unknown as { exitFullscreen?: unknown }).exitFullscreen
     delete (document.documentElement as unknown as { requestFullscreen?: unknown })
@@ -72,7 +72,7 @@ describe('AppHeader fullscreen toggle', () => {
   })
 
   it('requests fullscreen in browser runtime', async () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -100,7 +100,7 @@ describe('AppHeader fullscreen toggle', () => {
   })
 
   it('exits fullscreen when already in fullscreen', async () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

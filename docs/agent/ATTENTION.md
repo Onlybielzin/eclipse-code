@@ -1,17 +1,17 @@
 # Agent attention
 
-When an Agent ends a turn and waits for you, OpenCove tells you once. Three channels can carry it.
+When an Agent ends a turn and waits for you, Eclipse Code tells you once. Three channels can carry it.
 Each has its own switch in Settings › Notifications and a tile in the Control Center:
 
 - **In-app card**: a pixel card that grows out of the agent pill ([Agent Island](../ui/AGENT_ISLAND.md)).
   Clicking it focuses the Agent. After six seconds it retracts into the pill, where the Agent keeps
   waiting until you answer it.
-- **System notification**: the operating system's banner, sent only while OpenCove is not in front.
+- **System notification**: the operating system's banner, sent only while Eclipse Code is not in front.
 - **Sound**: one synthesised alert (`bit` pixel default, `tide`, `pebble`), at its own volume.
 
 ## Routing
 
-| OpenCove is | In-app card | System notification         | Sound            |
+| Eclipse Code is | In-app card | System notification         | Sound            |
 | ----------- | ----------- | --------------------------- | ---------------- |
 | In front    | shown if on | dropped by main, even if on | plays once if on |
 | Behind      | shown if on | sent if on, always silent   | plays once if on |
@@ -45,7 +45,7 @@ signals on the canvas keep following the runtime status.
 | Did an Agent complete a turn? | Worker turn owner; renderer consumes `lastEndedTurn.id` once    |
 | Which channels fire, and when | `createAgentAttentionRouter` (`agentAttentionRouter.ts`)        |
 | Which Agents are unanswered   | `useAgentAttentionStore` (renderer, transient)                  |
-| Is OpenCove in front?         | Main (`systemNotifications.ts`): any focused app window         |
+| Is Eclipse Code in front?         | Main (`systemNotifications.ts`): any focused app window         |
 | What the sound is             | `notificationSound.ts`: Web Audio, no files                     |
 
 The renderer cannot trust its own focus signals for the foreground gate, so main decides it at the
@@ -71,6 +71,6 @@ moment it would show the notification.
 - Startup baseline: `tests/unit/app/agentStandbyTerminalNotification.spec.ts`.
 - Foreground gate, silent delivery, replacement and click: `tests/contract/ipc/systemNotificationIpc.spec.ts`.
 - End to end, in front and behind: `tests/e2e/workspace-canvas.agent-attention-routing.spec.ts`.
-  Main records notifications in `globalThis.__opencoveSystemNotificationTestState` (a test can
-  pretend focus and click one); the renderer records sounds in `window.__opencoveNotificationSoundTestLog`
+  Main records notifications in `globalThis.__eclipseCodeSystemNotificationTestState` (a test can
+  pretend focus and click one); the renderer records sounds in `window.__eclipseCodeNotificationSoundTestLog`
   instead of playing them.

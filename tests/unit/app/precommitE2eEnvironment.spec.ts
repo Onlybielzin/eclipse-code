@@ -8,22 +8,22 @@ describe('required pre-commit E2E environment', () => {
     expect(
       createRequiredE2EEnvironment(
         {
-          OPENCOVE_E2E_RETRIES: '7',
-          OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '0',
+          ECLIPSE_CODE_E2E_RETRIES: '7',
+          ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '0',
         },
         'darwin',
       ),
     ).toMatchObject({
-      OPENCOVE_E2E_RETRIES: '0',
-      OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+      ECLIPSE_CODE_E2E_RETRIES: '0',
+      ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
     })
   })
 
   it('keeps the Windows platform suite as the required default match', () => {
     expect(createRequiredE2EEnvironment({}, 'win32')).toMatchObject({
-      OPENCOVE_E2E_TEST_MATCH: '**/*.windows.spec.ts',
-      OPENCOVE_E2E_RETRIES: '0',
-      OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+      ECLIPSE_CODE_E2E_TEST_MATCH: '**/*.windows.spec.ts',
+      ECLIPSE_CODE_E2E_RETRIES: '0',
+      ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
     })
   })
 })

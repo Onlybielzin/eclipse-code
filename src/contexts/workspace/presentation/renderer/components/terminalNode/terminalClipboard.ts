@@ -31,7 +31,7 @@ export function createTerminalClipboardHandler(options: {
   const readClipboard =
     options.readClipboard ??
     (async () => {
-      const clipboard = window.opencoveApi?.clipboard
+      const clipboard = window.eclipseCodeApi?.clipboard
       return typeof clipboard?.readTerminalPaste === 'function'
         ? await clipboard.readTerminalPaste()
         : { text: await readTextFromClipboard(), hasImage: false }

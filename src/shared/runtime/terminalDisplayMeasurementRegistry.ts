@@ -12,7 +12,7 @@ export type TerminalDisplayMeasurementHandle = {
 type RegisteredHandle = TerminalDisplayMeasurementHandle & { token: symbol }
 
 export const TERMINAL_DISPLAY_MEASUREMENT_HANDLES_CHANGED =
-  'opencove:terminal-display-measurement-handles-changed'
+  'eclipse-code:terminal-display-measurement-handles-changed'
 
 const handles = new Map<string, RegisteredHandle>()
 

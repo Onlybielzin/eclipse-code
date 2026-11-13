@@ -148,7 +148,7 @@ import type { ControlSurfaceInvokeRequest } from '../../shared/contracts/control
 
 type UnsubscribeFn = () => void
 
-export interface OpenCoveApi {
+export interface EclipseCodeApi {
   meta: {
     isTest: boolean
     isPackaged: boolean
@@ -383,6 +383,6 @@ export interface OpenCoveApi {
 
 declare global {
   interface Window {
-    opencoveApi: OpenCoveApi
+    eclipseCodeApi: EclipseCodeApi
   }
 }

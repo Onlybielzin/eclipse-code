@@ -1,5 +1,5 @@
 export const zhCNSettingsPanelAgent = {
-  residentContextLabel: '向智能体介绍 OpenCove',
+  residentContextLabel: '向智能体介绍 Eclipse Code',
   residentContextSuggest: '建议使用',
   residentContextOff: '关闭',
   residentContextHelp:
@@ -26,7 +26,7 @@ export const zhCNSettingsPanelAgent = {
   moveDown: '下移',
   codexReuseRunningAppServerLabel: '复用正在运行的 Codex app-server',
   codexReuseRunningAppServerHelp:
-    '复用正在运行的 Codex app-server 时，OpenCove 无法向 Agent 发送提示词，状态跟踪也受限。仅对新启动的 Agent 生效。',
+    '复用正在运行的 Codex app-server 时，Eclipse Code 无法向 Agent 发送提示词，状态跟踪也受限。仅对新启动的 Agent 生效。',
   fullAccessLabel: '完全访问模式',
   fullAccessHelp: '让 Agent 不受沙箱限制，不经同意直接行动。',
   fullAccessOffHelp: '已关闭：Agent 在沙箱里工作，运行命令或修改文件前会先征求你的同意。',

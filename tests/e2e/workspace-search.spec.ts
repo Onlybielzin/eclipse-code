@@ -266,7 +266,7 @@ test.describe('Workspace Search', () => {
     const stamp = Date.now()
     const branchName = `e2e/search-meta-${stamp}`
     const worktreeName = `wt-e2e-search-meta-${stamp}`
-    const worktreePath = path.join(testWorkspacePath, '.opencove', 'worktrees', worktreeName)
+    const worktreePath = path.join(testWorkspacePath, '.eclipse-code', 'worktrees', worktreeName)
 
     await createGitWorktree({ branchName, worktreePath })
 
@@ -276,7 +276,7 @@ test.describe('Workspace Search', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_GITHUB_INTEGRATION: '1',
+          ECLIPSE_CODE_TEST_GITHUB_INTEGRATION: '1',
         },
       })
 
@@ -424,7 +424,7 @@ test.describe('Workspace Search', () => {
       await expect
         .poll(async () => {
           const raw = await window.evaluate(async () => {
-            return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           })
 
           if (!raw) {

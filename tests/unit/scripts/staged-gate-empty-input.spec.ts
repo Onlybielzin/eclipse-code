@@ -45,7 +45,7 @@ function runGit(args: string[], cwd: string): void {
 }
 
 function createRepository(): { path: string; env: NodeJS.ProcessEnv } {
-  const path = mkdtempSync(join(tmpdir(), 'opencove-staged-gate-'))
+  const path = mkdtempSync(join(tmpdir(), 'eclipse-code-staged-gate-'))
   temporaryRepositories.push(path)
   runGit(['init'], path)
 
@@ -95,7 +95,7 @@ describe.each(gates)('$name staged gate', gate => {
         encoding: 'utf8',
         env: {
           ...repository.env,
-          OPENCOVE_REQUIRE_STAGED: strict ? '1' : '0',
+          ECLIPSE_CODE_REQUIRE_STAGED: strict ? '1' : '0',
         },
       },
     )

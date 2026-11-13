@@ -19,7 +19,7 @@ afterEach(async () => {
 })
 
 async function startFixture(stubScriptPath = resolve('scripts/test-agent-session-stub.mjs')) {
-  const root = await mkdtemp(join(tmpdir(), 'opencove completion '))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code completion '))
   cleanups.push(() => rm(root, { recursive: true, force: true }))
   const script = join(root, 'spinner.mjs')
   await writeFile(script, createCompletionSignalsStubScript(stubScriptPath))
@@ -49,7 +49,7 @@ describe('completion signals repaint fixture', () => {
   it('keeps ready observable until the runner explicitly starts repainting', async () => {
     const fixture = await startFixture()
     await vi.waitFor(
-      () => expect(fixture.output().stdout).toContain('[opencove-test-hook] ready\n'),
+      () => expect(fixture.output().stdout).toContain('[eclipse-code-test-hook] ready\n'),
       { timeout: 4_000 },
     )
     // Several repaint ticks may pass while CI is still hydrating the terminal.
@@ -75,7 +75,7 @@ describe('completion signals repaint fixture', () => {
   it('reports an import failure and exits unsuccessfully instead of running a spinner', async () => {
     const fixture = await startFixture(resolve('missing-completion-signals-stub.mjs'))
     expect(await fixture.closed).toBe(1)
-    expect(fixture.output().stderr).toContain('[opencove-completion-stub] failed:')
+    expect(fixture.output().stderr).toContain('[eclipse-code-completion-stub] failed:')
     expect(fixture.output().stderr).toContain('ERR_MODULE_NOT_FOUND')
     expect(fixture.output().stdout).not.toContain('working 00:01')
   })

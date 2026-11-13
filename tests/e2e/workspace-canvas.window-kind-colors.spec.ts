@@ -57,7 +57,7 @@ test('window kind colours colour the tile and can be turned off in Settings', as
     await expect
       .poll(async () =>
         window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           return raw ? JSON.parse(raw).settings?.windowKindColorsEnabled : null
         }),
       )

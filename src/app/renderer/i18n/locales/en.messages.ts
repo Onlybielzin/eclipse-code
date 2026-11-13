@@ -19,7 +19,7 @@ export const enMessages = {
   managedAgentWorkerUpgradeRequired:
     'Update and restart the connected Worker before managing Claude agents. Updating this window alone is not enough.',
   managedAgentClientUpgradeRequired:
-    'Update OpenCove and reload this window before controlling this agent.',
+    'Update Eclipse Code and reload this window before controlling this agent.',
   managedAgentWritesDisabled:
     'Managed Claude restarts are paused. Ask the Worker administrator to enable them.',
   workerConnectionRetry: 'Retry connection',
@@ -34,19 +34,20 @@ export const enMessages = {
     'This conversation cannot be resumed yet. Select a saved session or start a new conversation.',
   nodeNoParent: 'This node was started by the user, so it has no parent agent.',
   nodeNoParentHint:
-    'Use "opencove agent list" to choose a recipient, or report your findings to the user.',
+    'Use "eclipse-code agent list" to choose a recipient, or report your findings to the user.',
   nodeParentDeleted: 'The agent that created this node has been deleted.',
   nodeParentDeletedHint:
-    'Use "opencove agent list" to choose another recipient, or leave your findings in a shared note.',
-  nodeParentIdentityMismatch: 'The current terminal identity does not match its OpenCove session.',
+    'Use "eclipse-code agent list" to choose another recipient, or leave your findings in a shared note.',
+  nodeParentIdentityMismatch:
+    'The current terminal identity does not match its Eclipse Code session.',
   nodeParentIdentityMismatchHint:
-    'Open a new OpenCove terminal and run "opencove whoami" before choosing a recipient.',
-  nodeParentIdentityRequired: '@parent works only inside an OpenCove terminal.',
+    'Open a new Eclipse Code terminal and run "eclipse-code whoami" before choosing a recipient.',
+  nodeParentIdentityRequired: '@parent works only inside an Eclipse Code terminal.',
   nodeParentIdentityRequiredHint:
-    'Run this command inside OpenCove, or replace @parent with a node ID from "opencove node list".',
+    'Run this command inside Eclipse Code, or replace @parent with a node ID from "eclipse-code node list".',
   nodeParentUnavailable: 'The parent node could not be resolved.',
   nodeParentUnavailableHint:
-    'Run "opencove node get --node @self" to inspect your lineage, then choose a recipient with "opencove node list".',
+    'Run "eclipse-code node get --node @self" to inspect your lineage, then choose a recipient with "eclipse-code node list".',
   agentLaunchFailed: 'Agent launch failed: {{message}}',
   agentResumeFailed: 'Agent resume failed: {{message}}',
   terminalAgentReexecFailed: 'Failed to restart the agent in this terminal: {{message}}',

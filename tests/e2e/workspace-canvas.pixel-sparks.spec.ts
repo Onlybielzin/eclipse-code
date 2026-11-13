@@ -45,7 +45,7 @@ test('both LOD transitions shed sparks from visible windows while the background
     const transition = async (zoom: number) => {
       await installPixelDrawProbe(window)
       expect(
-        await window.evaluate(z => window.__opencoveWorkspaceCanvasTestApi!.setZoom(z), zoom),
+        await window.evaluate(z => window.__eclipseCodeWorkspaceCanvasTestApi!.setZoom(z), zoom),
       ).toBe(true)
       // Retain actual draws: an inactive CI window paints decorative effects at only 10fps.
       await expect

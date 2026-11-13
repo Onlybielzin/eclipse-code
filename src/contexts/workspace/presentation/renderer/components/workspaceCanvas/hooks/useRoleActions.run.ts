@@ -118,17 +118,22 @@ export async function runRoleNodeAction(
     return
   }
 
+  // The window's picker wins (it opens on the role's provider); the role's model applies only on
+  // the role's own provider.
   const provider = resolveSelectableAgentProvider(
-    roleNode.data.role.selectedProvider ?? context.agentSettings.defaultProvider,
+    roleNode.data.role.selectedProvider ?? role.provider ?? context.agentSettings.defaultProvider,
   )
-  const model = resolveAgentModel(context.agentSettings, provider)
+  const model =
+    role.model && role.provider === provider
+      ? role.model
+      : resolveAgentModel(context.agentSettings, provider)
   const executablePathOverride = resolveAgentExecutableOverride(context.agentSettings, provider)
   const mergedEnv = buildMergedAgentLaunchEnv(
     context.agentSettings,
     provider,
     context.environmentVariables,
   )
-  const prompt = composeProjectRolePrompt({ role, input })
+  const prompt = composeProjectRolePrompt({ role, input, projectRoles: context.projectRoles })
   const owningSpace =
     context.spacesRef.current.find(space => space.nodeIds.includes(nodeId)) ?? null
   const initialBinding = await resolveWorkspaceAgentLaunchBinding({

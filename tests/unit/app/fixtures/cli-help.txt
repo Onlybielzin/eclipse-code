@@ -1,73 +1,73 @@
-OpenCove CLI (dev)
+Eclipse Code CLI (dev)
 
 Usage:
-  opencove ping [--pretty] [--endpoint <url>] [--token <token>]
-  opencove plugin guide [--pretty]
-  opencove plugin list [--pretty]
-  opencove plugin install <directory> [--pretty]
-  opencove plugin install-git <repository> [--ref <ref>] [--directory <path>] [--build none|npm|pnpm] [--script <name>] [--output <path>]
-  opencove plugin source <id> | check <id> | update <id> [--ref <ref>]
-  opencove plugin apply <candidate-id> | rollback <id> <revision>
-  opencove plugin discover [--query <text>]
-  opencove plugin details <id> [--pretty]
-  opencove plugin run <id> <command> [--params <json>] [--node <id>] [--view <id>] [--project <id>] [--pretty]
-  opencove plugin open <id> [--node <id>] [--project <id>] [--space <id>] [--pretty]
-  opencove plugin windows <id> [--project <id>] [--pretty]
-  opencove plugin skill <id> <skill> [--pretty]
+  eclipse-code ping [--pretty] [--endpoint <url>] [--token <token>]
+  eclipse-code plugin guide [--pretty]
+  eclipse-code plugin list [--pretty]
+  eclipse-code plugin install <directory> [--pretty]
+  eclipse-code plugin install-git <repository> [--ref <ref>] [--directory <path>] [--build none|npm|pnpm] [--script <name>] [--output <path>]
+  eclipse-code plugin source <id> | check <id> | update <id> [--ref <ref>]
+  eclipse-code plugin apply <candidate-id> | rollback <id> <revision>
+  eclipse-code plugin discover [--query <text>]
+  eclipse-code plugin details <id> [--pretty]
+  eclipse-code plugin run <id> <command> [--params <json>] [--node <id>] [--view <id>] [--project <id>] [--pretty]
+  eclipse-code plugin open <id> [--node <id>] [--project <id>] [--space <id>] [--pretty]
+  eclipse-code plugin windows <id> [--project <id>] [--pretty]
+  eclipse-code plugin skill <id> <skill> [--pretty]
   New plugin windows always require --project; use project list to find IDs.
-  opencove plugin reload <id> [--pretty]
-  opencove plugin enable <id> [--pretty]
-  opencove plugin disable <id> [--pretty]
-  opencove plugin uninstall <id> [--pretty]
-  opencove endpoint list [--pretty]
-  opencove endpoint register --hostname <host> --port <port> --remote-token <token> [--display-name <name>] [--pretty]
-  opencove endpoint ping --endpoint-id <id> [--ping-timeout <ms>] [--pretty]
-  opencove endpoint remove --endpoint-id <id> [--pretty]
+  eclipse-code plugin reload <id> [--pretty]
+  eclipse-code plugin enable <id> [--pretty]
+  eclipse-code plugin disable <id> [--pretty]
+  eclipse-code plugin uninstall <id> [--pretty]
+  eclipse-code endpoint list [--pretty]
+  eclipse-code endpoint register --hostname <host> --port <port> --remote-token <token> [--display-name <name>] [--pretty]
+  eclipse-code endpoint ping --endpoint-id <id> [--ping-timeout <ms>] [--pretty]
+  eclipse-code endpoint remove --endpoint-id <id> [--pretty]
 
-  opencove project list [--pretty]
-  opencove space list [--project <id>] [--pretty]
+  eclipse-code project list [--pretty]
+  eclipse-code space list [--project <id>] [--pretty]
 
-  opencove space get --space <id> [--pretty]
+  eclipse-code space get --space <id> [--pretty]
 
-  opencove node list [space locator] [--kind <kind>] [--pretty]
-  opencove node get --node <id> [--pretty]
-  opencove node create <note|task|website|agent|terminal> [space locator] [--focus] [--pretty]
-  opencove node update <note|task|website> --node <id> [--frame <json>] [--pretty]
-  opencove node delete --node <id> [--pretty]
-  opencove canvas focus node --node <id> [--pretty]
-  opencove canvas focus space [space locator] [--pretty]
+  eclipse-code node list [space locator] [--kind <kind>] [--pretty]
+  eclipse-code node get --node <id> [--pretty]
+  eclipse-code node create <note|task|website|agent|terminal> [space locator] [--focus] [--pretty]
+  eclipse-code node update <note|task|website> --node <id> [--frame <json>] [--pretty]
+  eclipse-code node delete --node <id> [--pretty]
+  eclipse-code canvas focus node --node <id> [--pretty]
+  eclipse-code canvas focus space [space locator] [--pretty]
 
-  opencove mount list --project <id> [--pretty]
-  opencove mount create --project <id> --endpoint-id <id> --root-path <path> [--name <text>] [--pretty]
+  eclipse-code mount list --project <id> [--pretty]
+  eclipse-code mount create --project <id> --endpoint-id <id> --root-path <path> [--name <text>] [--pretty]
 
-  opencove mount resolve --mount <id> [--pretty]
-  opencove mount remove --mount <id> [--pretty]
+  eclipse-code mount resolve --mount <id> [--pretty]
+  eclipse-code mount remove --mount <id> [--pretty]
 
-  opencove fs read --uri <uri> [--pretty]
-  opencove fs write --uri <uri> --content <text> [--pretty]
-  opencove fs stat --uri <uri> [--pretty]
-  opencove fs ls --uri <uri> [--pretty]
+  eclipse-code fs read --uri <uri> [--pretty]
+  eclipse-code fs write --uri <uri> --content <text> [--pretty]
+  eclipse-code fs stat --uri <uri> [--pretty]
+  eclipse-code fs ls --uri <uri> [--pretty]
 
-  opencove fs read-in-mount --mount <id> --uri <uri> [--pretty]
-  opencove fs write-in-mount --mount <id> --uri <uri> --content <text> [--pretty]
-  opencove fs stat-in-mount --mount <id> --uri <uri> [--pretty]
-  opencove fs ls-in-mount --mount <id> --uri <uri> [--pretty]
+  eclipse-code fs read-in-mount --mount <id> --uri <uri> [--pretty]
+  eclipse-code fs write-in-mount --mount <id> --uri <uri> --content <text> [--pretty]
+  eclipse-code fs stat-in-mount --mount <id> --uri <uri> [--pretty]
+  eclipse-code fs ls-in-mount --mount <id> --uri <uri> [--pretty]
 
-  opencove pty spawn-in-mount --mount <id> [--cwd-uri <uri>] [--shell <path>] [--profile-id <id>] [--cols <n>] [--rows <n>] [--pretty]
-  opencove pty attach --session <id>
+  eclipse-code pty spawn-in-mount --mount <id> [--cwd-uri <uri>] [--shell <path>] [--profile-id <id>] [--cols <n>] [--rows <n>] [--pretty]
+  eclipse-code pty attach --session <id>
 
-  opencove worktree list [--project <id>] [--pretty]
-  opencove worktree create --space <id> [--name <branch>] [--pretty]
-  opencove worktree archive --space <id> [--force] [--delete-branch] [--pretty]
+  eclipse-code worktree list [--project <id>] [--pretty]
+  eclipse-code worktree create --space <id> [--name <branch>] [--pretty]
+  eclipse-code worktree archive --space <id> [--force] [--delete-branch] [--pretty]
 
-  opencove session run-agent --space <id> --prompt <text> [--provider <id>] [--model <id>] [--pretty]
-  opencove session get --session <id> [--pretty]
-  opencove session final --session <id> [--pretty]
-  opencove session kill --session <id> [--pretty]
+  eclipse-code session run-agent --space <id> --prompt <text> [--provider <id>] [--model <id>] [--pretty]
+  eclipse-code session get --session <id> [--pretty]
+  eclipse-code session final --session <id> [--pretty]
+  eclipse-code session kill --session <id> [--pretty]
 
-  opencove worker start [--hostname <bindHost>] [--advertise-hostname <host>] [--port <port>] [--user-data <dir>] [--token <token>] [--web-ui-password <text> | --web-ui-password-hash <hash>] [--approve-root <path>]
-  opencove worker status [--all] [--user-data <dir>] [--endpoint <url>] [--token <token>] [--pretty]
-  opencove worker stop [--user-data <dir>] [--pid <pid>] [--force] [--pretty]
+  eclipse-code worker start [--hostname <bindHost>] [--advertise-hostname <host>] [--port <port>] [--user-data <dir>] [--token <token>] [--web-ui-password <text> | --web-ui-password-hash <hash>] [--approve-root <path>]
+  eclipse-code worker status [--all] [--user-data <dir>] [--endpoint <url>] [--token <token>] [--pretty]
+  eclipse-code worker stop [--user-data <dir>] [--pid <pid>] [--force] [--pretty]
 
 Global Options:
   --pretty                 Pretty-print JSON output
@@ -82,4 +82,4 @@ Space Locator:
   --worker <id-or-name> --path <absolute-path> [--project <id>]
 
 Environment:
-  OPENCOVE_USER_DATA_DIR=/path/to/userData (restrict lookup to this userData dir)
+  ECLIPSE_CODE_USER_DATA_DIR=/path/to/userData (restrict lookup to this userData dir)

@@ -18,14 +18,14 @@ export async function snapshotManagedProfile(
     force: false,
     filter: path =>
       ![
-        'opencove.db',
-        'opencove.db-wal',
-        'opencove.db-shm',
-        'opencove-worker.lock',
+        'eclipse-code.db',
+        'eclipse-code.db-wal',
+        'eclipse-code.db-shm',
+        'eclipse-code-worker.lock',
         'worker-control-surface.json',
       ].includes(basename(path)),
   })
-  const sourceDb = join(profile, 'opencove.db')
+  const sourceDb = join(profile, 'eclipse-code.db')
   if (
     !(await stat(sourceDb).then(
       () => true,
@@ -41,14 +41,14 @@ export async function snapshotManagedProfile(
   }
   const database = new Database(sourceDb, { readonly: true, fileMustExist: true })
   try {
-    await database.backup(join(data, 'opencove.db'))
+    await database.backup(join(data, 'eclipse-code.db'))
   } finally {
     database.close()
   }
 
   // Exercise migration on a second copy; the recovery snapshot always retains the original schema.
   const validation = join(destination, 'migration-check.sqlite')
-  await copyFile(join(data, 'opencove.db'), validation)
+  await copyFile(join(data, 'eclipse-code.db'), validation)
   const store = await createPersistenceStore({ dbPath: validation, strictRecovery: true })
   try {
     await store.readAppState()

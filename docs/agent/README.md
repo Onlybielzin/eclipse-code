@@ -115,8 +115,8 @@ and built-in tools without changing global settings:
 
 ```bash
 pnpm build
-OPENCOVE_TEST_REAL_PI=1 OPENCOVE_REAL_PI_EXECUTABLE="$(command -v pi)" \
-  OPENCOVE_E2E_RETRIES=0 OPENCOVE_E2E_DISABLE_CRASH_FALLBACK=1 \
+ECLIPSE_CODE_TEST_REAL_PI=1 ECLIPSE_CODE_REAL_PI_EXECUTABLE="$(command -v pi)" \
+  ECLIPSE_CODE_E2E_RETRIES=0 ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK=1 \
   pnpm exec playwright test tests/e2e/workspace-canvas.pi-hook.real.spec.ts --project electron
 ```
 
@@ -187,19 +187,19 @@ readiness. Renderer displays the Worker's decided projection. Pending hook insta
 from an observed failure; source metadata reports the available evidence without inventing readiness.
 See [Agent run state](RUN_STATE.md) for source selection, lease and quality rules.
 
-OpenCove-launched Codex Agent windows keep their per-launch Hook and notify overrides by default,
+Eclipse Code-launched Codex Agent windows keep their per-launch Hook and notify overrides by default,
 so Codex uses its embedded app-server even if a shared local daemon is running. This preserves
-lifecycle status tracking and `opencove agent prompt`; the shared daemon is left running.
+lifecycle status tracking and `eclipse-code agent prompt`; the shared daemon is left running.
 
 On POSIX, **Settings → Agent → Codex → Reuse a running Codex app-server** opts into daemon reuse
 (`codexReuseRunningAppServer`, default `false`, including older saved settings). Only with this
 setting enabled does each launch probe the local app-server control socket. When reachable, the
 provider omits its Hook and notify overrides because an already-running daemon cannot adopt them.
 This path reports telemetry as `skipped`, uses degraded session-file observations, and cannot accept
-`opencove agent prompt`. A missing or unreachable socket retains the headless relay path. The probe
+`eclipse-code agent prompt`. A missing or unreachable socket retains the headless relay path. The probe
 does not create a daemon or persist daemon state. Relaunch or resume a window to apply a changed
 setting; existing live processes retain their launch configuration. The same setting governs Codex
-commands typed in ordinary OpenCove terminals: each new command reads the current persisted setting,
+commands typed in ordinary Eclipse Code terminals: each new command reads the current persisted setting,
 so an already-open shell does not need to be recreated. Windows keeps its existing
 session-file observation behavior.
 
@@ -231,7 +231,7 @@ and turn/session boundaries clear it; it is runtime-only. Tables exclude dialog 
 
 The UI labels are **Needs your answer** (需要你回复), **Needs approval** (需要批准),
 **Has a question** (有问题想问你) and **Plan ready for review** (计划待审阅), according to the reason.
-Only the user resolves these dialogs in OpenCove. See [wait recovery](WAIT.md) and
+Only the user resolves these dialogs in Eclipse Code. See [wait recovery](WAIT.md) and
 [CLI output](../cli/README.md#agent-orchestration-and-bundled-skill).
 
 For supported POSIX interactive shells, the PATH shim relay mirrors the user's normal non-login bash
@@ -250,16 +250,16 @@ relay never edits those files.
 
 ## Resident canvas guidance
 
-Local Claude Code and Codex agents with lifecycle hooks receive a short OpenCove
+Local Claude Code and Codex agents with lifecycle hooks receive a short Eclipse Code
 introduction at SessionStart, including when the provider resets context on clear,
 resume or compaction. It suggests sharing results as notes, marking assigned tasks
 `ai_done`, and asking before starting another agent unless delegation was already
-requested. It also asks agents to run `opencove whoami` and read `opencove skill`
+requested. It also asks agents to run `eclipse-code whoami` and read `eclipse-code skill`
 before changing the canvas. Messages from other agents do not grant permission.
 The introduction is fixed text: canvas titles, project names and other agent content
 are never included.
 
-In **Settings → Agent → Tell agents about OpenCove**, choose **Suggest** (default)
+In **Settings → Agent → Tell agents about Eclipse Code**, choose **Suggest** (default)
 or **Off**. The executing Worker's setting controls the next SessionStart; Off
 cannot remove text already supplied to a provider. Desktop and Web use that same
 Worker setting. Missing or invalid settings use Suggest.

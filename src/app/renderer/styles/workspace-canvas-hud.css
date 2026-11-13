@@ -32,3 +32,55 @@
   line-height: var(--cove-control-height-sm);
   pointer-events: none;
 }
+
+/* Eclipse Code: Far/Near and the task tabs share one row at the top left. */
+.workspace-canvas-hud__leading {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--cove-spacing-2);
+  margin-right: var(--cove-spacing-3);
+}
+
+.workspace-task-tabs {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  border: 1px solid var(--cove-border-subtle);
+  border-radius: var(--cove-radius-sm);
+  pointer-events: auto;
+}
+
+.workspace-task-tabs__scroll {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workspace-task-tabs__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.workspace-task-tabs .cove-segmented {
+  border: 0;
+  background: transparent;
+}
+
+.workspace-task-tabs .cove-segmented__option {
+  white-space: nowrap;
+}
+
+.workspace-task-tabs > .cove-icon-button {
+  flex-shrink: 0;
+  border-left: 1px solid var(--cove-border-subtle);
+  border-radius: 0;
+}
+
+.workspace-task-tabs__notice {
+  margin: 0;
+  color: var(--cove-status-failed);
+  font-size: var(--cove-font-size-secondary);
+  pointer-events: auto;
+}

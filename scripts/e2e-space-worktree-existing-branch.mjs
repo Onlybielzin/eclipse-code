@@ -12,8 +12,8 @@ const repoRoot = path.resolve(scriptDir, '..')
 const testAgentStubScriptPath = path.join(repoRoot, 'scripts/test-agent-session-stub.mjs')
 const workspaceId = 'workspace-existing-space-worktree'
 const spaceId = 'space-existing-space-worktree'
-const branchName = `opencove-existing-space-wt-${Date.now()}`
-const windowMode = process.env.OPENCOVE_E2E_WINDOW_MODE?.trim() || 'inactive'
+const branchName = `eclipse-code-existing-space-wt-${Date.now()}`
+const windowMode = process.env.ECLIPSE_CODE_E2E_WINDOW_MODE?.trim() || 'inactive'
 const baseEnv = { ...process.env }
 delete baseEnv.__CFBundleIdentifier
 delete baseEnv.ELECTRON_RUN_AS_NODE
@@ -62,7 +62,7 @@ async function poll(fn, predicate, label, timeoutMs = 15_000, intervalMs = 100) 
 }
 
 async function createExistingGitWorktree() {
-  externalParentDir = await mkdtemp(path.join(os.tmpdir(), 'opencove-existing-wt-parent-'))
+  externalParentDir = await mkdtemp(path.join(os.tmpdir(), 'eclipse-code-existing-wt-parent-'))
   existingWorktreePath = path.join(externalParentDir, branchName)
   await execFileAsync('git', ['worktree', 'add', '-b', branchName, existingWorktreePath, 'HEAD'], {
     cwd: repoRoot,
@@ -71,7 +71,7 @@ async function createExistingGitWorktree() {
 }
 
 async function createUserDataDir() {
-  const parent = path.join(os.tmpdir(), 'opencove-mjs-e2e')
+  const parent = path.join(os.tmpdir(), 'eclipse-code-mjs-e2e')
   await mkdir(parent, { recursive: true })
   return await mkdtemp(path.join(parent, 'space-worktree-existing-'))
 }
@@ -105,12 +105,12 @@ async function launchApp() {
       XDG_CONFIG_HOME: configDir,
       XDG_CACHE_HOME: cacheDir,
       XDG_RUNTIME_DIR: runtimeDir,
-      OPENCOVE_TEST_WORKSPACE: repoRoot,
-      OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
-      OPENCOVE_TEST_NODE_EXECUTABLE: process.execPath,
-      OPENCOVE_E2E_WINDOW_MODE: windowMode,
+      ECLIPSE_CODE_TEST_WORKSPACE: repoRoot,
+      ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
+      ECLIPSE_CODE_TEST_NODE_EXECUTABLE: process.execPath,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: windowMode,
       ...(process.platform === 'linux' && process.env.CI ? { ELECTRON_DISABLE_SANDBOX: '1' } : {}),
     },
   })
@@ -125,7 +125,7 @@ async function waitForControlSurface(page) {
     async () => {
       try {
         await page.evaluate(async () => {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'query',
             id: 'system.ping',
             payload: null,
@@ -144,7 +144,7 @@ async function waitForControlSurface(page) {
 
 async function invokeControlSurface(page, request) {
   return await page.evaluate(async requestPayload => {
-    return await window.opencoveApi.controlSurface.invoke(requestPayload)
+    return await window.eclipseCodeApi.controlSurface.invoke(requestPayload)
   }, request)
 }
 
@@ -213,8 +213,8 @@ async function seedWorkspace(page, mountId) {
   }
 
   const result = await page.evaluate(async payload => {
-    window.localStorage.removeItem('opencove:m5.6:view-state')
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    window.localStorage.removeItem('eclipse-code:m5.6:view-state')
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(payload),
     })
   }, state)
@@ -228,7 +228,7 @@ async function seedWorkspace(page, mountId) {
 async function readState(page) {
   return await page.evaluate(
     async ({ targetSpaceId, projectId }) => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       if (!raw) {
         return null
       }
@@ -237,7 +237,7 @@ async function readState(page) {
       const space = workspace?.spaces?.find(item => item.id === targetSpaceId) ?? null
       const terminals = workspace?.nodes?.filter(node => node.kind === 'terminal') ?? []
       const agents = workspace?.nodes?.filter(node => node.kind === 'agent') ?? []
-      const mountResult = await window.opencoveApi.controlSurface.invoke({
+      const mountResult = await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'query',
         id: 'mount.list',
         payload: { projectId },
@@ -285,7 +285,7 @@ async function bindExistingWorktree(page) {
 async function openPaneContextMenuInSpace(page, offset = { x: 0.35, y: 0.35 }) {
   const pane = page.locator('.workspace-canvas .react-flow__pane')
   const rect = await page.evaluate(async targetSpaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const parsed = raw ? JSON.parse(raw) : null
     const workspace = parsed?.workspaces?.find(item => item.id === parsed.activeWorkspaceId)
     return workspace?.spaces?.find(item => item.id === targetSpaceId)?.rect ?? null

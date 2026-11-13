@@ -96,7 +96,7 @@ async function main() {
     return
   }
 
-  process.stdout.write(`[opencove-test-agent] ${provider} ${effectiveMode} ${model}\n`)
+  process.stdout.write(`[eclipse-code-test-agent] ${provider} ${effectiveMode} ${model}\n`)
   if (scenario === 'raw-agent-terminal-state-restore') {
     await runTerminalStateRestoreScenario()
     return

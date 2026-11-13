@@ -11,7 +11,7 @@ export async function captureSystemOpenPaths(app: ElectronApplication): Promise<
   if (!stdout) {
     throw new Error('Electron stdout is required to observe system opening')
   }
-  const prefix = `opencove-system-open:${randomUUID()}:`
+  const prefix = `eclipse-code-system-open:${randomUUID()}:`
   const paths: string[] = []
   const lines = createInterface({ input: stdout })
   const dispose = (): void => {

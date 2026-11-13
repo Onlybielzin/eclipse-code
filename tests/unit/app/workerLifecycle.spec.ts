@@ -19,7 +19,7 @@ describe('CLI worker lifecycle', () => {
   })
 
   async function createTempUserDataDir() {
-    const dir = await mkdtemp(join(tmpdir(), 'opencove-test-worker-lifecycle-'))
+    const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-worker-lifecycle-'))
     tempDirs.push(dir)
     return dir
   }
@@ -50,7 +50,7 @@ describe('CLI worker lifecycle', () => {
       'fetch',
       vi.fn(async (_input, init) => {
         const request = JSON.parse(String(init?.body ?? '{}'))
-        const ok = value => JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value })
+        const ok = value => JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value })
 
         if (request.id === 'system.ping') {
           return new Response(ok({ ok: true, now: new Date().toISOString(), pid: 12345 }), {

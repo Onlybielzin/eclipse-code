@@ -6,7 +6,7 @@ import {
   getPendingPublication,
   reconcileCanonicalPublication,
 } from '@contexts/workspace/presentation/renderer/utils/persistence/write'
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 const base = {
   formatVersion: 1,
   activeWorkspaceId: null,
@@ -15,7 +15,7 @@ const base = {
 }
 const candidate = { ...base, settings: { ...base.settings, releaseNotesSeenVersion: 'draft' } }
 afterEach(() =>
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original }),
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original }),
 )
 it.each(['committed', 'not committed', 'third-party write'] as const)(
   'retains an unconfirmed draft and never auto-replays when response is lost: %s',
@@ -23,7 +23,7 @@ it.each(['committed', 'not committed', 'third-party write'] as const)(
     const write = vi.fn(async () => {
       throw new Error('connection lost')
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { persistence: { writeAppState: write } },
     })
@@ -58,7 +58,7 @@ it('keeps a known committed correction pending when a reconciliation read fails'
     revision: 3,
     corrected: true,
   }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

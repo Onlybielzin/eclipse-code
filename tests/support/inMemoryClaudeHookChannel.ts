@@ -53,8 +53,8 @@ function inMemoryHookChannel(provider: 'claude' | 'codex') {
         setTimeout() {},
         headers: {
           'content-type': 'application/json',
-          'x-opencove-hook-token': token,
-          ...(emitted === undefined ? {} : { 'x-opencove-hook-emitted-at': emitted }),
+          'x-eclipse-code-hook-token': token,
+          ...(emitted === undefined ? {} : { 'x-eclipse-code-hook-emitted-at': emitted }),
         },
       },
     ) as unknown as IncomingMessage

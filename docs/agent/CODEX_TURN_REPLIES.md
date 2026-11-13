@@ -1,12 +1,12 @@
 # Codex turn replies
 
-With lifecycle hooks on macOS/Linux, save the OpenCove `turnId` returned by prompt,
+With lifecycle hooks on macOS/Linux, save the Eclipse Code `turnId` returned by prompt,
 confirm delivery when steering, then wait and read that exact turn:
 
 ```sh
-opencove agent delivery <deliveryId> --wait --timeout 30s
-opencove agent wait --node <nodeId> --turn <turnId> --timeout 60s
-opencove agent read --node <nodeId> --turn <turnId> -o json
+eclipse-code agent delivery <deliveryId> --wait --timeout 30s
+eclipse-code agent wait --node <nodeId> --turn <turnId> --timeout 60s
+eclipse-code agent read --node <nodeId> --turn <turnId> -o json
 ```
 
 Check both `outcome` and `message`. A completed turn does not prove that it handled
@@ -23,7 +23,7 @@ only in reads, never in completion events, delivery receipts or recovery hints.
 ## Identity and recovery
 
 The Worker binds the first observed UserPromptSubmit's private
-`(session_id, turn_id)` pair to the OpenCove turn. A Stop must match both IDs to
+`(session_id, turn_id)` pair to the Eclipse Code turn. A Stop must match both IDs to
 supply content. Known conflicting Stops are ignored before state arbitration.
 Same-pair submits can confirm steering but do not change the turn, its start time,
 activity or permission wait. Codex text comparison remains `unavailable`.
@@ -39,7 +39,7 @@ The private identity index keeps up to 1,024 pairs per invocation, independently
 of reply retention. It rejects retained-pair replays and associates late receipts
 with their original local turn. It excludes pairs already ended before Enter and
 never assigns an unknown pair to the current turn. An invocation replacement clears
-this runtime index. Archived replies use OpenCove turn IDs and require no provider
+this runtime index. Archived replies use Eclipse Code turn IDs and require no provider
 turn ID or archive migration.
 
 Missing IDs preserve legacy run-state transitions but supply no correlated reply.

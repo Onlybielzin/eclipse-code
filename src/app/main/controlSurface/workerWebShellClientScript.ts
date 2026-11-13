@@ -9,7 +9,7 @@ let eventSource = null
 
 const params = new URLSearchParams(location.search)
 const tokenFromQuery = params.get('token')
-const tokenFromStorage = localStorage.getItem('opencove:worker:token')
+const tokenFromStorage = localStorage.getItem('eclipse-code:worker:token')
 tokenInput.value = tokenFromQuery || tokenFromStorage || ''
 
 function setOutput(value) {
@@ -36,7 +36,7 @@ async function invoke(kind, id, payload) {
 }
 
 document.getElementById('saveToken').addEventListener('click', () => {
-  localStorage.setItem('opencove:worker:token', tokenInput.value.trim())
+  localStorage.setItem('eclipse-code:worker:token', tokenInput.value.trim())
   setOutput({ ok: true, saved: true })
 })
 
@@ -90,7 +90,7 @@ document.getElementById('watchSync').addEventListener('click', () => {
     eventSource = new EventSource(url)
     setOutput({ ok: true, watching: true, url })
 
-    eventSource.addEventListener('opencove.sync', event => {
+    eventSource.addEventListener('eclipse-code.sync', event => {
       try {
         const payload = JSON.parse(event.data)
         setOutput({ ok: true, event: payload })
@@ -120,13 +120,13 @@ const ptyInput = document.getElementById('ptyInput')
 const ptyAppendNewline = document.getElementById('ptyAppendNewline')
 
 const PTY_PROTOCOL_VERSION = 1
-const PTY_SUBPROTOCOL = 'opencove-pty.v1'
+const PTY_SUBPROTOCOL = 'eclipse-code-pty.v1'
 let ptySocket = null
 let ptyActiveSessionId = null
 let ptyLastSeq = null
 
 function ptyKeyForSeq(sessionId) {
-  return 'opencove:worker:pty:lastSeq:' + sessionId
+  return 'eclipse-code:worker:pty:lastSeq:' + sessionId
 }
 
 function setPtyStatus(status) {

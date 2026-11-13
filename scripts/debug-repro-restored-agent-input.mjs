@@ -10,12 +10,12 @@ import Database from 'better-sqlite3'
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const screenshotRoot = path.join(repoPath, 'artifacts', 'debug-restored-agent-input')
-const provider = process.env.OPENCOVE_REPRO_PROVIDER === 'opencode' ? 'opencode' : 'codex'
+const provider = process.env.ECLIPSE_CODE_REPRO_PROVIDER === 'opencode' ? 'opencode' : 'codex'
 const iterationCount = Math.max(
   1,
-  Number.parseInt(process.env.OPENCOVE_REPRO_ITERATIONS ?? '1', 10),
+  Number.parseInt(process.env.ECLIPSE_CODE_REPRO_ITERATIONS ?? '1', 10),
 )
-const closeMode = process.env.OPENCOVE_REPRO_CLOSE_MODE === 'cmd-w' ? 'cmd-w' : 'cold-restart'
+const closeMode = process.env.ECLIPSE_CODE_REPRO_CLOSE_MODE === 'cmd-w' ? 'cmd-w' : 'cold-restart'
 
 function delay(ms) {
   return new Promise(resolve => {
@@ -62,7 +62,7 @@ function resolveCodexPromptLine(snapshot) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-real-repro-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-real-repro-'))
 }
 
 async function ensureDir(dirPath) {
@@ -79,7 +79,7 @@ async function captureWindowScreenshot(window, dirPath, label) {
 
 async function resolveSingleAgentBinding(window) {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -102,7 +102,7 @@ async function resolveRuntimeAgentBinding(window) {
   const persisted = await resolveSingleAgentBinding(window)
 
   return await window.evaluate(binding => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const registeredNodeIds =
       typeof api?.getRegisteredNodeIds === 'function' ? api.getRegisteredNodeIds() : []
     const domNode = document.querySelector('.react-flow__node-terminalNode')
@@ -180,12 +180,12 @@ async function readRestoredTerminalGeometry(window, nodeId, sessionId) {
   return await window.evaluate(
     async payload => {
       const terminalSize =
-        window.__opencoveTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
+        window.__eclipseCodeTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
       const metrics =
-        window.__opencoveTerminalSelectionTestApi?.getRenderMetrics?.(payload.nodeId) ?? null
+        window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics?.(payload.nodeId) ?? null
       const snapshot =
-        typeof window.opencoveApi.pty.presentationSnapshot === 'function'
-          ? await window.opencoveApi.pty
+        typeof window.eclipseCodeApi.pty.presentationSnapshot === 'function'
+          ? await window.eclipseCodeApi.pty
               .presentationSnapshot({ sessionId: payload.sessionId })
               .catch(() => null)
           : null
@@ -249,7 +249,7 @@ async function readAgentSnapshot(agentNode, helper, nodeId, sessionId) {
   })
   const helperFocused = await helper.evaluate(node => node === document.activeElement)
   const debugTranscriptText = await agentNode.page().evaluate(currentNodeId => {
-    const reader = window.__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__
+    const reader = window.__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__
     if (
       typeof reader !== 'function' ||
       typeof currentNodeId !== 'string' ||
@@ -414,10 +414,10 @@ async function launchApp({ userDataDir, logSink }) {
     env: {
       ...env,
       NODE_ENV: 'development',
-      OPENCOVE_DEV_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_DEV_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     },
   })
 
@@ -571,7 +571,7 @@ async function closeWindowAndReopenApp({ electronApp, window: mainWindowPage }) 
 }
 
 async function seedWorkspaceStateOnDisk(userDataDir) {
-  const dbPath = path.join(userDataDir, 'opencove.db')
+  const dbPath = path.join(userDataDir, 'eclipse-code.db')
   const db = new Database(dbPath)
 
   const settings = {
@@ -792,7 +792,7 @@ async function createAgent(window) {
     await pane.waitFor({ state: 'visible', timeout: 15_000 })
   } catch (error) {
     const rawState = await window.evaluate(async () => {
-      return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     })
     const bodyText = await window.locator('body').textContent()
     throw new Error(
@@ -854,7 +854,7 @@ async function inspectRestoredAgent(window, dirPath) {
   const nodeId = binding.nodeId
   const sessionId = binding.sessionId
 
-  const initialMainPid = await window.evaluate(() => window.opencoveApi.meta.mainPid)
+  const initialMainPid = await window.evaluate(() => window.eclipseCodeApi.meta.mainPid)
   process.stdout.write(`[repro] preload mainPid: ${String(initialMainPid)}\n`)
   process.stdout.write(`[repro] restored binding: ${JSON.stringify(binding)}\n`)
   await captureWindowScreenshot(window, dirPath, 'restored-before-first-click')
@@ -1033,9 +1033,9 @@ async function main() {
       const diagnosticTail = logs
         .filter(
           line =>
-            line.includes('opencove-terminal-diagnostics') ||
-            line.includes('opencove-pty-write') ||
-            line.includes('opencove-pty-resize'),
+            line.includes('eclipse-code-terminal-diagnostics') ||
+            line.includes('eclipse-code-pty-write') ||
+            line.includes('eclipse-code-pty-resize'),
         )
         .slice(-120)
         .join('\n')

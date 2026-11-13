@@ -19,7 +19,7 @@ Issue reporting is a mature diagnostic bundle problem:
 - Error and crash reporting systems scrub sensitive fields before data
   leaves the local boundary.
 
-OpenCove should therefore treat issue reports as a structured diagnostic
+Eclipse Code should therefore treat issue reports as a structured diagnostic
 bundle, not as a long free-form string.
 
 ## Owners And Boundaries
@@ -64,7 +64,7 @@ The standard bundle should include:
 - `report_meta`: report id, created time, kind, budget and sanitizer version.
 - `user_context`: user summary/details, active workspace/space names, and
   local paths only when explicitly opted in.
-- `app_runtime`: OpenCove, Electron, Chrome, Node, platform, arch, pid,
+- `app_runtime`: Eclipse Code, Electron, Chrome, Node, platform, arch, pid,
   packaging, locale/timezone when available.
 - `update_state`: app update state.
 - `worker_state`: home worker mode, web UI status, endpoint availability,

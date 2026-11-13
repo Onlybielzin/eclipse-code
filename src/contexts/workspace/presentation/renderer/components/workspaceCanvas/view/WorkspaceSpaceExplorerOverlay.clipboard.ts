@@ -33,7 +33,7 @@ export async function copyExplorerAbsolutePath({
   }
 
   try {
-    await window.opencoveApi.clipboard.writeText(path)
+    await window.eclipseCodeApi.clipboard.writeText(path)
     onShowMessage?.(t('spaceExplorer.pathCopied'))
   } catch (error) {
     onShowMessage?.(toErrorMessage(error), 'error')
@@ -60,7 +60,7 @@ export async function copyExplorerRelativePath({
   }
 
   try {
-    await window.opencoveApi.clipboard.writeText(relativePath)
+    await window.eclipseCodeApi.clipboard.writeText(relativePath)
     onShowMessage?.(t('spaceExplorer.pathCopied'))
   } catch (error) {
     onShowMessage?.(toErrorMessage(error), 'error')

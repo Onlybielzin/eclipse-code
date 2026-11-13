@@ -93,16 +93,16 @@ test.describe('Workspace Canvas - verified terminal Agent two-stage Ctrl+C', () 
       const providerPidPath = path.join(executionDirectory, `${command}-provider.pid`)
       const workspaceId = `workspace-two-stage-ctrl-c-${command}`
       const nodeId = `terminal-two-stage-ctrl-c-${command}`
-      const readyMarker = `[opencove-test-2c] ${provider} ready`
-      const cancellationMarker = `[opencove-test-2c] ${provider} cancel-alt-exit`
-      const exitMarker = `[opencove-test-2c] ${provider} provider-exit`
+      const readyMarker = `[eclipse-code-test-2c] ${provider} ready`
+      const cancellationMarker = `[eclipse-code-test-2c] ${provider} cancel-alt-exit`
+      const exitMarker = `[eclipse-code-test-2c] ${provider} provider-exit`
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_TWO_STAGE_PROVIDER_PID_PATH: providerPidPath,
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_TWO_STAGE_PROVIDER_PID_PATH: providerPidPath,
         },
       })
 

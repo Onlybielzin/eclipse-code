@@ -9,12 +9,12 @@ export const spaceId = 'managed-launch-main'
 export const roleId = 'managed-launch-role'
 export const roleDefinitionId = 'managed-launch-role-definition'
 export function cliCommand(...args: string[]) {
-  return ['opencove', ...args.map(value => shellWord(value))].join(' ')
+  return ['eclipse-code', ...args.map(value => shellWord(value))].join(' ')
 }
 export async function getBinding(page: Page, requestedNodeId: string) {
   const result = await page.evaluate(
     async nodeId =>
-      window.opencoveApi.controlSurface.invoke<GetNodeResult>({
+      window.eclipseCodeApi.controlSurface.invoke<GetNodeResult>({
         kind: 'query',
         id: 'node.get',
         payload: { nodeId },
@@ -36,7 +36,7 @@ export async function launch(
   return page.evaluate(
     async ({ nodeId, cwd, intent, cachedId, targetSpaceId }) => {
       const mode = intent.kind === 'launchNew' ? 'new' : 'resume'
-      return window.opencoveApi.controlSurface.invoke<LaunchAgentSessionResult>({
+      return window.eclipseCodeApi.controlSurface.invoke<LaunchAgentSessionResult>({
         kind: 'command',
         id: 'session.launchAgent',
         clientFeatures: { managedClaudeResumeBindingV1: true },

@@ -3,7 +3,7 @@
 For an authorized one-shot delegation, create the agent and receive its initial reply in one call:
 
 ```sh
-opencove node create agent --space space-123 --prompt-file ./assignment.txt --wait --read --timeout 2m
+eclipse-code node create agent --space space-123 --prompt-file ./assignment.txt --wait --read --timeout 2m
 ```
 
 Placement, provider selection and grants follow ordinary `node create agent`. Without `--wait`,
@@ -38,14 +38,14 @@ After creation, errors keep known `nodeId`, `sessionId` and `turnId`, with `retr
 **Never repeat creation or resend the initial prompt to recover.** Use the hint's exact commands:
 
 ```sh
-opencove agent wait --node node-123 --turn turn-123 --timeout 2m
-opencove agent read --node node-123 --turn turn-123 -o json
+eclipse-code agent wait --node node-123 --turn turn-123 --timeout 2m
+eclipse-code agent read --node node-123 --turn turn-123 -o json
 ```
 
 If no turn ID was identified, inspect `agent get --node node-123` and `agent read --node node-123
---screen`, checking session IDs before continuing. A permission dialog requires the user in OpenCove.
+--screen`, checking session IDs before continuing. A permission dialog requires the user in Eclipse Code.
 For coordinators who keep working, omit `--wait`, save the create IDs, then get → exact wait → exact
-read. For follow-up messages use `agent prompt --wait --read`; see `opencove skill coordinate`.
+read. For follow-up messages use `agent prompt --wait --read`; see `eclipse-code skill coordinate`.
 
 中文：经授权的一次性委派，优先用 `node create agent --prompt … --wait --read`。返回值保留创建结果，
 并附上首个回合的 `turnId`、`outcome`、`endedAt` 和精确回复。`--wait` 需要非空初始提示，`--read` 需要

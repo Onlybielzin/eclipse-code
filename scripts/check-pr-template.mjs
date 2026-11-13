@@ -25,13 +25,13 @@ function readPullRequestBody() {
     throw new Error('Expected pull_request.body in GitHub event payload to be a string.')
   }
 
-  const body = process.env['OPENCOVE_PR_BODY']
+  const body = process.env['ECLIPSE_CODE_PR_BODY']
   if (typeof body === 'string') {
     return body
   }
 
   throw new Error(
-    'Unable to resolve PR body. Provide GITHUB_EVENT_PATH, OPENCOVE_PR_BODY, or a markdown file path.',
+    'Unable to resolve PR body. Provide GITHUB_EVENT_PATH, ECLIPSE_CODE_PR_BODY, or a markdown file path.',
   )
 }
 

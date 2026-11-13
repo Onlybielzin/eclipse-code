@@ -53,6 +53,10 @@ vi.mock(
   '@contexts/workspace/presentation/renderer/components/workspaceCanvas/nodeTypes.plugin',
   () => ({ WorkspaceCanvasPluginNodeType: () => null }),
 )
+vi.mock(
+  '@contexts/workspace/presentation/renderer/components/workspaceCanvas/nodeTypes.cards',
+  () => ({ WorkspaceCanvasCardNodeType: () => null }),
+)
 
 const base: TerminalNodeData = {
   kind: 'website',
@@ -89,6 +93,8 @@ const nodes: Node<TerminalNodeData>[] = [
   'image',
   'role',
   'task',
+  'question',
+  'todos',
 ].map(kind => ({
   id: kind,
   type: kind + 'Node',
@@ -107,7 +113,7 @@ const alignment = {
   terminalTransparentBackground: false,
   terminalDisplayCalibration: null,
 }
-const originalApi = window.opencoveApi
+const originalApi = window.eclipseCodeApi
 let store: ReturnType<typeof useStoreApi>
 let parameters: ReturnType<typeof useWorkspaceCanvasNodeTypes>['nodeTypesParameters']
 let nodeTypes: ReturnType<typeof useWorkspaceCanvasNodeTypes>['nodeTypes']
@@ -164,13 +170,13 @@ function Canvas() {
 afterEach(() => {
   cleanup()
   resetWindowCommitCounts()
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
 })
 
 it.each(['unchanged parent', 'viewport pan', 'viewport zoom'])(
   'keeps all node consumers and the real website header uncommitted on %s updates',
   update => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { meta: { isTest: true } },
     })

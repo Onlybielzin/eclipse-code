@@ -45,7 +45,7 @@ it.each([false, true])('presents policy refusal as a final human decision (TTY=%
               reason: 'operation_denied',
               operationId: 'project.add',
               message:
-                'project.add is not available to agent terminals: this action requires a human decision in OpenCove.',
+                'project.add is not available to agent terminals: this action requires a human decision in Eclipse Code.',
             },
           },
         }),
@@ -54,8 +54,8 @@ it.each([false, true])('presents policy refusal as a final human decision (TTY=%
   )
   expect(await run(['project', 'add', '--path', '/repo'], f.io)).toBe(4)
   expect(f.out()).toBe('')
-  expect(stderr).toContain('requires a human decision in OpenCove')
-  expect(stderr).toContain('Ask the user to add the project in OpenCove')
+  expect(stderr).toContain('requires a human decision in Eclipse Code')
+  expect(stderr).toContain('Ask the user to add the project in Eclipse Code')
   // The envelope's retryable:false is fine; the message and hint must not suggest retrying.
   expect(stderr.replace(/"retryable":false/g, '')).not.toMatch(/retry/i)
   expect(f.fetch).toHaveBeenCalledTimes(1)

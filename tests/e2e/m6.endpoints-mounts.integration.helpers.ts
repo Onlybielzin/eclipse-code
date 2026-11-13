@@ -110,7 +110,7 @@ async function waitForControlSurfaceReady(connection: {
           return (
             !!parsed &&
             typeof parsed === 'object' &&
-            (parsed as Record<string, unknown>).__opencoveControlEnvelope === true &&
+            (parsed as Record<string, unknown>).__eclipseCodeControlEnvelope === true &&
             (parsed as Record<string, unknown>).ok === true
           )
         } catch {
@@ -173,8 +173,9 @@ export async function startRemoteWorker(options: {
         ...(shouldDisableSandbox ? { ELECTRON_DISABLE_SANDBOX: '1' } : {}),
         HOME: options.homeDir,
         USERPROFILE: options.homeDir,
-        OPENCOVE_TEST_AGENT_STUB_SCRIPT: stubScriptPath,
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: options.agentSessionScenario ?? 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: stubScriptPath,
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO:
+          options.agentSessionScenario ?? 'codex-standby-only',
       },
       stdio: 'pipe',
       windowsHide: true,
@@ -278,7 +279,7 @@ export async function pollForEndpointPing(window: Page, endpointId: string): Pro
     async () =>
       await window.evaluate(async evaluatedEndpointId => {
         try {
-          const ping = await window.opencoveApi.controlSurface.invoke<{ ok: boolean }>({
+          const ping = await window.eclipseCodeApi.controlSurface.invoke<{ ok: boolean }>({
             kind: 'query',
             id: 'endpoint.ping',
             payload: { endpointId: evaluatedEndpointId, timeoutMs: 10_000 },

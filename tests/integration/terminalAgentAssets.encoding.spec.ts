@@ -7,10 +7,10 @@ import { TerminalAgentTelemetryAssetStore } from '../../src/contexts/agent/infra
 const roots: string[] = []
 const stores: TerminalAgentTelemetryAssetStore[] = []
 const utf8Signature = Buffer.from([0xef, 0xbb, 0xbf])
-const runtimeExecutable = "C:\\Program Files\\应用 O'Cove 🌊\\OpenCove.exe"
+const runtimeExecutable = "C:\\Program Files\\应用 O'Cove 🌊\\Eclipse Code.exe"
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), "opencove-assets 用户's 路径 🌊 "))
+  const root = await mkdtemp(join(tmpdir(), "eclipse-code-assets 用户's 路径 🌊 "))
   roots.push(root)
   const diagnostic = vi.fn()
   const store = new TerminalAgentTelemetryAssetStore({

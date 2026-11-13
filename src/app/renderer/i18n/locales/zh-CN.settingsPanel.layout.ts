@@ -49,7 +49,7 @@ export const zhCNSettingsPanelLayout = {
     plugins: '管理已安装的插件，获取开发指南。',
     tasksShortcuts: '管理快捷键、快捷命令与快捷短语。',
     worker: '管理本机 Worker、浏览器访问与远程连接。',
-    integrations: '连接 OpenCove 与外部服务。',
+    integrations: '连接 Eclipse Code 与外部服务。',
     advanced: '管理实验性功能与诊断选项。',
   },
   groups: {
@@ -110,6 +110,7 @@ export const zhCNSettingsPanelLayout = {
       closeLabel: '关闭效果',
       closeHelp: '节点关闭后播放当前主题的关闭动画。',
       backgroundLabel: '背景',
+      backgroundStyle_wallpaper: 'Eclipse',
       backgroundStyle_pixel: '像素',
       backgroundStyle_minimal: '简约',
       backgroundStyle_off: '关闭',
@@ -127,7 +128,7 @@ export const zhCNSettingsPanelLayout = {
   },
   terminal: {
     title: '终端环境',
-    help: '选择 OpenCove 新建终端时默认使用的 shell 配置。',
+    help: '选择 Eclipse Code 新建终端时默认使用的 shell 配置。',
     profileLabel: 'Shell 配置',
     profileHelp: '选择 Windows 新终端默认使用的 shell 配置。自动模式会回退到 {{defaultProfile}}。',
     profileAuto: '自动',

@@ -50,14 +50,14 @@ export function resolveWorkerUserDataCandidates(explicitUserData, explicitCandid
   }
 
   const candidates = []
-  const envUserData = normalizeEnvPath(process.env.OPENCOVE_USER_DATA_DIR)
+  const envUserData = normalizeEnvPath(process.env.ECLIPSE_CODE_USER_DATA_DIR)
   if (envUserData) {
     candidates.push(path.resolve(envUserData))
   }
 
   const appDataDir = resolveAppDataDir()
-  candidates.push(path.join(appDataDir, 'opencove-dev'))
-  candidates.push(path.join(appDataDir, 'opencove'))
+  candidates.push(path.join(appDataDir, 'eclipse-code-dev'))
+  candidates.push(path.join(appDataDir, 'eclipse-code'))
 
   return [...new Set(candidates)]
 }
@@ -222,7 +222,7 @@ function parsePid(value) {
 
   const pid = Number(value)
   if (!Number.isFinite(pid) || pid <= 0 || Math.floor(pid) !== pid) {
-    throw new WorkerLifecycleError('invalid_pid', `[opencove] invalid worker pid: ${value}`)
+    throw new WorkerLifecycleError('invalid_pid', `[eclipse-code] invalid worker pid: ${value}`)
   }
 
   return pid
@@ -240,7 +240,7 @@ function selectStopTarget(connections, options) {
   if (candidates.length > 1) {
     throw new WorkerLifecycleError(
       'ambiguous_worker',
-      '[opencove] multiple local workers are running; pass --user-data <dir> or --pid <pid>.',
+      '[eclipse-code] multiple local workers are running; pass --user-data <dir> or --pid <pid>.',
     )
   }
 
@@ -287,14 +287,14 @@ export async function stopWorkerLifecycle(options = {}) {
   if (target.startedBy !== 'cli' && !force) {
     throw new WorkerLifecycleError(
       'not_cli_owned',
-      `[opencove] refusing to stop ${target.startedBy} worker pid ${target.pid}; pass --force to override.`,
+      `[eclipse-code] refusing to stop ${target.startedBy} worker pid ${target.pid}; pass --force to override.`,
     )
   }
 
   if (!force && !(await isWorkerReachable(target, options.timeoutMs))) {
     throw new WorkerLifecycleError(
       'unreachable_worker',
-      `[opencove] refusing to stop unreachable worker pid ${target.pid}; pass --force to override.`,
+      `[eclipse-code] refusing to stop unreachable worker pid ${target.pid}; pass --force to override.`,
     )
   }
 
@@ -321,7 +321,7 @@ export async function stopWorkerLifecycle(options = {}) {
   if (!exited) {
     throw new WorkerLifecycleError(
       'stop_timeout',
-      `[opencove] worker pid ${target.pid} did not exit before timeout.`,
+      `[eclipse-code] worker pid ${target.pid} did not exit before timeout.`,
     )
   }
 

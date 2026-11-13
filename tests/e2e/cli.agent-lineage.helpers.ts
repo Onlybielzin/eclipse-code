@@ -12,8 +12,8 @@ export async function writeLineageAgentStub(root: string): Promise<string> {
     `
 import { readFile, writeFile, unlink } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
-await writeFile(${JSON.stringify(root)} + '/' + process.env.OPENCOVE_NODE_ID + '.ready', 'ready')
-const request = ${JSON.stringify(root)} + '/' + process.env.OPENCOVE_NODE_ID + '.request.json'
+await writeFile(${JSON.stringify(root)} + '/' + process.env.ECLIPSE_CODE_NODE_ID + '.ready', 'ready')
+const request = ${JSON.stringify(root)} + '/' + process.env.ECLIPSE_CODE_NODE_ID + '.request.json'
 let busy = false
 const timer = setInterval(async () => {
   if (busy) return
@@ -21,7 +21,7 @@ const timer = setInterval(async () => {
   try {
     const args = JSON.parse(await readFile(request, 'utf8'))
     await unlink(request)
-    execFile(process.execPath, [${JSON.stringify(resolve('out/cli/opencove.mjs'))}, ...args],
+    execFile(process.execPath, [${JSON.stringify(resolve('out/cli/eclipse-code.mjs'))}, ...args],
       { env: process.env, timeout: 45000 }, async (error, stdout, stderr) => {
         await writeFile(request + '.result', JSON.stringify({ code: error?.code ?? 0, stdout, stderr }))
         busy = false
@@ -62,7 +62,7 @@ export async function createLineageAgent(
 ): Promise<CreateNodeResult> {
   return page.evaluate(
     async projectId =>
-      window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+      window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
         kind: 'command',
         id: 'node.create',
         payload: {
@@ -81,7 +81,7 @@ export async function establishLineageAgentReady(
 ) {
   await page.evaluate(
     async nodeId =>
-      window.opencoveApi.controlSurface.invoke({
+      window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'canvas.focus',
         payload: { target: { kind: 'node', nodeId } },
@@ -94,7 +94,7 @@ export async function establishLineageAgentReady(
   )
   await page.evaluate(
     async binding =>
-      window.opencoveApi.controlSurface.invoke({
+      window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'session.writeNode',
         payload: { nodeId: binding.id, sessionId: binding.sessionId, data: 'manual baseline\r' },
@@ -107,7 +107,7 @@ export async function establishLineageAgentReady(
         page.evaluate(
           async id =>
             (
-              await window.opencoveApi.controlSurface.invoke<{ state: string }>({
+              await window.eclipseCodeApi.controlSurface.invoke<{ state: string }>({
                 kind: 'query',
                 id: 'agent.get',
                 payload: { nodeId: id },

@@ -32,7 +32,7 @@ export class ManagedDeploymentStore {
         }
         if (Date.now() >= deadline) {
           throw new Error(
-            '[opencove-bootstrap:runtime_busy] Another deployment operation is running.',
+            '[eclipse-code-bootstrap:runtime_busy] Another deployment operation is running.',
             { cause: error },
           )
         }
@@ -61,7 +61,7 @@ export class ManagedDeploymentStore {
       !value.operationId ||
       !value.desired?.build
     ) {
-      throw new Error('[opencove-bootstrap:recovery_required] Invalid deployment journal.')
+      throw new Error('[eclipse-code-bootstrap:recovery_required] Invalid deployment journal.')
     }
     return value
   }

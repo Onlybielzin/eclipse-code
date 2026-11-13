@@ -2,6 +2,7 @@ import { normalizeManagedClaudeResumeBindingOwnership } from '@shared/sync/manag
 import type { Node } from '@xyflow/react'
 import { normalizeFolderNodeData } from '@shared/utils/folderNodeData'
 import { resolveFileUriName } from '@shared/utils/fileUriScope'
+import { ensureQuestionCardData, ensureTodosCardData } from '@contexts/workspace/domain/canvasCards'
 import type {
   DocumentNodeData,
   AgentNodeData,
@@ -96,6 +97,9 @@ export function toRuntimeNodes(workspace: PersistedWorkspaceState): Node<Termina
           ? { pluginId: 'missing-plugin', schemaVersion: 1, repoPath: '', mountId: null }
           : null
 
+    const question = node.kind === 'question' ? ensureQuestionCardData(node.task) : null
+    const todos = node.kind === 'todos' ? ensureTodosCardData(node.task) : null
+
     const runtimeNode: Node<TerminalNodeData> = {
       id: node.id,
       type:
@@ -115,7 +119,11 @@ export function toRuntimeNodes(workspace: PersistedWorkspaceState): Node<Termina
                       ? 'websiteNode'
                       : node.kind === 'plugin'
                         ? 'pluginNode'
-                        : 'terminalNode',
+                        : node.kind === 'question'
+                          ? 'questionNode'
+                          : node.kind === 'todos'
+                            ? 'todosNode'
+                            : 'terminalNode',
       position: node.position,
       initialWidth: node.width,
       initialHeight: node.height,
@@ -168,6 +176,8 @@ export function toRuntimeNodes(workspace: PersistedWorkspaceState): Node<Termina
         document,
         folder,
         plugin,
+        question,
+        todos,
         website,
       },
       draggable: true,

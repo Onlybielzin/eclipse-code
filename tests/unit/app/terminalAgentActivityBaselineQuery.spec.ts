@@ -133,7 +133,7 @@ describe('terminal Agent activity baseline query', () => {
         payload: null,
       }),
     ).resolves.toEqual({
-      __opencoveControlEnvelope: true,
+      __eclipseCodeControlEnvelope: true,
       ok: true,
       value: { entries: [activityMetadata('session-query', 3)] },
     })

@@ -49,13 +49,13 @@ describe('spaceWorktreeEligibility', () => {
   })
 
   it('blocks descendant conversion when an ancestor Space owns a worktree', () => {
-    const parent = createSpace('parent', '/repo/.opencove/worktrees/backend')
-    const child = createSpace('child', '/repo/.opencove/worktrees/backend', 'parent')
+    const parent = createSpace('parent', '/repo/.eclipse-code/worktrees/backend')
+    const child = createSpace('child', '/repo/.eclipse-code/worktrees/backend', 'parent')
 
     const result = getSpaceWorktreeEligibility({
       space: child,
       spaces: [parent, child],
-      worktrees: [worktree('/repo/.opencove/worktrees/backend', 'space/backend')],
+      worktrees: [worktree('/repo/.eclipse-code/worktrees/backend', 'space/backend')],
       repoRootPath: '/repo',
     })
 
@@ -68,12 +68,12 @@ describe('spaceWorktreeEligibility', () => {
 
   it('blocks ancestor conversion when a descendant Space owns a worktree', () => {
     const parent = createSpace('parent', '/repo')
-    const child = createSpace('child', '/repo/.opencove/worktrees/api', 'parent')
+    const child = createSpace('child', '/repo/.eclipse-code/worktrees/api', 'parent')
 
     const result = getSpaceWorktreeEligibility({
       space: parent,
       spaces: [parent, child],
-      worktrees: [worktree('/repo/.opencove/worktrees/api', 'space/api')],
+      worktrees: [worktree('/repo/.eclipse-code/worktrees/api', 'space/api')],
       repoRootPath: '/repo',
     })
 
@@ -86,13 +86,13 @@ describe('spaceWorktreeEligibility', () => {
 
   it('allows sibling child Spaces to independently become worktrees', () => {
     const parent = createSpace('parent', '/repo')
-    const childA = createSpace('child-a', '/repo/.opencove/worktrees/api', 'parent')
+    const childA = createSpace('child-a', '/repo/.eclipse-code/worktrees/api', 'parent')
     const childB = createSpace('child-b', '/repo', 'parent')
 
     const result = getSpaceWorktreeEligibility({
       space: childB,
       spaces: [parent, childA, childB],
-      worktrees: [worktree('/repo/.opencove/worktrees/api', 'space/api')],
+      worktrees: [worktree('/repo/.eclipse-code/worktrees/api', 'space/api')],
       repoRootPath: '/repo',
     })
 

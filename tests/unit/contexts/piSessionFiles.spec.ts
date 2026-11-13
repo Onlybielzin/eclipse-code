@@ -12,7 +12,7 @@ let root: string
 let cwd: string
 
 beforeEach(async () => {
-  root = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-files-'))
+  root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-files-'))
   cwd = join(root, 'workspace')
   vi.stubEnv('HOME', join(root, 'home'))
   vi.stubEnv('PI_CODING_AGENT_DIR', '')

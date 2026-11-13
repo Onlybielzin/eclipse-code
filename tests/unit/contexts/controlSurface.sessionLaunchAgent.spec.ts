@@ -50,13 +50,13 @@ const ctx: ControlSurfaceContext = {
     },
   },
 }
-const originalUseRealAgents = process.env.OPENCOVE_TEST_USE_REAL_AGENTS
+const originalUseRealAgents = process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS
 
 afterEach(() => {
   if (originalUseRealAgents === undefined) {
-    delete process.env.OPENCOVE_TEST_USE_REAL_AGENTS
+    delete process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS
   } else {
-    process.env.OPENCOVE_TEST_USE_REAL_AGENTS = originalUseRealAgents
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS = originalUseRealAgents
   }
 })
 
@@ -119,7 +119,7 @@ describe('control surface session launch agent', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -197,7 +197,7 @@ describe('control surface session launch agent', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -287,7 +287,7 @@ describe('control surface session launch agent', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -415,7 +415,7 @@ describe('control surface session launch agent', () => {
   ] as const)(
     'resumes %s through its registered contribution',
     async (provider, expectedArgs, savedReuse, overrideReuse) => {
-      process.env.OPENCOVE_TEST_USE_REAL_AGENTS = '1'
+      process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS = '1'
       const spawnSession = vi.fn(async () => ({ sessionId: `pty-${provider}` }))
       const controlSurface = createControlSurface()
       const registry = createTestAgentProviderRegistry()
@@ -423,7 +423,7 @@ describe('control surface session launch agent', () => {
       registerSessionHandlers(controlSurface, {
         ...createReadyTerminalAdmissionDeps(),
         agentProviderRegistry: registry,
-        userDataPath: '/tmp/opencove-test-user-data',
+        userDataPath: '/tmp/eclipse-code-test-user-data',
         approvedWorkspaces: {
           registerRoot: async () => undefined,
           isPathApproved: async () => true,

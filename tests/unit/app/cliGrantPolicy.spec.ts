@@ -9,7 +9,7 @@ it.each([undefined, 'http://fixture', 'http://other'])(
   'never forwards an env token to explicit endpoint %s',
   async envUrl => {
     const f = identityFixture()
-    f.io.env.OPENCOVE_CONTROL_URL = envUrl
+    f.io.env.ECLIPSE_CODE_CONTROL_URL = envUrl
     await expect(resolveConnection({ endpoint: 'http://other' }, f.io)).rejects.toMatchObject({
       exitCode: 2,
       hint: expect.stringContaining('--token'),
@@ -25,7 +25,7 @@ it.each([undefined, 'http://fixture', 'http://other'])(
 it('uses only paired credentials and never attaches an unpaired env token during discovery', async () => {
   const f = identityFixture()
   expect(await resolveConnection({}, f.io)).toEqual({ endpoint: 'http://fixture', token: 'secret' })
-  delete f.io.env.OPENCOVE_CONTROL_URL
+  delete f.io.env.ECLIPSE_CODE_CONTROL_URL
   f.io.profileCandidates = () => ['/isolated']
   f.io.isProcessAlive = () => true
   f.io.readTextFile = async file => {
@@ -48,7 +48,8 @@ it.each([401, 403])('renders a distinct authorization error for status %s', asyn
   const details = {
     reason: 'operation_denied',
     operationId: 'session.writeNode',
-    message: 'session.writeNode is not available to agent terminals: use opencove agent prompt.',
+    message:
+      'session.writeNode is not available to agent terminals: use eclipse-code agent prompt.',
   }
   const fetch = vi.fn(
     async () =>

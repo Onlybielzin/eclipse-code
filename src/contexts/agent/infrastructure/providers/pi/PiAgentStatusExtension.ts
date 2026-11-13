@@ -6,16 +6,16 @@ import { request } from 'node:http';
 import { stat } from 'node:fs/promises';
 
 export default function (pi) {
-  const token = process.env.OPENCOVE_PI_HOOK_TOKEN;
-  const endpoint = process.env.OPENCOVE_PI_HOOK_ENDPOINT;
-  const parentPid = process.env.OPENCOVE_PI_STATUS_OWNER_PID;
+  const token = process.env.ECLIPSE_CODE_PI_HOOK_TOKEN;
+  const endpoint = process.env.ECLIPSE_CODE_PI_HOOK_ENDPOINT;
+  const parentPid = process.env.ECLIPSE_CODE_PI_STATUS_OWNER_PID;
   if (!token || !endpoint || (parentPid && parentPid !== String(process.pid))) return;
   let url;
   try { url = new URL(endpoint); } catch { return; }
   if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1' ||
       url.pathname !== '/hooks/pi' || url.username || url.password || url.search || url.hash) return;
 
-  const key = Symbol.for('opencove.pi.status');
+  const key = Symbol.for('eclipse-code.pi.status');
   let shared;
   let active = false;
   let stopped = false;
@@ -69,7 +69,7 @@ export default function (pi) {
     try {
       const req = request(url, {
         method: 'POST', agent: false,
-        headers: { 'content-type': 'application/json', 'x-opencove-hook-token': token },
+        headers: { 'content-type': 'application/json', 'x-eclipse-code-hook-token': token },
       }, response => {
         response.on('end', finish);
         response.on('error', finish);
@@ -133,7 +133,7 @@ export default function (pi) {
         sessionId: null, sessionFile: null, stop };
     }
     globalThis[key] = shared;
-    process.env.OPENCOVE_PI_STATUS_OWNER_PID = String(process.pid);
+    process.env.ECLIPSE_CODE_PI_STATUS_OWNER_PID = String(process.pid);
     active = true;
     setState(idle(ctx) ? 'standby' : 'working', ctx);
   });

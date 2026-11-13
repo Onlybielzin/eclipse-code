@@ -10,7 +10,7 @@ describe('useHydrateAppState terminal profile recovery', () => {
     const storage = installMockStorage()
 
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify({
         activeWorkspaceId: 'workspace-1',
         workspaces: [
@@ -58,7 +58,7 @@ describe('useHydrateAppState terminal profile recovery', () => {
       runtimeKind: 'wsl' as const,
     }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

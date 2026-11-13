@@ -17,7 +17,7 @@ describe('computeSpaceDirectoryUpdate', () => {
       workspacePath: '/repo',
       spaces,
       spaceId: 'space-1',
-      directoryPath: '/repo/.opencove/worktrees/feat-inbox',
+      directoryPath: '/repo/.eclipse-code/worktrees/feat-inbox',
       options: { renameSpaceTo: 'feat/inbox' },
     })
 
@@ -25,7 +25,7 @@ describe('computeSpaceDirectoryUpdate', () => {
       {
         ...spaces[0],
         name: 'feat/inbox',
-        directoryPath: '/repo/.opencove/worktrees/feat-inbox',
+        directoryPath: '/repo/.eclipse-code/worktrees/feat-inbox',
         boundary: {
           allowedMountIds: [],
           scopesByMountId: {},

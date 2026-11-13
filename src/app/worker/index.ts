@@ -86,7 +86,9 @@ function resolveStartedBy(argv: string[]): 'cli' | 'desktop' {
 async function main(): Promise<void> {
   const argv = process.argv.slice(2)
   if (argv.includes('--help') || argv.includes('-h')) {
-    process.stdout.write('OpenCove worker: use opencove worker start --help for CLI usage.\n')
+    process.stdout.write(
+      'Eclipse Code worker: use eclipse-code worker start --help for CLI usage.\n',
+    )
     return
   }
   const userDataPath = readWorkerFlagValue(argv, '--user-data') ?? resolveWorkerUserDataDir()
@@ -130,13 +132,13 @@ async function main(): Promise<void> {
     ) {
       process.stdout.write(`${JSON.stringify(connectionInfo)}\n`)
       process.stderr.write(
-        '[opencove-worker] Local Worker already running for this user data; printed existing connection info.\n',
+        '[eclipse-code-worker] Local Worker already running for this user data; printed existing connection info.\n',
       )
       process.exit(0)
     }
 
     process.stderr.write(
-      '[opencove-worker] Worker owner is busy but its connection is not reachable; refusing replacement.\n',
+      '[eclipse-code-worker] Worker owner is busy but its connection is not reachable; refusing replacement.\n',
     )
     process.exit(1)
   }
@@ -154,9 +156,11 @@ async function main(): Promise<void> {
   await Promise.all(approvedRoots.map(rootPath => approvedWorkspaces.registerRoot(rootPath)))
 
   const forceHookBindFailure =
-    process.env.NODE_ENV === 'test' && process.env.OPENCOVE_TEST_CLAUDE_HOOK_BIND_FAILURE === '1'
+    process.env.NODE_ENV === 'test' &&
+    process.env.ECLIPSE_CODE_TEST_CLAUDE_HOOK_BIND_FAILURE === '1'
   const forceHookInstallFailure =
-    process.env.NODE_ENV === 'test' && process.env.OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE === '1'
+    process.env.NODE_ENV === 'test' &&
+    process.env.ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE === '1'
   const claudeHookChannel = createClaudeHookChannel({
     ...(forceHookBindFailure ? { port: -1 } : {}),
     ...(forceHookInstallFailure
@@ -166,9 +170,10 @@ async function main(): Promise<void> {
       : {}),
   })
   const forceCodexHookBindFailure =
-    process.env.NODE_ENV === 'test' && process.env.OPENCOVE_TEST_CODEX_HOOK_BIND_FAILURE === '1'
+    process.env.NODE_ENV === 'test' && process.env.ECLIPSE_CODE_TEST_CODEX_HOOK_BIND_FAILURE === '1'
   const forceCodexHookInstallFailure =
-    process.env.NODE_ENV === 'test' && process.env.OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE === '1'
+    process.env.NODE_ENV === 'test' &&
+    process.env.ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE === '1'
   const codexHookChannel = createCodexHookChannel({
     ...(forceCodexHookBindFailure ? { port: -1 } : {}),
     ...(forceCodexHookInstallFailure
@@ -208,7 +213,7 @@ async function main(): Promise<void> {
     approvedWorkspaces,
     ptyRuntime,
     ownsPtyRuntime: true,
-    dbPath: resolve(userDataPath, 'opencove.db'),
+    dbPath: resolve(userDataPath, 'eclipse-code.db'),
     enableWebShell: enableWebUi,
     webUiPasswordHash: resolvedWebUiPasswordHash ?? null,
     connectionFileName: WORKER_CONTROL_SURFACE_CONNECTION_FILE,
@@ -245,7 +250,7 @@ async function main(): Promise<void> {
   const info = await server.ready
   process.stdout.write(`${JSON.stringify(info)}\n`)
   process.stderr.write(
-    `[opencove-worker] ${startedBy === 'desktop' ? 'private control' : 'control surface'}: http://${info.hostname}:${info.port}/\n`,
+    `[eclipse-code-worker] ${startedBy === 'desktop' ? 'private control' : 'control surface'}: http://${info.hostname}:${info.port}/\n`,
   )
   const desktopWebStatus =
     'getWebAccessStatus' in server
@@ -260,19 +265,19 @@ async function main(): Promise<void> {
       : null
   if (activeWebAddress) {
     process.stderr.write(
-      `[opencove-worker] web ui: http://${activeWebAddress.hostname}:${activeWebAddress.port}/\n`,
+      `[eclipse-code-worker] web ui: http://${activeWebAddress.hostname}:${activeWebAddress.port}/\n`,
     )
     process.stderr.write(
-      `[opencove-worker] debug shell: http://${activeWebAddress.hostname}:${activeWebAddress.port}/debug/shell\n`,
+      `[eclipse-code-worker] debug shell: http://${activeWebAddress.hostname}:${activeWebAddress.port}/debug/shell\n`,
     )
   } else if (desktopWebStatus?.state === 'failed' || desktopWebStatus?.state === 'degraded') {
-    process.stderr.write(`[opencove-worker] web ui unavailable: ${desktopWebStatus.error}\n`)
+    process.stderr.write(`[eclipse-code-worker] web ui unavailable: ${desktopWebStatus.error}\n`)
   } else {
-    process.stderr.write('[opencove-worker] web ui: disabled\n')
+    process.stderr.write('[eclipse-code-worker] web ui: disabled\n')
   }
   if (activeWebAddress?.bindHostname === '0.0.0.0' || activeWebAddress?.bindHostname === '::') {
     process.stderr.write(
-      `[opencove-worker] Web UI listening on all interfaces. Use your machine's LAN IP to connect from other devices.\n`,
+      `[eclipse-code-worker] Web UI listening on all interfaces. Use your machine's LAN IP to connect from other devices.\n`,
     )
   }
   const passwordRequired =
@@ -280,7 +285,7 @@ async function main(): Promise<void> {
       ? desktopWebStatus.passwordRequired
       : Boolean(resolvedWebUiPasswordHash)
   process.stderr.write(
-    `[opencove-worker] auth required (use Authorization: Bearer <token>${passwordRequired ? ' or /auth/login password' : ' or a Desktop-issued /auth/claim ticket'})\n`,
+    `[eclipse-code-worker] auth required (use Authorization: Bearer <token>${passwordRequired ? ' or /auth/login password' : ' or a Desktop-issued /auth/claim ticket'})\n`,
   )
 
   const disposeAndExit = createWorkerShutdown(
@@ -304,7 +309,7 @@ async function main(): Promise<void> {
       try {
         process.kill(parentPid, 0)
       } catch {
-        process.stderr.write('[opencove-worker] parent process exited; shutting down.\n')
+        process.stderr.write('[eclipse-code-worker] parent process exited; shutting down.\n')
         void disposeAndExit(0)
       }
     }, 1_000)
@@ -314,6 +319,6 @@ async function main(): Promise<void> {
 
 void main().catch(error => {
   const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-  process.stderr.write(`[opencove-worker] ${detail}\n`)
+  process.stderr.write(`[eclipse-code-worker] ${detail}\n`)
   process.exit(1)
 })

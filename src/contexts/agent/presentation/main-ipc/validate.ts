@@ -27,7 +27,7 @@ const MAX_AGENT_LAUNCH_ENV_ENTRIES = 200
 const MAX_AGENT_LAUNCH_ENV_KEY_LENGTH = 120
 const MAX_AGENT_LAUNCH_ENV_VALUE_LENGTH = 10_000
 const AGENT_LAUNCH_ENV_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
-const AGENT_LAUNCH_ENV_RESERVED_PREFIX = 'OPENCOVE_'
+const AGENT_LAUNCH_ENV_RESERVED_PREFIX = 'ECLIPSE_CODE_'
 
 function normalizeAgentLaunchEnv(value: unknown): Record<string, string> | null {
   if (value === null || value === undefined) {
@@ -183,14 +183,14 @@ export function resolveAgentTestStub(
   }
 
   const wantsRealAgents =
-    process.env['OPENCOVE_TEST_USE_REAL_AGENTS'] === '1' ||
-    process.env['OPENCOVE_TEST_USE_REAL_AGENTS']?.toLowerCase() === 'true'
+    process.env['ECLIPSE_CODE_TEST_USE_REAL_AGENTS'] === '1' ||
+    process.env['ECLIPSE_CODE_TEST_USE_REAL_AGENTS']?.toLowerCase() === 'true'
   if (wantsRealAgents) {
     return null
   }
 
-  const sessionScenario = process.env['OPENCOVE_TEST_AGENT_SESSION_SCENARIO']?.trim() ?? ''
-  const stubScriptPath = process.env['OPENCOVE_TEST_AGENT_STUB_SCRIPT']?.trim() ?? ''
+  const sessionScenario = process.env['ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO']?.trim() ?? ''
+  const stubScriptPath = process.env['ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT']?.trim() ?? ''
 
   if (sessionScenario.length > 0 && stubScriptPath.length > 0) {
     return resolveNodeScriptLaunch(stubScriptPath, [
@@ -204,7 +204,7 @@ export function resolveAgentTestStub(
   }
 
   if (process.platform === 'win32') {
-    const message = `[opencove-test-agent] ${provider} ${mode ?? 'new'} ${model ?? 'default-model'}`
+    const message = `[eclipse-code-test-agent] ${provider} ${mode ?? 'new'} ${model ?? 'default-model'}`
     return {
       command: 'powershell.exe',
       args: [
@@ -217,7 +217,7 @@ export function resolveAgentTestStub(
   }
 
   const shell = process.env.SHELL ?? '/bin/zsh'
-  const message = `[opencove-test-agent] ${provider} ${mode ?? 'new'} ${model ?? 'default-model'}`
+  const message = `[eclipse-code-test-agent] ${provider} ${mode ?? 'new'} ${model ?? 'default-model'}`
 
   return {
     command: shell,

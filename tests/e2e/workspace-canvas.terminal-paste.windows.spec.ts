@@ -2,7 +2,7 @@ import { expect, test, type Locator } from '@playwright/test'
 import { clearAndSeedWorkspace, launchApp } from './workspace-canvas.helpers'
 
 const windowsOnly = process.platform !== 'win32'
-const PASTED_TOKEN = 'OPENCOVE_WINDOWS_PASTE_TOKEN'
+const PASTED_TOKEN = 'ECLIPSE_CODE_WINDOWS_PASTE_TOKEN'
 const DOUBLE_PASTED_TOKEN = `${PASTED_TOKEN}${PASTED_TOKEN}`
 
 async function readVisibleTerminalTranscript(terminal: Locator): Promise<string> {
@@ -18,7 +18,7 @@ test.describe('Workspace Canvas - Terminal Paste (Windows)', () => {
     try {
       await electronApp.evaluate(async ({ clipboard }) => {
         clipboard.clear()
-        clipboard.writeText('OPENCOVE_WINDOWS_PASTE_TOKEN')
+        clipboard.writeText('ECLIPSE_CODE_WINDOWS_PASTE_TOKEN')
       })
 
       await clearAndSeedWorkspace(window, [

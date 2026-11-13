@@ -24,10 +24,10 @@ export async function resolveFilesystemEntryBinding(
   if (!mountId) {
     return nodeWorkerBindingForMount(null)
   }
-  if (!window.opencoveApi?.controlSurface?.invoke) {
+  if (!window.eclipseCodeApi?.controlSurface?.invoke) {
     return null
   }
-  const target = await window.opencoveApi.controlSurface.invoke<ResolveMountTargetResult>({
+  const target = await window.eclipseCodeApi.controlSurface.invoke<ResolveMountTargetResult>({
     kind: 'query',
     id: 'mountTarget.resolve',
     payload: { mountId },

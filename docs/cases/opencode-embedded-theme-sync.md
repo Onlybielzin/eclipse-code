@@ -1,15 +1,15 @@
-# Case: Embedded OpenCode TUI 主题未跟随 OpenCove 主题（切换后半白半黑 / 不即时更新）
+# Case: Embedded OpenCode TUI 主题未跟随 Eclipse Code 主题（切换后半白半黑 / 不即时更新）
 
 ## Symptoms
 
-- OpenCove 内嵌 OpenCode TUI（`terminalProvider=opencode`）在 **黑↔白切换**时：
+- Eclipse Code 内嵌 OpenCode TUI（`terminalProvider=opencode`）在 **黑↔白切换**时：
   - 只部分变色、出现残留深色块，视觉上像“半白半黑”
   - 或者只有 OpenCode 不即时更新，其它窗口都已切换
-- 当 OpenCove 的 UI theme 设为“跟随系统”时，OpenCode 看起来会更“即时更新”，但仍可能伴随渲染异常。
+- 当 Eclipse Code 的 UI theme 设为“跟随系统”时，OpenCode 看起来会更“即时更新”，但仍可能伴随渲染异常。
 
 ## Environment
 
-- OpenCove：Electron + xterm
+- Eclipse Code：Electron + xterm
 - OpenCode CLI：本机安装（当时版本 `opencode 1.3.13`）
 - 触发条件：OpenCode TUI 使用 `theme: "system"`（见 `OPENCODE_TUI_CONFIG`）
 
@@ -18,7 +18,7 @@
 推荐用可复现资产跑“真实 OpenCode”：
 
 ```bash
-OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencode-embedded-theme.spec.ts --project electron --reporter=line
+ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencode-embedded-theme.spec.ts --project electron --reporter=line
 ```
 
 该用例会：
@@ -40,7 +40,7 @@ OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencod
 
 ## Root Cause
 
-- OpenCove 的 xterm 主题切换只是更新了 xterm 自己的 `Terminal.options.theme`，但 **没有补齐 OpenCode 的终端协议链路**：
+- Eclipse Code 的 xterm 主题切换只是更新了 xterm 自己的 `Terminal.options.theme`，但 **没有补齐 OpenCode 的终端协议链路**：
   - 未响应 OpenCode 的 OSC 颜色查询
   - 未在正确时机向 PTY 上报 `CSI ?997;…n`
   - embedded session 可能复用/污染了用户全局 OpenCode state，触发 `theme_mode_lock`

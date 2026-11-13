@@ -17,7 +17,7 @@ export async function verifyRemoteSpaceDefaultTarget(options: {
   await page.getByTestId('workspace-canvas-action-bar-new-space').click()
   const readSpace = () =>
     page.evaluate(async () => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       const state = JSON.parse(raw ?? '{}') as {
         activeWorkspaceId?: string
         workspaces?: Array<{
@@ -35,7 +35,7 @@ export async function verifyRemoteSpaceDefaultTarget(options: {
   })
   const space = (await readSpace())!
   const mounts = await page.evaluate(async projectId => {
-    return window.opencoveApi.controlSurface.invoke<{ mounts: MountDto[] }>({
+    return window.eclipseCodeApi.controlSurface.invoke<{ mounts: MountDto[] }>({
       kind: 'query',
       id: 'mount.list',
       payload: { projectId },
@@ -44,10 +44,10 @@ export async function verifyRemoteSpaceDefaultTarget(options: {
   expect(mounts.mounts.find(item => item.mountId === space.targetMountId)?.endpointId).toBe(
     options.endpointId,
   )
-  const source = await mkdtemp(join(tmpdir(), 'opencove-space-target-plugin-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-space-target-plugin-'))
   try {
     await writeFile(
-      join(source, 'opencove.plugin.json'),
+      join(source, 'eclipse-code.plugin.json'),
       JSON.stringify({
         apiVersion: 1,
         id: 'space-target-fixture',

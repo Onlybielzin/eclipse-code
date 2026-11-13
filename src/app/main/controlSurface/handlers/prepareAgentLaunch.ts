@@ -50,7 +50,7 @@ export async function prepareAgentLaunch(options: {
     ? {
         command: testStub.command,
         args:
-          process.env.OPENCOVE_TEST_AGENT_SESSION_SCENARIO === 'claude-prompt-strict'
+          process.env.ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO === 'claude-prompt-strict'
             ? [...testStub.args, ...managedLaunch.plan.args]
             : testStub.args,
         effectiveModel: managedLaunch.plan.effectiveModel,

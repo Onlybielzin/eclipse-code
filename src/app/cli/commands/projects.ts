@@ -7,7 +7,7 @@ export const projectAddCommand = defineCommand({
   path: ['project', 'add'],
   summary: 'Add a local directory as a project',
   description:
-    'The path must be an existing absolute local directory on the Worker. An existing project at the same path is reused with its saved name. Agents cannot add projects: ask the user to add the project in OpenCove.',
+    'The path must be an existing absolute local directory on the Worker. An existing project at the same path is reused with its saved name. Agents cannot add projects: ask the user to add the project in Eclipse Code.',
   connect: true,
   operation: 'project.add',
   options: {
@@ -40,7 +40,7 @@ export const projectAddCommand = defineCommand({
     ],
     { id: 'project-123' },
   ),
-  examples: ['opencove project add --path /workspace/app --name "App"'],
+  examples: ['eclipse-code project add --path /workspace/app --name "App"'],
   buildInput: ({ options: o }) => {
     if (typeof o.path !== 'string' || !o.path.trim()) {
       usage('--path must not be blank')
@@ -63,8 +63,8 @@ export const projectAddCommand = defineCommand({
         throw new CliError(
           error.code,
           error.exitCode,
-          'Adding a project requires a human decision in OpenCove. Agents cannot add projects.',
-          'Ask the user to add the project in OpenCove.',
+          'Adding a project requires a human decision in Eclipse Code. Agents cannot add projects.',
+          'Ask the user to add the project in Eclipse Code.',
           error.details,
         )
       }
@@ -75,7 +75,7 @@ export const projectAddCommand = defineCommand({
         'cli.result_unavailable',
         1,
         'The project was added, but this Worker did not return its details.',
-        'Run "opencove project list" to find it. Do not repeat the add command.',
+        'Run "eclipse-code project list" to find it. Do not repeat the add command.',
       )
     }
     const space = result.space

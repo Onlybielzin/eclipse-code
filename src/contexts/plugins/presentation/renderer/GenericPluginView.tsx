@@ -39,7 +39,7 @@ export function GenericPluginView({
     let disposed = false
     let viewId: string | null = null
     let unbind = () => {}
-    const api = window.opencoveApi.controlSurface
+    const api = window.eclipseCodeApi.controlSurface
     const close = (id: string) => {
       void api
         .invoke({ kind: 'command', id: 'plugin.view.close', payload: { viewId: id } })

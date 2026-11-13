@@ -31,7 +31,7 @@ export const enWorktree = {
     archiveWorktreeSpace: 'Archive Worktree Space',
     closeWorktreeWindow: 'Close worktree window',
     clean: 'clean',
-    apiUnavailable: 'Worktree API is unavailable. Please restart OpenCove and try again.',
+    apiUnavailable: 'Worktree API is unavailable. Please restart Eclipse Code and try again.',
     createBlockedAlreadyWorktree: 'This Space is already a worktree.',
     createBlockedAncestorWorktree:
       'This Space is inside {{name}}, which is already a worktree. Create a sibling Space instead.',

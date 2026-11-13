@@ -59,11 +59,11 @@ export async function checkProductionGrantDelegation(options: {
   expect(options.spawned().at(-1)).toMatchObject({
     command: expect.any(String),
     args: expect.arrayContaining([command]),
-    env: { OPENCOVE_NODE_ID: node.id },
+    env: { ECLIPSE_CODE_NODE_ID: node.id },
   })
   expect(node).toMatchObject({
     kind: 'terminal',
-    spawnedBy: options.env.OPENCOVE_NODE_ID,
+    spawnedBy: options.env.ECLIPSE_CODE_NODE_ID,
     lineageDepth: 2,
   })
   await cli('node', 'delete', '--node', node.id)

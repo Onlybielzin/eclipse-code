@@ -23,7 +23,7 @@ import { WORKER_CONTROL_SURFACE_CONNECTION_FILE } from '../../../shared/constant
 const execFileAsync = promisify(execFile)
 const PROCESS_QUERY_MAX_BUFFER_BYTES = 20 * 1024 * 1024
 const SELF_PROCESS_FALLBACK_NOTE =
-  'Process-tree rows were unavailable; showing the current OpenCove main process as a fallback.'
+  'Process-tree rows were unavailable; showing the current Eclipse Code main process as a fallback.'
 const UNIX_PS_QUERY_ARGUMENTS: Record<'darwin' | 'linux', string[]> = {
   darwin: ['-ww', '-axo', 'pid=,ppid=,rss=,ucomm=,args='],
   linux: ['-ww', '-axo', 'pid=,ppid=,rss=,nlwp=,comm=,args='],
@@ -428,7 +428,7 @@ function collectSelfProcessFallback(mainPid: number): PerformanceDiagnosticsProc
     {
       pid: mainPid,
       parentPid: typeof process.ppid === 'number' && process.ppid > 0 ? process.ppid : null,
-      name: basename(process.execPath) || 'OpenCove',
+      name: basename(process.execPath) || 'Eclipse Code',
       commandLine: argv.length > 0 ? argv.join(' ') : process.execPath,
       workingSetBytes: Number.isFinite(memory.rss) ? memory.rss : null,
       privateBytes: null,

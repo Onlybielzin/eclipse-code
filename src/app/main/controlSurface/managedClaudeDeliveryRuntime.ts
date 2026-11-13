@@ -25,7 +25,7 @@ export function createManagedClaudeDeliveryRuntime(input: {
     hasRuntime: input.hasRuntime,
     adoptionEnabled: () =>
       managedClaudeWritesEnabled() &&
-      process.env.OPENCOVE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS === '1',
+      process.env.ECLIPSE_CODE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS === '1',
     writesEnabled: managedClaudeWritesEnabled,
     publishCommittedActivation: event =>
       commitPublisher.publish({ ...event, operationId: 'session.managedClaudeActivation' }),

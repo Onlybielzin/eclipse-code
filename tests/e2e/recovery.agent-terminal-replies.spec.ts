@@ -16,7 +16,7 @@ test.describe('Recovery - Agent terminal replies', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'raw-dsr-reply-echo',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'raw-dsr-reply-echo',
         },
       })
 
@@ -52,7 +52,9 @@ test.describe('Recovery - Agent terminal replies', () => {
         await runButton.click()
 
         const terminalNode = window.locator('.terminal-node').first()
-        await expect(terminalNode).toContainText('[opencove-test-dsr] done', { timeout: 20_000 })
+        await expect(terminalNode).toContainText('[eclipse-code-test-dsr] done', {
+          timeout: 20_000,
+        })
         await expect(terminalNode).not.toContainText('^[[1;1R')
       } finally {
         await electronApp.close()
@@ -63,14 +65,16 @@ test.describe('Recovery - Agent terminal replies', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'raw-dsr-reply-echo',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'raw-dsr-reply-echo',
         },
       })
 
       try {
         await expect(restartedWindow.locator('.terminal-node')).toHaveCount(1)
         const terminalNode = restartedWindow.locator('.terminal-node').first()
-        await expect(terminalNode).toContainText('[opencove-test-dsr] done', { timeout: 20_000 })
+        await expect(terminalNode).toContainText('[eclipse-code-test-dsr] done', {
+          timeout: 20_000,
+        })
         await expect(terminalNode).not.toContainText('^[[1;1R')
       } finally {
         await restartedApp.close()

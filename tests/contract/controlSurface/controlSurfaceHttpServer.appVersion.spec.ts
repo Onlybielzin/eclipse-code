@@ -25,7 +25,7 @@ function createNoopPtyRuntime() {
 
 describe('Control Surface HTTP server app version metadata', () => {
   it('writes the injected app version to the connection file and system capabilities', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-version-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-version-'))
     const connectionFileName = 'control-surface.version.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
     const approvedWorkspaces = createApprovedWorkspaceStoreForPath(

@@ -8,7 +8,7 @@ import {
 
 async function readSpaceNodeIds(window: Page, spaceId: string): Promise<string[] | null> {
   return await window.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -32,7 +32,7 @@ async function readNodePosition(
   nodeId: string,
 ): Promise<{ x: number; y: number } | null> {
   return await window.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }

@@ -14,7 +14,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
     buildAppState({ workspacePath, workspaceName: 'web-live-geometry', spaces: [] }),
   )
   await openAuthedCanvas(page)
-  await page.goto('/?opencoveTerminalTestApi=1', { waitUntil: 'domcontentloaded' })
+  await page.goto('/?eclipseCodeTerminalTestApi=1', { waitUntil: 'domcontentloaded' })
 
   const pane = page.locator('.workspace-canvas .react-flow__pane')
   await expect(pane).toBeVisible()
@@ -34,7 +34,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
     .poll(
       async () =>
         await page.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
           nodeId,
         ),
     )
@@ -43,7 +43,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
     .poll(
       async () =>
         await page.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize(id) ?? null
           const proposed = api?.getProposedGeometry(id) ?? null
           return Boolean(
@@ -55,8 +55,8 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
 
   const before = await page.evaluate(
     id => ({
-      sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
-      size: window.__opencoveTerminalSelectionTestApi?.getSize(id) ?? null,
+      sessionId: window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+      size: window.__eclipseCodeTerminalSelectionTestApi?.getSize(id) ?? null,
     }),
     nodeId,
   )
@@ -88,7 +88,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
     .poll(
       async () =>
         await page.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+          id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
           nodeId,
         ),
     )
@@ -98,7 +98,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
     .poll(
       async () =>
         await page.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize(id) ?? null
           const proposed = api?.getProposedGeometry(id) ?? null
           return Boolean(
@@ -110,9 +110,9 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
 
   const after = await page.evaluate(
     id => ({
-      sessionId: window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
-      size: window.__opencoveTerminalSelectionTestApi?.getSize(id) ?? null,
-      proposed: window.__opencoveTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
+      sessionId: window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+      size: window.__eclipseCodeTerminalSelectionTestApi?.getSize(id) ?? null,
+      proposed: window.__eclipseCodeTerminalSelectionTestApi?.getProposedGeometry(id) ?? null,
     }),
     nodeId,
   )
@@ -120,7 +120,7 @@ test('a live Web terminal reattach reconciles with its current node frame', asyn
   expect(after.size).toEqual(after.proposed)
   const snapshot = await page.evaluate(
     async sessionId =>
-      sessionId ? await window.opencoveApi.pty.presentationSnapshot({ sessionId }) : null,
+      sessionId ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }) : null,
     after.sessionId,
   )
   expect(snapshot).toMatchObject({ cols: after.size?.cols, rows: after.size?.rows })

@@ -25,7 +25,7 @@ it('keeps the user font preference separate from theme typography and terminal f
   expect(root.style.getPropertyValue('--cove-terminal-font-size')).toBe('15px')
   expect(dispatch).toHaveBeenCalledTimes(2)
   expect(dispatch).toHaveBeenLastCalledWith(
-    expect.objectContaining({ type: 'opencove-ui-font-scale-changed' }),
+    expect.objectContaining({ type: 'eclipse-code-ui-font-scale-changed' }),
   )
   rerender(<Host size={16} />)
   expect(dispatch).toHaveBeenCalledTimes(2)

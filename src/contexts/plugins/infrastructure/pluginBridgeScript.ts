@@ -3,7 +3,7 @@ import { PLUGIN_HOST_METHODS } from '../domain/pluginHostApi'
 /** Served by the plugin asset gateway before the author's own scripts. */
 export const PLUGIN_BRIDGE_SCRIPT = String.raw`
 (() => {
-  const channel = 'opencove-plugin-v1';
+  const channel = 'eclipse-code-plugin-v1';
   const pending = new Map();
   const themeListeners = new Set();
   const themeProperties = new Set();
@@ -74,7 +74,7 @@ export const PLUGIN_BRIDGE_SCRIPT = String.raw`
       active.add(message.requestId);
       Promise.resolve().then(() => {
         if (retired || presence !== connection || connection.readyState !== WebSocket.OPEN) {
-          throw new Error('OpenCove plugin view closed.');
+          throw new Error('Eclipse Code plugin view closed.');
         }
         if (!handler || !context) throw new Error('Plugin window is not ready for commands.');
         return handler(message.commandId, message.params, message.context ?? null);
@@ -95,7 +95,7 @@ export const PLUGIN_BRIDGE_SCRIPT = String.raw`
     for (const media of document.querySelectorAll('audio, video')) media.pause();
     for (const task of pending.values()) {
       clearTimeout(task.timer);
-      task.reject(new Error('OpenCove plugin view closed.'));
+      task.reject(new Error('Eclipse Code plugin view closed.'));
     }
     pending.clear();
     themeGeneration++;
@@ -209,21 +209,21 @@ export const PLUGIN_BRIDGE_SCRIPT = String.raw`
     }
   });
   async function request(operation, payload = {}) {
-    if (retired) throw new Error('OpenCove plugin view closed.');
+    if (retired) throw new Error('Eclipse Code plugin view closed.');
     await Promise.race([ready, retirement]);
-    if (retired) throw new Error('OpenCove plugin view closed.');
+    if (retired) throw new Error('Eclipse Code plugin view closed.');
     const id = String(++sequence);
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         pending.delete(id);
-        reject(new Error('OpenCove plugin request timed out: ' + operation));
+        reject(new Error('Eclipse Code plugin request timed out: ' + operation));
       }, 45000);
       pending.set(id, { resolve, reject, timer });
       parent.postMessage({ channel, type: 'request', id, operation, payload },
         parentOrigin === 'null' ? '*' : parentOrigin);
     });
   }
-  window.opencovePlugin = Object.freeze({
+  window.eclipseCodePlugin = Object.freeze({
     ready,
     host: Object.freeze(Object.fromEntries(
       Object.entries(${JSON.stringify(PLUGIN_HOST_METHODS)}).map(([group, methods]) => [
@@ -248,7 +248,7 @@ export const PLUGIN_BRIDGE_SCRIPT = String.raw`
     },
     onCommand: handler => {
       if (typeof handler !== 'function') throw new Error('Plugin command handler must be a function.');
-      if (retired) throw new Error('OpenCove plugin view closed.');
+      if (retired) throw new Error('Eclipse Code plugin view closed.');
       commandHandler = handler;
       announceCommandReadiness();
       return () => {

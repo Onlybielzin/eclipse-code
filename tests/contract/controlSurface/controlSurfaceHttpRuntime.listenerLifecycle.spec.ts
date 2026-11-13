@@ -24,7 +24,7 @@ async function openClient(port: number): Promise<{
   socket: WebSocket
   instanceId: string
 }> {
-  const socket = new WebSocket(`ws://127.0.0.1:${port}/pty?token=test-token`, 'opencove-pty.v1')
+  const socket = new WebSocket(`ws://127.0.0.1:${port}/pty?token=test-token`, 'eclipse-code-pty.v1')
   await new Promise<void>((resolvePromise, rejectPromise) => {
     socket.once('open', resolvePromise)
     socket.once('error', rejectPromise)
@@ -60,7 +60,7 @@ async function openClient(port: number): Promise<{
 }
 
 async function openCookieClient(port: number, cookie: string): Promise<WebSocket> {
-  const socket = new WebSocket(`ws://127.0.0.1:${port}/pty`, 'opencove-pty.v1', {
+  const socket = new WebSocket(`ws://127.0.0.1:${port}/pty`, 'eclipse-code-pty.v1', {
     headers: {
       cookie,
       origin: `http://127.0.0.1:${port}`,
@@ -93,7 +93,7 @@ describe('Control Surface HTTP listener lifecycle', () => {
   })
 
   it('revokes one Web auth generation without closing private bearer clients', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-runtime-auth-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-runtime-auth-'))
     cleanupPaths.push(userDataPath)
     const approvedWorkspaces = createApprovedWorkspaceStoreForPath(
       resolve(userDataPath, 'approved-workspaces.json'),
@@ -153,7 +153,7 @@ describe('Control Surface HTTP listener lifecycle', () => {
       { redirect: 'manual' },
     )
     const cookie = claimResponse.headers.get('set-cookie')?.split(';')[0] ?? ''
-    expect(cookie).toMatch(/opencove_session_[a-f0-9]{16}=/)
+    expect(cookie).toMatch(/eclipse_code_session_[a-f0-9]{16}=/)
 
     const privateClient = await openClient(privateAddress.port)
     const webClient = await openCookieClient(webAddress.port, cookie)
@@ -175,7 +175,7 @@ describe('Control Surface HTTP listener lifecycle', () => {
   })
 
   it('replaces listeners around one live PTY stream runtime', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-runtime-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-runtime-'))
     cleanupPaths.push(userDataPath)
     const approvedWorkspaces = createApprovedWorkspaceStoreForPath(
       resolve(userDataPath, 'approved-workspaces.json'),

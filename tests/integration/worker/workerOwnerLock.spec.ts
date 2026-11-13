@@ -76,7 +76,7 @@ describeWithElectronNativeModules('Worker ownership', () => {
       `const { acquireWorkerSingleInstanceLock } = require('./singleInstanceLock.cjs');
     acquireWorkerSingleInstanceLock(process.argv[2]).then(async lock => {
       if (lock.status === 'acquired') {
-        const db = new (require('better-sqlite3'))(require('node:path').join(process.argv[2], 'opencove.db'));
+        const db = new (require('better-sqlite3'))(require('node:path').join(process.argv[2], 'eclipse-code.db'));
         db.pragma('journal_mode = WAL');
         db.exec('CREATE TABLE IF NOT EXISTS writers (pid INTEGER)');
         db.prepare('INSERT INTO writers VALUES (?)').run(process.pid);
@@ -116,7 +116,7 @@ describeWithElectronNativeModules('Worker ownership', () => {
     const dir = await directory()
     const first = await contender(dir, true)
     expect(first.status).toBe('acquired')
-    const metadata = await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')
+    const metadata = await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')
     const connection = JSON.stringify({
       version: 1,
       pid: first.child.pid,
@@ -133,13 +133,13 @@ describeWithElectronNativeModules('Worker ownership', () => {
     await Promise.all(
       [first.child.pid, null].map(async pid => {
         expect(await repairStaleLocalWorkerFiles(dir, pid)).toEqual({ status: 'external_owner' })
-        expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toBe(metadata)
+        expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toBe(metadata)
         expect(await readFile(resolve(dir, 'worker-control-surface.json'), 'utf8')).toBe(connection)
       }),
     )
     expect((await contender(dir)).status).toBe('existing')
     expect(acquireWorkerOwnerLock(dir).status).toBe('busy')
-    const persistence = new Database(resolve(dir, 'opencove.db'), { readonly: true })
+    const persistence = new Database(resolve(dir, 'eclipse-code.db'), { readonly: true })
     try {
       expect(persistence.prepare('SELECT pid FROM writers').all()).toEqual([
         { pid: first.child.pid },
@@ -167,13 +167,13 @@ describeWithElectronNativeModules('Worker ownership', () => {
       return
     }
     try {
-      const current = await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')
+      const current = await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')
       await first.release()
-      expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toBe(current)
+      expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toBe(current)
       const replacement = JSON.stringify({ pid: process.pid, instanceId: 'newer-owner' })
-      await writeFile(resolve(dir, 'opencove-worker.lock'), replacement)
+      await writeFile(resolve(dir, 'eclipse-code-worker.lock'), replacement)
       await second.release()
-      expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toBe(replacement)
+      expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toBe(replacement)
     } finally {
       await second.release()
     }
@@ -184,7 +184,7 @@ describeWithElectronNativeModules('Worker ownership', () => {
     async instanceId => {
       const dir = await directory()
       await writeFile(
-        resolve(dir, 'opencove-worker.lock'),
+        resolve(dir, 'eclipse-code-worker.lock'),
         JSON.stringify({ pid: process.pid, instanceId }),
       )
       const lock = await acquireWorkerSingleInstanceLock(dir)
@@ -214,7 +214,7 @@ describeWithElectronNativeModules('Worker ownership', () => {
       const script = resolve(dir, 'worker.js')
       await writeFile(
         script,
-        `require('node:fs').writeFileSync(require('node:path').join(process.argv[2], 'opencove-worker.lock'), JSON.stringify({pid: process.pid})); console.log('ready'); setInterval(() => {}, 1000);`,
+        `require('node:fs').writeFileSync(require('node:path').join(process.argv[2], 'eclipse-code-worker.lock'), JSON.stringify({pid: process.pid})); console.log('ready'); setInterval(() => {}, 1000);`,
       )
       const child = spawn(process.execPath, [script, dir, '--user-data', userDataArg], {
         cwd: root,
@@ -223,18 +223,18 @@ describeWithElectronNativeModules('Worker ownership', () => {
       })
       children.push(child)
       await once(child.stdout!, 'data')
-      const metadata = await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')
+      const metadata = await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')
       expect((await acquireWorkerSingleInstanceLock(dir)).status).toBe('existing')
       expect(await repairStaleLocalWorkerFiles(dir, child.pid)).toEqual({
         status: 'external_owner',
       })
-      expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toBe(metadata)
+      expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toBe(metadata)
     },
   )
 
   it('simultaneous contenders cannot both replace stale PID metadata', async () => {
     const dir = await directory()
-    await writeFile(resolve(dir, 'opencove-worker.lock'), JSON.stringify({ pid: 999_999 }))
+    await writeFile(resolve(dir, 'eclipse-code-worker.lock'), JSON.stringify({ pid: 999_999 }))
     const contenders = await Promise.all([contender(dir, true), contender(dir, true)])
     const acquired = contenders.filter(result => result.status === 'acquired')
     expect(acquired.length).toBeLessThanOrEqual(1)

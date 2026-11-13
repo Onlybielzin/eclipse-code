@@ -140,7 +140,7 @@ test.describe('Workspace Canvas - Context Menu Note Create', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return 0
             }
@@ -187,7 +187,7 @@ test.describe('Workspace Canvas - Context Menu Note Create', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return { spaceCount: 0, nodeCount: 0, firstSpaceNodeIdsCount: null }
             }
@@ -250,7 +250,7 @@ test.describe('Workspace Canvas - Context Menu Note Create', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return { rootSpaces: 0, childSpaces: 0, childNodeIdsCount: null }
             }
@@ -311,7 +311,7 @@ test.describe('Workspace Canvas - Context Menu Note Create', () => {
       await expect
         .poll(async () => {
           const layout = await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

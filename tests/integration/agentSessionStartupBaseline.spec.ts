@@ -22,7 +22,7 @@ function records(provider: 'claude-code' | 'codex') {
 const encode = (rows: unknown[]) => rows.map(row => JSON.stringify(row)).join('\n') + '\n'
 
 async function fixture(provider: 'claude-code' | 'codex', content: string, live = false) {
-  const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-startup-baseline-'))
+  const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-startup-baseline-'))
   const path = join(directory, 'session.jsonl')
   await fs.writeFile(path, content)
   let turn = 0

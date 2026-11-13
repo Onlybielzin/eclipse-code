@@ -6,7 +6,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 it('continuation diagnostics are silent unless explicitly enabled', () => {
-  vi.stubEnv('OPENCOVE_DEBUG_AGENT_CONTINUATION', '0')
+  vi.stubEnv('ECLIPSE_CODE_DEBUG_AGENT_CONTINUATION', '0')
   const write = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
   const f = fixture()
   f.hook('UserPromptSubmit', 'A')
@@ -16,7 +16,7 @@ it('continuation diagnostics are silent unless explicitly enabled', () => {
   f.runtime.dispose()
 })
 it('continuation diagnostics include decisions, bounded identifiers, counts and timings without content', () => {
-  vi.stubEnv('OPENCOVE_DEBUG_AGENT_CONTINUATION', '1')
+  vi.stubEnv('ECLIPSE_CODE_DEBUG_AGENT_CONTINUATION', '1')
   const write = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
   const f = fixture()
   f.hook('UserPromptSubmit', 'long-provider-prompt-A')

@@ -43,7 +43,7 @@ function changedInputs(previous: CommitInputs, current: CommitInputs) {
 export function useWindowNodeCommitProbe(inputs: { id: string; data: { kind?: string } }) {
   const previous = useRef<CommitInputs>({})
   useEffect(() => {
-    if (window.opencoveApi?.meta?.isTest !== true) {
+    if (window.eclipseCodeApi?.meta?.isTest !== true) {
       return
     }
     const current = {
@@ -71,7 +71,7 @@ export function useWindowNodeCommitProbe(inputs: { id: string; data: { kind?: st
 /** Includes the compact shell even when a memoized runtime/header does not render. */
 export function useWindowPresentationCommitProbe(nodeId: string): void {
   useEffect(() => {
-    if (window.opencoveApi?.meta?.isTest === true) {
+    if (window.eclipseCodeApi?.meta?.isTest === true) {
       presentationCounts.set(nodeId, (presentationCounts.get(nodeId) ?? 0) + 1)
     }
   })
@@ -90,7 +90,7 @@ export function useWindowCommitProbe(kind: WindowKindFamily, inputs: CommitInput
   const element = useRef<HTMLElement>(null)
   const previous = useRef<CommitInputs>({})
   useEffect(() => {
-    if (window.opencoveApi?.meta?.isTest === true) {
+    if (window.eclipseCodeApi?.meta?.isTest === true) {
       counts[kind] = (counts[kind] ?? 0) + 1
       const node = element.current?.closest('.react-flow__node')
       const nodeId = node?.getAttribute('data-id')

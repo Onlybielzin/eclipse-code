@@ -406,6 +406,10 @@ describe('normalizeAgentSettings', () => {
           promptTemplate: 'Write product requirements.',
           inputHint: 'Brief idea',
           outputFormat: 'PRD',
+          // Roles saved before the team fields follow the default provider and are not the lead.
+          provider: null,
+          model: '',
+          isLead: false,
           createdAt: '2026-05-10T00:00:00.000Z',
           updatedAt: '2026-05-10T00:00:00.000Z',
         },

@@ -20,7 +20,7 @@ type InternalTerminal = Terminal & {
     _coreBrowserService?: InternalCoreBrowserService
     _renderService?: InternalRenderService
   }
-  __opencoveDprDebug?: {
+  __eclipseCodeDprDebug?: {
     lastInputZoom?: number | null
     lastDecision?: string | null
     appliedDpr?: number | null
@@ -253,10 +253,10 @@ export function resizeTerminalPreservingScrollState(
 
 function updateTerminalDprDebug(
   terminal: InternalTerminal,
-  debug: Partial<NonNullable<InternalTerminal['__opencoveDprDebug']>>,
+  debug: Partial<NonNullable<InternalTerminal['__eclipseCodeDprDebug']>>,
 ): void {
-  terminal.__opencoveDprDebug = {
-    ...(terminal.__opencoveDprDebug ?? {}),
+  terminal.__eclipseCodeDprDebug = {
+    ...(terminal.__eclipseCodeDprDebug ?? {}),
     ...debug,
   }
 }

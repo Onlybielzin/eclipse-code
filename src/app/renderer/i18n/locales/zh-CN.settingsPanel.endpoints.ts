@@ -2,7 +2,7 @@ export const zhCNSettingsPanelEndpoints = {
   title: '远程机器',
   list: {
     title: '远程机器',
-    help: 'OpenCove 可以连接、修复、浏览并挂载到这些远程机器。',
+    help: 'Eclipse Code 可以连接、修复、浏览并挂载到这些远程机器。',
     countLabel: '数量',
     empty: '暂无远程机器',
     localSubtitle: '本机',
@@ -16,7 +16,7 @@ export const zhCNSettingsPanelEndpoints = {
   },
   register: {
     title: '添加远程机器',
-    help: '添加一台可供 OpenCove 连接和浏览的远程机器。',
+    help: '添加一台可供 Eclipse Code 连接和浏览的远程机器。',
     recommendedTitle: '推荐路径',
     recommendedHint: 'SSH 接入会自动处理隧道和启动细节。',
     modeLabel: '连接方式',
@@ -45,7 +45,7 @@ export const zhCNSettingsPanelEndpoints = {
     managedPortLabel: 'SSH 端口（可选）',
     managedPortPlaceholder: '22',
     managedRemotePortLabel: '远程服务端口（可选）',
-    managedRemotePortHelp: '留空则由 OpenCove 自动分配一个专用高位端口。',
+    managedRemotePortHelp: '留空则由 Eclipse Code 自动分配一个专用高位端口。',
     managedRemotePortPlaceholder: '自动',
     hostnameLabel: '主机',
     portLabel: '端口',
@@ -57,7 +57,7 @@ export const zhCNSettingsPanelEndpoints = {
   },
   remove: {
     title: '移除远程机器？',
-    description: 'OpenCove 将无法再使用“{{name}}”。',
+    description: 'Eclipse Code 将无法再使用“{{name}}”。',
     impact_one: '此操作会解除该远程机器上的 {{count}} 个挂载。',
     impact_other: '此操作会解除该远程机器上的 {{count}} 个挂载。',
   },

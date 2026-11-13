@@ -101,7 +101,7 @@ export function NoteNode({
     setIsSavingMarkdown(true)
 
     try {
-      const result = await window.opencoveApi.system.saveTextToDownloads({
+      const result = await window.eclipseCodeApi.system.saveTextToDownloads({
         fileName,
         content: text,
       })

@@ -6,7 +6,7 @@ function delay(ms) {
 
 export async function installRendererSampler(window) {
   await window.evaluate(() => {
-    window.__opencovePerfProfile = {
+    window.__eclipseCodePerfProfile = {
       frames: [],
       longTasks: [],
       startedAt: performance.now(),
@@ -15,7 +15,7 @@ export async function installRendererSampler(window) {
 
     let lastFrameAt = performance.now()
     const tick = now => {
-      const state = window.__opencovePerfProfile
+      const state = window.__eclipseCodePerfProfile
       if (!state?.running) {
         return
       }
@@ -30,7 +30,7 @@ export async function installRendererSampler(window) {
 
     try {
       const observer = new PerformanceObserver(list => {
-        const state = window.__opencovePerfProfile
+        const state = window.__eclipseCodePerfProfile
         if (!state) {
           return
         }
@@ -43,7 +43,7 @@ export async function installRendererSampler(window) {
         }
       })
       observer.observe({ entryTypes: ['longtask'] })
-      window.__opencovePerfProfile.longTaskObserver = observer
+      window.__eclipseCodePerfProfile.longTaskObserver = observer
     } catch {
       // Long Task API is not available in every Electron mode.
     }
@@ -52,7 +52,7 @@ export async function installRendererSampler(window) {
 
 export async function readRendererSample(window) {
   return await window.evaluate(() => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const nodeIds =
       typeof api?.getRegisteredNodeIds === 'function' ? api.getRegisteredNodeIds() : []
     const metrics = nodeIds.map(nodeId => ({
@@ -61,8 +61,8 @@ export async function readRendererSample(window) {
       size: api?.getSize?.(nodeId) ?? null,
       renderMetrics: api?.getRenderMetrics?.(nodeId) ?? null,
     }))
-    const frames = window.__opencovePerfProfile?.frames ?? []
-    const longTasks = window.__opencovePerfProfile?.longTasks ?? []
+    const frames = window.__eclipseCodePerfProfile?.frames ?? []
+    const longTasks = window.__eclipseCodePerfProfile?.longTasks ?? []
     const memory =
       'memory' in performance
         ? {
@@ -73,7 +73,8 @@ export async function readRendererSample(window) {
         : null
 
     return {
-      elapsedMs: performance.now() - (window.__opencovePerfProfile?.startedAt ?? performance.now()),
+      elapsedMs:
+        performance.now() - (window.__eclipseCodePerfProfile?.startedAt ?? performance.now()),
       terminalNodes: document.querySelectorAll('.terminal-node').length,
       xterms: document.querySelectorAll('.terminal-node .xterm').length,
       canvases: document.querySelectorAll('.terminal-node .xterm-screen canvas').length,

@@ -261,7 +261,7 @@ describe('endpointHealthService', () => {
       failureKind: 'runtime_unmanaged' as const,
       status: 'runtime_unmanaged',
       recommendedAction: 'show_details',
-      detail: 'Refusing to replace /usr/local/bin/opencove.',
+      detail: 'Refusing to replace /usr/local/bin/eclipse-code.',
     },
   ])(
     'projects managed bootstrap diagnosis $failureKind into an actionable endpoint error',

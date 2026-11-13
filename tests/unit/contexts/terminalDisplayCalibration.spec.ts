@@ -390,7 +390,9 @@ describe('terminal display calibration state', () => {
       proof: 'atomic',
     })
     expect(
-      JSON.parse(window.localStorage.getItem('opencove:terminal-display-calibration:v1') ?? 'null'),
+      JSON.parse(
+        window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1') ?? 'null',
+      ),
     ).toMatchObject({
       verification: {
         version: 1,

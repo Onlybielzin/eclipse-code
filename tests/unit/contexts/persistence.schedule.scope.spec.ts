@@ -4,7 +4,7 @@ import {
   schedulePersistedStateWrite,
   flushScheduledPersistedStateWriteAsync,
 } from '@contexts/workspace/presentation/renderer/utils/persistence/schedule'
-const originalApi = window.opencoveApi
+const originalApi = window.eclipseCodeApi
 const draft = {
   formatVersion: 1,
   activeWorkspaceId: null,
@@ -20,7 +20,7 @@ function replaceStore(
     corrected: false,
   })),
 ) {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { persistence: { writeAppState } },
   })
@@ -28,7 +28,7 @@ function replaceStore(
 }
 afterEach(async () => {
   await flushScheduledPersistedStateWriteAsync()
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
 })
 it('does not publish a queued producer into a replacement store', async () => {
   const oldWrite = replaceStore()

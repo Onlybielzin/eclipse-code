@@ -4,7 +4,7 @@ import type { UiLanguage } from '@contexts/settings/domain/agentSettings'
 import type { AgentSettings } from '@contexts/settings/domain/agentSettings'
 
 function getReleaseNotesApi() {
-  return window.opencoveApi?.releaseNotes
+  return window.eclipseCodeApi?.releaseNotes
 }
 
 function getErrorMessage(error: unknown): string {
@@ -56,7 +56,7 @@ export function useWhatsNew({
       return
     }
 
-    if (window.opencoveApi?.meta?.isTest && !window.opencoveApi?.meta?.allowWhatsNewInTests) {
+    if (window.eclipseCodeApi?.meta?.isTest && !window.eclipseCodeApi?.meta?.allowWhatsNewInTests) {
       return
     }
 
@@ -64,7 +64,7 @@ export function useWhatsNew({
       return
     }
 
-    if (updateStatus === 'unsupported' && !window.opencoveApi?.meta?.allowWhatsNewInTests) {
+    if (updateStatus === 'unsupported' && !window.eclipseCodeApi?.meta?.allowWhatsNewInTests) {
       return
     }
 

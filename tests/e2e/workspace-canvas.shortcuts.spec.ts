@@ -33,7 +33,7 @@ interface PersistedWorkspaceSnapshot {
 
 async function readPersistedWorkspace(window: Page): Promise<PersistedWorkspaceSnapshot | null> {
   return await window.evaluate(async targetWorkspaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }

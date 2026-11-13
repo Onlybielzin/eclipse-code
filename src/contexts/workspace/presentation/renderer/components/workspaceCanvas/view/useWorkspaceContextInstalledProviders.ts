@@ -69,7 +69,7 @@ export function useWorkspaceContextInstalledProviders({
 
     setIsLoadingInstalledProviders(true)
 
-    window.opencoveApi.agent
+    window.eclipseCodeApi.agent
       .listInstalledProviders({
         executablePathOverrideByProvider: agentExecutablePathOverrideByProvider,
       })

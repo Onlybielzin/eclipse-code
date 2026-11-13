@@ -20,14 +20,14 @@ function createWriteResult(): PersistWriteResult {
 }
 
 function getMockPersistence(): MockPersistenceApi {
-  return window.opencoveApi.persistence as unknown as MockPersistenceApi
+  return window.eclipseCodeApi.persistence as unknown as MockPersistenceApi
 }
 
 describe('scrollbackSchedule', () => {
   beforeEach(() => {
     vi.useFakeTimers()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

@@ -2,7 +2,7 @@
 
 This document is the current scope map. Historical design sketches are not API
 contracts. Use [README](./README.md) as the entry point and the reference shipped
-by `opencove plugin guide` for the host version being targeted.
+by `eclipse-code plugin guide` for the host version being targeted.
 
 ## Product decisions
 
@@ -17,7 +17,7 @@ by `opencove plugin guide` for the host version being targeted.
   across projects on one Worker; a multiple-instance window requires an explicit
   node for commands. Creation always requires an explicit project.
 - Documentation and tutorials live in Settings → Plugins. A dedicated
-  “Create OpenCove” role, creator launch button and creation-run records are
+  “Create Eclipse Code” role, creator launch button and creation-run records are
   deliberately outside the current implementation scope.
 - Development API changes are allowed before a stable release. Formal compatibility
   promises apply to published stable contracts, not an unfinished design draft.
@@ -93,7 +93,7 @@ provide a hosted marketplace. Installation still requires choosing a repository.
   failed activation/publication, stale candidates, restart and code rollback.
 - Exercise real Desktop/Web surfaces for window lifecycle, menu dispatch,
   preference editing, theme fallback and the documentation reader.
-- Keep a fresh-Agent authoring trial that starts with `opencove plugin guide`;
+- Keep a fresh-Agent authoring trial that starts with `eclipse-code plugin guide`;
   test operational Skills with the intended runtime and explicit project/node/view.
 - Run core and affected checks for local commits. Full regression belongs to PR CI
   on the integrated revision. A targeted pass is not a full-suite pass.

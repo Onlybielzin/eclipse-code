@@ -39,7 +39,7 @@ afterEach(async () => {
 })
 
 it('does not replace its live compatible child when a health probe reports it busy', async () => {
-  mocks.directory = await mkdtemp(join(tmpdir(), 'opencove-owned-worker-'))
+  mocks.directory = await mkdtemp(join(tmpdir(), 'eclipse-code-owned-worker-'))
   await mkdir(join(mocks.directory, 'out', 'main'), { recursive: true })
   await writeFile(join(mocks.directory, 'out', 'main', 'worker.js'), '')
   const child = Object.assign(new EventEmitter(), {

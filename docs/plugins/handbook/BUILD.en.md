@@ -6,7 +6,7 @@ these steps yourself or give the guide to an Agent.
 ## 1. Find the matching guide
 
 ```sh
-opencove plugin guide
+eclipse-code plugin guide
 ```
 
 This offline command prints the README path and documentation directory. It does
@@ -18,13 +18,13 @@ and guide cache.
 
 | File | Responsibility |
 | --- | --- |
-| `opencove.plugin.json` | Identity and declared contributions |
+| `eclipse-code.plugin.json` | Identity and declared contributions |
 | `index.html`, `view.js`, `style.css` | The responsive window body |
 | `main.mjs` | The optional Node backend |
 | `README.md`, `icon.svg` | Documentation and shared plugin identity |
 
-The view uses the injected `window.opencovePlugin` SDK and waits for `api.ready`.
-Scripts and styles are separate files. OpenCove already supplies the header,
+The view uses the injected `window.eclipseCodePlugin` SDK and waits for `api.ready`.
+Scripts and styles are separate files. Eclipse Code already supplies the header,
 resize handles, collapse and close controls.
 
 ## 3. Install and try the example
@@ -32,8 +32,8 @@ resize handles, collapse and close controls.
 With your intended runtime running:
 
 ```sh
-opencove plugin install /absolute/path/to/hello-clock --pretty
-opencove plugin details hello-clock --pretty
+eclipse-code plugin install /absolute/path/to/hello-clock --pretty
+eclipse-code plugin details hello-clock --pretty
 ```
 
 Open **Hello Clock** in Settings → Plugins. Start its preview and try **Read clock**
@@ -49,7 +49,7 @@ window to see that its view timer keeps running.
 Change a label or style in your copied source, then run:
 
 ```sh
-opencove plugin reload hello-clock
+eclipse-code plugin reload hello-clock
 ```
 
 Reopen the details and inspect the new revision. When making a different plugin,

@@ -5,14 +5,14 @@ import {
   type ProcessTreeRow,
 } from '../../../src/app/main/worker/staleLocalWorkerProcessTree'
 
-const userDataPath = '/Users/test/Library/Application Support/opencove-dev'
+const userDataPath = '/Users/test/Library/Application Support/eclipse-code-dev'
 const rows: ProcessTreeRow[] = [
   {
     pid: 100,
     parentPid: 1,
-    commandLine: `/Applications/OpenCove.app/worker.js --started-by desktop --user-data "${userDataPath}"`,
+    commandLine: `/Applications/Eclipse Code.app/worker.js --started-by desktop --user-data "${userDataPath}"`,
   },
-  { pid: 110, parentPid: 100, commandLine: '/Applications/OpenCove.app/pty-host.js' },
+  { pid: 110, parentPid: 100, commandLine: '/Applications/Eclipse Code.app/pty-host.js' },
   { pid: 120, parentPid: 110, commandLine: '/opt/homebrew/bin/codex resume thread-1' },
   { pid: 900, parentPid: 1, commandLine: '/opt/homebrew/bin/codex resume unrelated' },
 ]
@@ -82,7 +82,7 @@ describe('stale local worker process-tree cleanup', () => {
     await terminateStaleLocalWorkerTree(
       {
         stalePid: 100,
-        userDataPath: 'C:\\Users\\test\\AppData\\Roaming\\OpenCove',
+        userDataPath: 'C:\\Users\\test\\AppData\\Roaming\\Eclipse Code',
         platform: 'win32',
       },
       {
@@ -91,9 +91,9 @@ describe('stale local worker process-tree cleanup', () => {
             pid: 100,
             parentPid: 1,
             commandLine:
-              'C:\\OpenCove\\worker.js --started-by desktop --user-data "C:\\Users\\test\\AppData\\Roaming\\OpenCove"',
+              'C:\\Eclipse Code\\worker.js --started-by desktop --user-data "C:\\Users\\test\\AppData\\Roaming\\Eclipse Code"',
           },
-          { pid: 110, parentPid: 100, commandLine: 'C:\\OpenCove\\pty-host.js' },
+          { pid: 110, parentPid: 100, commandLine: 'C:\\Eclipse Code\\pty-host.js' },
           { pid: 120, parentPid: 110, commandLine: 'C:\\Tools\\codex.exe resume thread-1' },
         ],
         signal: vi.fn(),

@@ -146,23 +146,23 @@ export async function runRawBracketedPasteEchoScenario() {
 
       const bracketedPayload = extractBracketedPastePayload(buffer)
       if (typeof bracketedPayload === 'string') {
-        settle(`[opencove-test-paste] ${bracketedPayload}`)
+        settle(`[eclipse-code-test-paste] ${bracketedPayload}`)
         return
       }
 
       if (buffer.includes('\u0016')) {
-        settle('[opencove-test-paste] ctrl-v')
+        settle('[eclipse-code-test-paste] ctrl-v')
         return
       }
 
       const unwrappedPayload = extractUnwrappedPrintablePastePayload(buffer)
       if (typeof unwrappedPayload === 'string') {
-        settle(`[opencove-test-paste] ${unwrappedPayload}`)
+        settle(`[eclipse-code-test-paste] ${unwrappedPayload}`)
       }
     }
 
     const timeout = setTimeout(() => {
-      settle('[opencove-test-paste] timeout')
+      settle('[eclipse-code-test-paste] timeout')
     }, 8_000)
 
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
@@ -172,7 +172,7 @@ export async function runRawBracketedPasteEchoScenario() {
     process.stdin.setEncoding('utf8')
     process.stdin.on('data', handleData)
     process.stdin.resume()
-    process.stdout.write('\u001b[?2004h[opencove-test-paste] ready\n')
+    process.stdout.write('\u001b[?2004h[eclipse-code-test-paste] ready\n')
   })
 
   await sleep(20_000)
@@ -215,12 +215,12 @@ export async function runRawAltScreenWheelEchoScenario() {
       if (wheelLabel) {
         const x10Codes = extractX10MouseReportBytes(buffer)
         const codeSuffix = Array.isArray(x10Codes) ? ` codes=${x10Codes.join(',')}` : ''
-        settle(`[opencove-test-wheel] ${wheelLabel}${codeSuffix}`)
+        settle(`[eclipse-code-test-wheel] ${wheelLabel}${codeSuffix}`)
       }
     }
 
     const timeout = setTimeout(() => {
-      settle('[opencove-test-wheel] timeout')
+      settle('[eclipse-code-test-wheel] timeout')
     }, 8_000)
 
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
@@ -252,7 +252,7 @@ export async function runRawDsrReplyEchoScenario() {
   }, 200)
 
   await sleep(1200)
-  process.stdout.write('[opencove-test-dsr] done\n')
+  process.stdout.write('[eclipse-code-test-dsr] done\n')
   await sleep(20_000)
 }
 
@@ -294,12 +294,12 @@ export async function runRawColorProbeScenario() {
     process.stdin.setRawMode(false)
   }
 
-  process.stdout.write(`[opencove-test-color] runId=${runId} done\n`)
+  process.stdout.write(`[eclipse-code-test-color] runId=${runId} done\n`)
   await sleep(20_000)
 }
 
 export async function runRawFocusRedrawAfterFocusScenario() {
-  process.stdout.write(`${ENABLE_FOCUS_EVENTS}[opencove-test-focus] ready\n`)
+  process.stdout.write(`${ENABLE_FOCUS_EVENTS}[eclipse-code-test-focus] ready\n`)
 
   await new Promise(resolveScenario => {
     let settled = false
@@ -337,12 +337,12 @@ export async function runRawFocusRedrawAfterFocusScenario() {
 
       process.stdout.write('\u001b[2J\u001b[H')
       setTimeout(() => {
-        settle('[opencove-test-focus] redraw complete\n')
+        settle('[eclipse-code-test-focus] redraw complete\n')
       }, 700)
     }
 
     const timeout = setTimeout(() => {
-      settle('[opencove-test-focus] timeout\n')
+      settle('[eclipse-code-test-focus] timeout\n')
     }, 12_000)
 
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
@@ -358,7 +358,7 @@ export async function runRawFocusRedrawAfterFocusScenario() {
 }
 
 export async function runRawClickRedrawAfterClickScenario() {
-  process.stdout.write(`${ENABLE_SGR_MOUSE}[opencove-test-click] ready\n`)
+  process.stdout.write(`${ENABLE_SGR_MOUSE}[eclipse-code-test-click] ready\n`)
 
   await new Promise(resolveScenario => {
     let settled = false
@@ -394,12 +394,12 @@ export async function runRawClickRedrawAfterClickScenario() {
 
       process.stdout.write('\u001b[2J\u001b[H')
       setTimeout(() => {
-        settle('[opencove-test-click] redraw complete\n')
+        settle('[eclipse-code-test-click] redraw complete\n')
       }, 700)
     }
 
     const timeout = setTimeout(() => {
-      settle('[opencove-test-click] timeout\n')
+      settle('[eclipse-code-test-click] timeout\n')
     }, 12_000)
 
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {

@@ -117,7 +117,7 @@ test.describe('Workspace Canvas - Label Colors', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async spaceId => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -201,7 +201,7 @@ test.describe('Workspace Canvas - Label Colors', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async nodeId => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

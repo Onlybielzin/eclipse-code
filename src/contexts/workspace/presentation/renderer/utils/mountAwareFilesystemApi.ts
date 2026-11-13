@@ -27,8 +27,9 @@ export interface MountAwareFilesystemApi {
 }
 
 function resolveControlSurfaceInvoke(): ((request: unknown) => Promise<unknown>) | null {
-  const invoke = (window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } })
-    .opencoveApi?.controlSurface?.invoke
+  const invoke = (
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   return typeof invoke === 'function' ? (invoke as (request: unknown) => Promise<unknown>) : null
 }
@@ -52,7 +53,7 @@ export function resolveFilesystemApiForMount(
     return {
       readFileBytes: async ({ uri }) =>
         normalizeReadFileBytesResult(
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'query',
             id: 'filesystem.readFileBytesInMount',
             payload: { mountId, uri },
@@ -60,60 +61,60 @@ export function resolveFilesystemApiForMount(
           'filesystem.readFileBytesInMount',
         ),
       stat: async ({ uri }) =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'filesystem.statInMount',
           payload: { mountId, uri },
         }),
       readFileText: async ({ uri }) =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'filesystem.readFileTextInMount',
           payload: { mountId, uri },
         }),
       writeFileText: async ({ uri, content }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.writeFileTextInMount',
           payload: { mountId, uri, content },
         })
       },
       readDirectory: async ({ uri }) =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'filesystem.readDirectoryInMount',
           payload: { mountId, uri },
         }),
       createDirectory: async ({ uri }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.createDirectoryInMount',
           payload: { mountId, uri },
         })
       },
       deleteEntry: async ({ uri }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.deleteEntryInMount',
           payload: { mountId, uri },
         })
       },
       copyEntry: async ({ sourceUri, targetUri }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.copyEntryInMount',
           payload: { mountId, sourceUri, targetUri },
         })
       },
       moveEntry: async ({ sourceUri, targetUri }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.moveEntryInMount',
           payload: { mountId, sourceUri, targetUri },
         })
       },
       renameEntry: async ({ sourceUri, targetUri }) => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'filesystem.renameEntryInMount',
           payload: { mountId, sourceUri, targetUri },
@@ -122,5 +123,5 @@ export function resolveFilesystemApiForMount(
     }
   }
 
-  return window.opencoveApi?.filesystem ?? null
+  return window.eclipseCodeApi?.filesystem ?? null
 }

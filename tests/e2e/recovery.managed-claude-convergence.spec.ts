@@ -64,16 +64,19 @@ test('managed Claude stale publications retain layout and cold-resume the curren
     XDG_CACHE_HOME: path.join(home, '.cache'),
     XDG_STATE_HOME: path.join(home, '.local', 'state'),
     XDG_RUNTIME_DIR: path.join(userDataDir, 'runtime'),
-    OPENCOVE_TEST_WORKSPACE: workspace,
-    OPENCOVE_WORKER_CLIENT: '1',
-    OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-    OPENCOVE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS: '1',
-    OPENCOVE_TEST_ENABLE_MANAGED_CLAUDE_REBIND: '1',
-    OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-    OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-    OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
-    OPENCOVE_TEST_AGENT_STUB_SCRIPT: path.join(__dirname, 'fixtures/claude-session-ownership.mjs'),
-    OPENCOVE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
+    ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+    ECLIPSE_CODE_WORKER_CLIENT: '1',
+    ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+    ECLIPSE_CODE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS: '1',
+    ECLIPSE_CODE_TEST_ENABLE_MANAGED_CLAUDE_REBIND: '1',
+    ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+    ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+    ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
+    ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: path.join(
+      __dirname,
+      'fixtures/claude-session-ownership.mjs',
+    ),
+    ECLIPSE_CODE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
     ANTHROPIC_API_KEY: '',
     ANTHROPIC_AUTH_TOKEN: '',
     CLAUDE_CODE_OAUTH_TOKEN: '',
@@ -115,7 +118,7 @@ test('managed Claude stale publications retain layout and cold-resume the curren
     })
     const terminal = await page.evaluate(
       async targetSpaceId =>
-        window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -171,7 +174,7 @@ test('managed Claude stale publications retain layout and cold-resume the curren
     await web.locator('.react-flow__controls-fitview').click({ timeout: 10_000 })
     await publishManagedLayout(web, agent.id, false)
     // Refresh the hold baseline to include the confirmed initial layout and revision.
-    await web.evaluate(async () => window.opencoveApi.persistence.readAppState())
+    await web.evaluate(async () => window.eclipseCodeApi.persistence.readAppState())
     await freezeManagedClient(web)
     const nextId = await syntheticRebind(
       userDataDir,
@@ -201,7 +204,7 @@ test('managed Claude stale publications retain layout and cold-resume the curren
       let latest!: { state: unknown; revision: number | null }
       await expect
         .poll(async () => {
-          latest = await page.evaluate(async () => window.opencoveApi.persistence.readAppState())
+          latest = await page.evaluate(async () => window.eclipseCodeApi.persistence.readAppState())
           try {
             const probe = staleManagedPublication(latest.state, agent.id, raw ? 1300 : 1200)
             return { activationId: probe.activationId, tuple: probe.canonicalTuple }
@@ -217,10 +220,10 @@ test('managed Claude stale publications retain layout and cold-resume the curren
       const result = await page.evaluate(
         async ({ candidate, baseRevision, rawWrite }) =>
           rawWrite
-            ? window.opencoveApi.persistence.writeWorkspaceStateRaw({
+            ? window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
                 raw: JSON.stringify(candidate),
               })
-            : window.opencoveApi.persistence.writeAppState({ state: candidate, baseRevision }),
+            : window.eclipseCodeApi.persistence.writeAppState({ state: candidate, baseRevision }),
         { candidate: proposed.candidate, baseRevision: latest.revision, rawWrite: raw },
       )
       const receiptDetails = JSON.stringify({
@@ -245,7 +248,7 @@ test('managed Claude stale publications retain layout and cold-resume the curren
       await expect
         .poll(async () =>
           page.evaluate(async nodeId => {
-            const state = (await window.opencoveApi.persistence.readAppState()).state as {
+            const state = (await window.eclipseCodeApi.persistence.readAppState()).state as {
               workspaces: Array<{
                 nodes: Array<{
                   id: string

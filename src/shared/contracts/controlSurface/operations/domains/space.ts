@@ -111,8 +111,32 @@ export const spaceUpdateOperation = defineOperation({
   ],
 })
 
+/**
+ * Eclipse Code tasks: removes a Space (and the Spaces nested in it) once its work is done. A
+ * Space still bound to a worktree is refused: archive the worktree first (worktree.archive).
+ * Windows that were inside stay on the canvas, outside any Space.
+ */
+export const spaceDeleteOperation = defineOperation({
+  id: 'space.delete',
+  kind: 'command',
+  scope: 'interact',
+  availability: 'always',
+  summary: 'Remove a space (and its nested spaces) after its worktree is archived',
+  input: z.object({
+    spaceId: z.string().describe('Space identifier'),
+  }),
+  errors: [
+    'space.not_found',
+    'common.invalid_input',
+    'persistence.invalid_state',
+    'persistence.io_failed',
+    'persistence.unavailable',
+  ],
+})
+
 export const spaceOperations = [
   spaceUpdateOperation,
+  spaceDeleteOperation,
   spaceCreateOperation,
   spaceCreateChildOperation,
   spaceGetOperation,

@@ -9,7 +9,7 @@ const line = (value: unknown) => `${JSON.stringify(value)}\n`
 
 describe('KimiWireStateWatcher', () => {
   it('streams observed working and standby transitions from wire JSONL', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-wire-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-wire-'))
     const filePath = join(directory, 'wire.jsonl')
     await fs.writeFile(filePath, line(metadata))
     const onState = vi.fn()
@@ -38,7 +38,7 @@ describe('KimiWireStateWatcher', () => {
   })
 
   it('reports unsupported protocol as unobservable without fabricating standby', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-wire-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-wire-'))
     const filePath = join(directory, 'wire.jsonl')
     await fs.writeFile(
       filePath,
@@ -62,7 +62,7 @@ describe('KimiWireStateWatcher', () => {
   })
 
   it('keeps a metadata-only session unobservable until a real turn arrives', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-wire-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-wire-'))
     const filePath = join(directory, 'wire.jsonl')
     await fs.writeFile(
       filePath,
@@ -89,7 +89,7 @@ describe('KimiWireStateWatcher', () => {
   })
 
   it('withdraws a previous observation when a truncated wire has an unsupported major', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-wire-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-wire-'))
     const filePath = join(directory, 'wire.jsonl')
     await fs.writeFile(filePath, line(metadata) + line({ type: 'turn.prompt' }))
     const onState = vi.fn()

@@ -16,13 +16,13 @@ import { join } from 'node:path'
 const [provider, cwd, , , , , ...args] = process.argv.slice(2)
 const prompt = args.find(value => ['Initial reply', 'Permission check', 'Question check'].includes(value))
 if (!prompt) throw new Error('Expected initial prompt in the real provider launch arguments')
-const prefix = provider === 'codex' ? 'OPENCOVE_CODEX_HOOK' : 'OPENCOVE_CLAUDE_HOOK'
+const prefix = provider === 'codex' ? 'ECLIPSE_CODE_CODEX_HOOK' : 'ECLIPSE_CODE_CLAUDE_HOOK'
 const providerSessionId = randomUUID()
 const index = args.indexOf('--session-id')
 const sessionId = index >= 0 ? args[index + 1] : providerSessionId
 const post = async (event, fields = {}) => {
   const response = await fetch(process.env[prefix + '_ENDPOINT'], {
-    method: 'POST', headers: { 'content-type': 'application/json', 'x-opencove-hook-token': process.env[prefix + '_TOKEN'] },
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-eclipse-code-hook-token': process.env[prefix + '_TOKEN'] },
     body: JSON.stringify({ session_id: sessionId, transcript_path: join(cwd, 'initial-turn.jsonl'), cwd,
       hook_event_name: event, turn_id: 'initial-provider-turn', prompt_id: 'initial-prompt', prompt,
       emittedAtMs: Date.now(), ...fields }),
@@ -52,7 +52,7 @@ for (const scenario of [
       'Codex lifecycle hooks require POSIX',
     )
     test.setTimeout(90_000)
-    const root = await mkdtemp(join(tmpdir(), 'opencove-cli-create-wait-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-create-wait-'))
     const workspace = join(root, 'project'),
       profile = join(root, 'profile')
     let app: ElectronApplication | undefined
@@ -64,16 +64,16 @@ for (const scenario of [
         userDataDir: profile,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_WORKSPACE: workspace,
-          OPENCOVE_WORKER_CLIENT: '0',
-          OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_STUB_SCRIPT: script,
+          ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+          ECLIPSE_CODE_WORKER_CLIENT: '0',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: script,
           // This existing scenario forwards real launch arguments to the test stub.
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
           CLAUDE_CONFIG_DIR: join(root, 'claude'),
           CODEX_HOME: join(root, 'codex'),
         },
@@ -96,7 +96,7 @@ for (const scenario of [
       })
       const shell = await page.evaluate(
         async payload =>
-          window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+          window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
             kind: 'command',
             id: 'node.create',
             payload: {
@@ -117,7 +117,7 @@ for (const scenario of [
         page,
         binding,
         [
-          'opencove',
+          'eclipse-code',
           ...createAgentWaitArgs(
             scenario.provider,
             scenario.dialog === 'permission'
@@ -181,7 +181,7 @@ for (const scenario of [
         })
       }
       const agents = await page.evaluate(async () =>
-        window.opencoveApi.controlSurface.invoke<{ nodes: unknown[] }>({
+        window.eclipseCodeApi.controlSurface.invoke<{ nodes: unknown[] }>({
           kind: 'query',
           id: 'node.list',
           payload: { projectId: 'create-wait-project', kind: 'agent' },

@@ -4,7 +4,7 @@ Plugins bring useful tools into the place where you work. A plugin might show a 
 provide a focused canvas window, or expose commands an Agent can run. Each package
 chooses which of those features it provides.
 
-OpenCove supplies the surrounding window: moving, resizing, collapsing and closing.
+Eclipse Code supplies the surrounding window: moving, resizing, collapsing and closing.
 The plugin supplies its content. You can keep a tool beside a terminal, note or task
 without giving it a separate application workspace.
 
@@ -22,7 +22,7 @@ A package may have no window at all. The detail page shows what that plugin actu
 provides, including its README, version and optional interactive preview.
 
 Commands can also appear in the command center or declared canvas, node and Space
-menus. Each location uses the context supplied by OpenCove; a window command requires
+menus. Each location uses the context supplied by Eclipse Code; a window command requires
 an available target view. Read [Host contributions](../HOST_EXTENSIONS.md) for details.
 
 ## Your plugin shelf

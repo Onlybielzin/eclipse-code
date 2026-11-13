@@ -35,7 +35,7 @@ test.describe('Workspace Canvas - Terminal Enter Focus', () => {
         .poll(async () => {
           const options = await window.evaluate(() => {
             return (
-              window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
+              window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
               null
             )
           })
@@ -43,15 +43,15 @@ test.describe('Workspace Canvas - Terminal Enter Focus', () => {
         })
         .toBe(terminalFontSize)
 
-      await window.keyboard.type('echo OPENCOVE_ENTER_FOCUS_1')
+      await window.keyboard.type('echo ECLIPSE_CODE_ENTER_FOCUS_1')
       await window.keyboard.press('Enter')
-      await expect(terminal).toContainText('OPENCOVE_ENTER_FOCUS_1')
+      await expect(terminal).toContainText('ECLIPSE_CODE_ENTER_FOCUS_1')
       await expect(terminalInput).toBeFocused()
       await expect
         .poll(async () => {
           const options = await window.evaluate(() => {
             return (
-              window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
+              window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
               null
             )
           })
@@ -66,15 +66,15 @@ test.describe('Workspace Canvas - Terminal Enter Focus', () => {
         expect(isOriginalXtermConnected).toBe(true)
       }
 
-      await window.keyboard.type('echo OPENCOVE_ENTER_FOCUS_2')
+      await window.keyboard.type('echo ECLIPSE_CODE_ENTER_FOCUS_2')
       await window.keyboard.press('Enter')
-      await expect(terminal).toContainText('OPENCOVE_ENTER_FOCUS_2')
+      await expect(terminal).toContainText('ECLIPSE_CODE_ENTER_FOCUS_2')
       await expect(terminalInput).toBeFocused()
       await expect
         .poll(async () => {
           const options = await window.evaluate(() => {
             return (
-              window.__opencoveTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
+              window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions?.('node-enter-focus') ??
               null
             )
           })

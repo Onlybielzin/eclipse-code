@@ -11,6 +11,17 @@ import { ExistingAgentProviderDetector } from '../shared/AgentProviderDetector'
 import { createAgentHookRelay } from '../shared/AgentHookRelay'
 import { createTemporaryProviderConfig } from '../shared/TemporaryProviderConfig'
 
+/** `eclipse-code` is on PATH in every terminal the app starts (the session grant's CLI shim). */
+export const ECLIPSE_CODE_MCP_ARGS = [
+  '--mcp-config',
+  JSON.stringify({
+    mcpServers: { 'eclipse-code': { type: 'stdio', command: 'eclipse-code', args: ['mcp'] } },
+  }),
+] as const
+
+/** Lets the agent keep a task list, which the to-do card on the canvas mirrors (hook todos.sync). */
+export const ECLIPSE_CODE_AGENT_ENV = { CLAUDE_CODE_ENABLE_TODO_TOOLS: '1' } as const
+
 export interface ClaudeCodeAgentProviderContributionOptions {
   readonly channel?: AgentHookChannel
   readonly detector?: AgentProviderDetector
@@ -47,11 +58,13 @@ export class ClaudeCodeAgentProviderContribution implements AgentProviderContrib
         model: command.model,
         resumeSessionId: command.mode === 'new' ? randomUUID() : command.resumeSessionId,
         agentFullAccess: command.agentFullAccess,
-        injectedArgs: telemetry.args,
+        // Agents launched by the app get the team MCP server (eclipse-code mcp) next to the user's own.
+        injectedArgs: this.channel ? [...telemetry.args, ...ECLIPSE_CODE_MCP_ARGS] : telemetry.args,
       })
       return {
         ...plan,
-        env: telemetry.env,
+        // The task-list tools (TaskCreate/TaskUpdate) are off by default; the to-do card mirrors them.
+        env: this.channel ? { ...telemetry.env, ...ECLIPSE_CODE_AGENT_ENV } : telemetry.env,
         hookInstallState: telemetry.hookInstallState,
         hookCoverage: managedHookCoverage(this.descriptor.id, plan.args, telemetry, command),
         ...(telemetry.onStarted ? { onStarted: telemetry.onStarted } : {}),
@@ -110,7 +123,7 @@ export class ClaudeCodeAgentProviderContribution implements AgentProviderContrib
       artifacts: command.artifacts,
     })
     const settings = await createTemporaryProviderConfig(
-      'opencove-claude-settings-',
+      'eclipse-code-claude-settings-',
       'settings.json',
       JSON.stringify({ hooks: createClaudeHooks(relay.command, relay.args) }),
     )

@@ -35,7 +35,7 @@ const skill = {
 }
 
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-plugin-contributions-'))
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-contributions-'))
   source = join(root, 'source')
   await mkdir(join(source, 'skills/command-help'), { recursive: true })
   await writeFile(join(source, 'index.html'), '<html><head></head><body>Commands</body></html>')
@@ -72,7 +72,7 @@ function create(
 }
 
 async function writeManifest(extra: Record<string, unknown>) {
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify({ ...base, ...extra }))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify({ ...base, ...extra }))
 }
 
 function token(resourcePath: string) {

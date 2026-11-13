@@ -6,7 +6,7 @@ test.describe('App Shell - Sandboxed Preload', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'offscreen',
       env: {
-        OPENCOVE_E2E_FORCE_RENDERER_SANDBOX: '1',
+        ECLIPSE_CODE_E2E_FORCE_RENDERER_SANDBOX: '1',
       },
     })
 

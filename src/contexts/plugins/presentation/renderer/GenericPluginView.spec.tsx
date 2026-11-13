@@ -46,7 +46,7 @@ describe('generic plugin view leases', () => {
     const invoke = vi.fn(async ({ id }: { id: string }) =>
       id === 'plugin.view.open' ? view(++opened) : null,
     )
-    vi.stubGlobal('opencoveApi', {
+    vi.stubGlobal('eclipseCodeApi', {
       controlSurface: {
         invoke,
         resolvePluginResourceUrl: async (path: string) => `about:blank#${path}`,
@@ -126,7 +126,7 @@ describe('generic plugin view leases', () => {
     const invoke = vi.fn(async ({ id }: { id: string }) =>
       id === 'plugin.view.open' ? view(++opened) : null,
     )
-    vi.stubGlobal('opencoveApi', {
+    vi.stubGlobal('eclipseCodeApi', {
       controlSurface: {
         invoke,
         resolvePluginResourceUrl: async (path: string) => `about:blank#${path}`,
@@ -212,7 +212,7 @@ describe('generic plugin view leases', () => {
           })
         : Promise.resolve(view(2))
     })
-    vi.stubGlobal('opencoveApi', {
+    vi.stubGlobal('eclipseCodeApi', {
       controlSurface: {
         invoke,
         resolvePluginResourceUrl: async (path: string) => `about:blank#${path}`,
@@ -250,7 +250,7 @@ describe('generic plugin view leases', () => {
     const invoke = vi.fn(async ({ id }: { id: string }) =>
       id === 'plugin.view.open' ? view(++opened) : null,
     )
-    vi.stubGlobal('opencoveApi', {
+    vi.stubGlobal('eclipseCodeApi', {
       controlSurface: {
         invoke,
         resolvePluginResourceUrl: async (path: string) => `about:blank#${path}`,

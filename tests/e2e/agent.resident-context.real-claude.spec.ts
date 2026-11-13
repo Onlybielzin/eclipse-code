@@ -6,8 +6,11 @@ import {
   expectResidentContext,
 } from './agent.resident-context.helpers'
 
-test.describe('Claude resident OpenCove context', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+test.describe('Claude resident Eclipse Code context', () => {
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX acceptance')
   for (const mode of ['suggest', 'off'] as const) {
     test(`${mode}: startup and clear preserve the context policy`, async ({

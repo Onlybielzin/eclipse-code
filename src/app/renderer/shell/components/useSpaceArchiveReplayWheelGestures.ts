@@ -107,8 +107,8 @@ export function useSpaceArchiveReplayWheelGestures({
       }
 
       const platform =
-        typeof window !== 'undefined' && window.opencoveApi?.meta?.platform
-          ? window.opencoveApi.meta.platform
+        typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform
+          ? window.eclipseCodeApi.meta.platform
           : undefined
       const effectiveWheelZoomModifierKey = resolveEffectiveWheelZoomModifierKey(
         canvasWheelZoomModifierSetting,

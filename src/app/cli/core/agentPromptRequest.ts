@@ -38,7 +38,7 @@ export async function sendAgentPrompt(ctx: CommandContext): Promise<unknown> {
     const result = (await ctx.invoke('agent.prompt', payload)) as { phase?: string }
     if (result?.phase === 'dispatched') {
       ctx.io.stderr.write(
-        `Typed into Codex while it works; Codex submits it at its next tool call or after the current response; OpenCove confirms it when Codex submits it — check with opencove agent delivery ${deliveryId}.\n`,
+        `Typed into Codex while it works; Codex submits it at its next tool call or after the current response; Eclipse Code confirms it when Codex submits it — check with eclipse-code agent delivery ${deliveryId}.\n`,
       )
     }
     return result

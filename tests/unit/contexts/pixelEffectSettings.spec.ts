@@ -108,7 +108,11 @@ describe('independent persisted Pixel effect settings', () => {
     'starts unconfigured users in Cove with all effects: %j',
     raw => {
       expect(normalizeAgentSettings(raw).uiTheme).toBe('dark')
-      expect(effects(normalizeAgentSettings(raw))).toEqual(enabled)
+      // New users start on the Eclipse wallpaper with every effect on.
+      expect(effects(normalizeAgentSettings(raw))).toEqual({
+        ...enabled,
+        canvasBackgroundStyle: 'wallpaper',
+      })
       expect(effects(normalizeAgentSettings(raw))).toEqual(effects(DEFAULT_AGENT_SETTINGS))
     },
   )

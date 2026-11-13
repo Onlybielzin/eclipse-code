@@ -206,9 +206,9 @@
     ],
     "forbiddenText": [
       {
-        "id": "architecture.windowOpenCoveApiBoundary",
+        "id": "architecture.windowEclipseCodeApiBoundary",
         "severity": "warn",
-        "pattern": "window\\.opencoveApi",
+        "pattern": "window\\.eclipseCodeApi",
         "allowedPatterns": [
           "src/app/preload/**",
           "src/app/renderer/browser/**",
@@ -216,7 +216,7 @@
           "src/**/presentation/renderer/**/*Api.ts",
           "src/**/presentation/renderer/**/testHarness.ts"
         ],
-        "doc": "docs/architecture/ARCHITECTURE.md#windowopencoveapi"
+        "doc": "docs/architecture/ARCHITECTURE.md#windoweclipsecodeapi"
       }
     ]
   }

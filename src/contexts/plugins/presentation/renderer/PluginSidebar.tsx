@@ -131,19 +131,19 @@ function SidebarSection({
     setBusy(true)
     setError(null)
     try {
-      const result = await window.opencoveApi.controlSurface.invoke<{ items: PluginSidebarItem[] }>(
-        {
-          kind: 'query',
-          id: 'plugin.sidebar.items',
-          payload: {
-            pluginId: plugin.id,
-            sectionId: section.id,
-            projectId,
-            expectedRevision: plugin.revision,
-            expectedRuntimeGeneration: plugin.runtimeGeneration,
-          },
+      const result = await window.eclipseCodeApi.controlSurface.invoke<{
+        items: PluginSidebarItem[]
+      }>({
+        kind: 'query',
+        id: 'plugin.sidebar.items',
+        payload: {
+          pluginId: plugin.id,
+          sectionId: section.id,
+          projectId,
+          expectedRevision: plugin.revision,
+          expectedRuntimeGeneration: plugin.runtimeGeneration,
         },
-      )
+      })
       if (current() && id === generation.current) {
         setItems(result.items)
         setLoaded(true)
@@ -167,7 +167,7 @@ function SidebarSection({
     setBusy(true)
     setError(null)
     try {
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'plugin.command.run',
         payload: {

@@ -98,7 +98,7 @@ export const zhCNSettingsPanelPlugins = {
     loading: '正在读取仓库…',
     details: '查看详情',
     choose: '使用已查看的版本',
-    hostVersion: 'OpenCove 版本',
+    hostVersion: 'Eclipse Code 版本',
     platforms: 'Worker 系统',
     allPlatforms: '所有系统（未独立验证）',
     notDeclared: '未声明',
@@ -123,7 +123,7 @@ export const zhCNSettingsPanelPlugins = {
     applyCandidate: '应用已解决的版本',
     copyResolution: '复制处理提示词',
     resolvePrompt:
-      '请检查当前 Worker 上的 OpenCove 插件候选目录 {{directory}}。先运行 opencove plugin guide 阅读指南。解决合并冲突或报告的构建问题，检查并提交解决结果。不要重置或覆盖原始源码。确认完成后使用 opencove plugin apply {{candidate}} 应用。如果候选已过期，请准备新的更新，并保留已检查的修改。',
+      '请检查当前 Worker 上的 Eclipse Code 插件候选目录 {{directory}}。先运行 eclipse-code plugin guide 阅读指南。解决合并冲突或报告的构建问题，检查并提交解决结果。不要重置或覆盖原始源码。确认完成后使用 eclipse-code plugin apply {{candidate}} 应用。如果候选已过期，请准备新的更新，并保留已检查的修改。',
 
     repository: '仓库',
     dirty: '源目录有本地修改。更新会在独立工作副本中合并。',

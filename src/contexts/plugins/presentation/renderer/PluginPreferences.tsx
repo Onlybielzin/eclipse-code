@@ -23,7 +23,7 @@ export function PluginPreferences({ plugin }: { plugin: PluginManifest }) {
     if (!plugin.preferences?.length) {
       return
     }
-    void window.opencoveApi.controlSurface
+    void window.eclipseCodeApi.controlSurface
       .invoke<Values>({
         kind: 'query',
         id: 'plugin.preferences.get',
@@ -56,7 +56,7 @@ export function PluginPreferences({ plugin }: { plugin: PluginManifest }) {
     setBusy(true)
     setError(null)
     try {
-      const result = await window.opencoveApi.controlSurface.invoke<Values>({
+      const result = await window.eclipseCodeApi.controlSurface.invoke<Values>({
         kind: 'command',
         id: 'plugin.preferences.set',
         payload: { pluginId: plugin.id, key, value },

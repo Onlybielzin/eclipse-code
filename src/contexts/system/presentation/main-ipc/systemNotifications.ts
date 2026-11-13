@@ -21,21 +21,21 @@ type RecordedSystemNotification = {
 
 /** E2E: notifications are recorded instead of shown, and a test can pretend focus and click. */
 export type SystemNotificationTestState = {
-  /** null asks the windows; true or false pretends OpenCove is or is not in the foreground. */
+  /** null asks the windows; true or false pretends Eclipse Code is or is not in the foreground. */
   foreground: boolean | null
   shown: RecordedSystemNotification[]
   click: (id: string) => boolean
 }
 
 declare global {
-  var __opencoveSystemNotificationTestState: SystemNotificationTestState | undefined
+  var __eclipseCodeSystemNotificationTestState: SystemNotificationTestState | undefined
 }
 
 const liveNotifications = new Map<string, { close: () => void }>()
 const testClickHandlers = new Map<string, () => void>()
 
 export function installSystemNotificationTestHarness(): void {
-  globalThis.__opencoveSystemNotificationTestState ??= {
+  globalThis.__eclipseCodeSystemNotificationTestState ??= {
     foreground: null,
     shown: [],
     click: id => {
@@ -52,7 +52,7 @@ function listAppWindows(): BrowserWindow[] {
 
 /** The foreground gate: the renderer's own focus signals are unreliable, the windows are not. */
 function isAppInForeground(): boolean {
-  const pretended = globalThis.__opencoveSystemNotificationTestState?.foreground
+  const pretended = globalThis.__eclipseCodeSystemNotificationTestState?.foreground
   if (typeof pretended === 'boolean') {
     return pretended
   }
@@ -123,7 +123,7 @@ export async function showSystemNotification(
     liveNotifications.delete(payload.replacesId)
   }
 
-  const testState = globalThis.__opencoveSystemNotificationTestState
+  const testState = globalThis.__eclipseCodeSystemNotificationTestState
   if (testState) {
     testState.shown.push({
       id,

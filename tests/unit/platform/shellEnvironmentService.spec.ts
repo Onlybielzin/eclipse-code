@@ -13,7 +13,7 @@ vi.mock('node:child_process', () => ({
 
 const ORIGINAL_ENV = { ...process.env }
 const ORIGINAL_PLATFORM = process.platform
-const SHELL_ENV_MARKER = '__OPENCOVE_SHELL_ENV_MARKER__'
+const SHELL_ENV_MARKER = '__ECLIPSE_CODE_SHELL_ENV_MARKER__'
 
 function setPlatform(platform: NodeJS.Platform): void {
   Object.defineProperty(process, 'platform', {

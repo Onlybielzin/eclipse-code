@@ -42,7 +42,7 @@ function createTerminalNode(overrides?: Partial<TerminalNodeData>): Node<Termina
 
 describe('workspace hydration directories', () => {
   afterEach(() => {
-    delete (window as unknown as { opencoveApi?: unknown }).opencoveApi
+    delete (window as unknown as { eclipseCodeApi?: unknown }).eclipseCodeApi
   })
 
   it('preserves terminal directory bindings when converting persisted nodes to runtime nodes', () => {
@@ -50,7 +50,7 @@ describe('workspace hydration directories', () => {
       id: 'workspace-1',
       name: 'repo',
       path: '/repo',
-      worktreesRoot: '.opencove/worktrees',
+      worktreesRoot: '.eclipse-code/worktrees',
       viewport: { x: 0, y: 0, zoom: 1 },
       isMinimapVisible: true,
       spaces: [],
@@ -69,8 +69,8 @@ describe('workspace hydration directories', () => {
           exitCode: null,
           lastError: null,
           scrollback: null,
-          executionDirectory: '/repo/.opencove/worktrees/space-1',
-          expectedDirectory: '/repo/.opencove/worktrees/space-1',
+          executionDirectory: '/repo/.eclipse-code/worktrees/space-1',
+          expectedDirectory: '/repo/.eclipse-code/worktrees/space-1',
           agent: null,
           task: null,
         },
@@ -79,14 +79,14 @@ describe('workspace hydration directories', () => {
 
     const [node] = toRuntimeNodes(workspace)
 
-    expect(node?.data.executionDirectory).toBe('/repo/.opencove/worktrees/space-1')
-    expect(node?.data.expectedDirectory).toBe('/repo/.opencove/worktrees/space-1')
+    expect(node?.data.executionDirectory).toBe('/repo/.eclipse-code/worktrees/space-1')
+    expect(node?.data.expectedDirectory).toBe('/repo/.eclipse-code/worktrees/space-1')
   })
 
   it('restores terminal sessions in their bound execution directory', async () => {
     const spawn = vi.fn(async () => ({ sessionId: 'restored-session-1' }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -97,8 +97,8 @@ describe('workspace hydration directories', () => {
     })
 
     const node = createTerminalNode({
-      executionDirectory: '/repo/.opencove/worktrees/space-1',
-      expectedDirectory: '/repo/.opencove/worktrees/space-1',
+      executionDirectory: '/repo/.eclipse-code/worktrees/space-1',
+      expectedDirectory: '/repo/.eclipse-code/worktrees/space-1',
     })
 
     const hydrated = await hydrateRuntimeNode({
@@ -112,7 +112,7 @@ describe('workspace hydration directories', () => {
 
     expect(spawn).toHaveBeenCalledWith(
       expect.objectContaining({
-        cwd: '/repo/.opencove/worktrees/space-1',
+        cwd: '/repo/.eclipse-code/worktrees/space-1',
         cols: 80,
         rows: 24,
       }),
@@ -123,7 +123,7 @@ describe('workspace hydration directories', () => {
   it('marks verified in-process agent sessions as live reattachments without renderer scrollback', async () => {
     const snapshot = vi.fn(async () => ({ data: 'existing output' }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

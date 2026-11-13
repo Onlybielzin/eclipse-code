@@ -7,13 +7,13 @@ import {
 } from './workspace-canvas.helpers'
 
 const restorableAgentLaunchEnv = {
-  OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-  OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+  ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+  ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
 } as const
 
 const recoveredAgentInteractionEnv = {
-  OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-  OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+  ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+  ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
 } as const
 
 async function expectObservedWorkingTransition(

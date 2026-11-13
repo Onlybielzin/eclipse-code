@@ -55,7 +55,7 @@ export function registerQuickPhrasesContextMenu({
 
     storePromise = workerEndpointResolver
       ? Promise.resolve(createRemotePersistenceStore(workerEndpointResolver))
-      : createPersistenceStore({ dbPath: resolve(userDataPath, 'opencove.db') })
+      : createPersistenceStore({ dbPath: resolve(userDataPath, 'eclipse-code.db') })
 
     return await storePromise
   }

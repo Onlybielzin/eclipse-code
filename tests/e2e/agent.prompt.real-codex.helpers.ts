@@ -55,7 +55,7 @@ function respond(
           status: 'completed',
           // Escalation outside the sandbox needs the user's approval under on-request.
           arguments: JSON.stringify({
-            cmd: 'touch opencove-approval-probe.txt',
+            cmd: 'touch eclipse-code-approval-probe.txt',
             sandbox_permissions: 'require_escalated',
             justification: 'Create the approval probe file',
           }),
@@ -161,7 +161,7 @@ export async function prompt(userDataDir: string, nodeId: string, text: string) 
     const child = execFile(
       process.execPath,
       [
-        resolvePath('out/cli/opencove.mjs'),
+        resolvePath('out/cli/eclipse-code.mjs'),
         'agent',
         'prompt',
         '--node',
@@ -169,7 +169,7 @@ export async function prompt(userDataDir: string, nodeId: string, text: string) 
         '--text-file',
         '-',
       ],
-      { env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
+      { env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
       (error, stdout, stderr) =>
         done({
           exitCode: error ? Number((error as { code?: unknown }).code ?? 1) : 0,
@@ -185,8 +185,8 @@ export async function cli(userDataDir: string, args: string[]) {
   return await new Promise<{ exitCode: number; stdout: string; stderr: string }>(done => {
     execFile(
       process.execPath,
-      [resolvePath('out/cli/opencove.mjs'), ...args],
-      { env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
+      [resolvePath('out/cli/eclipse-code.mjs'), ...args],
+      { env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
       (error, stdout, stderr) =>
         done({
           exitCode: error ? Number((error as { code?: unknown }).code ?? 1) : 0,
@@ -213,7 +213,7 @@ export async function writeCodexConfig(
       'name = "mock"',
       `base_url = "${apiUrl}"`,
       'wire_api = "responses"',
-      'env_key = "OPENCOVE_TEST_MOCK_API_KEY"',
+      'env_key = "ECLIPSE_CODE_TEST_MOCK_API_KEY"',
       '',
       `[projects."${workspace}"]`,
       'trust_level = "trusted"',

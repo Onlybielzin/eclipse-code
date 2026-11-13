@@ -94,7 +94,7 @@ describe('WorkspaceCanvas task agent session record', () => {
       | ((event: { sessionId: string; resumeSessionId: string | null }) => void)
       | null = null
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -154,7 +154,7 @@ describe('WorkspaceCanvas task agent session record', () => {
             launchMode: 'new',
             resumeSessionId: 'resume-updated',
             resumeSessionIdVerified: false,
-            executionDirectory: '/tmp/repo/.opencove/worktrees/demo',
+            executionDirectory: '/tmp/repo/.eclipse-code/worktrees/demo',
             directoryMode: 'workspace',
             customDirectory: null,
             shouldCreateDirectory: false,
@@ -253,7 +253,7 @@ describe('WorkspaceCanvas task agent session record', () => {
         prompt: 'Do something important',
         resumeSessionId: 'resume-updated',
         resumeSessionIdVerified: true,
-        boundDirectory: '/tmp/repo/.opencove/worktrees/demo',
+        boundDirectory: '/tmp/repo/.eclipse-code/worktrees/demo',
         status: 'stopped',
       }),
     )

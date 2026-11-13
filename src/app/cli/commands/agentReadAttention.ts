@@ -40,7 +40,7 @@ export async function presentReadAttention(error: CliError, ctx: CommandContext)
       ? `${label} has not ended. The agent is waiting for the user${blockedReason ? ` (${blockedReason})` : ''}.`
       : error.message,
     waiting
-      ? `Ask the user to resolve it in OpenCove (Desktop or this Worker's Web UI). Inspect the agent with opencove agent read --node ${shellWord(String(ctx.options.node))} --screen using the same connection options, and check the session/turn IDs match. Then run the same read again.`
+      ? `Ask the user to resolve it in Eclipse Code (Desktop or this Worker's Web UI). Inspect the agent with eclipse-code agent read --node ${shellWord(String(ctx.options.node))} --screen using the same connection options, and check the session/turn IDs match. Then run the same read again.`
       : error.hint,
     { ...details, ...(current ? { sessionId: current.sessionId } : {}), state, blockedReason },
     error.debugMessage,

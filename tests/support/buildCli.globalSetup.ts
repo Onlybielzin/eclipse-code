@@ -20,14 +20,14 @@ import { dirname, join } from 'node:path'
  */
 export default function buildCliForTests(): void {
   const root = fileURLToPath(new URL('../../', import.meta.url))
-  const output = mkdtempSync(join(tmpdir(), 'opencove-cli-build-'))
+  const output = mkdtempSync(join(tmpdir(), 'eclipse-code-cli-build-'))
   try {
     execFileSync(process.execPath, ['scripts/build-cli.mjs', '--out-dir', output], {
       cwd: root,
       stdio: 'inherit',
     })
-    const built = join(output, 'opencove.mjs')
-    const target = join(root, 'out/cli/opencove.mjs')
+    const built = join(output, 'eclipse-code.mjs')
+    const target = join(root, 'out/cli/eclipse-code.mjs')
     if (existsSync(target) && readFileSync(target).equals(readFileSync(built))) {
       return
     }

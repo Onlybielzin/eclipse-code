@@ -27,7 +27,7 @@ test('repairs lost launch assets before creating the next interactive terminal',
   const { electronApp, window } = await launchApp({
     userDataDir,
     cleanupUserDataDir: false,
-    env: { SHELL: '/bin/zsh', OPENCOVE_TEST_WORKSPACE: workspace },
+    env: { SHELL: '/bin/zsh', ECLIPSE_CODE_TEST_WORKSPACE: workspace },
   })
   const pageErrors: string[] = []
   window.on('pageerror', error => pageErrors.push(error.message))

@@ -14,7 +14,7 @@ export async function lookupManagedClaudeOwnership(
 ): Promise<ManagedClaudeOwnershipLookup> {
   let result: GetManagedClaudeBindingResult
   try {
-    result = await window.opencoveApi.controlSurface.invoke<GetManagedClaudeBindingResult>({
+    result = await window.eclipseCodeApi.controlSurface.invoke<GetManagedClaudeBindingResult>({
       kind: 'query',
       id: 'node.managedClaudeBinding',
       payload: { nodeId },
@@ -59,11 +59,11 @@ export async function cleanupFailedNodePlacement(input: {
   managedClaudeLifecycle?: ManagedClaudeLifecycleReceipt
 }): Promise<void> {
   if (!input.managedClaudeLifecycle) {
-    await window.opencoveApi.pty.kill({ sessionId: input.sessionId })
+    await window.eclipseCodeApi.pty.kill({ sessionId: input.sessionId })
     return
   }
   if (
-    !window.opencoveApi?.controlSurface?.invoke ||
+    !window.eclipseCodeApi?.controlSurface?.invoke ||
     !(await supportsWorkerOperation('session.cleanupUnreferenced'))
   ) {
     throw createAppError('agent.managed_launch_rejected', {
@@ -73,7 +73,7 @@ export async function cleanupFailedNodePlacement(input: {
       },
     })
   }
-  await window.opencoveApi.controlSurface.invoke({
+  await window.eclipseCodeApi.controlSurface.invoke({
     kind: 'command',
     id: 'session.cleanupUnreferenced',
     payload: { sessionId: input.sessionId },
@@ -85,7 +85,7 @@ export async function readManagedClaudeBinding(
   nodeId: string,
   provider?: string,
 ): Promise<ManagedClaudeBindingObservation | null> {
-  if (provider !== 'claude-code' || !window.opencoveApi?.controlSurface?.invoke) {
+  if (provider !== 'claude-code' || !window.eclipseCodeApi?.controlSurface?.invoke) {
     return null
   }
   const result = await readOwnership(nodeId)
@@ -99,14 +99,17 @@ export async function killUnownedNodeRuntime(node: {
   if (!node.data.sessionId) {
     return
   }
-  if (node.data.agent?.provider !== 'claude-code' || !window.opencoveApi?.controlSurface?.invoke) {
-    await window.opencoveApi.pty.kill({ sessionId: node.data.sessionId })
+  if (
+    node.data.agent?.provider !== 'claude-code' ||
+    !window.eclipseCodeApi?.controlSurface?.invoke
+  ) {
+    await window.eclipseCodeApi.pty.kill({ sessionId: node.data.sessionId })
     return
   }
   // A failed ownership read cannot authorize speculative deletion cleanup.
   const binding = await readManagedClaudeBinding(node.id, node.data.agent?.provider)
   if (!binding) {
-    await window.opencoveApi.pty.kill({ sessionId: node.data.sessionId })
+    await window.eclipseCodeApi.pty.kill({ sessionId: node.data.sessionId })
   }
 }
 
@@ -115,7 +118,7 @@ export async function readManagedClaudeExecutionContext(
   nodeId: string,
   provider?: string,
 ): Promise<{ binding: ManagedClaudeBindingObservation; executionDirectory: string | null } | null> {
-  if (provider !== 'claude-code' || !window.opencoveApi?.controlSurface?.invoke) {
+  if (provider !== 'claude-code' || !window.eclipseCodeApi?.controlSurface?.invoke) {
     return null
   }
   await requireManagedClaudeWorkerSupport(provider)

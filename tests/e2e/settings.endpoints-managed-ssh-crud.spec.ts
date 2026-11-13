@@ -53,13 +53,13 @@ test.describe('Settings managed SSH endpoint CRUD', () => {
   }, testInfo) => {
     const remoteWorkerPort = await reserveLoopbackPort()
     const remoteBaseDir = await mkdtemp(
-      path.join(tmpdir(), `opencove-e2e-ssh-crud-${browserName}-remote-`),
+      path.join(tmpdir(), `eclipse-code-e2e-ssh-crud-${browserName}-remote-`),
     )
     const remoteProjectDir = path.join(remoteBaseDir, 'project')
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-e2e-ssh-crud-worker-'),
+      path.join(tmpdir(), 'eclipse-code-e2e-ssh-crud-worker-'),
     )
-    const appUserDataDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-ssh-crud-app-'))
+    const appUserDataDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-ssh-crud-app-'))
     const fakeSshInstallDir = await createFakeManagedSshInstallDir()
     await mkdir(remoteProjectDir, { recursive: true })
 
@@ -72,7 +72,7 @@ test.describe('Settings managed SSH endpoint CRUD', () => {
     try {
       const seeded = await window.evaluate(
         async () =>
-          await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify({
               formatVersion: 1,
               activeWorkspaceId: null,
@@ -113,7 +113,7 @@ test.describe('Settings managed SSH endpoint CRUD', () => {
       const endpointId = await pollFor(
         async () =>
           await window.evaluate(async () => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({ kind: 'query', id: 'endpoint.list', payload: null })
             return (
@@ -187,7 +187,7 @@ test.describe('Settings managed SSH endpoint CRUD', () => {
 
       await window.evaluate(
         async ({ selectedEndpointId, rootPath }) =>
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'command',
             id: 'mount.create',
             payload: {
@@ -250,7 +250,7 @@ test.describe('Settings managed SSH endpoint CRUD', () => {
       await expect(endpointCard).toHaveCount(0)
       const mounts = await window.evaluate(
         async () =>
-          await window.opencoveApi.controlSurface.invoke<{ mounts: unknown[] }>({
+          await window.eclipseCodeApi.controlSurface.invoke<{ mounts: unknown[] }>({
             kind: 'query',
             id: 'mount.list',
             payload: { projectId: 'ssh-crud-project' },

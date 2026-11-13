@@ -2,12 +2,15 @@ import { afterEach, expect, it } from 'vitest'
 import { acceptManagedClaudeObservation } from '@contexts/workspace/presentation/renderer/utils/managedClaudeProjection'
 import { markPersistedStateAsSynced } from '@contexts/workspace/presentation/renderer/utils/persistence/write'
 import { DEFAULT_AGENT_SETTINGS } from '@contexts/settings/domain/agentSettings'
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 afterEach(() =>
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original }),
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original }),
 )
 it('orders tuple observations by canonical revision and rejects equal-revision disagreement', () => {
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: { persistence: {} } })
+  Object.defineProperty(window, 'eclipseCodeApi', {
+    configurable: true,
+    value: { persistence: {} },
+  })
   markPersistedStateAsSynced(
     { formatVersion: 1, activeWorkspaceId: null, workspaces: [], settings: DEFAULT_AGENT_SETTINGS },
     5,

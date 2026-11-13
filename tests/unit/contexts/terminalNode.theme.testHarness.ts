@@ -95,7 +95,7 @@ export function installTerminalThemeResizeObserverMock(): void {
 }
 
 export function installTerminalThemePtyApiMock(): void {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     writable: true,
     value: {

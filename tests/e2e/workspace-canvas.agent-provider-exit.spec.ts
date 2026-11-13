@@ -9,7 +9,7 @@ test.describe('Workspace Canvas - dedicated Agent provider exit', () => {
     }, testInfo) => {
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
-        env: { OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'raw-two-stage-ctrl-c' },
+        env: { ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'raw-two-stage-ctrl-c' },
       })
       try {
         await clearAndSeedWorkspace(window, [], { settings: { defaultProvider: provider } })
@@ -19,7 +19,7 @@ test.describe('Workspace Canvas - dedicated Agent provider exit', () => {
         const terminal = window.locator('.terminal-node').first()
         const status = terminal.locator('.terminal-node__status')
         const transcript = terminal.locator('.terminal-node__transcript')
-        await expect(transcript).toContainText(`[opencove-test-2c] ${provider} ready`)
+        await expect(transcript).toContainText(`[eclipse-code-test-2c] ${provider} ready`)
         const priorStatus = await status.textContent()
         await terminal.locator('.xterm-helper-textarea').click()
         await window.keyboard.press('Control+C')

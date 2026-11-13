@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 import type { createPersistenceStore } from '@platform/persistence/sqlite/PersistenceStore'
 import { createRemotePersistenceStore } from '@app/main/controlSurface/remote/remotePersistenceStore'
-import { createBrowserPersistenceApi } from '@app/renderer/browser/browserOpenCoveApi.persistence'
+import { createBrowserPersistenceApi } from '@app/renderer/browser/browserEclipseCodeApi.persistence'
 import { persistWriteWireResult } from '@platform/persistence/sqlite/appStateWriteResult'
 export function connectSqliteAdapter(
   store: Awaited<ReturnType<typeof createPersistenceStore>>,
@@ -25,14 +25,18 @@ export function connectSqliteAdapter(
           return {
             status: 200,
             text: async () =>
-              JSON.stringify({ __opencoveControlEnvelope: true, ok: false, error: result.error }),
+              JSON.stringify({
+                __eclipseCodeControlEnvelope: true,
+                ok: false,
+                error: result.error,
+              }),
           }
         }
         value = { revision: result.revision, corrected: result.corrected }
       }
       return {
         status: 200,
-        text: async () => JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value }),
+        text: async () => JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value }),
       }
     }),
   )

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { acquireWorkerSingleInstanceLock } from '../../../src/app/worker/singleInstanceLock'
 
-const LOCK_FILE_NAME = 'opencove-worker.lock'
+const LOCK_FILE_NAME = 'eclipse-code-worker.lock'
 
 describeWithElectronNativeModules('acquireWorkerSingleInstanceLock', () => {
   let userDataDir: string | null = null
@@ -20,7 +20,7 @@ describeWithElectronNativeModules('acquireWorkerSingleInstanceLock', () => {
   })
 
   async function createTempUserDataDir(): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'opencove-test-worker-lock-'))
+    const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-worker-lock-'))
     userDataDir = dir
     return dir
   }

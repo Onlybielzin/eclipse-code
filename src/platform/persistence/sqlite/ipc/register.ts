@@ -119,7 +119,7 @@ export function registerPersistenceIpcHandlers(
       }
 
       try {
-        const delayMsRaw = process.env['OPENCOVE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS']
+        const delayMsRaw = process.env['ECLIPSE_CODE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS']
         const delayMs =
           process.env.NODE_ENV === 'test' && delayMsRaw ? Number.parseInt(delayMsRaw, 10) : 0
         if (delayMs > 0) {

@@ -7,7 +7,7 @@ test.describe('PTY Host Isolation', () => {
 
     try {
       const first = await window.evaluate(async cwd => {
-        return await window.opencoveApi.pty.spawn({ cwd, cols: 80, rows: 24 })
+        return await window.eclipseCodeApi.pty.spawn({ cwd, cols: 80, rows: 24 })
       }, testWorkspacePath)
 
       expect(first.sessionId).toBeTruthy()
@@ -22,7 +22,7 @@ test.describe('PTY Host Isolation', () => {
             reject(new Error(`[e2e] timed out waiting for pty exit: ${sessionId}`))
           }, timeoutMs)
 
-          unsubscribe = window.opencoveApi.pty.onExit(event => {
+          unsubscribe = window.eclipseCodeApi.pty.onExit(event => {
             if (event.sessionId !== sessionId) {
               return
             }
@@ -32,12 +32,12 @@ test.describe('PTY Host Isolation', () => {
             resolve()
           })
 
-          void window.opencoveApi.pty.debugCrashHost()
+          void window.eclipseCodeApi.pty.debugCrashHost()
         })
       }, first.sessionId)
 
       const second = await window.evaluate(async cwd => {
-        return await window.opencoveApi.pty.spawn({ cwd, cols: 80, rows: 24 })
+        return await window.eclipseCodeApi.pty.spawn({ cwd, cols: 80, rows: 24 })
       }, testWorkspacePath)
 
       expect(second.sessionId).toBeTruthy()

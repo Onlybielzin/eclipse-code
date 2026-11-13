@@ -82,7 +82,7 @@ export function registerWorkerSyncBridge(endpointResolver: ControlSurfaceRemoteE
 
       const rawData = currentDataLines.join('\n')
 
-      if (currentEventName !== 'opencove.sync') {
+      if (currentEventName !== 'eclipse-code.sync') {
         currentEventName = null
         currentEventId = null
         currentDataLines = []
@@ -207,7 +207,7 @@ export function registerWorkerSyncBridge(endpointResolver: ControlSurfaceRemoteE
         }
         if (!(error instanceof WorkerEndpointUnavailableError)) {
           const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-          process.stderr.write(`[opencove] worker sync bridge reconnecting: ${detail}\n`)
+          process.stderr.write(`[eclipse-code] worker sync bridge reconnecting: ${detail}\n`)
         }
         reconnectTimer = setTimeout(() => {
           connectLoop()

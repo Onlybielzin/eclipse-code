@@ -31,15 +31,19 @@ test.describe('Workspace Canvas - Auto Switch Wheel', () => {
     const { electronApp, window } = await launchApp()
 
     try {
-      await clearAndSeedWorkspace(window, [
-        {
-          id: 'auto-ambiguous-vertical-wheel-node',
-          title: 'terminal-auto-ambiguous-vertical-wheel',
-          position: { x: 220, y: 180 },
-          width: 460,
-          height: 300,
-        },
-      ])
+      await clearAndSeedWorkspace(
+        window,
+        [
+          {
+            id: 'auto-ambiguous-vertical-wheel-node',
+            title: 'terminal-auto-ambiguous-vertical-wheel',
+            position: { x: 220, y: 180 },
+            width: 460,
+            height: 300,
+          },
+        ],
+        { settings: { canvasWheelBehavior: 'zoom' } },
+      )
 
       const pane = window.locator('.workspace-canvas .react-flow__pane')
       const canvas = window.locator('.workspace-canvas')
@@ -75,15 +79,19 @@ test.describe('Workspace Canvas - Auto Switch Wheel', () => {
     const { electronApp, window } = await launchApp()
 
     try {
-      await clearAndSeedWorkspace(window, [
-        {
-          id: 'auto-large-wheel-zoom-node',
-          title: 'terminal-auto-large-wheel-zoom',
-          position: { x: 220, y: 180 },
-          width: 460,
-          height: 300,
-        },
-      ])
+      await clearAndSeedWorkspace(
+        window,
+        [
+          {
+            id: 'auto-large-wheel-zoom-node',
+            title: 'terminal-auto-large-wheel-zoom',
+            position: { x: 220, y: 180 },
+            width: 460,
+            height: 300,
+          },
+        ],
+        { settings: { canvasWheelBehavior: 'zoom' } },
+      )
 
       const pane = window.locator('.workspace-canvas .react-flow__pane')
       const canvas = window.locator('.workspace-canvas')
@@ -122,15 +130,19 @@ test.describe('Workspace Canvas - Auto Switch Wheel', () => {
     const { electronApp, window } = await launchApp()
 
     try {
-      await clearAndSeedWorkspace(window, [
-        {
-          id: 'auto-mouse-wheel-switch-node',
-          title: 'terminal-auto-mouse-wheel-switch',
-          position: { x: 220, y: 180 },
-          width: 460,
-          height: 300,
-        },
-      ])
+      await clearAndSeedWorkspace(
+        window,
+        [
+          {
+            id: 'auto-mouse-wheel-switch-node',
+            title: 'terminal-auto-mouse-wheel-switch',
+            position: { x: 220, y: 180 },
+            width: 460,
+            height: 300,
+          },
+        ],
+        { settings: { canvasWheelBehavior: 'zoom' } },
+      )
 
       const pane = window.locator('.workspace-canvas .react-flow__pane')
       const canvas = window.locator('.workspace-canvas')

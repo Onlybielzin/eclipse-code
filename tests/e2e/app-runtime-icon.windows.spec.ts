@@ -12,7 +12,7 @@ test.describe('Application Runtime Icon (Windows)', () => {
 
     try {
       const runtimeIconPath = await electronApp.evaluate(async () => {
-        return globalThis.__opencoveRuntimeIconTestState?.runtimeIconPath ?? null
+        return globalThis.__eclipseCodeRuntimeIconTestState?.runtimeIconPath ?? null
       })
 
       expect(runtimeIconPath).toBeTruthy()

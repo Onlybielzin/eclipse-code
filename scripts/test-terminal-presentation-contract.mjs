@@ -18,7 +18,7 @@ import {
 } from './terminal-presentation-contract-support.mjs'
 
 async function main() {
-  if (!isTruthyEnv(process.env.OPENCOVE_E2E_SKIP_BUILD)) {
+  if (!isTruthyEnv(process.env.ECLIPSE_CODE_E2E_SKIP_BUILD)) {
     const buildCode = await runCommand(['build'])
     if (buildCode !== 0) {
       process.exit(buildCode)
@@ -26,9 +26,11 @@ async function main() {
   }
 
   const workerPath = resolve(process.cwd(), 'out', 'main', 'worker.js')
-  const userDataPath = await mkdtemp(resolve(tmpdir(), 'opencove-terminal-presentation-userdata-'))
+  const userDataPath = await mkdtemp(
+    resolve(tmpdir(), 'eclipse-code-terminal-presentation-userdata-'),
+  )
   const workspaceRoot = await mkdtemp(
-    resolve(tmpdir(), 'opencove-terminal-presentation-workspace-'),
+    resolve(tmpdir(), 'eclipse-code-terminal-presentation-workspace-'),
   )
   const token = randomBytes(16).toString('hex')
 
@@ -113,7 +115,7 @@ async function main() {
     }
 
     const ws = new WebSocket(`${baseUrl.replace(/^http/, 'ws')}/pty?token=${token}`, [
-      'opencove-pty.v1',
+      'eclipse-code-pty.v1',
     ])
 
     await new Promise((resolvePromise, rejectPromise) => {
@@ -140,7 +142,7 @@ async function main() {
     await attachedPromise
 
     const viewerWs = new WebSocket(`${baseUrl.replace(/^http/, 'ws')}/pty?token=${token}`, [
-      'opencove-pty.v1',
+      'eclipse-code-pty.v1',
     ])
 
     await new Promise((resolvePromise, rejectPromise) => {

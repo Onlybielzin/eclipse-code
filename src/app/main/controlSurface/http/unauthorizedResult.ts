@@ -3,7 +3,7 @@ import type { ControlSurfaceInvokeResult } from '../../../../shared/contracts/co
 
 export function buildUnauthorizedResult(): ControlSurfaceInvokeResult<unknown> {
   return {
-    __opencoveControlEnvelope: true,
+    __eclipseCodeControlEnvelope: true,
     ok: false,
     error: createAppErrorDescriptor('control_surface.unauthorized'),
   }

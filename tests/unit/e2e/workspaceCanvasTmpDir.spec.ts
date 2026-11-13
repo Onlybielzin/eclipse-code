@@ -45,8 +45,8 @@ describe('resolveE2ETmpDir', () => {
     osMock.tmpdir.mockReturnValue('/system-tmp')
   })
 
-  it('prefers OPENCOVE_E2E_TMPDIR when explicitly configured', () => {
-    vi.stubEnv('OPENCOVE_E2E_TMPDIR', '/explicit-tmp')
+  it('prefers ECLIPSE_CODE_E2E_TMPDIR when explicitly configured', () => {
+    vi.stubEnv('ECLIPSE_CODE_E2E_TMPDIR', '/explicit-tmp')
 
     expect(resolveE2ETmpDir()).toBe('/explicit-tmp')
     expect(fsMock.statfsSync).not.toHaveBeenCalled()

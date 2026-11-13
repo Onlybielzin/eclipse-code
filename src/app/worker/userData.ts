@@ -22,14 +22,14 @@ function resolveAppDataDir(env: NodeJS.ProcessEnv, platform: NodeJS.Platform): s
 }
 
 export function resolveWorkerUserDataDir(): string {
-  const explicit = normalizeEnvPath(process.env.OPENCOVE_USER_DATA_DIR)
+  const explicit = normalizeEnvPath(process.env.ECLIPSE_CODE_USER_DATA_DIR)
   if (explicit) {
     return path.resolve(explicit)
   }
 
   const appDataDir = resolveAppDataDir(process.env, process.platform)
-  const devCandidate = path.join(appDataDir, 'opencove-dev')
-  const stableCandidate = path.join(appDataDir, 'opencove')
+  const devCandidate = path.join(appDataDir, 'eclipse-code-dev')
+  const stableCandidate = path.join(appDataDir, 'eclipse-code')
 
   if (fs.existsSync(devCandidate)) {
     return devCandidate

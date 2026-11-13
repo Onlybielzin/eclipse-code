@@ -29,7 +29,7 @@ async function readInvocations(log: string) {
 }
 
 test('typed Codex adopts the terminal, persists file identity, resumes exactly once, and exits to the shell', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'OpenCove file sessions '))
+  const root = await mkdtemp(join(tmpdir(), 'Eclipse Code file sessions '))
   const userDataDir = await createTestUserDataDir()
   const bin = join(root, 'bin')
   await mkdir(bin)
@@ -41,12 +41,12 @@ test('typed Codex adopts the terminal, persists file identity, resumes exactly o
     `@echo off\r\n"${process.execPath}" "${fixture}" %*\r\nexit /b %ERRORLEVEL%\r\n`,
   )
   const env = {
-    OPENCOVE_TEST_WORKSPACE: root,
+    ECLIPSE_CODE_TEST_WORKSPACE: root,
     PATH: `${bin}${delimiter}${process.env.PATH ?? ''}`,
     CODEX_HOME: join(root, 'codex-home'),
-    OPENCOVE_SESSION_FILE_FIXTURE_LOG: log,
-    OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-    OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+    ECLIPSE_CODE_SESSION_FILE_FIXTURE_LOG: log,
+    ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+    ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
   }
   const nodeId = 'file-terminal'
   let resumeSessionId: string | null = null

@@ -119,7 +119,7 @@ describe('Desktop ownership and repair', () => {
   it('refuses a live PID-only legacy owner before spawn even without a connection', async () => {
     mocks.legacy.mockResolvedValue(true)
     const dir = await createTempUserDataDir()
-    const path = resolve(dir, 'opencove-worker.lock')
+    const path = resolve(dir, 'eclipse-code-worker.lock')
     const content = JSON.stringify({ pid: process.pid })
     await writeFile(path, content)
     await expect(startLocalWorker()).rejects.toMatchObject({
@@ -139,14 +139,14 @@ describe('Desktop ownership and repair', () => {
       'utf8',
     )
     await writeFile(
-      resolve(dir, 'opencove-worker.lock'),
+      resolve(dir, 'eclipse-code-worker.lock'),
       `${JSON.stringify({ pid: 999_999, createdAt: new Date(0).toISOString() })}\n`,
       'utf8',
     )
 
     await repairStaleLocalWorkerFiles(dir, 999_999)
 
-    expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toContain('999999')
+    expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toContain('999999')
     await expect(
       readFile(resolve(dir, WORKER_CONTROL_SURFACE_CONNECTION_FILE), 'utf8'),
     ).rejects.toBeDefined()
@@ -157,7 +157,7 @@ describe('Desktop ownership and repair', () => {
     async instanceId => {
       const dir = await createTempUserDataDir()
       await writeFile(
-        resolve(dir, 'opencove-worker.lock'),
+        resolve(dir, 'eclipse-code-worker.lock'),
         JSON.stringify({ pid: process.pid, instanceId }),
       )
       const connectionPath = resolve(dir, WORKER_CONTROL_SURFACE_CONNECTION_FILE)

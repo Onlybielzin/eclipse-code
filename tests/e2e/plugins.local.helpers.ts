@@ -8,7 +8,7 @@ export const pluginId = 'hello-clock'
 export const actionBarId = `workspace-canvas-action-bar-new-plugin:${pluginId}`
 
 export async function copyPluginFixture(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-installed-plugin-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-installed-plugin-'))
   await cp(resolve(__dirname, '../../docs/plugins/examples/hello-clock'), directory, {
     recursive: true,
   })
@@ -23,7 +23,7 @@ export async function pluginCommand(
   return await page.evaluate(
     async input => {
       try {
-        return await window.opencoveApi.controlSurface.invoke({ kind: 'command', ...input })
+        return await window.eclipseCodeApi.controlSurface.invoke({ kind: 'command', ...input })
       } catch (cause) {
         const descriptor =
           cause && typeof cause === 'object'
@@ -167,7 +167,7 @@ export async function invokeClock(node: Locator): Promise<string> {
 
 export async function savedPluginNodes(page: Page): Promise<unknown[]> {
   return await page.evaluate(async workspaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{ id: string; nodes: Array<{ kind: string }> }>
     }

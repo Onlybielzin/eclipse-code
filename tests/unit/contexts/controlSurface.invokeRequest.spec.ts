@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { normalizeInvokeRequest } from '../../../src/app/main/controlSurface/validate'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 
 describe('control surface invoke request validation', () => {
   it('normalizes a valid request', () => {
@@ -19,7 +19,7 @@ describe('control surface invoke request validation', () => {
 
   it('rejects invalid kind', () => {
     expect(() => normalizeInvokeRequest({ kind: 'nope', id: 'x', payload: null })).toThrow(
-      OpenCoveAppError,
+      EclipseCodeAppError,
     )
   })
 })

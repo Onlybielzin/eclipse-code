@@ -14,7 +14,7 @@ export async function launchResidentCodex(testInfo: TestInfo, mode: 'suggest' | 
     body: Buffer.from(version),
     contentType: 'text/plain',
   })
-  const root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-real-codex-')))
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-real-codex-')))
   const workspace = join(root, 'workspace')
   const codexHome = join(root, 'codex-home')
   const userDataDir = join(root, 'user-data')
@@ -26,9 +26,9 @@ export async function launchResidentCodex(testInfo: TestInfo, mode: 'suggest' | 
     userDataDir,
     cleanupUserDataDir: false,
     env: {
-      OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-      OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
-      OPENCOVE_TEST_MOCK_API_KEY: 'opencove-local-diagnostic-not-a-real-key',
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+      ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_MOCK_API_KEY: 'eclipse-code-local-diagnostic-not-a-real-key',
       CODEX_HOME: codexHome,
     },
   })
@@ -74,7 +74,7 @@ export async function launchResidentCodex(testInfo: TestInfo, mode: 'suggest' | 
     const snapshot = () =>
       page.evaluate(
         id =>
-          window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+          window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
             kind: 'query',
             id: 'agent.get',
             payload: { sessionId: id },

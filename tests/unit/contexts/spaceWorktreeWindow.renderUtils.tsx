@@ -24,7 +24,7 @@ export function renderArchiveWindow(overrides: Partial<SpaceWorktreeWindowProps>
       spaces={overrides.spaces ?? createSpaces()}
       nodes={overrides.nodes ?? createNodes()}
       workspacePath={overrides.workspacePath ?? '/repo'}
-      worktreesRoot={overrides.worktreesRoot ?? '.opencove/worktrees'}
+      worktreesRoot={overrides.worktreesRoot ?? '.eclipse-code/worktrees'}
       agentSettings={overrides.agentSettings ?? DEFAULT_AGENT_SETTINGS}
       onClose={onClose}
       onOperationPhaseChange={onOperationPhaseChange}

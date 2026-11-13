@@ -82,7 +82,7 @@ function setup() {
     }
     throw new Error(`Unexpected command: ${id}`)
   })
-  vi.stubGlobal('opencoveApi', {
+  vi.stubGlobal('eclipseCodeApi', {
     pty: { attach, write, spawn, kill: vi.fn() },
     controlSurface: { invoke },
   })

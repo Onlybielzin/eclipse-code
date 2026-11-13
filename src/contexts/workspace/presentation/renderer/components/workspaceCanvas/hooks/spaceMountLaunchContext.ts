@@ -11,8 +11,8 @@ function resolveControlSurfaceInvoke():
     }) => Promise<TResult>)
   | null {
   const controlSurfaceInvoke = (
-    window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-  ).opencoveApi?.controlSurface?.invoke
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   return typeof controlSurfaceInvoke === 'function'
     ? (controlSurfaceInvoke as <TResult>(request: {

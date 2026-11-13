@@ -92,7 +92,7 @@ async function disposeAndCleanup(options: {
 
 describe('Control Surface HTTP server (worker web surfaces)', () => {
   it('serves the full web UI at /, exposes the debug shell at /debug/shell, and enforces bearer token for POST /invoke', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -144,19 +144,19 @@ describe('Control Surface HTTP server (worker web surfaces)', () => {
       const rootRes = await fetch(`${baseUrl}/`)
       expect(rootRes.status).toBe(200)
       const rootHtml = await rootRes.text()
-      expect(rootHtml).toContain('<title>OpenCove Web</title>')
+      expect(rootHtml).toContain('<title>Eclipse Code Web</title>')
       expect(rootHtml).toContain('<div id="root"></div>')
 
       const canvasRouteRes = await fetch(`${baseUrl}/canvas`)
       expect(canvasRouteRes.status).toBe(200)
       const canvasRouteHtml = await canvasRouteRes.text()
-      expect(canvasRouteHtml).toContain('<title>OpenCove Web</title>')
+      expect(canvasRouteHtml).toContain('<title>Eclipse Code Web</title>')
       expect(canvasRouteHtml).toContain('<div id="root"></div>')
 
       const debugShellRes = await fetch(`${baseUrl}/debug/shell`)
       expect(debugShellRes.status).toBe(200)
       const debugShellHtml = await debugShellRes.text()
-      expect(debugShellHtml).toContain('<title>OpenCove Worker Shell</title>')
+      expect(debugShellHtml).toContain('<title>Eclipse Code Worker Shell</title>')
       expect(debugShellHtml).toContain('POST <code>/invoke</code>')
       expect(debugShellHtml).toContain("fetch('/invoke'")
 
@@ -198,7 +198,7 @@ describe('Control Surface HTTP server (worker web surfaces)', () => {
   })
 
   it('returns 404 for GET / when web shell is disabled', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.disabled.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -252,7 +252,7 @@ describe('Control Surface HTTP server (worker web surfaces)', () => {
   })
 
   it('returns 400 for invalid JSON payloads', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.invalid-json.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 

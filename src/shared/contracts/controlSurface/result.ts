@@ -1,13 +1,13 @@
 import type { AppErrorDescriptor } from '../dto'
 
 export interface ControlSurfaceSuccessResult<T> {
-  __opencoveControlEnvelope: true
+  __eclipseCodeControlEnvelope: true
   ok: true
   value: T
 }
 
 export interface ControlSurfaceFailureResult {
-  __opencoveControlEnvelope: true
+  __eclipseCodeControlEnvelope: true
   ok: false
   error: AppErrorDescriptor
 }

@@ -9,7 +9,7 @@ import { createAppError } from '../../../src/shared/errors/appError'
 import { fixture } from '../../support/convergence/fixture'
 import { writePersistedState } from '../../../src/contexts/workspace/presentation/renderer/utils/persistence/write'
 const original = useAppStore.getState(),
-  originalApi = window.opencoveApi
+  originalApi = window.eclipseCodeApi
 function Harness() {
   const state = useAppStore()
   const { isPersistReady } = useHydrateAppState(state)
@@ -22,7 +22,7 @@ function Harness() {
 afterEach(async () => {
   await applyUiLanguage('en')
   useAppStore.setState(original, true)
-  window.opencoveApi = originalApi
+  window.eclipseCodeApi = originalApi
 })
 it.each(['en', 'zh-CN'] as const)(
   'shows startup refusal and recovers after upgrade in %s',
@@ -31,7 +31,7 @@ it.each(['en', 'zh-CN'] as const)(
     let upgraded = false
     const canonical = fixture(false)
     const write = vi.fn()
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       persistence: {
         readAppState: async () => {
           if (!upgraded) {
@@ -43,7 +43,7 @@ it.each(['en', 'zh-CN'] as const)(
         },
         writeAppState: write,
       },
-    } as unknown as typeof window.opencoveApi
+    } as unknown as typeof window.eclipseCodeApi
     const view = render(<Harness />)
     try {
       await waitFor(() =>

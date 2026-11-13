@@ -114,7 +114,7 @@ async function resolveRuntimeSource(options) {
 function resolveRelativePaths(platform) {
   return {
     nodeRelativePath: platform === 'win32' ? 'runtime/node/node.exe' : 'runtime/node/bin/node',
-    cliScriptRelativePath: 'app/out/cli/opencove.mjs',
+    cliScriptRelativePath: 'app/out/cli/eclipse-code.mjs',
   }
 }
 
@@ -204,7 +204,7 @@ async function rebuildAndVerifyNativeModules({
   // On Linux the natives must be compiled against an old glibc, otherwise they only load on
   // distributions at least as new as the build runner. Nightly run 32229590172 failed exactly
   // this way: built on ubuntu-24.04, unusable in debian:bookworm-slim.
-  const containerImage = process.env.OPENCOVE_NATIVE_BUILD_IMAGE?.trim() || undefined
+  const containerImage = process.env.ECLIPSE_CODE_NATIVE_BUILD_IMAGE?.trim() || undefined
   const hostUser =
     containerImage && process.platform === 'linux'
       ? `${process.getuid?.()}:${process.getgid?.()}`
@@ -308,7 +308,7 @@ function runZip(outputPath, sourceDirName) {
 
 const platform = toReleasePlatform(process.platform)
 const arch = toReleaseArch(process.arch)
-const bundleName = `opencove-server-${platform}-${arch}`
+const bundleName = `eclipse-code-server-${platform}-${arch}`
 const bundleRoot = resolve(distDir, bundleName)
 const runtimeRoot = resolve(bundleRoot, 'runtime')
 const appRoot = resolve(bundleRoot, 'app')
@@ -318,7 +318,7 @@ const runtimeSource = await resolveRuntimeSource({
   platform: process.platform,
 })
 const relativePaths = resolveRelativePaths(process.platform)
-const nodeExecutable = resolve(process.env.OPENCOVE_NODE_EXECUTABLE ?? process.execPath)
+const nodeExecutable = resolve(process.env.ECLIPSE_CODE_NODE_EXECUTABLE ?? process.execPath)
 const nodeRuntime = inspectNodeRuntime(nodeExecutable)
 
 await rm(bundleRoot, { recursive: true, force: true })
@@ -333,12 +333,12 @@ await rebuildAndVerifyNativeModules({
   runtime: nodeRuntime,
 })
 await writeFile(
-  resolve(bundleRoot, 'opencove-runtime.env'),
+  resolve(bundleRoot, 'eclipse-code-runtime.env'),
   [
-    `OPENCOVE_NODE_RELATIVE_PATH=${relativePaths.nodeRelativePath}`,
-    `OPENCOVE_CLI_SCRIPT_RELATIVE_PATH=${relativePaths.cliScriptRelativePath}`,
-    `OPENCOVE_NODE_VERSION=${nodeRuntime.node}`,
-    `OPENCOVE_NODE_MODULE_VERSION=${nodeRuntime.modules}`,
+    `ECLIPSE_CODE_NODE_RELATIVE_PATH=${relativePaths.nodeRelativePath}`,
+    `ECLIPSE_CODE_CLI_SCRIPT_RELATIVE_PATH=${relativePaths.cliScriptRelativePath}`,
+    `ECLIPSE_CODE_NODE_VERSION=${nodeRuntime.node}`,
+    `ECLIPSE_CODE_NODE_MODULE_VERSION=${nodeRuntime.modules}`,
     '',
   ].join('\n'),
   'utf8',
@@ -346,7 +346,7 @@ await writeFile(
 await writeFile(
   resolve(bundleRoot, 'README.txt'),
   [
-    'OpenCove standalone server runtime bundle',
+    'Eclipse Code standalone server runtime bundle',
     '',
     `Bundled Node.js ${nodeRuntime.node} (module ABI ${nodeRuntime.modules}).`,
     'Use the release installer script or point a launcher at runtime/node.',

@@ -175,7 +175,7 @@ export class AgentWaitPolicy {
       exited
         ? `Agent exited: ${nodes}.`
         : `Waiting observed for ${nodes}; the agent may need the user — inspect before acting.`,
-      "Ask the user to resolve it in OpenCove (Desktop or this Worker's Web UI). Inspect with opencove agent read --node <id> --screen using the same connection options, and check the session/turn IDs match. Then run the same wait again; for exact turns reuse the same --turn. Event waits (--until turn-end) cannot resume a completion already observed: prefer --turn.",
+      "Ask the user to resolve it in Eclipse Code (Desktop or this Worker's Web UI). Inspect with eclipse-code agent read --node <id> --screen using the same connection options, and check the session/turn IDs match. Then run the same wait again; for exact turns reuse the same --turn. Event waits (--until turn-end) cannot resume a completion already observed: prefer --turn.",
       {
         mode: this.options.any ? 'any' : 'all',
         ...(this.options.until ? { until: this.options.until } : {}),

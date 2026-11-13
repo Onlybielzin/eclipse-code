@@ -147,6 +147,14 @@ export function createSettingsPanelUpdaters({
     updateUpdateChannel,
     updateTaskTagOptions: (taskTagOptions: string[]): void =>
       updateSetting('taskTagOptions', taskTagOptions),
+    updateProjectRoles: (
+      workspaceId: string,
+      roles: AgentSettings['projectRolesByWorkspaceId'][string],
+    ): void =>
+      updateSetting('projectRolesByWorkspaceId', {
+        ...settings.projectRolesByWorkspaceId,
+        [workspaceId]: roles,
+      }),
     updateQuickCommands: (quickCommands: AgentSettings['quickCommands']): void =>
       updateSetting('quickCommands', quickCommands),
     updateQuickPhrases: (quickPhrases: AgentSettings['quickPhrases']): void =>

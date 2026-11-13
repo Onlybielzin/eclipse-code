@@ -66,7 +66,7 @@ export class AgentWaitProjection {
         'agent.not_running',
         1,
         `No agent run state for node ${nodeId}.`,
-        'Run opencove node get --node <selector> and start or resume its agent session.',
+        'Run eclipse-code node get --node <selector> and start or resume its agent session.',
       )
     }
   }

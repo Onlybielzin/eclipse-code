@@ -18,7 +18,7 @@ test('Control Surface project and space creation updates an open canvas without 
     })
     const project = await window.evaluate(
       async path =>
-        window.opencoveApi.controlSurface.invoke<{ projectId: string; spaceId: string }>({
+        window.eclipseCodeApi.controlSurface.invoke<{ projectId: string; spaceId: string }>({
           kind: 'command',
           id: 'project.add',
           payload: { path, name: 'Headless Project' },
@@ -33,7 +33,7 @@ test('Control Surface project and space creation updates an open canvas without 
     ).toBeVisible()
     const space = await window.evaluate(
       async projectId =>
-        window.opencoveApi.controlSurface.invoke<{ spaceId: string }>({
+        window.eclipseCodeApi.controlSurface.invoke<{ spaceId: string }>({
           kind: 'command',
           id: 'space.create',
           payload: { projectId, name: 'Headless Space' },

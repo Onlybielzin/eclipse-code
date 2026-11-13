@@ -14,7 +14,7 @@ import { WorkspaceCanvas } from '../../../src/contexts/workspace/presentation/re
 const SWITCH_SUMMARY: AgentSessionSummary = {
   sessionId: 'resume-target',
   provider: 'codex',
-  cwd: '/tmp/repo/.opencove/worktrees/target',
+  cwd: '/tmp/repo/.eclipse-code/worktrees/target',
   title: 'Target session',
   startedAt: '2026-04-29T00:20:00.000Z',
   updatedAt: '2026-04-29T00:30:00.000Z',
@@ -210,7 +210,7 @@ describe('WorkspaceCanvas agent session switch', () => {
     const launch = vi.fn(async () => createLaunchResult('session-switched', 'resume-target'))
     const requestPersistFlush = vi.fn()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -272,7 +272,7 @@ describe('WorkspaceCanvas agent session switch', () => {
       expect(kill).toHaveBeenCalledWith({ sessionId: 'session-current-pty' })
       expect(launch).toHaveBeenCalledWith(
         expect.objectContaining({
-          cwd: '/tmp/repo/.opencove/worktrees/target',
+          cwd: '/tmp/repo/.eclipse-code/worktrees/target',
           mode: 'resume',
           resumeSessionId: 'resume-target',
         }),
@@ -287,8 +287,12 @@ describe('WorkspaceCanvas agent session switch', () => {
       expect(agentNode?.data.startedAt).toBe('2026-04-29T00:20:00.000Z')
       expect(agentNode?.data.agent?.resumeSessionId).toBe('resume-target')
       expect(agentNode?.data.agent?.resumeSessionIdVerified).toBe(true)
-      expect(agentNode?.data.agent?.executionDirectory).toBe('/tmp/repo/.opencove/worktrees/target')
-      expect(agentNode?.data.agent?.expectedDirectory).toBe('/tmp/repo/.opencove/worktrees/target')
+      expect(agentNode?.data.agent?.executionDirectory).toBe(
+        '/tmp/repo/.eclipse-code/worktrees/target',
+      )
+      expect(agentNode?.data.agent?.expectedDirectory).toBe(
+        '/tmp/repo/.eclipse-code/worktrees/target',
+      )
       expect(taskNode?.data.task?.linkedAgentNodeId).toBe('agent-1')
       expect(requestPersistFlush).toHaveBeenCalledTimes(1)
       expect(taskNode?.data.task?.agentSessions[0]).toEqual(
@@ -308,7 +312,7 @@ describe('WorkspaceCanvas agent session switch', () => {
       throw new Error('switch failed')
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

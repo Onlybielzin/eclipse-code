@@ -24,7 +24,7 @@
 当前结果文件：
 
 - 当前汇总报告：`harness/architecture/results/summary.json`
-- `window.opencoveApi` 边界基线：`harness/architecture/results/window-opencove-api.jsonl`
+- `window.eclipseCodeApi` 边界基线：`harness/architecture/results/window-eclipse-code-api.jsonl`
 - 层级依赖基线：`harness/architecture/results/layer-dependency.jsonl`
 
 ## 当前基线
@@ -34,7 +34,7 @@
 当前机器可读基线位于：
 
 - `harness/architecture/results/summary.json`
-- `harness/architecture/results/window-opencove-api.jsonl`
+- `harness/architecture/results/window-eclipse-code-api.jsonl`
 - `harness/architecture/results/layer-dependency.jsonl`
 
 详细发现项按 rule 拆分保存，避免单个 JSONL 文件接近仓库行数上限。当前数量以 `summary.json` 为准。本文档有意不重复这些数字，避免重新生成结果后出现第二个事实来源。
@@ -50,8 +50,8 @@
 
 - `architecture.fileRuntimeCycle`：文件级 runtime import cycle。
 - `architecture.layerDependency`：import 跨越了配置中的层级边界。
-- `architecture.windowOpenCoveApiBoundary`：renderer 在 allowlist 边界 adapter 之外直接访问
-  `window.opencoveApi`。
+- `architecture.windowEclipseCodeApiBoundary`：renderer 在 allowlist 边界 adapter 之外直接访问
+  `window.eclipseCodeApi`。
 - `architecture.domainNoOuterRuntime`：`domain` 引入了外层 runtime 或平台细节。
 - `architecture.applicationNoOuterRuntime`：`application` 引入了外层 runtime 细节。
 - `architecture.rendererNoElectronRuntime`：renderer 侧代码直接引入 Electron 或 Node runtime 细节。

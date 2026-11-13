@@ -23,7 +23,7 @@ describe('PluginNodePreview declarations', () => {
     'never starts a runtime as a fallback for an unavailable preview',
     plugin => {
       const invoke = vi.fn()
-      vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+      vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
       vi.spyOn(registry, 'usePluginManifest').mockReturnValue(plugin)
       render(<PluginNodePreview pluginId="unknown" />)
       expect(screen.queryByTestId('declared-preview')).toBeNull()

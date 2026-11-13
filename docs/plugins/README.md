@@ -1,21 +1,21 @@
-# OpenCove plugins
+# Eclipse Code plugins
 
-This is the guide shipped with the OpenCove build that returned it. Start with
-`opencove plugin guide`; it prints this README's absolute path and the documentation
+This is the guide shipped with the Eclipse Code build that returned it. Start with
+`eclipse-code plugin guide`; it prints this README's absolute path and the documentation
 directory. The command works offline and does not start an app or Worker.
 
 **Plugins are independently installed packages.** A plugin can
 supply an HTML view, commands, skills, themes, Sidebar trees, configurable preferences, an
-optional Node backend, README, icon and interactive preview. Its window uses OpenCove's normal header, drag, resize,
+optional Node backend, README, icon and interactive preview. Its window uses Eclipse Code's normal header, drag, resize,
 collapse and close behavior. Commands, skills and themes can be supplied without a window.
-You do not edit or rebuild OpenCove to install or reload a plugin.
+You do not edit or rebuild Eclipse Code to install or reload a plugin.
 
 For an introduction and walkthroughs, open **Settings → Plugins → Documentation**.
 The same version-matched articles are in [the user handbook](./handbook/START.en.md).
 They explain what plugins do, installation, and how to ask an Agent to build one.
 There is no dedicated creator role or automatic plugin-authoring workflow.
 
-Before designing a view, read [OpenCove plugin design system](./VISUAL_DESIGN.md): host
+Before designing a view, read [Eclipse Code plugin design system](./VISUAL_DESIGN.md): host
 boundaries, layout, typography, theme colors, controls and a copyable CSS baseline.
 It gives defaults without making every plugin use the same content layout.
 
@@ -33,11 +33,11 @@ local/remote file access and cancellable work from views or backend commands.
 installation, personal edits, updates, retained candidates, rollback and discovery.
 [Scope and roadmap](./ROADMAP.md) distinguishes supported features from future work.
 The guide describes supported host APIs; validation plugins are developed outside
-the OpenCove source tree and are not bundled into the application.
+the Eclipse Code source tree and are not bundled into the application.
 
 ## Commands
 
-Except for `guide`, these commands connect to the running OpenCove control surface
+Except for `guide`, these commands connect to the running Eclipse Code control surface
 and return JSON. The existing `--endpoint`, `--token`, `--timeout` and `--pretty`
 options work with them.
 
@@ -48,18 +48,18 @@ without modifying an existing Desktop session.
 
 | Command | Effect |
 | --- | --- |
-| `opencove plugin guide` | Returns readable, version-matched documentation paths |
-| `opencove plugin list` | Lists installed plugins |
-| `opencove plugin install <directory>` | Validates and installs a local directory |
-| `opencove plugin details <id>` | Returns an installed local plugin's manifest, README, source directory, assets and recent backend logs |
-| `opencove plugin run <id> <command> [--params <json>]` | Runs a declared command; window commands support `--node`, `--view` and `--project` selection |
-| `opencove plugin open <id> [--project <id>] [--space <id>] [--node <id>]` | Opens or reuses a plugin window and requests focus; creating any window requires `--project` |
-| `opencove plugin windows <id> [--project <id>]` | Lists saved windows, saved/effective titles, and each view's title and command readiness |
-| `opencove plugin skill <id> <skill>` | Reads a declared skill and returns its Worker-local path and installation instructions |
-| `opencove plugin reload <id>` | Validates and activates a new snapshot of the installed source directory |
-| `opencove plugin disable <id>` | Stops a local plugin's content and backend, preserving its nodes and data |
-| `opencove plugin enable <id>` | Makes the installed local plugin available again |
-| `opencove plugin uninstall <id>` | Removes the local installation; does not delete source or private data |
+| `eclipse-code plugin guide` | Returns readable, version-matched documentation paths |
+| `eclipse-code plugin list` | Lists installed plugins |
+| `eclipse-code plugin install <directory>` | Validates and installs a local directory |
+| `eclipse-code plugin details <id>` | Returns an installed local plugin's manifest, README, source directory, assets and recent backend logs |
+| `eclipse-code plugin run <id> <command> [--params <json>]` | Runs a declared command; window commands support `--node`, `--view` and `--project` selection |
+| `eclipse-code plugin open <id> [--project <id>] [--space <id>] [--node <id>]` | Opens or reuses a plugin window and requests focus; creating any window requires `--project` |
+| `eclipse-code plugin windows <id> [--project <id>]` | Lists saved windows, saved/effective titles, and each view's title and command readiness |
+| `eclipse-code plugin skill <id> <skill>` | Reads a declared skill and returns its Worker-local path and installation instructions |
+| `eclipse-code plugin reload <id>` | Validates and activates a new snapshot of the installed source directory |
+| `eclipse-code plugin disable <id>` | Stops a local plugin's content and backend, preserving its nodes and data |
+| `eclipse-code plugin enable <id>` | Makes the installed local plugin available again |
+| `eclipse-code plugin uninstall <id>` | Removes the local installation; does not delete source or private data |
 
 
 Local install and run default to a 60-second request timeout for validation,
@@ -129,11 +129,11 @@ is not a separate installation.
 ## Finding the guide
 
 A source or unpacked build returns the original docs directory. An ASAR build
-exports a verified copy under `~/.opencove/cache/plugin-guides/<content-digest>` for
+exports a verified copy under `~/.eclipse-code/cache/plugin-guides/<content-digest>` for
 ordinary shell and Agent tools. The directory includes the example source files.
 Copy an example elsewhere; do not edit this reference cache.
 
-If `opencove plugin guide` cannot start, repair the launcher from Settings →
+If `eclipse-code plugin guide` cannot start, repair the launcher from Settings →
 Connections → CLI → Install CLI. If a running app rejects the documented commands,
 check that the CLI and app are from the same build. Do not invent alternate
 commands, edit the application's database, or hardcode a plugin into host source.

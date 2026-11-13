@@ -217,7 +217,7 @@ function spawnPtySession(request: PtyHostSpawnRequest): void {
     cwd: request.cwd,
     env: {
       ...request.env,
-      ...(request.env?.OPENCOVE_ENV === '1' ? { OPENCOVE_SESSION_ID: sessionId } : {}),
+      ...(request.env?.ECLIPSE_CODE_ENV === '1' ? { ECLIPSE_CODE_SESSION_ID: sessionId } : {}),
     },
     cols: request.cols,
     rows: request.rows,

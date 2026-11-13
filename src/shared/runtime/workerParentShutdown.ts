@@ -1,5 +1,5 @@
 /** Private IPC message sent only over the channel created by the spawning parent. */
-export const WORKER_PARENT_SHUTDOWN = 'opencove.worker.shutdown'
+export const WORKER_PARENT_SHUTDOWN = 'eclipse-code.worker.shutdown'
 
 /** Capture requests during startup, then hand them to the existing shutdown owner. */
 export function createWorkerParentShutdown(parent: NodeJS.Process = process) {

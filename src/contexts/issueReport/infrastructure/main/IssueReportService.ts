@@ -48,7 +48,7 @@ export function createIssueReportService(deps: {
   const prepare = async (input: PrepareIssueReportInput): Promise<PrepareIssueReportResult> => {
     const createdAt = new Date().toISOString()
     const reportId = createdAt.replace(/[:.]/g, '-')
-    const fileName = `opencove-issue-report-${reportId}.md`
+    const fileName = `eclipse-code-issue-report-${reportId}.md`
     const reportPath = resolve(issueReportsDir, fileName)
     const includeLocalPaths = input.includeLocalPaths === true
     const title = input.title?.trim() || defaultIssueReportTitle(input.kind)
@@ -103,7 +103,7 @@ export function createIssueReportService(deps: {
     if (
       parsed.protocol !== 'https:' ||
       parsed.hostname !== 'github.com' ||
-      parsed.pathname !== '/DeadWaveWave/opencove/issues/new'
+      parsed.pathname !== '/Onlybielzin/eclipse-code/issues/new'
     ) {
       throw createAppError('common.invalid_input', { debugMessage: 'Invalid GitHub issue URL.' })
     }

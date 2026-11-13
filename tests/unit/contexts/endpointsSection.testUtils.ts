@@ -217,7 +217,7 @@ export function installEndpointsApi(
     }
   })
 
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       controlSurface: {

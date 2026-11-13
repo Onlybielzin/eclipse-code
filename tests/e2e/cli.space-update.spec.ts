@@ -19,7 +19,7 @@ const frameArgument = (value: object) => {
 }
 
 test('a granted terminal renames and adjusts a Space boundary while its members stay in place', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-space-update-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-space-update-'))
   const workspace = join(root, 'project')
   let app: ElectronApplication | undefined
   try {
@@ -28,9 +28,9 @@ test('a granted terminal renames and adjusts a Space boundary while its members 
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -98,19 +98,19 @@ test('a granted terminal renames and adjusts a Space boundary while its members 
         await terminalCommand(
           page,
           binding,
-          `opencove space get --space ${id} --fields id,rect`,
+          `eclipse-code space get --space ${id} --fields id,rect`,
           label,
         ),
       ).space as { id: string; rect: Rect }
     expect(
-      jsonOutput(await terminalCommand(page, binding, 'opencove whoami', 'IDENTITY')),
+      jsonOutput(await terminalCommand(page, binding, 'eclipse-code whoami', 'IDENTITY')),
     ).toMatchObject({ caller: 'session-grant', nodeId: binding.nodeId, projectId })
 
     const renamed = jsonOutput(
       await terminalCommand(
         page,
         binding,
-        `opencove space update --space ${targetId} --name "Review"`,
+        `eclipse-code space update --space ${targetId} --name "Review"`,
         'RENAME',
       ),
     )
@@ -130,7 +130,7 @@ test('a granted terminal renames and adjusts a Space boundary while its members 
       await terminalCommand(
         page,
         binding,
-        `opencove space update --space "Review" --frame ${frameArgument({ width: 1, height: 1 })}`,
+        `eclipse-code space update --space "Review" --frame ${frameArgument({ width: 1, height: 1 })}`,
         'RESIZE',
       )
     ).replaceAll('\n', '')
@@ -153,7 +153,7 @@ test('a granted terminal renames and adjusts a Space boundary while its members 
       await terminalCommand(
         page,
         binding,
-        `opencove space update --space ${targetId} --frame ${frameArgument({ width: 2200, height: 1400 })}`,
+        `eclipse-code space update --space ${targetId} --frame ${frameArgument({ width: 2200, height: 1400 })}`,
         'GROW_BOUNDARY',
       ),
     )
@@ -167,7 +167,12 @@ test('a granted terminal renames and adjusts a Space boundary while its members 
     expect(grownGet.rect).toEqual(grown.rect)
     expect(grownGet.rect).toEqual(grown.appliedFrame)
     const listed = jsonOutput(
-      await terminalCommand(page, binding, 'opencove space list --fields id,rect', 'LIST_GROWN'),
+      await terminalCommand(
+        page,
+        binding,
+        'eclipse-code space list --fields id,rect',
+        'LIST_GROWN',
+      ),
     ).spaces as Array<{ id: string; rect: Rect }>
     expect(listed.find(space => space.id === targetId)).toEqual(grownGet)
     const parentGet = await readSpace(parentId, 'GET_PARENT')

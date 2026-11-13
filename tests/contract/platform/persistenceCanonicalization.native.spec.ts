@@ -25,7 +25,7 @@ describeWithElectronNativeModules('persistence canonical storage representation'
           change(candidate)
           const api = connectSqliteAdapter(store, adapter)
           Object.assign(window, {
-            opencoveApi: {
+            eclipseCodeApi: {
               persistence: {
                 readAppState: api.read,
                 writeAppState: ({ state }: { state: unknown }) => api.write(state),

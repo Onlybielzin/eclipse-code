@@ -22,7 +22,7 @@ export const agentConfigurationEnv = {
   ANTHROPIC_BASE_URL: 'https://example.test/anthropic',
   ANTHROPIC_API_KEY: 'test-user-api-key',
   CLAUDE_CONFIG_DIR: '/test/claude-config',
-  OPENCOVE_CLAUDE_HOOK_TOKEN: 'test-opencove-hook-token',
+  ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'test-eclipse-code-hook-token',
   EMPTY_VALUE: '',
   UNDEFINED_VALUE: undefined,
 }

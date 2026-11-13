@@ -184,13 +184,13 @@ it('explains an exact active turn with a concrete wait command and identifiers',
   expect(JSON.parse(f.stderr()).error).toMatchObject({
     code: 'agent.final_message_unavailable',
     message: expect.stringContaining('still running'),
-    hint: expect.stringContaining(`opencove agent wait --node ${node.id} --turn turn-live`),
+    hint: expect.stringContaining(`eclipse-code agent wait --node ${node.id} --turn turn-live`),
     details: { reason: 'turn_not_ended', nodeId: node.id, turnId: 'turn-live' },
   })
 })
 
 it.each([
-  ['turn_not_found', 'retained OpenCove history', 'agent get'],
+  ['turn_not_found', 'retained Eclipse Code history', 'agent get'],
   ['provider_sent_no_message', 'provider sent no final message', '--screen'],
   ['no_ended_turn', 'no retained ended turn', 'session final'],
   ['remote_history_unavailable', 'remote turn history', 'Worker that runs them'],
@@ -210,7 +210,7 @@ it.each([
   expect(error.hint).toContain(node.id)
   expect(error.hint).not.toContain('<selector>')
   if (['no_ended_turn', 'provider_sent_no_message'].includes(reason)) {
-    expect(error.hint).toContain(`opencove session final --session ${hook.sessionId}`)
+    expect(error.hint).toContain(`eclipse-code session final --session ${hook.sessionId}`)
   }
 })
 it('shell-quotes diagnostic selectors and turn IDs', async () => {

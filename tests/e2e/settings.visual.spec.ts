@@ -200,7 +200,7 @@ async function resizeMainWindow(
   return await electronApp.evaluate(({ BrowserWindow }, size) => {
     const mainWindow = BrowserWindow.getAllWindows()[0]
     if (!mainWindow) {
-      throw new Error('Expected the OpenCove main BrowserWindow')
+      throw new Error('Expected the Eclipse Code main BrowserWindow')
     }
 
     const currentBounds = mainWindow.getBounds()

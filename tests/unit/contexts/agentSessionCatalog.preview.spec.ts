@@ -91,7 +91,7 @@ describe('AgentSessionCatalog preview helpers', () => {
   })
 
   it('skips Codex bootstrap prompts and keeps scanning for the first real task prompt', async () => {
-    const directory = await mkdtemp(path.join(tmpdir(), 'opencove-agent-preview-'))
+    const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-preview-'))
     tempDirectories.push(directory)
 
     const filePath = path.join(directory, 'rollout.jsonl')
@@ -126,7 +126,7 @@ describe('AgentSessionCatalog preview helpers', () => {
   })
 
   it('stops scanning after the bounded header window', async () => {
-    const directory = await mkdtemp(path.join(tmpdir(), 'opencove-agent-preview-'))
+    const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-preview-'))
     tempDirectories.push(directory)
 
     const filePath = path.join(directory, 'rollout.jsonl')
@@ -145,7 +145,7 @@ describe('AgentSessionCatalog preview helpers', () => {
   })
 
   it('reaches deep ai-title records when given a larger scan budget', async () => {
-    const directory = await mkdtemp(path.join(tmpdir(), 'opencove-agent-preview-'))
+    const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-preview-'))
     tempDirectories.push(directory)
 
     const filePath = path.join(directory, 'session.jsonl')

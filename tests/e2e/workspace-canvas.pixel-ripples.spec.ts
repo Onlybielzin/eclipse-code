@@ -46,10 +46,10 @@ async function printOutput(window: Page) {
 }
 
 const rippleCount = (window: Page) =>
-  window.evaluate(() => window.__opencovePixelWallTestApi?.getRippleCount() ?? 0)
+  window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getRippleCount() ?? 0)
 // A ripple lasts about a second; a slow runner can miss it between polls, so read what was seen.
 const seenRipples = (window: Page) =>
-  window.evaluate(() => window.__opencovePixelWallTestApi?.getSeenRippleKeys() ?? [])
+  window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getSeenRippleKeys() ?? [])
 
 type DotWindow = Window & { __coveDotRipplePixels?: number }
 

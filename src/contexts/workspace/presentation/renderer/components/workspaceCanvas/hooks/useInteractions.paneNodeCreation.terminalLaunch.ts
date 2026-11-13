@@ -87,7 +87,7 @@ export async function resolveTerminalLaunchWorkspaceContext(options: {
     normalizedWorkspacePath,
   ).trim()
 
-  const readAppState = window.opencoveApi.persistence?.readAppState
+  const readAppState = window.eclipseCodeApi.persistence?.readAppState
   if (typeof readAppState !== 'function') {
     return {
       workspacePath: normalizedWorkspacePath,
@@ -139,14 +139,14 @@ export async function resolveDefaultMountFallback(options: {
   }
 
   const controlSurfaceInvoke = (
-    window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-  ).opencoveApi?.controlSurface?.invoke
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   if (typeof controlSurfaceInvoke !== 'function') {
     throw new Error('Control surface unavailable while resolving default mount.')
   }
 
-  const mountResult = await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+  const mountResult = await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
     kind: 'query',
     id: 'mount.list',
     payload: { projectId: normalizedWorkspaceId },

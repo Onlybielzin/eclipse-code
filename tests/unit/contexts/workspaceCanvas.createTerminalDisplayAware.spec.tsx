@@ -103,7 +103,7 @@ describe('WorkspaceCanvas create terminal standard sizing', () => {
       runtimeKind: 'process' as const,
     }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

@@ -31,6 +31,7 @@ import { normalizeCollapsedIdList } from '../canvasCollapse'
 import { resolveFileUriName } from '@shared/utils/fileUriScope'
 import { ensurePersistedDocumentData } from './ensureDocumentNodeData'
 import { ensurePersistedPluginData } from './ensurePluginNodeData'
+import { ensureQuestionCardData, ensureTodosCardData } from '@contexts/workspace/domain/canvasCards'
 import { isTerminalAgentBinding } from '../terminalAgentOverlay'
 import { isResumeSessionBindingVerified } from '../agentResumeBinding'
 import {
@@ -385,7 +386,11 @@ function ensurePersistedNode(node: unknown): PersistedTerminalNode | null {
                     ? (website ?? createDefaultWebsiteData())
                     : kind === 'plugin'
                       ? plugin
-                      : null,
+                      : kind === 'question'
+                        ? ensureQuestionCardData(record.task)
+                        : kind === 'todos'
+                          ? ensureTodosCardData(record.task)
+                          : null,
     position: {
       x: positionRecord.x,
       y: positionRecord.y,

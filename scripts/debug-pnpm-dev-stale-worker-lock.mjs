@@ -10,9 +10,12 @@ import { fileURLToPath } from 'node:url'
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'debug-pnpm-dev-stale-worker-lock')
-const port = Number.parseInt(process.env.OPENCOVE_STALE_LOCK_REMOTE_DEBUGGING_PORT ?? '9464', 10)
-const provider = process.env.OPENCOVE_STALE_LOCK_PROVIDER ?? 'codex'
-const keepUserData = process.env.OPENCOVE_STALE_LOCK_KEEP_USER_DATA === '1'
+const port = Number.parseInt(
+  process.env.ECLIPSE_CODE_STALE_LOCK_REMOTE_DEBUGGING_PORT ?? '9464',
+  10,
+)
+const provider = process.env.ECLIPSE_CODE_STALE_LOCK_PROVIDER ?? 'codex'
+const keepUserData = process.env.ECLIPSE_CODE_STALE_LOCK_KEEP_USER_DATA === '1'
 
 function delay(ms) {
   return new Promise(resolve => {
@@ -139,7 +142,7 @@ async function seedUserData(userDataDir, dummyPid, ids) {
         {
           mountId: ids.mountId,
           projectId: ids.workspaceId,
-          name: 'opencove',
+          name: 'eclipse-code',
           sortOrder: 0,
           endpointId: 'local',
           targetId: ids.targetId,
@@ -156,7 +159,7 @@ async function seedUserData(userDataDir, dummyPid, ids) {
     `${JSON.stringify({ version: 1, tokensByCredentialRef: {} })}\n`,
   )
   await writeFile(
-    path.join(userDataDir, 'opencove-worker.lock'),
+    path.join(userDataDir, 'eclipse-code-worker.lock'),
     `${JSON.stringify({ pid: dummyPid, createdAt: new Date().toISOString() })}\n`,
   )
 }
@@ -166,7 +169,7 @@ async function waitForWorkerRunning(page) {
   let latest = null
 
   while (Date.now() < deadline) {
-    latest = await page.evaluate(async () => await window.opencoveApi.worker.getStatus())
+    latest = await page.evaluate(async () => await window.eclipseCodeApi.worker.getStatus())
     if (latest?.status === 'running') {
       return latest
     }
@@ -191,7 +194,7 @@ async function waitForProviderScreen(page, sessionId) {
 
   while (Date.now() < deadline) {
     snapshot = await page.evaluate(
-      async id => await window.opencoveApi.pty.presentationSnapshot({ sessionId: id }),
+      async id => await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }),
       sessionId,
     )
     if (marker.test(String(snapshot?.serializedScreen ?? ''))) {
@@ -227,7 +230,7 @@ function assertWindowsNativeLaunch(result) {
 async function launchMountAgent(page, mountId) {
   return await page.evaluate(
     async payload =>
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'session.launchAgentInMount',
         payload,
@@ -268,7 +271,7 @@ async function main() {
     stdio: 'ignore',
     windowsHide: true,
   })
-  const userDataDir = await mkdtemp(path.join(tmpdir(), 'opencove-stale-worker-lock-'))
+  const userDataDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-stale-worker-lock-'))
   const logs = []
   let child = null
   let browser = null
@@ -277,9 +280,9 @@ async function main() {
     await seedUserData(userDataDir, dummy.pid, ids)
     const env = cleanEnv({
       ...process.env,
-      OPENCOVE_DEV_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_DEV_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     })
     delete env.ELECTRON_RUN_AS_NODE
 
@@ -305,14 +308,14 @@ async function main() {
     const context = browser.contexts()[0]
     const page = context.pages()[0] ?? (await context.waitForEvent('page'))
     await page.waitForLoadState('domcontentloaded')
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.controlSurface?.invoke), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.controlSurface?.invoke), null, {
       timeout: 60_000,
     })
 
     const workerStatus = await waitForWorkerRunning(page)
     const rawState = JSON.stringify(workspaceState(ids.workspaceId, ids.spaceId, ids.mountId))
     const writeResult = await page.evaluate(
-      async state => await window.opencoveApi.persistence.writeWorkspaceStateRaw({ raw: state }),
+      async state => await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({ raw: state }),
       rawState,
     )
     if (!writeResult?.ok) {
@@ -322,13 +325,13 @@ async function main() {
     }
 
     await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.controlSurface?.invoke), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.controlSurface?.invoke), null, {
       timeout: 60_000,
     })
 
     const mounts = await page.evaluate(
       async projectId =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'mount.list',
           payload: { projectId },
@@ -351,7 +354,7 @@ async function main() {
     }
 
     await page.evaluate(
-      async sessionId => await window.opencoveApi.pty.kill({ sessionId }).catch(() => undefined),
+      async sessionId => await window.eclipseCodeApi.pty.kill({ sessionId }).catch(() => undefined),
       result.sessionId,
     )
 

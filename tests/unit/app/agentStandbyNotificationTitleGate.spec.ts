@@ -11,12 +11,12 @@ function createPayload(
   return {
     sessionId: 'runtime-session-1',
     workspaceId: 'workspace-1',
-    workspaceName: 'OpenCove',
-    workspacePath: '/tmp/opencove',
+    workspaceName: 'Eclipse Code',
+    workspacePath: '/tmp/eclipse-code',
     nodeId: 'agent-1',
     title: 'codex · gpt-5.2-codex',
     awaitingSessionTitle: true,
-    executionDirectory: '/tmp/opencove',
+    executionDirectory: '/tmp/eclipse-code',
     taskId: null,
     ...overrides,
   }

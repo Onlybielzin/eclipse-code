@@ -49,7 +49,7 @@ async function fixture() {
       resize: vi.fn(),
     } as ControlSurfacePtyRuntime,
     controlUrl: () => 'http://session-worker',
-    cliPath: '/app/opencove.mjs',
+    cliPath: '/app/eclipse-code.mjs',
     ensureAssets: async () => ({ cliShimDirectory: '/shims' }),
     onSpawnIdentity,
   })
@@ -63,8 +63,8 @@ async function fixture() {
       rows: 24,
       env: {
         PATH: '/bin',
-        OPENCOVE_NODE_ID: 'inherited-fake',
-        OPENCOVE_CONTROL_TOKEN: 'parent-token',
+        ECLIPSE_CODE_NODE_ID: 'inherited-fake',
+        ECLIPSE_CODE_CONTROL_TOKEN: 'parent-token',
       },
     })
   if (identity) {
@@ -173,17 +173,17 @@ async function fixture() {
 it('preserves standalone interact authority, connection and shims without canvas identity', async () => {
   const f = await fixture()
   try {
-    expect(f.env.OPENCOVE_CONTROL_TOKEN).toBeTruthy()
+    expect(f.env.ECLIPSE_CODE_CONTROL_TOKEN).toBeTruthy()
     expect(f.env).toMatchObject({
-      OPENCOVE_ENV: '1',
-      OPENCOVE_PROJECT_ID: 'p',
-      OPENCOVE_SPACE_ID: 's',
-      OPENCOVE_CONTROL_URL: 'http://session-worker',
-      OPENCOVE_CLI: '/app/opencove.mjs',
-      OPENCOVE_CLI_SHIM_DIRECTORY: '/shims',
+      ECLIPSE_CODE_ENV: '1',
+      ECLIPSE_CODE_PROJECT_ID: 'p',
+      ECLIPSE_CODE_SPACE_ID: 's',
+      ECLIPSE_CODE_CONTROL_URL: 'http://session-worker',
+      ECLIPSE_CODE_CLI: '/app/eclipse-code.mjs',
+      ECLIPSE_CODE_CLI_SHIM_DIRECTORY: '/shims',
     })
     expect(f.env.PATH).toBe(['/shims', '/bin'].join(delimiter))
-    expect(f.env).not.toHaveProperty('OPENCOVE_NODE_ID')
+    expect(f.env).not.toHaveProperty('ECLIPSE_CODE_NODE_ID')
     expect(f.onSpawnIdentity).not.toHaveBeenCalled()
     expect(canvasSpawnIdentity.run(f.identity!, localCanvasResidentContext)).toBe('none')
     expect(await f.cli(['whoami'])).toMatchObject({
@@ -237,7 +237,7 @@ it.each(['exit', 'kill', 'dispose'] as const)(
   async action => {
     const f = await fixture()
     try {
-      const token = f.env.OPENCOVE_CONTROL_TOKEN!
+      const token = f.env.ECLIPSE_CODE_CONTROL_TOKEN!
       const grant = f.grants.verify(token)
       expect(grant).toMatchObject({ nodeId: null, sessionId: 'standalone', tier: 'interact' })
       const revoked = vi.fn()

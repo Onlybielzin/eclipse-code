@@ -61,9 +61,9 @@ test('an edge beacon points at an out-of-view agent waiting for you and flies to
   const { electronApp, window } = await launchApp({
     windowMode: 'inactive',
     env: {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
     },
   })
   try {
@@ -105,7 +105,7 @@ test('an edge beacon points at an out-of-view agent waiting for you and flies to
     await installPtySessionCapture(window)
     await window.locator('.task-node [data-testid="task-node-run-agent"]').click()
     await expect(window.locator('.terminal-node').first()).toContainText(
-      '[opencove-test-hook] ready',
+      '[eclipse-code-test-hook] ready',
     )
     await expect.poll(async () => await resolveFirstAgentSessionId(window)).not.toBeNull()
     const sessionId = (await resolveFirstAgentSessionId(window))!

@@ -18,8 +18,8 @@ afterEach(async () => {
 })
 
 it('ignores extra lineage options on snapshots while preserving the dedicated creation entry point', async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-lineage-boundary-'))
-  const dbPath = join(root, 'opencove.db')
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-lineage-boundary-'))
+  const dbPath = join(root, 'eclipse-code.db')
   const database = createMockDatabaseModule(
     new Map([[dbPath, createMockDbState({ userVersion: DB_SCHEMA_VERSION })]]),
   )

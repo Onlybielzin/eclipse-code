@@ -12,6 +12,7 @@ import { WorkspacePixelWall } from './WorkspacePixelWall'
 import { WorkspaceWindowSignals } from './windowSignals/WorkspaceWindowSignals'
 import { useSpaceVisualScale } from './useSpaceVisualScale'
 import { bindWorkspaceCanvasSetZoomTestAction } from '../testHarness'
+import { WorkspaceWallpaper } from './WorkspaceWallpaper'
 
 interface WorkspaceCanvasBackgroundProps {
   settings: Pick<
@@ -45,8 +46,9 @@ export const WorkspaceCanvasBackground = React.memo(function WorkspaceCanvasBack
   const showcase = useShowcaseMode()
   const style = showcase ? 'pixel' : settings.canvasBackgroundStyle
   const effects = {
-    // Received-output pixels are an event signal: kept by 「简约」, gone with 「关闭」.
-    background: style !== 'off',
+    // Received-output pixels are an event signal: kept by 「简约」, gone with 「关闭」 and with
+    // the wallpaper, where pixel ripples would sit on top of a photo.
+    background: style !== 'off' && style !== 'wallpaper',
     creation: settings.nodeCreationPixelEffectEnabled,
     closing: settings.nodeClosePixelEffectEnabled,
     working: settings.agentWorkingPixelEffectEnabled,
@@ -72,7 +74,8 @@ export const WorkspaceCanvasBackground = React.memo(function WorkspaceCanvasBack
         canvasRef={canvasRef}
         enabled={settings.agentWorkingPixelEffectEnabled}
       />
-      {style !== 'pixel' && (
+      {style === 'wallpaper' && <WorkspaceWallpaper />}
+      {(style === 'minimal' || style === 'off') && (
         <Background
           variant={BackgroundVariant.Dots}
           size={1}

@@ -14,7 +14,7 @@ describe('resolveRuntimeIconPath', () => {
   })
 
   it('prefers the Windows .ico when both icon files exist', () => {
-    const rootDir = mkdtempSync(join(tmpdir(), 'opencove-runtime-icon-'))
+    const rootDir = mkdtempSync(join(tmpdir(), 'eclipse-code-runtime-icon-'))
     tempDirs.push(rootDir)
 
     const appMainDir = join(rootDir, 'app', 'main')
@@ -28,7 +28,7 @@ describe('resolveRuntimeIconPath', () => {
   })
 
   it('falls back to the png on Windows when the ico is missing', () => {
-    const rootDir = mkdtempSync(join(tmpdir(), 'opencove-runtime-icon-'))
+    const rootDir = mkdtempSync(join(tmpdir(), 'eclipse-code-runtime-icon-'))
     tempDirs.push(rootDir)
 
     const appMainDir = join(rootDir, 'app', 'main')
@@ -41,7 +41,7 @@ describe('resolveRuntimeIconPath', () => {
   })
 
   it('uses the png on non-Windows platforms', () => {
-    const rootDir = mkdtempSync(join(tmpdir(), 'opencove-runtime-icon-'))
+    const rootDir = mkdtempSync(join(tmpdir(), 'eclipse-code-runtime-icon-'))
     tempDirs.push(rootDir)
 
     const appMainDir = join(rootDir, 'app', 'main')

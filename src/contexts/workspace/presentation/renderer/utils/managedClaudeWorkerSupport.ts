@@ -6,7 +6,7 @@ import {
 
 /** Query at interaction start: a client declaration cannot establish Worker support. */
 async function readManagedClaudeWorkerCapabilities(): Promise<unknown> {
-  const invoke = window.opencoveApi?.controlSurface?.invoke
+  const invoke = window.eclipseCodeApi?.controlSurface?.invoke
   if (!invoke) {
     return undefined
   }

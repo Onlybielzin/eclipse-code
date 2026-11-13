@@ -81,7 +81,7 @@ export function startRuntimeTerminalHydration({
       cachedScreenState,
       persistedSnapshot: kind === 'agent' ? '' : scrollbackBuffer.snapshot(),
       presentationSnapshotPromise: snapshotPromise,
-      takePtySnapshot: payload => window.opencoveApi.pty.snapshot(payload),
+      takePtySnapshot: payload => window.eclipseCodeApi.pty.snapshot(payload),
       scrollStateToRestore,
       isDisposed: inactive,
       onHydratedWriteCommitted: rawSnapshot => {

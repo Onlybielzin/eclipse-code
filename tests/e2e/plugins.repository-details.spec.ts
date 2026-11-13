@@ -22,7 +22,7 @@ test('reads community documentation before selecting a commit without activating
       ipcMain.handle(channel, (event, request: { id?: string }) => {
         if (request.id === 'plugin.discover') {
           return {
-            __opencoveIpcEnvelope: true,
+            __eclipseCodeIpcEnvelope: true,
             ok: true,
             value: {
               repositories: [
@@ -38,7 +38,7 @@ test('reads community documentation before selecting a commit without activating
         }
         if (request.id === 'plugin.repository.details') {
           return {
-            __opencoveIpcEnvelope: true,
+            __eclipseCodeIpcEnvelope: true,
             ok: true,
             value: {
               repository: 'https://github.com/community/desk-tool',
@@ -58,7 +58,7 @@ test('reads community documentation before selecting a commit without activating
                 displayName: 'Desk tool',
                 description: 'Workspace tool',
                 view: { entry: 'index.html' },
-                engines: { opencove: '>=0.3.2 <0.4.0' },
+                engines: { eclipseCode: '>=0.3.2 <0.4.0' },
                 platforms: ['darwin', 'linux', 'win32'],
               },
             },

@@ -56,7 +56,7 @@ function installApi(
       drainingGenerations: [],
     },
   })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       workerClient: {
@@ -75,7 +75,7 @@ describe('Worker Web UI launch visibility', () => {
     await applyUiLanguage('en')
   })
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
   })
 
   it.each([
@@ -105,10 +105,10 @@ describe('Worker Web UI launch visibility', () => {
       fireEvent.focus(refresh)
       expect(screen.getByRole('tooltip')).toHaveTextContent('Refresh')
       fireEvent.blur(refresh)
-      expect(window.opencoveApi.worker.start).not.toHaveBeenCalled()
-      expect(window.opencoveApi.worker.stop).not.toHaveBeenCalled()
-      expect(window.opencoveApi.workerClient.setWebUiSettings).not.toHaveBeenCalled()
-      expect(window.opencoveApi.workerClient.setWebUiSecurity).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.worker.start).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.worker.stop).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.workerClient.setWebUiSettings).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.workerClient.setWebUiSecurity).not.toHaveBeenCalled()
     },
   )
 

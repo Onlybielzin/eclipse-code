@@ -18,11 +18,13 @@ async function runGit(args: string[], cwd: string): Promise<void> {
 }
 
 async function createTempRepo(): Promise<string> {
-  const repoDir = await mkdtemp(path.join(resolveE2ETmpDir(), 'opencove-worktree-branches-e2e-'))
+  const repoDir = await mkdtemp(
+    path.join(resolveE2ETmpDir(), 'eclipse-code-worktree-branches-e2e-'),
+  )
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
@@ -45,7 +47,7 @@ test.describe('Workspace Canvas - Worktree Branches', () => {
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 
@@ -102,9 +104,9 @@ test.describe('Workspace Canvas - Worktree Branches', () => {
           }> = []
           ;(
             window as typeof window & {
-              __opencovePopoverMotionSamples?: typeof samples
+              __eclipseCodePopoverMotionSamples?: typeof samples
             }
-          ).__opencovePopoverMotionSamples = samples
+          ).__eclipseCodePopoverMotionSamples = samples
           const startedAt = performance.now()
           const observer = new MutationObserver(() => {
             const popover = document.querySelector('[data-testid="space-worktree-popover"]')
@@ -141,9 +143,9 @@ test.describe('Workspace Canvas - Worktree Branches', () => {
             return await window.evaluate(() => {
               const samples = (
                 window as typeof window & {
-                  __opencovePopoverMotionSamples?: Array<{ opacity: string }>
+                  __eclipseCodePopoverMotionSamples?: Array<{ opacity: string }>
                 }
-              ).__opencovePopoverMotionSamples
+              ).__eclipseCodePopoverMotionSamples
               return Number.parseFloat(samples?.at(-1)?.opacity ?? '0')
             })
           })
@@ -168,7 +170,7 @@ test.describe('Workspace Canvas - Worktree Branches', () => {
           return (
             (
               window as typeof window & {
-                __opencovePopoverMotionSamples?: Array<{
+                __eclipseCodePopoverMotionSamples?: Array<{
                   timeMs: number
                   opacity: string
                   transform: string
@@ -176,7 +178,7 @@ test.describe('Workspace Canvas - Worktree Branches', () => {
                   top: number
                 }>
               }
-            ).__opencovePopoverMotionSamples ?? []
+            ).__eclipseCodePopoverMotionSamples ?? []
           )
         })
         expect(motionSamples.length).toBeGreaterThan(2)

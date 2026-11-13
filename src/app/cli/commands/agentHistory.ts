@@ -8,7 +8,7 @@ export const agentHistoryClearCommand = defineCommand({
   connect: true,
   mutation: true,
   operation: 'agent.history.clear',
-  summary: 'Delete a node’s stored OpenCove replies without deleting the node',
+  summary: 'Delete a node’s stored Eclipse Code replies without deleting the node',
   description: [
     'Deletes this node’s stored ended-turn replies from the Worker archive and in-memory history across all retained incarnations. Does not delete the node, provider transcripts or backups, and does not change run state, active turns or delivery records. A turn that ends after the clear is stored normally.',
     'Returns nodeId, memoryRemoved and archive: {status: cleared, removed}. Counts are per store; the same reply may have a copy in each. Repeating the command succeeds with zero counts. Requires interact scope. If the archive is unavailable, memory is still cleared; exits 1 with archive: {status: unavailable} and memoryRemoved in the error details, without claiming archive deletion. For an agent on a remote Worker it clears only local copies and exits 1 with details.reason: remote_history_unavailable.',
@@ -23,7 +23,7 @@ export const agentHistoryClearCommand = defineCommand({
       archive: { status: 'cleared', removed: 3 },
     },
   ),
-  examples: ['opencove agent history clear --node "Reviewer"'],
+  examples: ['eclipse-code agent history clear --node "Reviewer"'],
   async execute(ctx) {
     try {
       return await ctx.invoke('agent.history.clear', ctx.input)

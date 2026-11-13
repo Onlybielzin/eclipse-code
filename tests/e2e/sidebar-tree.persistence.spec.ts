@@ -12,7 +12,7 @@ async function expectPersistedDisclosure(window: Page, collapsed: boolean): Prom
   await expect
     .poll(async () => {
       const raw = await window.evaluate(() =>
-        window.opencoveApi.persistence.readWorkspaceStateRaw(),
+        window.eclipseCodeApi.persistence.readWorkspaceStateRaw(),
       )
       const state = raw ? JSON.parse(raw) : null
       return {

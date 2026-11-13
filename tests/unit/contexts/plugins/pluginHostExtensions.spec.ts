@@ -81,7 +81,7 @@ describe('host extension declarations', () => {
 })
 
 it('durably owns schema settings across restart, preserves unknown values, and isolates previews', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-host-extensions-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-host-extensions-'))
   directories.push(root)
   const source = join(root, 'source')
   await mkdir(source)
@@ -91,7 +91,7 @@ it('durably owns schema settings across restart, preserves unknown values, and i
     preview: 'index.html',
     contributes: { preferences, themes },
   }
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify(manifest))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify(manifest))
   await writeFile(join(source, 'index.html'), '<html><body>Fixture</body></html>')
   const files = new LocalPluginFiles(join(root, 'profile'))
   const start = vi.fn()
@@ -130,7 +130,7 @@ it('durably owns schema settings across restart, preserves unknown values, and i
   expect((await manager.preferencesGet(base.id)).count).toBe(7)
   await manager.setEnabled(base.id, true)
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({ ...manifest, contributes: { preferences: preferences.slice(1), themes } }),
   )
   await manager.reload(base.id)
@@ -139,7 +139,7 @@ it('durably owns schema settings across restart, preserves unknown values, and i
     count: 7,
     enabled: false,
   })
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify(manifest))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify(manifest))
   await manager.reload(base.id)
   expect(await manager.preferencesGet(base.id)).toEqual({ count: 7, enabled: false })
   expect(start).not.toHaveBeenCalled()

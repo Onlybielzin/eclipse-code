@@ -86,8 +86,8 @@ export async function prepareAgentSessionEnvironment(options: {
   }
   const tuiConfigPath = await ensureOpenCodeEmbeddedTuiConfigPath()
   return {
-    OPENCOVE_OPENCODE_SERVER_HOSTNAME: options.opencodeServer.hostname,
-    OPENCOVE_OPENCODE_SERVER_PORT: String(options.opencodeServer.port),
+    ECLIPSE_CODE_OPENCODE_SERVER_HOSTNAME: options.opencodeServer.hostname,
+    ECLIPSE_CODE_OPENCODE_SERVER_PORT: String(options.opencodeServer.port),
     XDG_STATE_HOME: options.userDataPath.trim() || process.cwd(),
     ...(tuiConfigPath ? { OPENCODE_TUI_CONFIG: tuiConfigPath } : {}),
   }

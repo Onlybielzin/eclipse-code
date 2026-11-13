@@ -9,11 +9,11 @@ import { prepareManagedClaudeCreationIntent } from '../../../src/contexts/worksp
 import { fixture } from '../../support/convergence/fixture'
 import { useAppStore } from '../../../src/app/renderer/shell/store/useAppStore'
 import { workerOwnershipCompatibilityCases } from '../../support/workerOwnershipCompatibility'
-const originalApi = window.opencoveApi,
+const originalApi = window.eclipseCodeApi,
   originalState = useAppStore.getState()
 afterEach(() => {
   vi.unstubAllGlobals()
-  window.opencoveApi = originalApi
+  window.eclipseCodeApi = originalApi
   useAppStore.setState(originalState, true)
 })
 it.each(workerOwnershipCompatibilityCases)(
@@ -47,7 +47,7 @@ it.each(workerOwnershipCompatibilityCases)(
         if (request.id === 'node.managedClaudeBinding' && !lookupSupported) {
           return new Response(
             JSON.stringify({
-              __opencoveControlEnvelope: true,
+              __eclipseCodeControlEnvelope: true,
               ok: false,
               error: { code: 'common.invalid_input' },
             }),
@@ -70,12 +70,12 @@ it.each(workerOwnershipCompatibilityCases)(
                 : request.id === 'sync.state'
                   ? { state, revision: 0 }
                   : { revision: 1, corrected: false }
-        return new Response(JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value }))
+        return new Response(JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value }))
       }),
     )
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       controlSurface: { invoke: invokeBrowserControlSurface },
-    } as typeof window.opencoveApi
+    } as typeof window.eclipseCodeApi
     const candidate = state ?? { ...fixture(false), workspaces: [], activeWorkspaceId: null }
     if (client === 'Web') {
       expect(

@@ -132,7 +132,7 @@ describe('WorkspaceCanvas run default agent', () => {
       launchInMount,
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -285,7 +285,7 @@ describe('WorkspaceCanvas run default agent', () => {
       launchInMount,
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -394,7 +394,7 @@ describe('WorkspaceCanvas run default agent', () => {
       providers: ['claude-code' as const, 'codex' as const],
     }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

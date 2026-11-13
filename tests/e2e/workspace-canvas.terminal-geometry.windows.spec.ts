@@ -22,7 +22,7 @@ async function assertGrids(window: Page, sessionId: string, phase: string, targe
     .poll(
       () =>
         window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize(id)
           const proposed = api?.getProposedGeometry(id)
           return !!size && !!proposed && size.cols === proposed.cols && size.rows === proposed.rows
@@ -37,7 +37,7 @@ async function assertGrids(window: Page, sessionId: string, phase: string, targe
   )
   await window.evaluate(
     async payload => {
-      await window.opencoveApi.pty.write({
+      await window.eclipseCodeApi.pty.write({
         sessionId: payload.sessionId,
         data: `${payload.command}\r`,
       })
@@ -49,8 +49,8 @@ async function assertGrids(window: Page, sessionId: string, phase: string, targe
       () =>
         window.evaluate(
           async payload => {
-            const size = window.__opencoveTerminalSelectionTestApi?.getSize(payload.nodeId)
-            const snapshot = await window.opencoveApi.pty.presentationSnapshot({
+            const size = window.__eclipseCodeTerminalSelectionTestApi?.getSize(payload.nodeId)
+            const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({
               sessionId: payload.sessionId,
             })
             const match = snapshot.serializedScreen.match(
@@ -71,7 +71,7 @@ async function assertGrids(window: Page, sessionId: string, phase: string, targe
     )
     .toBe(true)
   return (await window.evaluate(
-    id => window.__opencoveTerminalSelectionTestApi!.getSize(id),
+    id => window.__eclipseCodeTerminalSelectionTestApi!.getSize(id),
     targetNodeId,
   ))!
 }
@@ -83,7 +83,7 @@ test.describe('Windows terminal window fitting', () => {
     test(`${runtime}: fits a newly created terminal before any manual resize`, async () => {
       const { electronApp, window } = await launchApp({
         deviceScaleFactor: 1.5,
-        env: { OPENCOVE_WORKER_CLIENT: runtime === 'worker' ? '1' : '0' },
+        env: { ECLIPSE_CODE_WORKER_CLIENT: runtime === 'worker' ? '1' : '0' },
       })
       try {
         await clearAndSeedWorkspace(window, [], {
@@ -105,13 +105,13 @@ test.describe('Windows terminal window fitting', () => {
         await expect
           .poll(() =>
             window.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id),
+              id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id),
               createdNodeId,
             ),
           )
           .toBeTruthy()
         const sessionId = (await window.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi!.getRuntimeSessionId(id),
+          id => window.__eclipseCodeTerminalSelectionTestApi!.getRuntimeSessionId(id),
           createdNodeId,
         ))!
         await assertGrids(window, sessionId, 'created', createdNodeId)
@@ -131,7 +131,7 @@ test.describe('Windows terminal window fitting', () => {
       const testInfo = test.info()
       const { electronApp, window } = await launchApp({
         deviceScaleFactor: 1.5,
-        env: { OPENCOVE_WORKER_CLIENT: runtime === 'worker' ? '1' : '0' },
+        env: { ECLIPSE_CODE_WORKER_CLIENT: runtime === 'worker' ? '1' : '0' },
       })
       try {
         await clearAndSeedWorkspace(
@@ -150,13 +150,13 @@ test.describe('Windows terminal window fitting', () => {
         await expect
           .poll(() =>
             window.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id),
+              id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id),
               nodeId,
             ),
           )
           .toBeTruthy()
         const sessionId = (await window.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi!.getRuntimeSessionId(id),
+          id => window.__eclipseCodeTerminalSelectionTestApi!.getRuntimeSessionId(id),
           nodeId,
         ))!
         expect(await window.evaluate(() => window.devicePixelRatio)).toBe(1.5)
@@ -165,7 +165,7 @@ test.describe('Windows terminal window fitting', () => {
           .poll(() =>
             window.evaluate(
               id =>
-                window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)
+                window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)
                   ?.rendererStructuralKind,
               nodeId,
             ),
@@ -188,7 +188,7 @@ test.describe('Windows terminal window fitting', () => {
         await expect
           .poll(() =>
             window.evaluate(id => {
-              return window.__opencoveTerminalSelectionTestApi?.getBufferText(id, 'VISIBLE_END')
+              return window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, 'VISIBLE_END')
                 ?.markerAbsoluteLine
             }, nodeId),
           )
@@ -198,7 +198,7 @@ test.describe('Windows terminal window fitting', () => {
           .locator('.terminal-node__terminal')
           .evaluate(el => el.clientWidth)
         const metrics = await window.evaluate(
-          id => window.__opencoveTerminalSelectionTestApi!.getRenderMetrics(id),
+          id => window.__eclipseCodeTerminalSelectionTestApi!.getRenderMetrics(id),
           nodeId,
         )
         expect(metrics!.cssCanvasWidth!).toBeLessThanOrEqual(width)
@@ -214,7 +214,7 @@ test.describe('Windows terminal window fitting', () => {
         await expect
           .poll(() =>
             window.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id),
+              id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id),
               nodeId,
             ),
           )

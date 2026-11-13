@@ -113,10 +113,10 @@ export async function resolveManagedSshArtifactName(options: {
       : null
   if (!platform || !arch) {
     throw new Error(
-      '[opencove-bootstrap:platform_unsupported] Unsupported remote platform or architecture.',
+      '[eclipse-code-bootstrap:platform_unsupported] Unsupported remote platform or architecture.',
     )
   }
-  return `opencove-server-${platform}-${arch}.${options.windows ? 'zip' : 'tar.gz'}`
+  return `eclipse-code-server-${platform}-${arch}.${options.windows ? 'zip' : 'tar.gz'}`
 }
 
 export async function transferManagedSshArtifact(options: {
@@ -130,7 +130,7 @@ export async function transferManagedSshArtifact(options: {
   const assetName = await resolveManagedSshArtifactName(options)
   if (!(await readdir(options.directory)).includes(assetName)) {
     throw new Error(
-      `[opencove-bootstrap:installer_unavailable] Build artifact missing: ${assetName}`,
+      `[eclipse-code-bootstrap:installer_unavailable] Build artifact missing: ${assetName}`,
     )
   }
   const checksums = await readFile(join(options.directory, 'SHA256SUMS.txt'), 'utf8')
@@ -143,10 +143,10 @@ export async function transferManagedSshArtifact(options: {
     hash.update(chunk)
   }
   if (!expected || hash.digest('hex') !== expected.toLowerCase()) {
-    throw new Error('[opencove-bootstrap:checksum_failed] Local artifact checksum mismatch.')
+    throw new Error('[eclipse-code-bootstrap:checksum_failed] Local artifact checksum mismatch.')
   }
-  const remote = `.cache/opencove/incoming/${options.operationId}`
-  const installerName = `opencove-install.${options.windows ? 'ps1' : 'sh'}`
+  const remote = `.cache/eclipse-code/incoming/${options.operationId}`
+  const installerName = `eclipse-code-install.${options.windows ? 'ps1' : 'sh'}`
   for (const file of [assetName, 'SHA256SUMS.txt', installerName]) {
     await upload({
       ...options,

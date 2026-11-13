@@ -186,7 +186,7 @@ export class TerminalAgentActivityGateway {
       this.respond(response, 404)
       return
     }
-    const tokenHeader = request.headers['x-opencove-terminal-agent-token']
+    const tokenHeader = request.headers['x-eclipse-code-terminal-agent-token']
     const token = typeof tokenHeader === 'string' ? tokenHeader.trim() : ''
     const credential = this.credentials.get(token)
     if (!credential) {

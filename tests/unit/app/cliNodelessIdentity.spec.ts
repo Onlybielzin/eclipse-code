@@ -5,8 +5,8 @@ import { identityFixture, project, space, who } from './cliIdentity.helpers'
 
 function fixture(inSpace = true) {
   const f = identityFixture()
-  delete f.io.env.OPENCOVE_NODE_ID
-  f.io.env.OPENCOVE_SPACE_ID = inSpace ? space.id : ''
+  delete f.io.env.ECLIPSE_CODE_NODE_ID
+  f.io.env.ECLIPSE_CODE_SPACE_ID = inSpace ? space.id : ''
   f.values['system.whoami'] = { ...who, nodeId: null, spaceId: inSpace ? space.id : '' }
   return f
 }

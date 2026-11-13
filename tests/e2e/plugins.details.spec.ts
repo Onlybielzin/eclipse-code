@@ -18,7 +18,7 @@ import {
 } from './plugins.local.helpers'
 
 async function capture(page: Page, info: TestInfo, name: string) {
-  const screenshot = `/tmp/opencove-plugin-library-review/${name}.png`
+  const screenshot = `/tmp/eclipse-code-plugin-library-review/${name}.png`
   await page.screenshot({ path: screenshot })
   await info.attach(name, { path: screenshot, contentType: 'image/png' })
 }
@@ -139,7 +139,7 @@ test.describe('Installed plugin details', () => {
       const saved = await page.evaluate(
         async id =>
           JSON.parse(
-            (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+            (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
           ).workspaces.find((workspace: { id: string }) => workspace.id === id),
         seededWorkspaceId,
       )

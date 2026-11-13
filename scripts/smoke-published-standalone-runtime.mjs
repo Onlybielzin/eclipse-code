@@ -27,8 +27,8 @@ const target = resolvePublishedStandaloneReleaseTarget({
   tag: rawTag,
   platform: process.platform,
   arch: process.arch,
-  ...(process.env['OPENCOVE_RELEASE_ROOT']
-    ? { releaseRoot: process.env['OPENCOVE_RELEASE_ROOT'] }
+  ...(process.env['ECLIPSE_CODE_RELEASE_ROOT']
+    ? { releaseRoot: process.env['ECLIPSE_CODE_RELEASE_ROOT'] }
     : {}),
 })
 if (installerSource === 'latest' && !target.stable) {
@@ -52,7 +52,7 @@ if (
   throw new Error(`Published ${installerSource} installer assets are unavailable for ${target.tag}`)
 }
 
-const smokeRoot = await mkdtemp(join(tmpdir(), 'opencove-published-release-'))
+const smokeRoot = await mkdtemp(join(tmpdir(), 'eclipse-code-published-release-'))
 const installRoot = join(smokeRoot, 'install')
 const binDir = join(smokeRoot, 'bin')
 const userDataDir = join(smokeRoot, 'user-data')
@@ -60,7 +60,10 @@ const isolatedHome = join(smokeRoot, 'home')
 const installerPath = join(smokeRoot, selectedInstaller.name)
 const uninstallerPath = join(smokeRoot, selectedUninstaller.name)
 const connectionPath = join(userDataDir, 'worker-control-surface.json')
-const launcherPath = join(binDir, process.platform === 'win32' ? 'opencove.cmd' : 'opencove')
+const launcherPath = join(
+  binDir,
+  process.platform === 'win32' ? 'eclipse-code.cmd' : 'eclipse-code',
+)
 const PASSTHROUGH_ENV_KEYS = [
   'PATH',
   'Path',
@@ -91,8 +94,8 @@ Object.assign(commandEnvironment, {
   XDG_STATE_HOME: join(isolatedHome, '.local', 'state'),
   APPDATA: join(isolatedHome, 'AppData', 'Roaming'),
   LOCALAPPDATA: join(isolatedHome, 'AppData', 'Local'),
-  OPENCOVE_INSTALL_ROOT: installRoot,
-  OPENCOVE_BIN_DIR: binDir,
+  ECLIPSE_CODE_INSTALL_ROOT: installRoot,
+  ECLIPSE_CODE_BIN_DIR: binDir,
 })
 let workerProcess = null
 let workerPid = null
@@ -107,7 +110,7 @@ function delay(milliseconds) {
 async function downloadBuffer(url) {
   const response = await fetch(url, {
     redirect: 'follow',
-    headers: { 'user-agent': 'opencove-published-release-smoke' },
+    headers: { 'user-agent': 'eclipse-code-published-release-smoke' },
     signal: AbortSignal.timeout(120_000),
   })
   if (!response.ok) {
@@ -292,7 +295,7 @@ async function assertUninstallPostconditions() {
     )
   }
   const installEntries = (await readdir(installRoot).catch(() => [])).filter(
-    entry => entry === 'current' || entry.startsWith('opencove-server-'),
+    entry => entry === 'current' || entry.startsWith('eclipse-code-server-'),
   )
   if (installEntries.length > 0) {
     throw new Error(

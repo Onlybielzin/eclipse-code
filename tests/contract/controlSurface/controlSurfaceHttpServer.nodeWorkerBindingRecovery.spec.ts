@@ -39,10 +39,10 @@ function makePtyRuntime(
 
 describeWithElectronNativeModules('Control Surface node worker binding recovery', () => {
   it('persists a terminal binding and recovers on its original remote worker after restart', async () => {
-    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-home-worker-binding-'))
-    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-remote-worker-binding-'))
-    const remoteRootPath = await mkdtemp(join(tmpdir(), 'opencove-remote-worker-root-'))
-    const homeDbPath = resolve(homeUserDataPath, 'opencove.db')
+    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-home-worker-binding-'))
+    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-remote-worker-binding-'))
+    const remoteRootPath = await mkdtemp(join(tmpdir(), 'eclipse-code-remote-worker-root-'))
+    const homeDbPath = resolve(homeUserDataPath, 'eclipse-code.db')
     const homeApproved = createApprovedWorkspaceStoreForPath(
       resolve(homeUserDataPath, 'approved-workspaces.json'),
     )

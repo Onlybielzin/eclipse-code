@@ -1,18 +1,19 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const DEFAULT_OWNER = 'DeadWaveWave'
-const DEFAULT_REPO = 'opencove'
-const SHELL_INSTALL_USAGE_LINE = '    printf "Usage: opencove-install.sh [--uninstall]\\n"'
+const DEFAULT_OWNER = 'Onlybielzin'
+const DEFAULT_REPO = 'eclipse-code'
+const SHELL_INSTALL_USAGE_LINE = '    printf "Usage: eclipse-code-install.sh [--uninstall]\\n"'
 const SHELL_INSTALL_BASE_URL_LINE =
-  'RELEASE_BASE_URL="${OPENCOVE_RELEASE_BASE_URL:-https://github.com/${OWNER}/${REPO}/releases/latest/download}"'
-const POWERSHELL_INSTALL_USAGE_LINE = "  Write-Output 'Usage: opencove-install.ps1 [-Uninstall]'"
-const POWERSHELL_INSTALL_BASE_URL_BLOCK = `$ReleaseBaseUrl = if ($env:OPENCOVE_RELEASE_BASE_URL) {
-  $env:OPENCOVE_RELEASE_BASE_URL
+  'RELEASE_BASE_URL="${ECLIPSE_CODE_RELEASE_BASE_URL:-https://github.com/${OWNER}/${REPO}/releases/latest/download}"'
+const POWERSHELL_INSTALL_USAGE_LINE =
+  "  Write-Output 'Usage: eclipse-code-install.ps1 [-Uninstall]'"
+const POWERSHELL_INSTALL_BASE_URL_BLOCK = `$ReleaseBaseUrl = if ($env:ECLIPSE_CODE_RELEASE_BASE_URL) {
+  $env:ECLIPSE_CODE_RELEASE_BASE_URL
 } else {
   "https://github.com/$Owner/$Repo/releases/latest/download"
 }`
-const INSTALLER_ASSET_PREFIXES = ['opencove-install', 'opencove-uninstall']
+const INSTALLER_ASSET_PREFIXES = ['eclipse-code-install', 'eclipse-code-uninstall']
 
 function replaceOnce(source, searchValue, replaceValue, description) {
   if (!source.includes(searchValue)) {
@@ -55,7 +56,7 @@ function renderShellInstallScript({ source, scriptName, releaseBaseUrl }) {
   return replaceOnce(
     withUsage,
     SHELL_INSTALL_BASE_URL_LINE,
-    `RELEASE_BASE_URL="\${OPENCOVE_RELEASE_BASE_URL:-${escapeDoubleQuotedShell(releaseBaseUrl)}}"`,
+    `RELEASE_BASE_URL="\${ECLIPSE_CODE_RELEASE_BASE_URL:-${escapeDoubleQuotedShell(releaseBaseUrl)}}"`,
     'shell install default release base url',
   )
 }
@@ -71,8 +72,8 @@ function renderPowerShellInstallScript({ source, scriptName, releaseBaseUrl }) {
   return replaceOnce(
     withUsage,
     POWERSHELL_INSTALL_BASE_URL_BLOCK,
-    `$ReleaseBaseUrl = if ($env:OPENCOVE_RELEASE_BASE_URL) {
-  $env:OPENCOVE_RELEASE_BASE_URL
+    `$ReleaseBaseUrl = if ($env:ECLIPSE_CODE_RELEASE_BASE_URL) {
+  $env:ECLIPSE_CODE_RELEASE_BASE_URL
 } else {
   '${releaseBaseUrl}'
 }`,
@@ -96,11 +97,17 @@ export function buildReleaseInstallerAssets({
   const trimmedTag = tag.trim()
   const assets = []
 
-  const versionedShellInstallName = buildVersionedAssetName('opencove-install.sh', trimmedTag)
-  const versionedPowerShellInstallName = buildVersionedAssetName('opencove-install.ps1', trimmedTag)
-  const versionedShellUninstallName = buildVersionedAssetName('opencove-uninstall.sh', trimmedTag)
+  const versionedShellInstallName = buildVersionedAssetName('eclipse-code-install.sh', trimmedTag)
+  const versionedPowerShellInstallName = buildVersionedAssetName(
+    'eclipse-code-install.ps1',
+    trimmedTag,
+  )
+  const versionedShellUninstallName = buildVersionedAssetName(
+    'eclipse-code-uninstall.sh',
+    trimmedTag,
+  )
   const versionedPowerShellUninstallName = buildVersionedAssetName(
-    'opencove-uninstall.ps1',
+    'eclipse-code-uninstall.ps1',
     trimmedTag,
   )
   const versionedBaseUrl = buildReleaseBaseUrl({
@@ -147,27 +154,27 @@ export function buildReleaseInstallerAssets({
 
     assets.push(
       {
-        fileName: 'opencove-install.sh',
+        fileName: 'eclipse-code-install.sh',
         content: renderShellInstallScript({
           source: shellInstallSource,
-          scriptName: 'opencove-install.sh',
+          scriptName: 'eclipse-code-install.sh',
           releaseBaseUrl: latestBaseUrl,
         }),
       },
       {
-        fileName: 'opencove-install.ps1',
+        fileName: 'eclipse-code-install.ps1',
         content: renderPowerShellInstallScript({
           source: powershellInstallSource,
-          scriptName: 'opencove-install.ps1',
+          scriptName: 'eclipse-code-install.ps1',
           releaseBaseUrl: latestBaseUrl,
         }),
       },
       {
-        fileName: 'opencove-uninstall.sh',
+        fileName: 'eclipse-code-uninstall.sh',
         content: shellUninstallSource,
       },
       {
-        fileName: 'opencove-uninstall.ps1',
+        fileName: 'eclipse-code-uninstall.ps1',
         content: powershellUninstallSource,
       },
     )

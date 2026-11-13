@@ -76,7 +76,7 @@ describe('worker sync bridge', () => {
     })
 
     firstBody.emit('data', 'id: 1\n')
-    firstBody.emit('data', 'event: opencove.sync\n')
+    firstBody.emit('data', 'event: eclipse-code.sync\n')
     firstBody.emit('data', 'data: {"revision":1,"reason":"sync.writeState"}\n\n')
     expect(sendMock).toHaveBeenCalledWith(
       IPC_CHANNELS.syncStateUpdated,
@@ -162,7 +162,10 @@ describe('worker sync bridge', () => {
       upgraded = true
       await vi.advanceTimersByTimeAsync(750)
       await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce())
-      body.emit('data', 'event: opencove.sync\ndata: {"type":"resync_required","revision":4}\n\n')
+      body.emit(
+        'data',
+        'event: eclipse-code.sync\ndata: {"type":"resync_required","revision":4}\n\n',
+      )
       expect(sendMock).toHaveBeenLastCalledWith(IPC_CHANNELS.syncStateUpdated, {
         type: 'resync_required',
         revision: 4,
@@ -227,7 +230,7 @@ describe('worker sync bridge', () => {
     }))
     await vi.waitFor(() => expect(body.listenerCount('data')).toBe(1))
     bridge.dispose()
-    body.emit('data', 'event: opencove.sync\ndata: {"type":"resync_required","revision":4}\n\n')
+    body.emit('data', 'event: eclipse-code.sync\ndata: {"type":"resync_required","revision":4}\n\n')
     expect(sendMock).not.toHaveBeenCalled()
   })
 })

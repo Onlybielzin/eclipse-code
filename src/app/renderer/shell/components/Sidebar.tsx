@@ -49,6 +49,7 @@ import { SidebarViewControls } from './SidebarViewControls'
 import { SidebarAttentionInbox } from './SidebarAttentionInbox'
 import { summarizeAgentActivity } from '../utils/agentActivitySummary'
 import { useAgentsNeedingYou } from '../store/useAgentAttentionStore'
+import { listPendingQuestions } from '../utils/pendingQuestions'
 
 /** Docked, or hidden entirely when collapsed (Tide: no rail is left behind). */
 export type SidebarVariant = 'docked' | 'hidden'
@@ -115,10 +116,15 @@ export function Sidebar({
   const { t } = useTranslation()
   const needsYou = useAgentsNeedingYou()
   const trees = workspaces.map(workspace => buildSidebarProjectTree(workspace, needsYou))
-  const waitingAgents = summarizeAgentActivity(workspaces, needsYou).waiting
+  // A question card replaces its agent's own "waiting" row: one row per thing that needs you.
+  const pendingQuestions = listPendingQuestions(workspaces)
+  const askers = new Set(pendingQuestions.map(question => question.askedByNodeId))
+  const waitingAgents = summarizeAgentActivity(workspaces, needsYou).waiting.filter(
+    agent => !askers.has(agent.nodeId),
+  )
   // Tile badges count the inbox's own rows, so an unanswered Agent shows in both.
   const waitingCountByWorkspace = new Map<string, number>()
-  for (const agent of waitingAgents) {
+  for (const agent of [...waitingAgents, ...pendingQuestions]) {
     waitingCountByWorkspace.set(
       agent.workspaceId,
       (waitingCountByWorkspace.get(agent.workspaceId) ?? 0) + 1,
@@ -416,6 +422,7 @@ export function Sidebar({
                 <div className="workspace-sidebar__tree-scroll">
                   <SidebarAttentionInbox
                     items={waitingAgents}
+                    questions={pendingQuestions}
                     onSelectAgentNode={onSelectAgentNode}
                   />
                   <SidebarWorkspaceNavigation

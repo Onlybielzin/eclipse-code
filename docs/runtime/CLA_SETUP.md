@@ -1,6 +1,6 @@
 # CLA Setup (Maintainers)
 
-OpenCove uses a Contributor License Agreement (CLA) to ensure contributions can be used under open-source and commercial distribution models.
+Eclipse Code uses a Contributor License Agreement (CLA) to ensure contributions can be used under open-source and commercial distribution models.
 
 This doc describes how maintainers can enable an automated CLA gate on GitHub.
 
@@ -23,7 +23,7 @@ Tip: If you update `CLA.md` later, update the Gist to match.
 ### 2) Enable CLA Assistant for the repository
 
 1. Open https://cla-assistant.io and sign in with GitHub.
-2. Add the `DeadWaveWave/opencove` repository (or the current canonical repo if it moves).
+2. Add the `Onlybielzin/eclipse-code` repository (or the current canonical repo if it moves).
 3. Configure the CLA Assistant settings to point to the Gist URL from step (1).
 4. Add an allowlist for bots as needed (for example, `dependabot[bot]`).
 

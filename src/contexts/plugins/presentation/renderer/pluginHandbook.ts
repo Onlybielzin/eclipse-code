@@ -167,7 +167,7 @@ export function resolveHandbookLink(
   if (/^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith('//') || href.startsWith('#')) {
     return null
   }
-  const target = new URL(href, `https://handbook.opencove.invalid/${article.path}`)
+  const target = new URL(href, `https://handbook.eclipse-code.invalid/${article.path}`)
   const match = articles.find(item => `/${item.path}` === target.pathname)
   return match ? `${match.id}${target.hash}` : null
 }

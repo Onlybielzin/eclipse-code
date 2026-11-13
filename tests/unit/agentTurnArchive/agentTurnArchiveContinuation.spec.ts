@@ -9,7 +9,7 @@ import {
 import { InMemoryAgentTurnArchive } from '../../support/agentTurnArchive/InMemoryAgentTurnArchive'
 import { AgentRunStateRegistry } from '../../../src/contexts/agent/application/AgentRunStateRegistry'
 
-it('archives one OpenCove turn with the final reply across queued provider segments', () => {
+it('archives one Eclipse Code turn with the final reply across queued provider segments', () => {
   const archive = new InMemoryAgentTurnArchive(),
     append = vi.spyOn(archive, 'append')
   const f = continuationFixture(archive)

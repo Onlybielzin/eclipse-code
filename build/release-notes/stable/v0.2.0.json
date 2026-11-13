@@ -5,10 +5,10 @@
   "publishedAt": "2026-03-12T00:00:00.000Z",
   "provenance": "curated",
   "defaultLocale": "en",
-  "compareUrl": "https://github.com/DeadWaveWave/opencove/releases/tag/v0.2.0",
+  "compareUrl": "https://github.com/Onlybielzin/eclipse-code/releases/tag/v0.2.0",
   "locales": {
     "en": {
-      "summary": "OpenCove 0.2.0 unifies the workspace chrome, hardens agent/runtime stability, and introduces a formal multi-platform release pipeline.",
+      "summary": "Eclipse Code 0.2.0 unifies the workspace chrome, hardens agent/runtime stability, and introduces a formal multi-platform release pipeline.",
       "items": [
         {
           "kind": "added",
@@ -55,7 +55,7 @@
       ]
     },
     "zh-CN": {
-      "summary": "OpenCove 0.2.0 统一了工作区界面，强化了 Agent 与运行时稳定性，并引入正式的多平台发布流程。",
+      "summary": "Eclipse Code 0.2.0 统一了工作区界面，强化了 Agent 与运行时稳定性，并引入正式的多平台发布流程。",
       "items": [
         {
           "kind": "added",

@@ -11,7 +11,7 @@ import type {
 } from '../../../../shared/contracts/dto'
 import { createAppError } from '../../../../shared/errors/appError'
 
-const RELEASE_MANIFEST_OVERRIDE_ENV = 'OPENCOVE_RELEASE_NOTES_MANIFEST_PATH'
+const RELEASE_MANIFEST_OVERRIDE_ENV = 'ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH'
 const GENERATED_RELEASE_MANIFEST_PATH = ['release', 'release-manifest.json'] as const
 const CURATED_STABLE_MANIFEST_PATH = ['build', 'release-notes', 'stable'] as const
 
@@ -39,13 +39,13 @@ function isNightlyVersion(version: string): boolean {
 }
 
 function buildReleaseUrl(version: string): string {
-  return `https://github.com/DeadWaveWave/opencove/releases/tag/${encodeURIComponent(
+  return `https://github.com/Onlybielzin/eclipse-code/releases/tag/${encodeURIComponent(
     normalizeVersionTag(version),
   )}`
 }
 
 function buildChangelogUrl(): string {
-  return 'https://github.com/DeadWaveWave/opencove/blob/main/CHANGELOG.md'
+  return 'https://github.com/Onlybielzin/eclipse-code/blob/main/CHANGELOG.md'
 }
 
 async function pathExists(path: string): Promise<boolean> {

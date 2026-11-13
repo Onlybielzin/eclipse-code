@@ -36,7 +36,7 @@ Agent island。三者读同一份 Agent 模型（`summarizeAgentActivity`，与�
   标题取自提醒快照；provider 与项目图标实时读 Agent 模型。
 - **倒计时**：底部 12 格像素，6 秒内从右往左每 500ms 熄灭一格，熄完卡片在 150ms 的三帧里收回胶囊，
   Agent 留在胶囊里继续等你。
-  指针停在卡片堆上、焦点在卡片堆内，或 OpenCove 不在前台时，所有卡片暂停计时；暂停保留剩余时间。
+  指针停在卡片堆上、焦点在卡片堆内，或 Eclipse Code 不在前台时，所有卡片暂停计时；暂停保留剩余时间。
   前台状态由 main 按窗口判断（`window-chrome:get-focus` / `window-chrome:focus-changed`），
   渲染层不自己猜。
 - **堆叠**：最多 3 张，新的在前；旧卡收在后面，每张向下多露 8px、缩小 4%，只画窗口外框。

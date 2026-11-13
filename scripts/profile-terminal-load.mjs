@@ -25,17 +25,26 @@ import {
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'terminal-load-profile')
-const terminalCount = parsePositiveInt(process.env.OPENCOVE_PROFILE_TERMINAL_COUNT, 10)
-const outputIntervalMs = parsePositiveInt(process.env.OPENCOVE_PROFILE_OUTPUT_INTERVAL_MS, 100)
-const outputPayloadBytes = parsePositiveInt(process.env.OPENCOVE_PROFILE_OUTPUT_PAYLOAD_BYTES, 160)
-const sampleDurationMs = parsePositiveInt(process.env.OPENCOVE_PROFILE_SAMPLE_DURATION_MS, 20_000)
-const sampleIntervalMs = parsePositiveInt(process.env.OPENCOVE_PROFILE_SAMPLE_INTERVAL_MS, 1_000)
-const windowMode = process.env.OPENCOVE_PROFILE_WINDOW_MODE ?? 'inactive'
-const keepUserData = process.env.OPENCOVE_PROFILE_KEEP_USER_DATA === '1'
-const terminalDiagnosticsEnabled = process.env.OPENCOVE_PROFILE_TERMINAL_DIAGNOSTICS === '1'
-const terminalTestApiEnabled = process.env.OPENCOVE_PROFILE_TERMINAL_TEST_API === '1'
+const terminalCount = parsePositiveInt(process.env.ECLIPSE_CODE_PROFILE_TERMINAL_COUNT, 10)
+const outputIntervalMs = parsePositiveInt(process.env.ECLIPSE_CODE_PROFILE_OUTPUT_INTERVAL_MS, 100)
+const outputPayloadBytes = parsePositiveInt(
+  process.env.ECLIPSE_CODE_PROFILE_OUTPUT_PAYLOAD_BYTES,
+  160,
+)
+const sampleDurationMs = parsePositiveInt(
+  process.env.ECLIPSE_CODE_PROFILE_SAMPLE_DURATION_MS,
+  20_000,
+)
+const sampleIntervalMs = parsePositiveInt(
+  process.env.ECLIPSE_CODE_PROFILE_SAMPLE_INTERVAL_MS,
+  1_000,
+)
+const windowMode = process.env.ECLIPSE_CODE_PROFILE_WINDOW_MODE ?? 'inactive'
+const keepUserData = process.env.ECLIPSE_CODE_PROFILE_KEEP_USER_DATA === '1'
+const terminalDiagnosticsEnabled = process.env.ECLIPSE_CODE_PROFILE_TERMINAL_DIAGNOSTICS === '1'
+const terminalTestApiEnabled = process.env.ECLIPSE_CODE_PROFILE_TERMINAL_TEST_API === '1'
 const terminalTranscriptMirrorEnabled =
-  process.env.OPENCOVE_PROFILE_TERMINAL_TRANSCRIPT_MIRROR === '1'
+  process.env.ECLIPSE_CODE_PROFILE_TERMINAL_TRANSCRIPT_MIRROR === '1'
 
 function parsePositiveInt(value, fallback) {
   const parsed = Number.parseInt(value ?? '', 10)
@@ -51,7 +60,7 @@ async function ensureDir(dirPath) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-terminal-load-profile-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-terminal-load-profile-'))
 }
 
 async function launchProfiledApp(userDataDir, logs) {
@@ -91,13 +100,13 @@ async function launchProfiledApp(userDataDir, logs) {
         'PowerShell',
         'ModuleAnalysisCache',
       ),
-      OPENCOVE_TEST_WORKSPACE: repoPath,
-      OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TEST_NODE_EXECUTABLE: process.execPath,
-      OPENCOVE_TERMINAL_TEST_API: terminalTestApiEnabled ? '1' : '0',
-      OPENCOVE_TERMINAL_DIAGNOSTICS: terminalDiagnosticsEnabled ? '1' : '0',
-      OPENCOVE_DISABLE_TERMINAL_TRANSCRIPT_MIRROR: terminalTranscriptMirrorEnabled ? '0' : '1',
-      OPENCOVE_E2E_WINDOW_MODE: windowMode,
+      ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
+      ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TEST_NODE_EXECUTABLE: process.execPath,
+      ECLIPSE_CODE_TERMINAL_TEST_API: terminalTestApiEnabled ? '1' : '0',
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: terminalDiagnosticsEnabled ? '1' : '0',
+      ECLIPSE_CODE_DISABLE_TERMINAL_TRANSCRIPT_MIRROR: terminalTranscriptMirrorEnabled ? '0' : '1',
+      ECLIPSE_CODE_E2E_WINDOW_MODE: windowMode,
     },
   })
 
@@ -161,7 +170,7 @@ async function main() {
     if (terminalTestApiEnabled) {
       await window.waitForFunction(
         expectedCount =>
-          (window.__opencoveTerminalSelectionTestApi?.getRegisteredNodeIds?.() ?? []).length >=
+          (window.__eclipseCodeTerminalSelectionTestApi?.getRegisteredNodeIds?.() ?? []).length >=
           expectedCount,
         terminalCount,
         { timeout: 60_000 },

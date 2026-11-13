@@ -6,7 +6,7 @@ export function withWorkerCompatibility(delegate: typeof fetch): typeof fetch {
       return Promise.resolve(
         new Response(
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { features: { managedClaudeResumeBindingDeliveryV1: true } },
           }),

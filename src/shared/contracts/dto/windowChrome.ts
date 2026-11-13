@@ -9,7 +9,7 @@ export interface WindowFullScreenState {
   isFullScreen: boolean
 }
 
-/** Whether a window has focus, as main sees it: OpenCove is in front while one does. */
+/** Whether a window has focus, as main sees it: Eclipse Code is in front while one does. */
 export interface WindowFocusState {
   isFocused: boolean
 }

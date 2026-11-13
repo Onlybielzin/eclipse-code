@@ -22,6 +22,8 @@ import { PROJECT_ICON_IDS, type ProjectIconId } from '@shared/types/projectIcon'
 import type { WorkspaceState } from '@contexts/workspace/presentation/renderer/types'
 import type { ProjectContextMenuTarget } from '../types'
 import { useAppStore } from '../store/useAppStore'
+import { isTaskSpaceTarget } from '@contexts/workspace/presentation/renderer/components/workspaceCanvas/tasks/taskEvents'
+import { TaskSpaceMenuItems } from './TaskSpaceMenuItems'
 import { ProjectIcon } from './ProjectIcon'
 import { useProjectContextMenuFocus } from './useProjectContextMenuFocus'
 import { SidebarVisibilityMenuItem } from './SidebarVisibilityMenuItem'
@@ -59,8 +61,8 @@ export function ProjectContextMenu({
   onRequestRemove: (workspaceId: string) => void
 }): React.JSX.Element | null {
   const { t } = useTranslation()
-  const runtime = window.opencoveApi?.meta?.runtime
-  const platform = window.opencoveApi?.meta?.platform
+  const runtime = window.eclipseCodeApi?.meta?.runtime
+  const platform = window.eclipseCodeApi?.meta?.platform
   const canOpenInFileManager = runtime === 'electron'
   const resolvedTarget = useMemo<ProjectContextMenuTarget>(
     () => target ?? { kind: 'project', workspaceId },
@@ -85,6 +87,7 @@ export function ProjectContextMenu({
   const currentProjectIconId = resolveTargetProjectIconId(workspaces, resolvedTarget)
   const currentLabelColor = resolveTargetLabelColor(workspaces, resolvedTarget)
   const isSpacePinned = resolveTargetSpacePinned(workspaces, resolvedTarget)
+  const isTopLevelSpaceTarget = isTaskSpaceTarget(workspaces, resolvedTarget) // Eclipse Code tasks
   const isAgentPinned = resolveTargetAgentPinned(resolvedTarget)
   const estimatedWidth = isRenaming
     ? 236
@@ -139,7 +142,7 @@ export function ProjectContextMenu({
     if (!path) {
       return
     }
-    const copyPath = window.opencoveApi?.workspace?.copyPath
+    const copyPath = window.eclipseCodeApi?.workspace?.copyPath
     if (typeof copyPath === 'function') {
       void copyPath({ path })
       return
@@ -155,7 +158,7 @@ export function ProjectContextMenu({
     if (!path) {
       return
     }
-    const openPath = window.opencoveApi?.workspace?.openPath
+    const openPath = window.eclipseCodeApi?.workspace?.openPath
     if (typeof openPath !== 'function') {
       return
     }
@@ -430,6 +433,7 @@ export function ProjectContextMenu({
           >
             {isSpacePinned ? t('projectContextMenu.unpinSpace') : t('projectContextMenu.pinSpace')}
           </MenuItem>
+          {isTopLevelSpaceTarget ? <TaskSpaceMenuItems spaceId={resolvedTarget.spaceId} /> : null}
           <MenuItem
             icon={<CopyIcon />}
             data-testid={`workspace-space-context-copy-path-${resolvedTarget.spaceId}`}

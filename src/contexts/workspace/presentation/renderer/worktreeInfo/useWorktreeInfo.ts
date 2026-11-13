@@ -29,7 +29,7 @@ async function listWorktreeInfo({
     )
     return next
   }
-  const listWorktrees = window.opencoveApi?.worktree?.listWorktrees
+  const listWorktrees = window.eclipseCodeApi?.worktree?.listWorktrees
   if (typeof listWorktrees !== 'function') {
     return next
   }

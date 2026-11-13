@@ -1,4 +1,4 @@
-# OpenCove Docs
+# Eclipse Code Docs
 
 `docs/` 只放公开、当前有效的工程文档。这里的文档描述已实现的架构、能力边界、调试方法和维护规则；执行安排、草案和内部风险跟踪不放在公开文档中。
 
@@ -64,7 +64,7 @@
 
 ## Recovery
 
-- `cases/opencove-db-sqlite-recover.md`：离线 SQLite `.recover` 输出重建 OpenCove 数据库的可复用脚本说明。
+- `cases/eclipse-code-db-sqlite-recover.md`：离线 SQLite `.recover` 输出重建 Eclipse Code 数据库的可复用脚本说明。
 
 ## Cases
 

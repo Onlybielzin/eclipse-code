@@ -3,11 +3,11 @@ type RuntimeIconTestState = {
 }
 
 declare global {
-  var __opencoveRuntimeIconTestState: RuntimeIconTestState | undefined
+  var __eclipseCodeRuntimeIconTestState: RuntimeIconTestState | undefined
 }
 
 export function setRuntimeIconTestState(runtimeIconPath: string | null): void {
-  globalThis.__opencoveRuntimeIconTestState = {
+  globalThis.__eclipseCodeRuntimeIconTestState = {
     runtimeIconPath,
   }
 }

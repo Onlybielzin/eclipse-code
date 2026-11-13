@@ -1,7 +1,7 @@
 # 安装、使用，并保留自己的工作
 
-先准备一个来自可信作者的插件目录，其中应包含 `opencove.plugin.json`
-和可直接运行的文件。OpenCove 不会替插件安装依赖或执行构建脚本。
+先准备一个来自可信作者的插件目录，其中应包含 `eclipse-code.plugin.json`
+和可直接运行的文件。Eclipse Code 不会替插件安装依赖或执行构建脚本。
 
 
 ## 从 Git 仓库安装
@@ -21,12 +21,12 @@ Git 安装的详情页提供**检查更新**。查看结果后，可选择**应�
 **历史版本**可恢复已保存的代码修订。它会保留用户数据，不会恢复旧的用户数据。
 构建、冲突处理和命令示例见 [Git 分发指南](../DISTRIBUTION.md)。
 
-## 连接到正确的 OpenCove
+## 连接到正确的 Eclipse Code
 
 保持目标应用或 Worker 运行，在终端中查看已安装列表：
 
 ```sh
-opencove plugin list --pretty
+eclipse-code plugin list --pretty
 ```
 
 CLI 与运行中的应用应支持同一插件 API。如果还没有 CLI，可前往
@@ -39,8 +39,8 @@ CLI 与运行中的应用应支持同一插件 API。如果还没有 CLI，可�
 使用插件在所连接运行环境机器上的绝对路径：
 
 ```sh
-opencove plugin install /absolute/path/to/your-plugin --pretty
-opencove plugin list --pretty
+eclipse-code plugin install /absolute/path/to/your-plugin --pretty
+eclipse-code plugin list --pretty
 ```
 
 打开**设置 → 插件**，必要时刷新列表。点击插件查看 README、版本与交互预览。
@@ -60,8 +60,8 @@ opencove plugin list --pretty
 编辑或重新构建源目录后，主动加载新文件：
 
 ```sh
-opencove plugin reload your-plugin
-opencove plugin details your-plugin --pretty
+eclipse-code plugin reload your-plugin
+eclipse-code plugin details your-plugin --pretty
 ```
 
 将 `your-plugin` 替换为 manifest 中的插件 ID，并检查返回的版本修订与日志。

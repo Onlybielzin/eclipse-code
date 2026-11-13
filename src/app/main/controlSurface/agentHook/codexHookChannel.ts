@@ -29,8 +29,8 @@ export function createCodexHookChannel(options: {
         ? null
         : { hookEventName: envelope.hookEventName, providerSessionId: envelope.codexSessionId },
     buildReservationEnv: (endpoint, token) => ({
-      OPENCOVE_CODEX_HOOK_ENDPOINT: endpoint,
-      OPENCOVE_CODEX_HOOK_TOKEN: token,
+      ECLIPSE_CODE_CODEX_HOOK_ENDPOINT: endpoint,
+      ECLIPSE_CODE_CODEX_HOOK_TOKEN: token,
     }),
   })
 }

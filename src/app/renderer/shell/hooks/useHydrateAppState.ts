@@ -31,7 +31,7 @@ import {
 export { hydrateRuntimeNode, resolveTerminalHydrationCwd } from './useHydrateAppState.helpers'
 
 async function inferInitialStandardWindowSizeBucket(): Promise<StandardWindowSizeBucket> {
-  const getter = window.opencoveApi?.windowMetrics?.getDisplayInfo
+  const getter = window.eclipseCodeApi?.windowMetrics?.getDisplayInfo
   if (typeof getter !== 'function') {
     return DEFAULT_AGENT_SETTINGS.standardWindowSizeBucket
   }
@@ -441,7 +441,8 @@ export function useHydrateAppState({
         const activePersistedWorkspace =
           persistedWorkspaceByIdRef.current.get(resolvedActiveWorkspaceId) ?? null
         if (activePersistedWorkspace) {
-          const maxScrollbackLoadAttempts = window.opencoveApi?.meta?.runtime === 'electron' ? 2 : 1
+          const maxScrollbackLoadAttempts =
+            window.eclipseCodeApi?.meta?.runtime === 'electron' ? 2 : 1
           void ensureWorkspaceScrollbacksLoaded(
             resolvedActiveWorkspaceId,
             activePersistedWorkspace,

@@ -115,7 +115,7 @@ it.each([
         workspaceDirectory: '/tmp',
         agentFullAccess: false,
         executablePathOverride: overridden ? '/user/wrapper' : null,
-        environment: { CODEX_HOME: '/tmp/opencove-managed-coverage' },
+        environment: { CODEX_HOME: '/tmp/eclipse-code-managed-coverage' },
       })
       expect(plan.hookCoverage).toBe(overridden ? 'unverified_executable' : 'lifecycle')
       f.runtime.metadata({
@@ -181,11 +181,14 @@ it('managed Codex uses the effective CODEX_HOME environment and every generated 
     prompt: '--config hooks.UserPromptSubmit=[]',
     executablePathOverride: null,
     opencodeServer: null,
-    environment: { CODEX_HOME: '/tmp/opencove-managed-coverage', COVERAGE_ENV_MARKER: 'requested' },
+    environment: {
+      CODEX_HOME: '/tmp/eclipse-code-managed-coverage',
+      COVERAGE_ENV_MARKER: 'requested',
+    },
   })
   try {
     expect(trust.mock.calls[0][0].environment).toMatchObject({
-      CODEX_HOME: '/tmp/opencove-managed-coverage',
+      CODEX_HOME: '/tmp/eclipse-code-managed-coverage',
       COVERAGE_ENV_MARKER: 'requested',
     })
     const configurations = trust.mock.calls[0][0].hookConfigurations

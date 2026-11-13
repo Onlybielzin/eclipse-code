@@ -68,12 +68,12 @@ function runtime(hostVersion: string | null = null) {
   }
 }
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-plugin-git with spaces-'))
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-git with spaces-'))
   repository = join(root, 'remote')
   profile = join(root, 'profile')
   await mkdir(repository)
   await git(repository, ['init', '-b', 'main'])
-  await writeFile(join(repository, 'opencove.plugin.json'), JSON.stringify(pkg))
+  await writeFile(join(repository, 'eclipse-code.plugin.json'), JSON.stringify(pkg))
   await writeFile(join(repository, 'main.mjs'), 'version-one')
   await writeFile(join(repository, 'index.html'), '<html><head></head><body>original</body></html>')
   await writeFile(join(repository, 'delete-me.txt'), 'tracked')
@@ -89,30 +89,30 @@ describe('Git source, candidate and active artifact ownership', { timeout: 30_00
   it('keeps incompatible updates and apply candidates inactive, and rechecks retained code on rollback', async () => {
     const { service, manager, files } = runtime('0.3.2')
     await writeFile(
-      join(repository, 'opencove.plugin.json'),
-      JSON.stringify({ ...pkg, engines: { opencove: '>=0.3.2 <0.4.0' } }),
+      join(repository, 'eclipse-code.plugin.json'),
+      JSON.stringify({ ...pkg, engines: { eclipseCode: '>=0.3.2 <0.4.0' } }),
     )
     await commit(repository)
     const first = await service.install({ repository, ref: 'main' })
     const view = await manager.openView({ pluginId: pkg.id, nodeId: 'keep-alive' })
     const registry = await files.readRegistry()
     await writeFile(
-      join(repository, 'opencove.plugin.json'),
-      JSON.stringify({ ...pkg, version: '2.0.0', engines: { opencove: '>=0.4.0' } }),
+      join(repository, 'eclipse-code.plugin.json'),
+      JSON.stringify({ ...pkg, version: '2.0.0', engines: { eclipseCode: '>=0.4.0' } }),
     )
     await commit(repository)
     const candidate = await service.update(pkg.id)
     expect(candidate).toMatchObject({
       status: 'failed',
-      error: expect.stringContaining('requires OpenCove >=0.4.0'),
+      error: expect.stringContaining('requires Eclipse Code >=0.4.0'),
     })
     expect(await service.apply(candidate.candidateId)).toMatchObject({ status: 'failed' })
     expect(await files.readRegistry()).toEqual(registry)
     expect(await manager.invoke(view.viewId, 'read', null)).toBe('version-one')
 
     await writeFile(
-      join(candidate.candidateDirectory, 'opencove.plugin.json'),
-      JSON.stringify({ ...pkg, version: '2.0.0', engines: { opencove: '>=0.3.2 <0.5.0' } }),
+      join(candidate.candidateDirectory, 'eclipse-code.plugin.json'),
+      JSON.stringify({ ...pkg, version: '2.0.0', engines: { eclipseCode: '>=0.3.2 <0.5.0' } }),
     )
     await commit(candidate.candidateDirectory)
     expect(await service.apply(candidate.candidateId)).toMatchObject({ status: 'updated' })
@@ -121,7 +121,7 @@ describe('Git source, candidate and active artifact ownership', { timeout: 30_00
     expect(await upgraded.manager.list()).toMatchObject([{ version: '2.0.0', status: 'ready' }])
     const beforeRollback = await upgraded.files.readRegistry()
     await expect(upgraded.service.rollback(pkg.id, first.plugin!.revision!)).rejects.toThrow(
-      'requires OpenCove >=0.3.2 <0.4.0',
+      'requires Eclipse Code >=0.3.2 <0.4.0',
     )
     expect(await upgraded.files.readRegistry()).toEqual(beforeRollback)
     expect(await upgraded.manager.list()).toMatchObject([{ version: '2.0.0', status: 'ready' }])
@@ -203,7 +203,7 @@ describe('Git source, candidate and active artifact ownership', { timeout: 30_00
       const installed = await service.install({ repository })
       const open = await manager.openView({ pluginId: pkg.id, nodeId: 'node' })
       if (failure === 'validation') {
-        await writeFile(join(repository, 'opencove.plugin.json'), '{bad')
+        await writeFile(join(repository, 'eclipse-code.plugin.json'), '{bad')
       } else {
         await writeFile(
           join(repository, 'main.mjs'),
@@ -266,7 +266,7 @@ describe('Git source, candidate and active artifact ownership', { timeout: 30_00
     )
     await writeFile(
       join(repository, 'build.cjs'),
-      "const fs=require('node:fs');fs.mkdirSync('dist',{recursive:true});for(const name of ['opencove.plugin.json','main.mjs','index.html']) fs.copyFileSync(name,'dist/'+name)",
+      "const fs=require('node:fs');fs.mkdirSync('dist',{recursive:true});for(const name of ['eclipse-code.plugin.json','main.mjs','index.html']) fs.copyFileSync(name,'dist/'+name)",
     )
     await writeFile(
       join(repository, 'preinstall.cjs'),

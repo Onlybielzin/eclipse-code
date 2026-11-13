@@ -275,7 +275,7 @@ export async function waitForAgents(
         timedOut ? 'agent.wait_timeout' : 'cli.interrupted',
         timedOut ? 124 : 130,
         timedOut ? 'Timed out waiting for agents.' : 'Agent wait interrupted.',
-        'Inspect with opencove agent get --node <selector>; waiting never sends input.',
+        'Inspect with eclipse-code agent get --node <selector>; waiting never sends input.',
         { ...(timedOut ? { reason: 'wait_timeout' } : {}), lastKnown: result() },
       )
     }

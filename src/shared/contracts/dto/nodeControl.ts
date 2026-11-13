@@ -14,6 +14,8 @@ export type ReadableCanvasNodeKind =
   | 'folder'
   | 'image'
   | 'role'
+  | 'question'
+  | 'todos'
 
 export type UpdatableCanvasNodeKind = ManagedCanvasNodeKind
 
@@ -70,7 +72,10 @@ export interface CanvasNodeSummaryDto extends NodeLineageProjection {
 }
 
 export type CanvasNodeDetailDataDto =
-  | { kind: 'plugin' | 'document' | 'folder' | 'image' | 'role'; content: unknown }
+  | {
+      kind: 'plugin' | 'document' | 'folder' | 'image' | 'role' | 'question' | 'todos'
+      content: unknown
+    }
   | {
       kind: 'note'
       text: string

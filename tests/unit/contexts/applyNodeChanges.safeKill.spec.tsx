@@ -48,7 +48,7 @@ describe('useWorkspaceCanvasApplyNodeChanges', () => {
       throw new Error('boom')
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

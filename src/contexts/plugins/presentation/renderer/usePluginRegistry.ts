@@ -4,7 +4,7 @@ import { refreshPluginDetails } from './usePluginDetails'
 import { createPluginCatalogStore } from './pluginCatalogStore'
 
 const store = createPluginCatalogStore([], async () => {
-  const result = await window.opencoveApi.controlSurface.invoke<{ plugins: PluginManifest[] }>({
+  const result = await window.eclipseCodeApi.controlSurface.invoke<{ plugins: PluginManifest[] }>({
     kind: 'query',
     id: 'plugin.list',
     payload: null,
@@ -19,7 +19,7 @@ let stopDiscovery: (() => void) | null = null
 
 function startDiscovery(): () => void {
   owners += 1
-  if (owners === 1 && typeof window.opencoveApi?.controlSurface?.invoke === 'function') {
+  if (owners === 1 && typeof window.eclipseCodeApi?.controlSurface?.invoke === 'function') {
     const refresh = (): void => {
       void store.refresh()
     }
@@ -79,7 +79,7 @@ export async function changeInstalledPlugin<T = void>(
   payload: Record<string, unknown>,
 ): Promise<T> {
   try {
-    return await window.opencoveApi.controlSurface.invoke<T>({ kind: 'command', id, payload })
+    return await window.eclipseCodeApi.controlSurface.invoke<T>({ kind: 'command', id, payload })
   } finally {
     // Failed reloads leave the prior revision working but may add useful diagnostics.
     store.invalidate()

@@ -33,7 +33,7 @@ async function createRepo(repoDir: string): Promise<string> {
   await mkdir(repoDir, { recursive: true })
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
@@ -50,7 +50,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
     const remotePort = await reserveLoopbackPort()
     const remoteHost = '127.0.0.1'
 
-    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-m6-remote-worktree-'))
+    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-worktree-'))
     const remoteRepoSeedDir = path.join(remoteBaseDir, 'repo')
     const remoteRepoDir = await createRepo(remoteRepoSeedDir)
     const remoteRepoDirCanonical = await realpath(remoteRepoDir).catch(() => remoteRepoDir)
@@ -61,7 +61,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
     ]
 
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-e2e-m6-remote-worker-worktree-'),
+      path.join(tmpdir(), 'eclipse-code-e2e-m6-remote-worker-worktree-'),
     )
 
     const remoteWorker = await startRemoteWorker({
@@ -73,19 +73,19 @@ test.describe('M6 - Remote mount worktree integration', () => {
       approveRoot: remoteBaseDir,
       agentSessionScenario: 'codex-standby-only',
       env: {
-        OPENCOVE_TEST_GITHUB_INTEGRATION: '1',
+        ECLIPSE_CODE_TEST_GITHUB_INTEGRATION: '1',
       },
     })
 
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
       },
     })
 
     try {
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -150,7 +150,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
       const remoteEndpointId = await pollFor(
         async () =>
           await window.evaluate(async displayName => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({
               kind: 'query',
@@ -186,7 +186,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
       const workspaceId = await pollFor(
         async () =>
           await window.evaluate(async projectName => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -224,7 +224,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
           await window.evaluate(
             async ({ projectId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -301,7 +301,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
           await window.evaluate(
             async ({ projectId, spaceId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -333,7 +333,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
                   return null
                 }
 
-                if (!/[\\/][.]opencove[\\/]worktrees[\\/]/.test(directoryPath)) {
+                if (!/[\\/][.]eclipse-code[\\/]worktrees[\\/]/.test(directoryPath)) {
                   return null
                 }
 
@@ -385,7 +385,7 @@ test.describe('M6 - Remote mount worktree integration', () => {
         async () =>
           await window.evaluate(
             async ({ projectId, spaceId }) => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

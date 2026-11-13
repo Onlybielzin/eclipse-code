@@ -20,7 +20,12 @@ export function normalizePixelEffectSettings(
     canvasBackgroundStyle: normalizeCanvasBackgroundStyle(
       value.canvasBackgroundStyle,
       normalizeBoolean(value.canvasPixelBackgroundEnabled),
-      legacyEnabled ? 'pixel' : 'off',
+      // New users and plugin themes start on the Eclipse wallpaper; legacy Pixel users keep the wall.
+      savedUiTheme === null || savedUiTheme.startsWith('plugin:')
+        ? 'wallpaper'
+        : legacyEnabled
+          ? 'pixel'
+          : 'off',
     ),
     // Ambient twinkle and cloud drift on the pixel wall; reduced motion still stops it.
     canvasBackgroundTwinkleEnabled: normalizeBoolean(value.canvasBackgroundTwinkleEnabled) ?? true,

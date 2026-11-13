@@ -4,7 +4,7 @@ import { createRailAgent } from './sidebar-test-fixtures'
 
 async function readCollapsedSetting(page: Page): Promise<boolean | null> {
   return await page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = raw
       ? (JSON.parse(raw) as { settings?: { isPrimarySidebarCollapsed?: boolean } })
       : null
@@ -23,7 +23,7 @@ test.describe('Primary Sidebar Toggle', () => {
         workspaces: [
           {
             id: 'workspace-toggle-a',
-            name: 'OpenCove',
+            name: 'Eclipse Code',
             path: testWorkspacePath,
             nodes: [
               createRailAgent(

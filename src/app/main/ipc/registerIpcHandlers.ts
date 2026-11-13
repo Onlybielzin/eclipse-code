@@ -79,7 +79,7 @@ export function registerIpcHandlers(deps?: {
       workerEndpointResolver
         ? Promise.resolve(createRemotePersistenceStore(workerEndpointResolver))
         : (() => {
-            const dbPath = resolve(app.getPath('userData'), 'opencove.db')
+            const dbPath = resolve(app.getPath('userData'), 'eclipse-code.db')
             return createPersistenceStore({ dbPath })
           })()
     ).catch(error => {
@@ -98,7 +98,7 @@ export function registerIpcHandlers(deps?: {
       return await browserProfileStorePromise
     }
 
-    const dbPath = resolve(app.getPath('userData'), 'opencove.db')
+    const dbPath = resolve(app.getPath('userData'), 'eclipse-code.db')
     const nextStorePromise = (async () => {
       if (!workerEndpointResolver) {
         await getPersistenceStore()
@@ -121,7 +121,7 @@ export function registerIpcHandlers(deps?: {
       return await agentSessionTitleCacheStorePromise
     }
 
-    const dbPath = resolve(app.getPath('userData'), 'opencove.db')
+    const dbPath = resolve(app.getPath('userData'), 'eclipse-code.db')
     const nextStorePromise = (async () => {
       // 与 browser store 同序:先确保主持久化 store 初始化(版本升级时的一次性
       // 备份在主 store 那边先跑),再开本 store 的连接。
@@ -173,8 +173,8 @@ export function registerIpcHandlers(deps?: {
     : approvedWorkspaces
 
   const startupApprovalRoots =
-    process.env.NODE_ENV === 'test' && process.env.OPENCOVE_TEST_WORKSPACE
-      ? [resolve(process.env.OPENCOVE_TEST_WORKSPACE)]
+    process.env.NODE_ENV === 'test' && process.env.ECLIPSE_CODE_TEST_WORKSPACE
+      ? [resolve(process.env.ECLIPSE_CODE_TEST_WORKSPACE)]
       : []
 
   const startupApprovedWorkspaces = createPersistedWorkspaceApprovalGate({
@@ -187,7 +187,7 @@ export function registerIpcHandlers(deps?: {
     onError: error => {
       const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
       process.stderr.write(
-        `[opencove] Failed to hydrate approved workspaces from persistence: ${detail}\n`,
+        `[eclipse-code] Failed to hydrate approved workspaces from persistence: ${detail}\n`,
       )
     },
   })

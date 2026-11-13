@@ -40,22 +40,22 @@ export const enCommonRemoteEndpoints = {
       'The update could not finish. Data and the recovery snapshot were retained; inspect the deployment details before retrying.',
     local: 'Runs on this device.',
     connected: 'Ready. You can browse folders or bind a remote path.',
-    connecting: 'OpenCove is connecting to this remote machine.',
+    connecting: 'Eclipse Code is connecting to this remote machine.',
     disconnected: 'This remote machine is not connected right now.',
     managedDisconnected: 'Ready to connect over SSH from this machine.',
     manualDisconnected: 'Not connected. Check the host, port, and token.',
     auth_failed: 'The saved credentials were rejected by the remote machine.',
-    tunnel_failed: 'OpenCove could not keep the SSH tunnel alive.',
+    tunnel_failed: 'Eclipse Code could not keep the SSH tunnel alive.',
     installer_unavailable:
-      'OpenCove reached the machine, but this release does not provide the required installer.',
+      'Eclipse Code reached the machine, but this release does not provide the required installer.',
     runtime_corrupt: 'The remote components cannot run. Reinstall them before trying to reconnect.',
     runtime_unmanaged:
-      'The active remote command is not owned by OpenCove, so it was left untouched. Remove or repair it manually.',
+      'The active remote command is not owned by Eclipse Code, so it was left untouched. Remove or repair it manually.',
     needs_setup: 'The remote components still need to be installed or started.',
-    version_mismatch: 'The remote components are not compatible with this OpenCove build yet.',
+    version_mismatch: 'The remote components are not compatible with this Eclipse Code build yet.',
     persistence_failed:
       'The last topology change was not saved. On-disk settings remain authoritative.',
-    error: 'OpenCove could not prepare this remote machine.',
+    error: 'Eclipse Code could not prepare this remote machine.',
   },
   action: {
     none: 'No action',

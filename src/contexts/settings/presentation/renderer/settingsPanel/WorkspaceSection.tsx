@@ -7,7 +7,7 @@ import { SettingsGroup, SettingsGroupBody } from './SettingsGroup'
 function resolveWorktreesRoot(workspacePath: string, worktreesRoot: string): string {
   const trimmed = worktreesRoot.trim()
   if (trimmed.length === 0) {
-    return `${workspacePath.replace(/[/]+$/, '')}/.opencove/worktrees`
+    return `${workspacePath.replace(/[/]+$/, '')}/.eclipse-code/worktrees`
   }
   if (/^([a-zA-Z]:[/]|\/)/.test(trimmed)) {
     return trimmed.replace(/[/]+$/, '')

@@ -9,14 +9,14 @@ import { launchApp } from './workspace-canvas.helpers'
 test.describe('Whats New', () => {
   let releaseManifestPath: string
   test.beforeAll(async () => {
-    const directory = await mkdtemp(path.join(tmpdir(), 'opencove-release-notes-'))
+    const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-release-notes-'))
     releaseManifestPath = path.join(directory, 'release-manifest.json')
     await writeFile(
       releaseManifestPath,
       JSON.stringify({
         ...releaseNotesFixture,
         version: packageJson.version,
-        compareUrl: `https://github.com/DeadWaveWave/opencove/releases/tag/v${packageJson.version}`,
+        compareUrl: `https://github.com/Onlybielzin/eclipse-code/releases/tag/v${packageJson.version}`,
       }),
     )
   })
@@ -31,15 +31,15 @@ test.describe('Whats New', () => {
   }, testInfo) => {
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_WHATS_NEW: '1',
-        OPENCOVE_RELEASE_NOTES_MANIFEST_PATH: releaseManifestPath,
+        ECLIPSE_CODE_TEST_WHATS_NEW: '1',
+        ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH: releaseManifestPath,
       },
     })
 
     try {
       void browserName
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -91,8 +91,8 @@ test.describe('Whats New', () => {
   test('does not show the dialog on a fresh install', async () => {
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_WHATS_NEW: '1',
-        OPENCOVE_RELEASE_NOTES_MANIFEST_PATH: releaseManifestPath,
+        ECLIPSE_CODE_TEST_WHATS_NEW: '1',
+        ECLIPSE_CODE_RELEASE_NOTES_MANIFEST_PATH: releaseManifestPath,
       },
     })
 

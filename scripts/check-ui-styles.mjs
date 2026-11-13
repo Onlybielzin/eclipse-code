@@ -36,7 +36,7 @@ function colorSet(colors) {
 }
 
 // These colors mirror the third-party OpenCode terminal palette. They are part
-// of the terminal-provider presentation protocol rather than OpenCove chrome.
+// of the terminal-provider presentation protocol rather than Eclipse Code chrome.
 const OPENCODE_TERMINAL_COLORS = colorSet([
   'rgba(107, 138, 236, 0.65)',
   'rgba(104, 137, 226, 0.45)',

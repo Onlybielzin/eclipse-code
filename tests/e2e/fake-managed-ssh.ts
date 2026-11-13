@@ -10,9 +10,9 @@ import { access, appendFile } from 'node:fs/promises'
 import { watch } from 'node:fs'
 import path from 'node:path'
 
-const gateDir = process.env.OPENCOVE_FAKE_SSH_GATE_DIR
+const gateDir = process.env.ECLIPSE_CODE_FAKE_SSH_GATE_DIR
 async function phaseGate(phase) {
-  const line = '[opencove-bootstrap-progress:v1] ' + phase + '\n'
+  const line = '[eclipse-code-bootstrap-progress:v1] ' + phase + '\n'
   process.stdout.write(line)
   await appendFile(path.join(gateDir, 'phases.log'), line)
   const release = path.join(gateDir, phase + '.release')
@@ -101,8 +101,8 @@ if (gateDir) {
   await phaseGate('checking_remote_runtime')
   await phaseGate('installing_runtime')
   await phaseGate('starting_runtime')
-  if (process.env.OPENCOVE_FAKE_SSH_FAILURE) {
-    process.stderr.write('[opencove-bootstrap:' + process.env.OPENCOVE_FAKE_SSH_FAILURE + '] Runtime activation deferred.\n')
+  if (process.env.ECLIPSE_CODE_FAKE_SSH_FAILURE) {
+    process.stderr.write('[eclipse-code-bootstrap:' + process.env.ECLIPSE_CODE_FAKE_SSH_FAILURE + '] Runtime activation deferred.\n')
     process.exit(1)
   }
   process.exit(0)
@@ -114,7 +114,7 @@ process.exit(0)
 `
 
 export async function createFakeManagedSshInstallDir(): Promise<string> {
-  const installDir = await mkdtemp(path.join(tmpdir(), 'opencove-fake-ssh-'))
+  const installDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-fake-ssh-'))
   const runtimePath = path.join(installDir, 'ssh.mjs')
   await writeFile(runtimePath, FAKE_SSH_RUNTIME.trimStart(), 'utf8')
 

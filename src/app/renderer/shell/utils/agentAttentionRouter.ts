@@ -1,7 +1,7 @@
 /**
  * Routes "an Agent needs you" to its three channels: the in-app card, the system notification
  * and the one sound. The switches decide here; main decides the foreground and drops a system
- * notification while any OpenCove window is focused (`systemNotifications.ts`).
+ * notification while any Eclipse Code window is focused (`systemNotifications.ts`).
  * See docs/agent/ATTENTION.md.
  */
 export type AgentAttentionChannels = { inApp: boolean; system: boolean; sound: boolean }

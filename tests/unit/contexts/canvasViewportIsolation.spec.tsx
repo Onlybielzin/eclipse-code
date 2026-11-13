@@ -204,7 +204,7 @@ describe('viewport projection without window renders', () => {
     vi.useFakeTimers()
     const setBounds = vi.fn()
     const captureSnapshot = vi.fn()
-    window.opencoveApi = { websiteWindow: { setBounds, captureSnapshot } } as never
+    window.eclipseCodeApi = { websiteWindow: { setBounds, captureSnapshot } } as never
     let frame: FrameRequestCallback = () => {}
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
       frame = callback

@@ -12,7 +12,7 @@ async function readNodePosition(
   nodeId: string,
 ): Promise<{ x: number; y: number } | null> {
   return await window.evaluate(async targetNodeId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -77,7 +77,7 @@ test.describe('Workspace Canvas - Task Drag Renderer Recovery', () => {
           position: { x: 760, y: 180 },
           width: 520,
           height: 320,
-          scrollback: '[opencove-test-agent] ready\\nline-2\\nline-3',
+          scrollback: '[eclipse-code-test-agent] ready\\nline-2\\nline-3',
         },
       ])
 
@@ -109,7 +109,7 @@ test.describe('Workspace Canvas - Task Drag Renderer Recovery', () => {
       })
       try {
         const injection = await window.evaluate(() => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const injected = api?.simulateDetachedRendererOnce?.('drag-crash-terminal')
           // Observe the armed read in the same renderer task. A separate evaluate
           // yields to normal geometry/health work, which may already consume it.
@@ -131,7 +131,7 @@ test.describe('Workspace Canvas - Task Drag Renderer Recovery', () => {
           async () =>
             await window.evaluate(
               () =>
-                window.__opencoveTerminalSelectionTestApi?.hasPendingDetachedRendererRead?.(
+                window.__eclipseCodeTerminalSelectionTestApi?.hasPendingDetachedRendererRead?.(
                   'drag-crash-terminal',
                 ) ?? null,
             ),

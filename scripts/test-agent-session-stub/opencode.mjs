@@ -17,15 +17,15 @@ async function openWritableSqliteDb(dbPath) {
 }
 
 export async function runOpenCodeIdleWithMessageScenario(cwd) {
-  const hostname = process.env.OPENCOVE_OPENCODE_SERVER_HOSTNAME?.trim() ?? ''
-  const port = Number(process.env.OPENCOVE_OPENCODE_SERVER_PORT ?? '')
+  const hostname = process.env.ECLIPSE_CODE_OPENCODE_SERVER_HOSTNAME?.trim() ?? ''
+  const port = Number(process.env.ECLIPSE_CODE_OPENCODE_SERVER_PORT ?? '')
 
   if (hostname.length === 0 || !Number.isFinite(port) || port <= 0) {
     await sleep(20_000)
     return
   }
 
-  const sessionId = `opencove-test-opencode-${Date.now()}`
+  const sessionId = `eclipse-code-test-opencode-${Date.now()}`
   const startedAtMs = Date.now()
 
   const opencodeDir = join(os.homedir(), '.local', 'share', 'opencode')

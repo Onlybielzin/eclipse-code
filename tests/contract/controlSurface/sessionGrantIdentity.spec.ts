@@ -74,7 +74,7 @@ it('forwards only Worker-owned spawn context and requires bearer authority at th
     async () =>
       new Response(
         JSON.stringify({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { sessionId: 'remote' },
         }),

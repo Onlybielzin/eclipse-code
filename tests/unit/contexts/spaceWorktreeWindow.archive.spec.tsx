@@ -10,6 +10,8 @@ import {
   installWorktreeApi,
 } from './spaceWorktreeWindow.testUtils'
 import { renderArchiveWindow, submitArchive } from './spaceWorktreeWindow.renderUtils'
+/** Worktrees root used by every fixture below. */
+const WT = '/repo/.eclipse-code/worktrees'
 
 describe('SpaceWorktreeWindow archive flow', () => {
   afterEach(() => {
@@ -51,7 +53,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     await waitFor(() => {
       expect(remove).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreePath: '/repo/.opencove/worktrees/space-1',
+        worktreePath: `${WT}/space-1`,
         force: true,
         deleteBranch: true,
       })
@@ -99,7 +101,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     await waitFor(() => {
       expect(remove).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreePath: '/repo/.opencove/worktrees/space-1',
+        worktreePath: `${WT}/space-1`,
         force: true,
         deleteBranch: false,
       })
@@ -160,18 +162,18 @@ describe('SpaceWorktreeWindow archive flow', () => {
       listWorktrees: vi.fn(async () => ({
         worktrees: [
           { path: '/repo', head: 'abc', branch: 'main' },
-          { path: '/repo/.opencove/worktrees/api', head: 'def', branch: 'space/api' },
+          { path: `${WT}/api`, head: 'def', branch: 'space/api' },
         ],
       })),
       statusSummary: vi.fn(async () => ({ changedFileCount: 0 })),
     })
     const parent = createSpace({
       id: 'parent',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: `${WT}/api`,
     })
     const child = createSpace({
       id: 'child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: `${WT}/api`,
       parentSpaceId: 'parent',
     })
     const onAppendSpaceArchiveRecord = vi.fn()
@@ -190,7 +192,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     await waitFor(() => {
       const record = onAppendSpaceArchiveRecord.mock.calls[0]?.[0]
       expect(record?.git).toMatchObject({
-        worktreePath: '/repo/.opencove/worktrees/api',
+        worktreePath: `${WT}/api`,
         branch: 'space/api',
         head: 'def',
       })
@@ -202,7 +204,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
       listWorktrees: vi.fn(async () => ({
         worktrees: [
           { path: '/repo', head: 'abc', branch: 'main' },
-          { path: '/repo/.opencove/worktrees/api', head: 'def', branch: 'space/api' },
+          { path: `${WT}/api`, head: 'def', branch: 'space/api' },
         ],
       })),
       statusSummary: vi.fn(async () => ({ changedFileCount: 0 })),
@@ -210,7 +212,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     const parent = createSpace({ id: 'parent', directoryPath: '/repo' })
     const child = createSpace({
       id: 'child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: `${WT}/api`,
       parentSpaceId: 'parent',
     })
     renderArchiveWindow({ spaceId: 'child', spaces: [parent, child] })
@@ -224,7 +226,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     await waitFor(() => {
       expect(remove).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreePath: '/repo/.opencove/worktrees/api',
+        worktreePath: `${WT}/api`,
         force: true,
         deleteBranch: false,
       })
@@ -236,7 +238,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
       listWorktrees: vi.fn(async () => ({
         worktrees: [
           { path: '/repo', head: 'abc', branch: 'main' },
-          { path: '/repo/.opencove/worktrees/api', head: 'def', branch: 'space/api' },
+          { path: `${WT}/api`, head: 'def', branch: 'space/api' },
         ],
       })),
       statusSummary: vi.fn(async () => ({ changedFileCount: 0 })),
@@ -244,7 +246,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     const parent = createSpace({ id: 'parent', directoryPath: '/repo' })
     const child = createSpace({
       id: 'child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: `${WT}/api`,
       parentSpaceId: 'parent',
     })
     const { onUpdateSpaceDirectory } = renderArchiveWindow({
@@ -270,7 +272,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
       listWorktrees: vi.fn(async () => ({
         worktrees: [
           { path: '/repo', head: 'abc', branch: 'main' },
-          { path: '/repo/.opencove/worktrees/api', head: 'def', branch: 'space/api' },
+          { path: `${WT}/api`, head: 'def', branch: 'space/api' },
         ],
       })),
       statusSummary: vi.fn(async () => ({ changedFileCount: 0 })),
@@ -278,7 +280,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     const parent = createSpace({ id: 'parent', directoryPath: '/repo' })
     const child = createSpace({
       id: 'child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: `${WT}/api`,
       parentSpaceId: 'parent',
     })
     renderArchiveWindow({ spaceId: 'parent', spaces: [parent, child] })
@@ -294,7 +296,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
     await waitFor(() => {
       expect(remove).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreePath: '/repo/.opencove/worktrees/api',
+        worktreePath: `${WT}/api`,
         force: true,
         deleteBranch: false,
       })
@@ -368,7 +370,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
       expect(closeNodesById).toHaveBeenCalledWith(['agent-1', 'terminal-1'])
       expect(remove).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreePath: '/repo/.opencove/worktrees/space-1',
+        worktreePath: `${WT}/space-1`,
         force: true,
         deleteBranch: false,
       })
@@ -422,14 +424,14 @@ describe('SpaceWorktreeWindow archive flow', () => {
   })
 
   it('shows an actionable error when archive API is unavailable', async () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
         worktree: {
           listBranches: vi.fn(async () => ({ branches: ['main'], current: 'main' })),
           listWorktrees: vi.fn(async () => ({
-            worktrees: [{ path: '/repo/.opencove/worktrees/space-1', head: 'def', branch: 'main' }],
+            worktrees: [{ path: `${WT}/space-1`, head: 'def', branch: 'main' }],
           })),
           statusSummary: vi.fn(async () => ({ changedFileCount: 3 })),
           suggestNames: vi.fn(async () => ({
@@ -439,11 +441,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
             worktreeName: 'demo',
           })),
           create: vi.fn(async () => ({
-            worktree: {
-              branch: 'space/demo',
-              head: null,
-              path: '/repo/.opencove/worktrees/space-demo--1a2b3c4d',
-            },
+            worktree: { branch: 'space/demo', head: null, path: `${WT}/space-demo--1a2b3c4d` },
           })),
         },
       },
@@ -461,7 +459,7 @@ describe('SpaceWorktreeWindow archive flow', () => {
 
     expect(
       await screen.findByText(
-        'Worktree API is unavailable. Please restart OpenCove and try again.',
+        'Worktree API is unavailable. Please restart Eclipse Code and try again.',
       ),
     ).toBeVisible()
   })

@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import { runArchitectureAudit } from '../lib/architecture-rules.mjs'
 
 it('keeps managed runtime composition separate from renderer and application policy', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-managed-architecture-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-managed-architecture-'))
   try {
     const files = {
       'src/app/managedRuntime/index.ts':

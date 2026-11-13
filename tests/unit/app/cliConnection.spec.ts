@@ -17,7 +17,7 @@ function fixture(worker = false) {
     })
   })
   const io: CliIo = {
-    env: { OPENCOVE_USER_DATA_DIR: '/isolated' },
+    env: { ECLIPSE_CODE_USER_DATA_DIR: '/isolated' },
     readTextFile,
     readStdinText: async () => '',
     now: Date.now,

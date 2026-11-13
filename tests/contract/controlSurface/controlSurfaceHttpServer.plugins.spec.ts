@@ -12,18 +12,18 @@ import {
 
 describe('independent plugin control surface and asset leases', () => {
   it('authenticates installation and scopes/revokes asset-only access on private and Web listeners', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-http-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-http-'))
     const source = join(root, 'source')
     await mkdir(join(source, 'ui'), { recursive: true })
     await writeFile(
-      join(source, 'opencove.plugin.json'),
+      join(source, 'eclipse-code.plugin.json'),
       JSON.stringify({
         apiVersion: 1,
         id: 'clock',
         version: '1.0.0',
         displayName: 'Clock',
         description: 'Clock fixture',
-        engines: { opencove: '>=0.3.2 <0.4.0' },
+        engines: { eclipseCode: '>=0.3.2 <0.4.0' },
         view: { entry: 'ui/index.html' },
       }),
     )
@@ -116,7 +116,7 @@ describe('independent plugin control surface and asset leases', () => {
           const response = await fetch(`${base}${opened.resourcePath}`)
           expect(response.status).toBe(200)
           const html = await response.text()
-          expect(html.indexOf('__opencove_bridge.js')).toBeLessThan(html.indexOf('app.js'))
+          expect(html.indexOf('__eclipse_code_bridge.js')).toBeLessThan(html.indexOf('app.js'))
           expect(response.headers.get('referrer-policy')).toBe('no-referrer')
           expect(response.headers.get('content-security-policy')).not.toMatch(
             /style-src[^;]*unsafe-inline/,

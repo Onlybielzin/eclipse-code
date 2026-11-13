@@ -8,7 +8,7 @@ import {
 test('resizes Explorer through the left and footer edges and lower corners at canvas zoom', async () => {
   const fixture = await createFilesystemNodeFixture()
   const { electronApp, window } = await launchApp({
-    env: { OPENCOVE_TEST_WORKSPACE: fixture.root },
+    env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.root },
   })
   try {
     await seedFilesystemWorkspace(window, fixture.root, 'dark')

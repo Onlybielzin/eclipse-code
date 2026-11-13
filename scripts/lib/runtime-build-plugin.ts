@@ -16,7 +16,7 @@ export function runtimeBuildIdentityPlugin({
 }): Plugin {
   let identity = createRuntimeBuildIdentity(root, development)
   return {
-    name: 'opencove:runtime-build',
+    name: 'eclipse-code:runtime-build',
     enforce: 'pre',
     buildStart() {
       identity = createRuntimeBuildIdentity(root, development)
@@ -47,8 +47,8 @@ export function runtimeBuildIdentityPlugin({
         identity = createRuntimeBuildIdentity(root, development)
       }
       return code
-        .replace(/declare const __OPENCOVE_RUNTIME_BUILD__: unknown\s*/, '')
-        .replaceAll('__OPENCOVE_RUNTIME_BUILD__', `(${JSON.stringify(identity)})`)
+        .replace(/declare const __ECLIPSE_CODE_RUNTIME_BUILD__: unknown\s*/, '')
+        .replaceAll('__ECLIPSE_CODE_RUNTIME_BUILD__', `(${JSON.stringify(identity)})`)
     },
     generateBundle() {
       if (publish) {

@@ -15,7 +15,7 @@ afterEach(async () => {
 })
 
 describe('legacy managed hook startup cleanup', () => {
-  it('removes exact OpenCove residue while preserving 66 coexisting Orca groups', async () => {
+  it('removes exact Eclipse Code residue while preserving 66 coexisting Orca groups', async () => {
     const home = await createTemporaryHome()
     const claudePath = join(home, '.claude', 'settings.json')
     const codexHooksPath = join(home, '.codex', 'hooks.json')
@@ -28,7 +28,7 @@ describe('legacy managed hook startup cleanup', () => {
       hooks: [
         {
           type: 'command',
-          command: '/obsolete/opencove/claude-status.mjs',
+          command: '/obsolete/eclipse-code/claude-status.mjs',
           statusMessage: LEGACY_MANAGED_CLAUDE_HOOK_STATUS_MESSAGE,
         },
       ],
@@ -59,7 +59,7 @@ describe('legacy managed hook startup cleanup', () => {
       'model = "user-model"',
       '',
       '[hooks.state."/Users/test/.codex/hooks.json:session_start:0:0"]',
-      'trusted_hash = "sha256:obsolete-opencove"',
+      'trusted_hash = "sha256:obsolete-eclipse-code"',
       '',
       orcaTomlBlock,
       '[projects."/workspace"]',
@@ -87,7 +87,7 @@ describe('legacy managed hook startup cleanup', () => {
     expect(cleanedClaude.hooks).not.toHaveProperty('SessionEnd')
     expect(Buffer.from(JSON.stringify(cleanedCodex.hooks.SessionStart))).toEqual(expectedOrcaBytes)
     const cleanedToml = await readFile(codexConfigPath, 'utf8')
-    expect(cleanedToml).not.toContain('obsolete-opencove')
+    expect(cleanedToml).not.toContain('obsolete-eclipse-code')
     expect(cleanedToml).toContain(orcaTomlBlock)
     expect(cleanedToml).toContain('trust_level = "trusted"')
 
@@ -105,7 +105,7 @@ describe('legacy managed hook startup cleanup', () => {
     ).resolves.toEqual(stableBytes)
   })
 
-  it('deletes a Codex hooks file marked as entirely OpenCove-owned', async () => {
+  it('deletes a Codex hooks file marked as entirely Eclipse Code-owned', async () => {
     const home = await createTemporaryHome()
     const codexHooksPath = join(home, '.codex', 'hooks.json')
     await writeFile(
@@ -122,7 +122,7 @@ describe('legacy managed hook startup cleanup', () => {
 })
 
 async function createTemporaryHome(): Promise<string> {
-  const home = await mkdtemp(join(tmpdir(), 'opencove-legacy-hooks-'))
+  const home = await mkdtemp(join(tmpdir(), 'eclipse-code-legacy-hooks-'))
   temporaryHomes.push(home)
   await Promise.all([
     mkdir(join(home, '.claude'), { recursive: true }),

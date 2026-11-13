@@ -74,7 +74,7 @@ function installMockApi({
   launch: ReturnType<typeof vi.fn>
   resolveResumeSessionId?: ReturnType<typeof vi.fn>
 }) {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     writable: true,
     value: {
@@ -132,7 +132,7 @@ describe('useHydrateAppState agent session restore', () => {
     const originalStartedAt = '2026-03-08T09:00:00.000Z'
 
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify(
         createPersistedState({
           prompt: '',
@@ -196,7 +196,7 @@ describe('useHydrateAppState agent session restore', () => {
     const storage = installMockStorage()
 
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify(
         createPersistedState({
           prompt: 'implement login flow',
@@ -250,7 +250,7 @@ describe('useHydrateAppState agent session restore', () => {
     const storage = installMockStorage()
 
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify(
         createPersistedState({
           prompt: 'implement login flow',
@@ -319,7 +319,7 @@ describe('useHydrateAppState agent session restore', () => {
     const storage = installMockStorage()
 
     storage.setItem(
-      'opencove:m0:workspace-state',
+      'eclipse-code:m0:workspace-state',
       JSON.stringify(
         createPersistedState({
           prompt: 'recover login flow',

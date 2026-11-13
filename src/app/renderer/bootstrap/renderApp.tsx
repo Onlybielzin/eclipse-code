@@ -9,7 +9,7 @@ import '../styles.css'
 const UiGallery = React.lazy(() => import('../gallery/UiGallery'))
 
 export function renderApp(): void {
-  const gallery = window.opencoveApi?.meta?.enableUiGallery === true
+  const gallery = window.eclipseCodeApi?.meta?.enableUiGallery === true
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
       <ErrorBoundary>

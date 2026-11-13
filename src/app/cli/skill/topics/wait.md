@@ -16,13 +16,13 @@ Wait accepts whole milliseconds up to 2147483647 (about 24 days). Set `--timeout
 Live list excludes exited sessions; inspect a known exited node with get or wait.
 
 ```sh
-opencove agent wait --node agent-123 --node agent-456 --until waiting --any --timeout 30s
-opencove agent wait --node agent-123 --node agent-456 --until idle --all --timeout 2m
-opencove agent get --node agent-123 --fields state,quality,turnOutcome
+eclipse-code agent wait --node agent-123 --node agent-456 --until waiting --any --timeout 30s
+eclipse-code agent wait --node agent-123 --node agent-456 --until idle --all --timeout 2m
+eclipse-code agent get --node agent-123 --fields state,quality,turnOutcome
 ```
 
 Exit 10 = waiting observed: the agent may need the user. Never answer its dialog; ask the user to
-resolve it in OpenCove (Desktop or this Worker's Web UI), inspect `agent read --node <id> --screen`
+resolve it in Eclipse Code (Desktop or this Worker's Web UI), inspect `agent read --node <id> --screen`
 (same connection options, matching session/turn IDs), then repeat the wait with the same --turn.
 Exit 11 = an unfulfilled target exited. Success beats both; 11 beats 10. --any stops on the first
 success or attention event; fulfilled bindings never stop --all, and a session change resets
@@ -33,11 +33,11 @@ resume an observed completion, so prefer --turn. --through-waiting keeps waiting
 State waits print all selected latest snapshots; exact-turn waits print one result. Timeout prints
 lastKnown on stderr with stdout empty. Ctrl-C exits 130 and closes subscriptions without stopping
 the target. Exact local archived waits survive restart; inspect persisted before relying on
-durability. Use `opencove skill read` for archive retention, history clearing and unavailable
+durability. Use `eclipse-code skill read` for archive retention, history clearing and unavailable
 replies.
 
 ```sh
-opencove agent wait --node agent-123 --turn turn-123 --timeout 2m
+eclipse-code agent wait --node agent-123 --turn turn-123 --timeout 2m
 ```
 
 ## Host strategy
@@ -45,19 +45,19 @@ opencove agent wait --node agent-123 --turn turn-123 --timeout 2m
 Claude Code coordinators may background an exact-turn wait with Bash `run_in_background: true`;
 completion notifications include timeout/error exits, so check exit code and outcome. Codex
 coordinators wait in the foreground with a CLI timeout below the tool timeout and repeat the same
-turn wait after exit 124. Full guidance: `opencove skill coordinate`.
+turn wait after exit 124. Full guidance: `eclipse-code skill coordinate`.
 
 ## Provider continuations and identifiers
 
-Claude queued messages and provider follow-ups stay in one OpenCove turn. Exact waits include these
+Claude queued messages and provider follow-ups stay in one Eclipse Code turn. Exact waits include these
 continuations; exact reads return the final reply. Unknown continuation outcomes remain unknown and
 may expose `messageKind: intermediate` when read. Codex retains the first matching Stop end; later
 continuation does not replace it. Same-pair Codex steering keeps the active turn and does not clear
 waiting.
 
-deliveryIds are retained correlations of OpenCove deliveries with this turn, including refused or
+deliveryIds are retained correlations of Eclipse Code deliveries with this turn, including refused or
 uncertain attempts. Membership proves neither submission nor consumption; inspect each deliveryId
-with opencove agent delivery <id>. promptIds are the provider's own prompt IDs (Claude continuations
+with eclipse-code agent delivery <id>. promptIds are the provider's own prompt IDs (Claude continuations
 included); agent delivery does not accept them. Best-effort wait lookup failures omit IDs without
 changing completion/outcome/durability. Resolved delivery records expire after 30 minutes and
 existing capacity limits apply; restart clears them. Live history keeps up to 64 previous provider

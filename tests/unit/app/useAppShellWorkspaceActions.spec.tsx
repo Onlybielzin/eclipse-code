@@ -69,7 +69,7 @@ describe('useAppShellWorkspaceActions', () => {
       persistNotice: null,
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         workspace: {
@@ -83,7 +83,7 @@ describe('useAppShellWorkspaceActions', () => {
   })
 
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
   })
 
   it('carries explicit input intent and defaults agent navigation to input focus', () => {

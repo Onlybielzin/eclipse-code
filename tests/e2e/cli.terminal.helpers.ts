@@ -5,12 +5,12 @@ import { terminalExitStatus } from '../support/cliTerminalCommand'
 
 export function canvasRuntimeFootprint(page: Page, projectId: string) {
   return page.evaluate(async owningProject => {
-    const nodes = await window.opencoveApi.controlSurface.invoke<{ nodes: { id: string }[] }>({
+    const nodes = await window.eclipseCodeApi.controlSurface.invoke<{ nodes: { id: string }[] }>({
       kind: 'query',
       id: 'node.list',
       payload: { projectId: owningProject },
     })
-    const sessions = await window.opencoveApi.controlSurface.invoke<{
+    const sessions = await window.eclipseCodeApi.controlSurface.invoke<{
       sessions: { sessionId: string }[]
     }>({
       kind: 'query',
@@ -45,7 +45,7 @@ export async function terminalCommand(
   const input = [printMarker(begin), command, status, printMarker(end)].join('; ')
   const accepted = await page.evaluate(
     async payload => {
-      return await window.opencoveApi.controlSurface.invoke<{ accepted: boolean }>({
+      return await window.eclipseCodeApi.controlSurface.invoke<{ accepted: boolean }>({
         kind: 'command',
         id: 'session.writeNode',
         payload: { ...payload.binding, data: payload.input + '\r' },
@@ -60,7 +60,7 @@ export async function terminalCommand(
     .poll(
       async () => {
         const raw = await page.evaluate(async sessionId => {
-          return (await window.opencoveApi.pty.snapshot({ sessionId })).data
+          return (await window.eclipseCodeApi.pty.snapshot({ sessionId })).data
         }, binding.sessionId)
         output = stripVTControlCharacters(raw).replaceAll('\r', '')
         const start = output.lastIndexOf(`OC_CLI_${begin}`)

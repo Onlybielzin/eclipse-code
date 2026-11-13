@@ -105,7 +105,7 @@ describe('local worker manager connection file', () => {
   })
 
   async function createTempUserDataDir(): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'opencove-test-local-worker-'))
+    const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-local-worker-'))
     userDataDir = dir
     appPath = dir
     return dir
@@ -174,7 +174,7 @@ describe('local worker manager connection file', () => {
       const body = typeof init?.body === 'string' ? init.body : ''
       const requestId = body.length > 0 ? (JSON.parse(body) as { id?: string }).id : ''
       const response = (ok: boolean, value: unknown, status = 200) =>
-        new Response(JSON.stringify({ __opencoveControlEnvelope: true, ok, value }), {
+        new Response(JSON.stringify({ __eclipseCodeControlEnvelope: true, ok, value }), {
           status,
           headers: { 'content-type': 'application/json' },
         })
@@ -349,7 +349,7 @@ describe('local worker manager connection file', () => {
       'utf8',
     )
     await writeFile(
-      resolve(dir, 'opencove-worker.lock'),
+      resolve(dir, 'eclipse-code-worker.lock'),
       `${JSON.stringify({ pid: 999_999, createdAt: new Date(0).toISOString() })}\n`,
       'utf8',
     )
@@ -364,7 +364,7 @@ describe('local worker manager connection file', () => {
     )
 
     expect(fetchMock).not.toHaveBeenCalled()
-    expect(await readFile(resolve(dir, 'opencove-worker.lock'), 'utf8')).toContain('999999')
+    expect(await readFile(resolve(dir, 'eclipse-code-worker.lock'), 'utf8')).toContain('999999')
     await expect(
       readFile(resolve(dir, WORKER_CONTROL_SURFACE_CONNECTION_FILE), 'utf8'),
     ).rejects.toBeDefined()

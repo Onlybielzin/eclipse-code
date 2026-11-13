@@ -91,7 +91,7 @@ function renderActions(behavior: NodeExpandBehavior = DEFAULT_AGENT_SETTINGS.nod
 afterEach(() => {
   cleanup()
   useCanvasCollapseStore.setState({ workspaces: {} })
-  localStorage.removeItem('opencove:canvas-collapse:v1')
+  localStorage.removeItem('eclipse-code:canvas-collapse:v1')
 })
 
 describe('collapsed window expansion actions', () => {

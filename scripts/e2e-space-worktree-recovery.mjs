@@ -12,8 +12,8 @@ const repoRoot = path.resolve(scriptDir, '..')
 const testAgentStubScriptPath = path.join(repoRoot, 'scripts/test-agent-session-stub.mjs')
 const workspaceId = 'workspace-mjs-space-worktree-recovery'
 const spaceId = 'space-mjs-space-worktree-recovery'
-const branchName = `opencove-mjs-space-wt-${Date.now()}`
-const windowMode = process.env.OPENCOVE_E2E_WINDOW_MODE?.trim() || 'inactive'
+const branchName = `eclipse-code-mjs-space-wt-${Date.now()}`
+const windowMode = process.env.ECLIPSE_CODE_E2E_WINDOW_MODE?.trim() || 'inactive'
 const baseEnv = { ...process.env }
 delete baseEnv.__CFBundleIdentifier
 delete baseEnv.ELECTRON_RUN_AS_NODE
@@ -44,7 +44,7 @@ function buildNodeEvalCommand(script) {
 }
 
 async function createUserDataDir() {
-  const parent = path.join(os.tmpdir(), 'opencove-mjs-e2e')
+  const parent = path.join(os.tmpdir(), 'eclipse-code-mjs-e2e')
   await mkdir(parent, { recursive: true })
   return await mkdtemp(path.join(parent, 'space-worktree-recovery-'))
 }
@@ -78,12 +78,12 @@ async function launchApp() {
       XDG_CONFIG_HOME: configDir,
       XDG_CACHE_HOME: cacheDir,
       XDG_RUNTIME_DIR: runtimeDir,
-      OPENCOVE_TEST_WORKSPACE: repoRoot,
-      OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
-      OPENCOVE_TEST_NODE_EXECUTABLE: process.execPath,
-      OPENCOVE_E2E_WINDOW_MODE: windowMode,
+      ECLIPSE_CODE_TEST_WORKSPACE: repoRoot,
+      ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
+      ECLIPSE_CODE_TEST_NODE_EXECUTABLE: process.execPath,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: windowMode,
       ...(process.platform === 'linux' && process.env.CI ? { ELECTRON_DISABLE_SANDBOX: '1' } : {}),
     },
   })
@@ -98,7 +98,7 @@ async function waitForControlSurface(page) {
     async () => {
       try {
         await page.evaluate(async () => {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'query',
             id: 'system.ping',
             payload: null,
@@ -117,7 +117,7 @@ async function waitForControlSurface(page) {
 
 async function invokeControlSurface(page, request) {
   return await page.evaluate(async requestPayload => {
-    return await window.opencoveApi.controlSurface.invoke(requestPayload)
+    return await window.eclipseCodeApi.controlSurface.invoke(requestPayload)
   }, request)
 }
 
@@ -186,8 +186,8 @@ async function seedWorkspace(page, mountId) {
   }
 
   const result = await page.evaluate(async payload => {
-    window.localStorage.removeItem('opencove:m5.6:view-state')
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    window.localStorage.removeItem('eclipse-code:m5.6:view-state')
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(payload),
     })
   }, state)
@@ -201,7 +201,7 @@ async function seedWorkspace(page, mountId) {
 async function readState(page) {
   return await page.evaluate(
     async ({ targetSpaceId }) => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       if (!raw) {
         return null
       }
@@ -276,7 +276,7 @@ async function createSpaceWorktree(page) {
 async function openPaneContextMenuInSpace(page, offset = { x: 0.35, y: 0.35 }) {
   const pane = page.locator('.workspace-canvas .react-flow__pane')
   const rect = await page.evaluate(async targetSpaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }

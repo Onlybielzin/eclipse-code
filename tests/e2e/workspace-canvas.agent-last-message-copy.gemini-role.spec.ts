@@ -136,7 +136,7 @@ async function writeGeminiRoleSessionFile({
     JSON.stringify(
       {
         sessionId,
-        projectHash: 'opencove-test-project-hash',
+        projectHash: 'eclipse-code-test-project-hash',
         startTime: createGeminiTimestamp(startedAtMs),
         lastUpdated: createGeminiTimestamp(messages.at(-1)?.timestampMs ?? startedAtMs),
         kind: 'main',
@@ -167,7 +167,7 @@ test.describe('Workspace Canvas - Agent Last Message Copy (Gemini role session)'
       windowMode: 'offscreen',
       userDataDir,
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       },
     })
 

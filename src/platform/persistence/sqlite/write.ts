@@ -216,7 +216,7 @@ export function writeNormalizedAppState(
     }
 
     // Durable scrollback belongs only to plain terminal nodes. Agent history must be restored by
-    // the external CLI's own resume semantics instead of OpenCove persistence.
+    // the external CLI's own resume semantics instead of Eclipse Code persistence.
     db.exec(
       "DELETE FROM node_scrollback WHERE node_id NOT IN (SELECT id FROM nodes WHERE kind = 'terminal')",
     )

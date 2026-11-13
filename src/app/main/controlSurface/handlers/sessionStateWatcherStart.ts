@@ -5,7 +5,7 @@ import type { ControlSurfacePtyRuntime } from './sessionPtyRuntime'
 export function shouldStartAgentSessionStateWatcher(): boolean {
   return (
     process.env.NODE_ENV !== 'test' ||
-    process.env['OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER'] === '1'
+    process.env['ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER'] === '1'
   )
 }
 

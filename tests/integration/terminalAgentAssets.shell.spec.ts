@@ -43,7 +43,7 @@ describe.skipIf(process.platform === 'win32')('live shell asset recovery', () =>
   it.each(['/bin/bash', '/bin/zsh'].filter(existsSync))(
     'restores the original shim PATH of an already running %s',
     async shell => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-assets-shell-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-assets-shell-'))
       const home = join(root, 'home')
       const bin = join(root, 'provider bin')
       await mkdir(home)

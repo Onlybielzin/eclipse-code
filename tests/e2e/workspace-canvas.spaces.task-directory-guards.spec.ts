@@ -120,7 +120,7 @@ test.describe('Workspace Canvas - Spaces (Task Directory Guards)', () => {
             async ({ key, nodeId, agentNodeId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -231,7 +231,7 @@ test.describe('Workspace Canvas - Spaces (Task Directory Guards)', () => {
             async ({ key }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -354,7 +354,7 @@ test.describe('Workspace Canvas - Spaces (Task Directory Guards)', () => {
             async ({ key, nodeId, spaceId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

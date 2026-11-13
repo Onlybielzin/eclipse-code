@@ -38,9 +38,9 @@ describe('managed SSH bootstrap execution', () => {
   it('drains both bounded streams and publishes markers but not raw script output', async () => {
     const phases: string[] = []
     command.mockImplementation(async (_command, _args, _cwd, options) => {
-      options.onStdout?.('[opencove-bootstrap-progress:v1] checking_remote_')
+      options.onStdout?.('[eclipse-code-bootstrap-progress:v1] checking_remote_')
       options.onStdout?.('runtime\r\ninstaller noise\n')
-      options.onStderr?.('[opencove-bootstrap-progress:v1] waiting_for_runtime\n')
+      options.onStderr?.('[eclipse-code-bootstrap-progress:v1] waiting_for_runtime\n')
       return { exitCode: 0, stdout: '', stderr: '' }
     })
     await runManagedSshBootstrap(
@@ -59,7 +59,7 @@ describe('managed SSH bootstrap execution', () => {
       exitCode: 127,
       stdout: '',
       stderr:
-        '[opencove-bootstrap-progress:v1] installing_runtime\n[opencove-bootstrap:runtime_corrupt] runtime unhealthy',
+        '[eclipse-code-bootstrap-progress:v1] installing_runtime\n[eclipse-code-bootstrap:runtime_corrupt] runtime unhealthy',
     })
     await expect(
       runManagedSshBootstrap('ssh', {

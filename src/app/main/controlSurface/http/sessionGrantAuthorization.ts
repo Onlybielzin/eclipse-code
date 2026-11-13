@@ -11,7 +11,7 @@ export function sessionGrantAccess(id: string, tier: 'read' | 'interact' = 'inte
   if (!op || op.scope === 'admin' || id.startsWith('worker.') || id.startsWith('auth.')) {
     return {
       access: 'denied' as const,
-      reason: 'this action requires a human decision in OpenCove',
+      reason: 'this action requires a human decision in Eclipse Code',
     }
   }
   if (tier === 'read' && op.scope !== 'read') {

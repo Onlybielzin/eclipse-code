@@ -8,7 +8,7 @@ const repositoryRoot = resolve(import.meta.dirname, '../../..')
 const temporaryDirectories: string[] = []
 
 function createModule(lineCount: number): string {
-  const directory = mkdtempSync(join(tmpdir(), 'opencove-max-lines-'))
+  const directory = mkdtempSync(join(tmpdir(), 'eclipse-code-max-lines-'))
   temporaryDirectories.push(directory)
   const path = join(directory, 'authored-script.mjs')
   writeFileSync(path, 'export const value = 1\n'.repeat(lineCount))
@@ -16,7 +16,7 @@ function createModule(lineCount: number): string {
 }
 
 function createStylesheet(relativePath: string, lineCount: number): string {
-  const directory = mkdtempSync(join(tmpdir(), 'opencove-max-lines-'))
+  const directory = mkdtempSync(join(tmpdir(), 'eclipse-code-max-lines-'))
   temporaryDirectories.push(directory)
   const path = join(directory, relativePath)
   mkdirSync(resolve(path, '..'), { recursive: true })

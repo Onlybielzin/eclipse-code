@@ -214,13 +214,13 @@ export function EndpointsSection(): React.JSX.Element {
           remotePlatform: 'auto' as const,
         }
         if (dialogState.kind === 'edit') {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'command',
             id: 'endpoint.updateManagedSsh',
             payload: { endpointId: dialogState.endpointId, ...payload },
           })
         } else {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'command',
             id: 'endpoint.registerManagedSsh',
             payload,
@@ -231,7 +231,7 @@ export function EndpointsSection(): React.JSX.Element {
           return
         }
 
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'endpoint.register',
           payload: {
@@ -259,7 +259,7 @@ export function EndpointsSection(): React.JSX.Element {
     setRemovingEndpointId(endpointId)
 
     try {
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'endpoint.remove',
         payload: { endpointId, expectedMountCount: overview.dependentMountCount },

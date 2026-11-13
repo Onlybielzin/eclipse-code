@@ -14,27 +14,37 @@ test('real Worker lists cap display without hiding context neighbors or selector
     task: { text: `Brief ${i}` },
   }))
   await withOutputWorkspace(notes, async (page, shell) => {
-    const capped = await terminalCommand(page, shell, 'opencove node list --fields id', 'NODE_CAP')
+    const capped = await terminalCommand(
+      page,
+      shell,
+      'eclipse-code node list --fields id',
+      'NODE_CAP',
+    )
     expect(capped.match(/70 omitted/g)).toHaveLength(1)
     expect(capped).toContain('--full')
     const value = jsonOutput(capped)
     expect(value).toMatchObject({ truncated: true, total: 120 })
     expect(value.nodes).toHaveLength(50)
     const full = jsonOutput(
-      await terminalCommand(page, shell, 'opencove node list --full --fields id', 'NODE_FULL'),
+      await terminalCommand(page, shell, 'eclipse-code node list --full --fields id', 'NODE_FULL'),
     )
     expect(full.nodes).toHaveLength(120)
     expect(full).not.toHaveProperty('truncated')
     expect(value.nodes).toEqual((full.nodes as unknown[]).slice(0, 50))
     const limited = jsonOutput(
-      await terminalCommand(page, shell, 'opencove node list --limit 2 --fields id', 'NODE_LIMIT'),
+      await terminalCommand(
+        page,
+        shell,
+        'eclipse-code node list --limit 2 --fields id',
+        'NODE_LIMIT',
+      ),
     )
     expect(limited).toMatchObject({ truncated: true, total: 120 })
     expect(limited.nodes).toHaveLength(2)
     const table = await terminalCommand(
       page,
       shell,
-      'opencove node list -o table --fields id',
+      'eclipse-code node list -o table --fields id',
       'NODE_TABLE',
     )
     expect(table.match(/70 omitted/g)).toHaveLength(1)
@@ -51,20 +61,20 @@ test('real Worker lists cap display without hiding context neighbors or selector
       await terminalCommand(
         page,
         shell,
-        `opencove node get --node "${omitted.title}" --fields id`,
+        `eclipse-code node get --node "${omitted.title}" --fields id`,
         'NODE_SELECT',
       ),
     )
     expect(selected).toEqual({ node: { id: omitted.id } })
     const context = jsonOutput(
-      await terminalCommand(page, shell, 'opencove context --fields nodes.id', 'CONTEXT_FULL'),
+      await terminalCommand(page, shell, 'eclipse-code context --fields nodes.id', 'CONTEXT_FULL'),
     )
     expect(context.nodes).toHaveLength(119)
     const listedSpaces = jsonOutput(
       await terminalCommand(
         page,
         shell,
-        'opencove space list --fields id,name,directoryPath,boundary,nodeIds,nodeCount,projectId,nodes',
+        'eclipse-code space list --fields id,name,directoryPath,boundary,nodeIds,nodeCount,projectId,nodes',
         'SPACES',
       ),
     )

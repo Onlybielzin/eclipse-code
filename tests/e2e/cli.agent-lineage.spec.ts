@@ -13,7 +13,7 @@ import type { CreateNodeResult, GetNodeResult } from '../../src/shared/contracts
 
 test('grant ancestry survives renderer publications and restart, and a child reports to @parent', async () => {
   test.setTimeout(240_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-lineage-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-lineage-'))
   const workspace = join(root, 'project'),
     profile = join(root, 'profile')
   let app: ElectronApplication | undefined
@@ -24,14 +24,14 @@ test('grant ancestry survives renderer publications and restart, and a child rep
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_STUB_SCRIPT: stub,
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: stub,
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
         CLAUDE_CONFIG_DIR: join(root, 'claude'),
         CODEX_HOME: join(root, 'codex'),
       },
@@ -55,7 +55,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
     const parent = await createLineageAgent(page, 'lineage-project')
     expect(parent.node).toMatchObject({ spawnedBy: null, lineageDepth: 1, lineageStatus: 'root' })
     await establishLineageAgentReady(page, parent.node)
-    const stale = await page.evaluate(() => window.opencoveApi.persistence.readAppState())
+    const stale = await page.evaluate(() => window.eclipseCodeApi.persistence.readAppState())
     const childCli = await grantedAgentCli(root, parent.node.id, [
       'node',
       'create',
@@ -118,7 +118,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
     const publication = await page.evaluate(async snapshot => {
       const state = snapshot.state as { settings: Record<string, unknown> }
       state.settings = { ...state.settings, language: 'en' }
-      return window.opencoveApi.persistence.writeAppState({
+      return window.eclipseCodeApi.persistence.writeAppState({
         state,
         baseRevision: snapshot.revision,
       })
@@ -127,7 +127,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
     const get = (id: string) =>
       page.evaluate(
         async nodeId =>
-          window.opencoveApi.controlSurface.invoke<GetNodeResult>({
+          window.eclipseCodeApi.controlSurface.invoke<GetNodeResult>({
             kind: 'query',
             id: 'node.get',
             payload: { nodeId },
@@ -138,7 +138,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
     // A raw legacy-shaped publication can move/rename nodes but cannot forge ancestry.
     expect(
       await page.evaluate(async nodeId => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         const state = JSON.parse(raw!)
         const node = state.workspaces
           .flatMap((w: { nodes: { id: string }[] }) => w.nodes)
@@ -156,7 +156,9 @@ test('grant ancestry survives renderer publications and restart, and a child rep
           nodeIds: [nodeId],
           rect: { x: 1780, y: 280, width: 1000, height: 800 },
         })
-        return window.opencoveApi.persistence.writeWorkspaceStateRaw({ raw: JSON.stringify(state) })
+        return window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
+          raw: JSON.stringify(state),
+        })
       }, child.id),
     ).toMatchObject({ ok: true })
     await app.close()
@@ -174,7 +176,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
     // Mount the recovered child and require evidence that its provider actually restarted.
     await page.evaluate(
       async nodeId =>
-        window.opencoveApi.controlSurface.invoke({
+        window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'canvas.focus',
           payload: { target: { kind: 'node', nodeId } },
@@ -205,7 +207,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
           page.evaluate(
             async nodeId =>
               (
-                await window.opencoveApi.controlSurface.invoke<GetNodeResult>({
+                await window.eclipseCodeApi.controlSurface.invoke<GetNodeResult>({
                   kind: 'query',
                   id: 'node.get',
                   payload: { nodeId },
@@ -218,7 +220,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
       .not.toBeNull()
     await page.evaluate(
       async nodeId =>
-        window.opencoveApi.controlSurface.invoke({
+        window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'node.delete',
           payload: { nodeId },
@@ -241,7 +243,7 @@ test('grant ancestry survives renderer publications and restart, and a child rep
 
 test('task Run creates a root without adopting the task as its parent', async () => {
   test.setTimeout(90_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-task-lineage-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-task-lineage-'))
   let app: ElectronApplication | undefined
   try {
     const workspace = join(root, 'project')
@@ -250,13 +252,13 @@ test('task Run creates a root without adopting the task as its parent', async ()
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
         CLAUDE_CONFIG_DIR: join(root, 'claude'),
         CODEX_HOME: join(root, 'codex'),
       },
@@ -297,7 +299,7 @@ test('task Run creates a root without adopting the task as its parent', async ()
       .poll(
         () =>
           page.evaluate(async () => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               nodes: GetNodeResult['node'][]
             }>({
               kind: 'query',

@@ -23,10 +23,10 @@ export function presentAgentTurnError(error: CliError, context: AgentTurnErrorCo
   const turnId = typeof merged.turnId === 'string' ? merged.turnId : undefined
   const node = nodeId ? shellWord(nodeId) : '<selector>'
   const turn = turnId ? shellWord(turnId) : '<turnId>'
-  const get = `opencove agent get --node ${node}`
-  const screen = `opencove agent read --node ${node} --screen`
+  const get = `eclipse-code agent get --node ${node}`
+  const screen = `eclipse-code agent read --node ${node} --screen`
   const transcript = sessionId
-    ? `opencove session final --session ${shellWord(sessionId)}`
+    ? `eclipse-code session final --session ${shellWord(sessionId)}`
     : undefined
   const commands = (...lines: (string | undefined)[]) =>
     `Run:\n${lines
@@ -39,10 +39,10 @@ export function presentAgentTurnError(error: CliError, context: AgentTurnErrorCo
   switch (details.reason) {
     case 'turn_not_ended':
       message = `${label} is still running.`
-      hint = commands(`opencove agent wait --node ${node} --turn ${turn}`)
+      hint = commands(`eclipse-code agent wait --node ${node} --turn ${turn}`)
       break
     case 'turn_not_found':
-      message = `${label} is not in retained OpenCove history; it may have expired, been evicted, belonged to another node, or never been archived.`
+      message = `${label} is not in retained Eclipse Code history; it may have expired, been evicted, belonged to another node, or never been archived.`
       hint = commands(get)
       break
     case 'archive_unavailable':

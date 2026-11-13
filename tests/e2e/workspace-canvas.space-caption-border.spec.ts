@@ -16,7 +16,7 @@ test('Space caption cutouts follow visible crossings through far-view hysteresis
   void browserName
   const fixture = await createIdentityFixture()
   const { electronApp, window: page } = await launchApp({
-    env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+    env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
   })
   const transitions = []
   try {

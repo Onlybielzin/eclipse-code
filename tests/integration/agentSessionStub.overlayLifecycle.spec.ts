@@ -56,8 +56,8 @@ async function findJsonlFile(directoryPath: string): Promise<string | null> {
 }
 
 async function startOverlayStub(provider: 'claude-code' | 'codex') {
-  const temporaryHome = await mkdtemp(join(tmpdir(), 'opencove-overlay-stub-home-'))
-  const workspace = await mkdtemp(join(tmpdir(), 'opencove-overlay-stub-workspace-'))
+  const temporaryHome = await mkdtemp(join(tmpdir(), 'eclipse-code-overlay-stub-home-'))
+  const workspace = await mkdtemp(join(tmpdir(), 'eclipse-code-overlay-stub-workspace-'))
   temporaryDirectories.push(temporaryHome, workspace)
 
   const child = spawn(

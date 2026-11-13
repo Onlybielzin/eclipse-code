@@ -124,7 +124,7 @@ export function EndpointRegistrationDialog({
         endpointId =
           registerMode === 'managed'
             ? (
-                await window.opencoveApi.controlSurface.invoke<RegisterManagedSshWorkerEndpointResult>(
+                await window.eclipseCodeApi.controlSurface.invoke<RegisterManagedSshWorkerEndpointResult>(
                   {
                     kind: 'command',
                     id: 'endpoint.registerManagedSsh',
@@ -140,7 +140,7 @@ export function EndpointRegistrationDialog({
                 )
               ).endpoint.endpointId
             : (
-                await window.opencoveApi.controlSurface.invoke<RegisterWorkerEndpointResult>({
+                await window.eclipseCodeApi.controlSurface.invoke<RegisterWorkerEndpointResult>({
                   kind: 'command',
                   id: 'endpoint.register',
                   payload: {

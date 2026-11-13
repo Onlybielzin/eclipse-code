@@ -70,7 +70,7 @@ export function classifyPerformanceProcess(input: {
   const nameStem = getExecutableStem(input.name)
 
   if (input.pid === input.mainPid) {
-    return 'opencove-main'
+    return 'eclipse-code-main'
   }
   if (
     nameStem === 'powershell' &&
@@ -110,16 +110,16 @@ export function classifyPerformanceProcess(input: {
     commandLine.includes('ptyhost/entry') ||
     commandLine.includes('ptyhost\\entry')
   ) {
-    return 'opencove-pty-host'
+    return 'eclipse-code-pty-host'
   }
   if (commandLine.includes('worker.js') || commandLine.includes('/app/worker/')) {
-    return 'opencove-worker'
+    return 'eclipse-code-worker'
   }
   if (commandLine.includes('--type=renderer')) {
-    return 'opencove-renderer'
+    return 'eclipse-code-renderer'
   }
   if (commandLine.includes('--type=utility')) {
-    return 'opencove-utility'
+    return 'eclipse-code-utility'
   }
   if (nameStem === 'node' || nameStem === 'nodejs') {
     return 'node-child'
@@ -131,13 +131,13 @@ export function resolvePerformanceProcessScope(
   kind: PerformanceProcessKind,
 ): PerformanceProcessScope {
   if (
-    kind === 'opencove-main' ||
-    kind === 'opencove-renderer' ||
-    kind === 'opencove-utility' ||
-    kind === 'opencove-pty-host' ||
-    kind === 'opencove-worker'
+    kind === 'eclipse-code-main' ||
+    kind === 'eclipse-code-renderer' ||
+    kind === 'eclipse-code-utility' ||
+    kind === 'eclipse-code-pty-host' ||
+    kind === 'eclipse-code-worker'
   ) {
-    return 'opencove'
+    return 'eclipse-code'
   }
   if (
     kind === 'external-agent-codex' ||

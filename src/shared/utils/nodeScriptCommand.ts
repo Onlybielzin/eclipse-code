@@ -31,7 +31,7 @@ export function resolveNodeScriptLaunch(
 ): NodeScriptLaunchCommand {
   const env = options?.env ?? process.env
   const execPath = options?.execPath ?? process.execPath
-  const explicitOverride = normalizeOptionalCommand(env['OPENCOVE_TEST_NODE_EXECUTABLE'])
+  const explicitOverride = normalizeOptionalCommand(env['ECLIPSE_CODE_TEST_NODE_EXECUTABLE'])
   if (explicitOverride) {
     return {
       command: explicitOverride,

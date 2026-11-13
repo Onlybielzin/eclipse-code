@@ -25,7 +25,7 @@ export async function setFrameMotion(window: Page, reduced: boolean) {
 }
 
 export async function launchFrameSignals() {
-  const fixture = await mkdtemp(path.join(tmpdir(), 'opencove-frames-'))
+  const fixture = await mkdtemp(path.join(tmpdir(), 'eclipse-code-frames-'))
   const stub = path.join(fixture, 'agent.mjs')
   await writeFile(
     stub,
@@ -34,10 +34,10 @@ export async function launchFrameSignals() {
   const app = await launchApp({
     windowMode: 'inactive',
     env: {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-      OPENCOVE_TEST_AGENT_STUB_SCRIPT: stub,
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: stub,
     },
   })
   const { window } = app
@@ -84,7 +84,7 @@ export async function launchFrameSignals() {
     await setFrameMotion(window, false)
     await installPtySessionCapture(window)
     await window.getByTestId('task-node-run-agent').click()
-    await expect(window.locator('.terminal-node')).toContainText('[opencove-test-hook] ready')
+    await expect(window.locator('.terminal-node')).toContainText('[eclipse-code-test-hook] ready')
     const sessionId = (await resolveFirstAgentSessionId(window))!
     const node = window.locator('.react-flow__node:has(.terminal-node)').first()
     const id = (await node.getAttribute('data-id'))!

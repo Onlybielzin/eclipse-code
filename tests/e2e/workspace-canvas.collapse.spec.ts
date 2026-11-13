@@ -11,7 +11,7 @@ import { openPixelAppearance } from './workspace-canvas.pixel-effects.helpers'
 
 async function identity(page: Page) {
   return page.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const element = document.querySelector(
       `[data-id="${id}"] .terminal-node__terminal`,
     ) as HTMLElement
@@ -72,7 +72,7 @@ test('collapses all window kinds without remounting editors or resizing a live P
     const sessionId = original.sessionId!
     await window.evaluate(
       async ({ id, command }) => {
-        await window.opencoveApi.pty.write({ sessionId: id, data: `${command}\r` })
+        await window.eclipseCodeApi.pty.write({ sessionId: id, data: `${command}\r` })
       },
       {
         id: sessionId,
@@ -89,14 +89,15 @@ test('collapses all window kinds without remounting editors or resizing a live P
       .poll(() =>
         window.evaluate(
           async id =>
-            (await window.opencoveApi.pty.presentationSnapshot({ sessionId: id })).serializedScreen,
+            (await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }))
+              .serializedScreen,
           sessionId,
         ),
       )
       .toContain('COLLAPSED_SESSION_CONTINUES')
     expect(
       await window.evaluate(async id => {
-        const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId: id })
+        const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id })
         return { cols: snapshot.cols, rows: snapshot.rows }
       }, sessionId),
     ).toEqual(original.size)

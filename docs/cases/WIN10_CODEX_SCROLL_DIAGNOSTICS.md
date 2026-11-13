@@ -1,18 +1,18 @@
 # Win10 Codex Scroll Diagnostics
 
 Date: 2026-03-28
-Scope: Windows 10 only, focused on Codex running inside an OpenCove agent/terminal window.
+Scope: Windows 10 only, focused on Codex running inside an Eclipse Code agent/terminal window.
 
 ## Problem Statement
 
 Observed user report:
 
-- On Windows 10, when Codex is launched inside OpenCove's embedded terminal/agent window, the Codex UI can lose normal scrollback behavior.
+- On Windows 10, when Codex is launched inside Eclipse Code's embedded terminal/agent window, the Codex UI can lose normal scrollback behavior.
 - The same Codex workflow behaves correctly in:
   - VS Code's integrated terminal
-  - a native local terminal outside OpenCove
+  - a native local terminal outside Eclipse Code
 - The symptom is not "all wheel input is broken". The narrower symptom is:
-  - the Codex TUI does not expose a normal vertical scrollbar / scrollback path inside OpenCove on Win10
+  - the Codex TUI does not expose a normal vertical scrollbar / scrollback path inside Eclipse Code on Win10
 
 ## Current Working Theory
 
@@ -20,17 +20,17 @@ The strongest current explanation is a three-way interaction:
 
 1. Codex switches into a full-screen TUI / alternate-screen workflow.
 2. Windows 10 ConPTY has weaker scrollback/reflow behavior than newer Windows builds.
-3. OpenCove currently uses the xterm.js + node-pty baseline, but not VS Code's deeper Windows terminal compatibility stack.
+3. Eclipse Code currently uses the xterm.js + node-pty baseline, but not VS Code's deeper Windows terminal compatibility stack.
 
 This means the likely failing boundary is not basic shell launch anymore. It is:
 
 - ConPTY buffer semantics
 - alternate-screen / mouse mode behavior
-- xterm viewport / scrollbar state inside OpenCove's embedded terminal
+- xterm viewport / scrollbar state inside Eclipse Code's embedded terminal
 
 ## Why VS Code Can Behave Better
 
-OpenCove already aligned one important part with VS Code:
+Eclipse Code already aligned one important part with VS Code:
 
 - agent launch now goes through one terminal-profile normalization path
 - Windows PTY metadata is propagated into xterm's `windowsPty`
@@ -59,7 +59,7 @@ References:
 
 This branch adds an opt-in diagnostics path for terminal nodes.
 
-When enabled, OpenCove writes structured JSON lines to the process stdout with:
+When enabled, Eclipse Code writes structured JSON lines to the process stdout with:
 
 - `init`
 - `hydrated`
@@ -89,7 +89,7 @@ Each line includes:
 Log prefix:
 
 ```text
-[opencove-terminal-diagnostics]
+[eclipse-code-terminal-diagnostics]
 ```
 
 ## How To Run On Windows 10
@@ -99,11 +99,11 @@ Use a terminal, not a desktop icon, so stdout remains visible.
 PowerShell:
 
 ```powershell
-$env:OPENCOVE_TERMINAL_DIAGNOSTICS='1'
+$env:ECLIPSE_CODE_TERMINAL_DIAGNOSTICS='1'
 pnpm dev
 ```
 
-If testing a production build from terminal, launch the built executable from the same shell with `OPENCOVE_TERMINAL_DIAGNOSTICS=1` set first.
+If testing a production build from terminal, launch the built executable from the same shell with `ECLIPSE_CODE_TERMINAL_DIAGNOSTICS=1` set first.
 
 ## What To Look For
 
@@ -153,7 +153,7 @@ After collecting logs from a real Windows 10 machine, the next change should be 
    - fix event routing / capture path
 2. If wheel arrives but alternate buffer never exposes scrollback:
    - compare against VS Code's Windows terminal behavior more directly
-   - evaluate whether Codex needs a different Windows launch/runtime mode inside OpenCove
+   - evaluate whether Codex needs a different Windows launch/runtime mode inside Eclipse Code
 3. If scrollbar exists but viewport does not move:
    - inspect xterm viewport state and mouse/wheel integration on Win10 specifically
 

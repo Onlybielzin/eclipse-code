@@ -23,7 +23,7 @@ index 0000000000000000000000000000000000000000..c3749178741175f00b8dfbc7063e3f37
 +Object.defineProperty(exports, "__esModule", { value: true });
 +exports.assertWindowsConsoleGeometryAvailable = assertWindowsConsoleGeometryAvailable;
 +exports.readWindowsConsoleGeometry = readWindowsConsoleGeometry;
-+/** OpenCove extension to node-pty (MIT). Only use in a dedicated observer process. */
++/** Eclipse Code extension to node-pty (MIT). Only use in a dedicated observer process. */
 +const utils_1 = require("./utils");
 +function assertWindowsConsoleGeometryAvailable() {
 +    if (process.platform !== 'win32' ||
@@ -47,9 +47,9 @@ index 17f1d980e62e017d77058627a7a15c4c29f9470c..b2fdec3a2348da2ea96bb315cdb50a2f
  const PREBUILDS_ROOT = path.join(__dirname, '..', 'prebuilds');
  const PREBUILD_DIR = path.join(__dirname, '..', 'prebuilds', `${process.platform}-${process.arch}`);
  
-+// OpenCove needs the Console geometry query extension, which upstream prebuilds lack.
++// Eclipse Code needs the Console geometry query extension, which upstream prebuilds lack.
 +if (process.platform === 'win32') {
-+  console.log('> Building OpenCove Windows Console geometry capability from source');
++  console.log('> Building Eclipse Code Windows Console geometry capability from source');
 +  process.exit(1);
 +}
 +
@@ -111,7 +111,7 @@ index 0000000000000000000000000000000000000000..bd6aea2831c3746bee99d7e328112d75
 --- /dev/null
 +++ b/src/windowsConsoleGeometry.ts
 @@ -0,0 +1,25 @@
-+/** OpenCove extension to node-pty (MIT). Only use in a dedicated observer process. */
++/** Eclipse Code extension to node-pty (MIT). Only use in a dedicated observer process. */
 +import { loadNativeModule } from './utils';
 +
 +export interface IWindowsConsoleGeometry {

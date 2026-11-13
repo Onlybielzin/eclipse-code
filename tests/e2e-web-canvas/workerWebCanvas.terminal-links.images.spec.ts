@@ -34,12 +34,12 @@ test('Web PNG terminal links preview and restore URI documents without importing
       settings: { language: 'en', canvasInputMode: 'mouse' },
     }),
   )
-  await openAuthedCanvas(page, '/?opencoveTerminalTestApi=1')
+  await openAuthedCanvas(page, '/?eclipseCodeTerminalTestApi=1')
   await page.evaluate(() => {
     const tracked = window as ImageImportWindow
     tracked.__terminalLinkImageImportCalls = 0
-    const original = window.opencoveApi.workspace.writeCanvasImage
-    window.opencoveApi.workspace.writeCanvasImage = async payload => {
+    const original = window.eclipseCodeApi.workspace.writeCanvasImage
+    window.eclipseCodeApi.workspace.writeCanvasImage = async payload => {
       tracked.__terminalLinkImageImportCalls = (tracked.__terminalLinkImageImportCalls ?? 0) + 1
       return await original(payload)
     }

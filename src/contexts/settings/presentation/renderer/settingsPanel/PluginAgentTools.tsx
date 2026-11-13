@@ -32,7 +32,7 @@ export function PluginAgentTools({ plugin }: { plugin: PluginManifest }): JSX.El
       if (current !== generation.current) {
         return
       }
-      await window.opencoveApi.clipboard.writeText(text)
+      await window.eclipseCodeApi.clipboard.writeText(text)
       if (current === generation.current) {
         setFeedback(t('settingsPanel.plugins.tools.copied'))
       }
@@ -65,7 +65,7 @@ export function PluginAgentTools({ plugin }: { plugin: PluginManifest }): JSX.El
                 : needsNode
                   ? ' --node <node-id>'
                   : ' --project <project-id>'
-            const invocation = `opencove plugin run ${plugin.id} ${command.id}${selector}`
+            const invocation = `eclipse-code plugin run ${plugin.id} ${command.id}${selector}`
             return (
               <div className="settings-plugin-tools__row" key={command.id}>
                 <div className="settings-plugin-tools__description">
@@ -118,7 +118,7 @@ export function PluginAgentTools({ plugin }: { plugin: PluginManifest }): JSX.El
                 onClick={() =>
                   void copy(`skill:${skill.id}`, async () => {
                     const detail =
-                      await window.opencoveApi.controlSurface.invoke<PluginSkillDetails>({
+                      await window.eclipseCodeApi.controlSurface.invoke<PluginSkillDetails>({
                         kind: 'query',
                         id: 'plugin.skill.get',
                         payload: { pluginId: plugin.id, skillId: skill.id },

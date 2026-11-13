@@ -55,12 +55,12 @@ describe('useHydrateAppState merge behavior', () => {
       settings: {},
     }
 
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(persistedState))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(persistedState))
 
     const spawnDeferred = createDeferred<{ sessionId: string }>()
     const spawn = vi.fn(() => spawnDeferred.promise)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -235,7 +235,7 @@ describe('useHydrateAppState merge behavior', () => {
       settings: {},
     }
 
-    storage.setItem('opencove:m0:workspace-state', JSON.stringify(persistedState))
+    storage.setItem('eclipse-code:m0:workspace-state', JSON.stringify(persistedState))
 
     const spawnDeferred1 = createDeferred<{ sessionId: string }>()
     const spawnDeferred2 = createDeferred<{ sessionId: string }>()
@@ -244,7 +244,7 @@ describe('useHydrateAppState merge behavior', () => {
       .mockImplementationOnce(() => spawnDeferred1.promise)
       .mockImplementationOnce(() => spawnDeferred2.promise)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

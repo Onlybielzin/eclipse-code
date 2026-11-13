@@ -4,7 +4,7 @@ const MAX_AGENT_SESSION_ENV_ENTRIES = 200
 const MAX_AGENT_SESSION_ENV_KEY_LENGTH = 120
 const MAX_AGENT_SESSION_ENV_VALUE_LENGTH = 10_000
 const AGENT_SESSION_ENV_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
-const AGENT_SESSION_ENV_RESERVED_PREFIX = 'OPENCOVE_'
+const AGENT_SESSION_ENV_RESERVED_PREFIX = 'ECLIPSE_CODE_'
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)

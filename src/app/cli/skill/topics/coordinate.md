@@ -5,7 +5,7 @@
 When delegation is authorized, prefer:
 
 ```sh
-opencove node create agent --space space-123 --prompt-file ./assignment.txt --wait --read --timeout 2m
+eclipse-code node create agent --space space-123 --prompt-file ./assignment.txt --wait --read --timeout 2m
 ```
 
 This creates once, identifies the initial Claude Code/Codex turn on the new session, waits for that
@@ -36,13 +36,13 @@ data: question options are labels, and optional optionDescriptions aligns with t
 description); each text is at most 200 characters, with at most 3 questions and 4 options each.
 
 ```sh
-opencove agent list -o table
-opencove agent get --node agent-123
-opencove agent read --node agent-123 --screen
-opencove agent prompt --node agent-123 --wait --read --text-file ./assignment.txt --timeout 2m
+eclipse-code agent list -o table
+eclipse-code agent get --node agent-123
+eclipse-code agent read --node agent-123 --screen
+eclipse-code agent prompt --node agent-123 --wait --read --text-file ./assignment.txt --timeout 2m
 ```
 
-Prompt works only with **agent windows OpenCove launched** (from a task, the agent launcher or `node
+Prompt works only with **agent windows Eclipse Code launched** (from a task, the agent launcher or `node
 create agent`) running **Claude Code**, or **Codex** with its lifecycle hooks, at authoritative
 working state or after an observed finished turn. Agent windows started with a custom executable
 path are refused. Both providers require local invocation lifecycle hooks, authoritative state,
@@ -54,8 +54,8 @@ executable_override_unverified, remove the override in Settings → agent execut
 window; the running invocation is unchanged. Agents typed into a terminal cannot receive prompts
 because the shell would receive the input after the agent stops. Start an agent meant to receive
 prompts, such as a lead agent other agents report to, as an agent window using Run Agent on a task,
-the agent launcher, or `opencove node create agent --space <space> --prompt <text>`; it can still
-use the opencove CLI from there. Newly opened/resumed sessions may need a completed turn first.
+the agent launcher, or `eclipse-code node create agent --space <space> --prompt <text>`; it can still
+use the eclipse-code CLI from there. Newly opened/resumed sessions may need a completed turn first.
 
 Choose one prompt source: positional text, --text or --text-file (- reads stdin). Text must be
 valid Unicode, nonblank and at most 32 KiB UTF-8 before newline normalization; trailing newlines
@@ -75,10 +75,10 @@ outcome, reply.message and other declared fields. Optional reading uses the ordi
 When you need to work meanwhile, keep the split loop and save both IDs:
 
 ```sh
-opencove agent prompt --node agent-123 --text-file ./assignment.txt
-opencove agent delivery delivery-123 --wait --timeout 2m
-opencove agent wait --node agent-123 --turn turn-123 --timeout 10m
-opencove agent read --node agent-123 --turn turn-123 -o json
+eclipse-code agent prompt --node agent-123 --text-file ./assignment.txt
+eclipse-code agent delivery delivery-123 --wait --timeout 2m
+eclipse-code agent wait --node agent-123 --turn turn-123 --timeout 10m
+eclipse-code agent read --node agent-123 --turn turn-123 -o json
 ```
 
 The wait selects the containing turn, including steering/continuations. Turn end alone does not
@@ -94,7 +94,7 @@ notice; never press Enter again because of comparison.
 The command attempts one bracketed paste and one Enter; an existing editor draft is submitted too.
 Inspect drafts and dialogs first with `agent read --node <selector> --screen`; unseen dialogs,
 including one-time settings notices, may consume input. Screen inspection is not permission to
-answer. See `opencove skill read` for screen rendering and reply recovery.
+answer. See `eclipse-code skill read` for screen rendering and reply recovery.
 
 `submission_observed` confirms a matching authenticated UserPromptSubmit observation, not exact text
 processing, causation, successful work or turn completion. Checks require a range-checked
@@ -135,7 +135,7 @@ no new fields and still refuse busy agents. Waiting/dialogs and unknown/degraded
 error is retried.
 
 Retain the deliveryId printed before sending, even after response loss. Codex dispatched exits 0
-pending consumption; check opencove agent delivery <id> --wait --timeout 2m. Confirmation stays in
+pending consumption; check eclipse-code agent delivery <id> --wait --timeout 2m. Confirmation stays in
 order only with no intervening PTY input; other input is ambiguous, interruption/end may leave
 unknown. Claude same-ID receipts confirm submission independently of run-state acceptance;
 textComparison never decides submission.
@@ -156,7 +156,7 @@ read replies with -o json.
 
 ## Choose a waiting strategy for your host
 
-Claude Code coordinators can run `opencove agent wait --node <selector> --turn <id> --timeout 10m`
+Claude Code coordinators can run `eclipse-code agent wait --node <selector> --turn <id> --timeout 10m`
 as a background Bash command (`run_in_background: true`), keep working, and resume on its completion
 notification. That notification can mean success, timeout or error: always check the exit code and
 outcome before reading. A background wait does not send input to the target.
@@ -164,17 +164,17 @@ outcome before reading. A background wait does not send input to the target.
 Codex coordinators wait in the foreground. Set the CLI timeout below the tool timeout; after exit
 124, repeat the same exact-turn wait, without resending the prompt. Choose a budget that lets the
 tool return the CLI's result. Exit 10 requires inspection and the user, not repeated input. See
-`opencove skill wait` for attention and session-binding rules.
+`eclipse-code skill wait` for attention and session-binding rules.
 
 ```sh
-opencove agent delivery delivery-123 --wait --timeout 2m
-opencove agent prompt --node agent-123 --text "Include boundary tests" --expect-turn turn-123
+eclipse-code agent delivery delivery-123 --wait --timeout 2m
+eclipse-code agent prompt --node agent-123 --text "Include boundary tests" --expect-turn turn-123
 ```
 
 ## Report back to your parent
 
 When delegated work is complete, inspect `node get --node @self` for `spawnedBy` and report
-through `opencove agent prompt --node @parent --text "Review complete; boundary tests passed" --wait --read`.
+through `eclipse-code agent prompt --node @parent --text "Review complete; boundary tests passed" --wait --read`.
 Use this only for authorized coordination. A terminal parent needs registered agent run state;
 a root has no parent, and `parent_deleted` means the original node was removed. Keep findings in a
 shared note if messaging is unavailable. Do not substitute a node named `@parent` or retry a refusal.

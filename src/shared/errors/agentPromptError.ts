@@ -1,7 +1,7 @@
 import type { AppErrorDescriptor } from '../contracts/dto'
 
 const inspect =
-  'Do not resend. Inspect the terminal with "opencove agent read --node <selector> --screen" and the conversation before retrying.'
+  'Do not resend. Inspect the terminal with "eclipse-code agent read --node <selector> --screen" and the conversation before retrying.'
 export const promptUnknownRecovery = inspect
 
 /** Presentation only: never infer attempt flags from an absent descriptor field. */
@@ -20,12 +20,12 @@ export function agentPromptErrorPresentation(
     case 'agent.blocked':
       return pair(
         'The agent is waiting for input.',
-        'Inspect with "opencove agent read --node <selector> --screen"; have the human resolve the pending dialog, then retry after the agent is idle.',
+        'Inspect with "eclipse-code agent read --node <selector> --screen"; have the human resolve the pending dialog, then retry after the agent is idle.',
       )
     case 'agent.delivery_unsettled':
       return pair(
         'A previous delivery is unresolved.',
-        `Never resend; check opencove agent delivery ${details.deliveryId ?? '<id>'} --wait or inspect the screen.`,
+        `Never resend; check eclipse-code agent delivery ${details.deliveryId ?? '<id>'} --wait or inspect the screen.`,
       )
     case 'agent.busy':
       if (reason === 'competing_input') {
@@ -59,19 +59,19 @@ export function agentPromptErrorPresentation(
     case 'agent.state_unknown':
       if (reason === 'readiness_unobserved') {
         return pair(
-          'OpenCove has not observed this agent finish a turn.',
-          'Complete a turn in the agent terminal, then retry after OpenCove reports idle.',
+          'Eclipse Code has not observed this agent finish a turn.',
+          'Complete a turn in the agent terminal, then retry after Eclipse Code reports idle.',
         )
       }
       if (reason === 'observation_degraded') {
         return pair(
-          'OpenCove cannot reliably observe this agent.',
-          'Check the hook setup. Retry only after OpenCove observes a completed turn.',
+          'Eclipse Code cannot reliably observe this agent.',
+          'Check the hook setup. Retry only after Eclipse Code observes a completed turn.',
         )
       }
       return pair(
-        'OpenCove cannot confirm that the agent is ready.',
-        'Inspect "opencove agent read --node <selector> --screen" and agent get before retrying.',
+        'Eclipse Code cannot confirm that the agent is ready.',
+        'Inspect "eclipse-code agent read --node <selector> --screen" and agent get before retrying.',
       )
     case 'agent.not_running':
       if (reason === 'caller_revoked') {
@@ -82,8 +82,8 @@ export function agentPromptErrorPresentation(
       }
       if (reason === 'shutdown') {
         return pair(
-          'OpenCove stopped before delivery began.',
-          'Reconnect after OpenCove starts, then check the target before retrying.',
+          'Eclipse Code stopped before delivery began.',
+          'Reconnect after Eclipse Code starts, then check the target before retrying.',
         )
       }
       if (reason === 'binding_changed') {
@@ -99,32 +99,32 @@ export function agentPromptErrorPresentation(
         )
       }
       return pair(
-        'OpenCove could not begin delivery to this agent.',
+        'Eclipse Code could not begin delivery to this agent.',
         'Check the target session and connection before retrying.',
       )
     case 'agent.prompt_unsupported':
       if (reason === 'executable_override_unverified') {
         return pair(
-          'Prompting is unavailable because this agent window was started with a custom executable path (Settings → agent executable). OpenCove cannot verify that it keeps the hooks required for prompting.',
+          'Prompting is unavailable because this agent window was started with a custom executable path (Settings → agent executable). Eclipse Code cannot verify that it keeps the hooks required for prompting.',
           'Remove the override in Settings → agent executable, then launch a new agent window with the required lifecycle hooks to make it promptable.',
         )
       }
       if (reason === 'terminal_agent_unsupported') {
         return pair(
           'Agents typed into a terminal cannot receive prompts because the shell would receive the input after the agent stops.',
-          'Start an agent meant to receive prompts (for example a lead agent other agents report to) as an agent window: Run Agent on a task, the agent launcher, or "opencove node create agent --space <space> --prompt <text>"; it can still use the opencove CLI from there.',
+          'Start an agent meant to receive prompts (for example a lead agent other agents report to) as an agent window: Run Agent on a task, the agent launcher, or "eclipse-code node create agent --space <space> --prompt <text>"; it can still use the eclipse-code CLI from there.',
         )
       }
       if (reason === 'remote_unsupported') {
         return pair(
           'Prompt delivery to remote sessions is not supported.',
-          'Select a local Claude Code or lifecycle-hook Codex agent window OpenCove launched.',
+          'Select a local Claude Code or lifecycle-hook Codex agent window Eclipse Code launched.',
         )
       }
       if (reason === 'provider_unsupported') {
         return pair(
-          'This command supports local Claude Code and lifecycle-hook Codex agent windows OpenCove launched.',
-          'Select a local Claude Code or lifecycle-hook Codex agent window OpenCove launched.',
+          'This command supports local Claude Code and lifecycle-hook Codex agent windows Eclipse Code launched.',
+          'Select a local Claude Code or lifecycle-hook Codex agent window Eclipse Code launched.',
         )
       }
       const missing: Record<string, string> = {
@@ -151,24 +151,24 @@ export function agentPromptErrorPresentation(
       if (reason === 'bracketed_paste_off') {
         return pair(
           'The terminal has not enabled bracketed paste.',
-          'Use "opencove agent read --node <selector> --screen" to check that the agent is at its prompt, then retry. This command does not fall back to raw typing.',
+          'Use "eclipse-code agent read --node <selector> --screen" to check that the agent is at its prompt, then retry. This command does not fall back to raw typing.',
         )
       }
       return pair(
         'This session does not support prompt delivery.',
-        'Use a local agent window OpenCove launched with lifecycle hooks and bracketed paste enabled.',
+        'Use a local agent window Eclipse Code launched with lifecycle hooks and bracketed paste enabled.',
       )
     case 'agent.prompt_interrupted':
       return {
         message:
           'Prompt delivery stopped after a paste attempt. Text may be in the editor; this command did not press Enter.',
-        hint: 'Inspect the editor with "opencove agent read --node <selector> --screen" and have the human resolve any dialog before continuing. Do not paste the text again if it is already there.',
+        hint: 'Inspect the editor with "eclipse-code agent read --node <selector> --screen" and have the human resolve any dialog before continuing. Do not paste the text again if it is already there.',
       }
     case 'agent.prompt_stalled':
       return {
         message:
-          'OpenCove attempted to press Enter but did not observe a matching submission event.',
-        hint: 'Do not resend. Inspect "opencove agent read --node <selector> --screen" and the conversation to determine whether the prompt was submitted.',
+          'Eclipse Code attempted to press Enter but did not observe a matching submission event.',
+        hint: 'Do not resend. Inspect "eclipse-code agent read --node <selector> --screen" and the conversation to determine whether the prompt was submitted.',
       }
     case 'agent.prompt_timeout':
       return {
@@ -188,10 +188,10 @@ export function promptValidationPresentation(details: unknown): { message: strin
   return issue
     ? {
         message: `Invalid prompt request: ${issue.path?.join('.') || 'input'}: ${issue.message ?? 'invalid value'}${issue.message?.includes('Nothing was sent') ? '' : ' Nothing was sent.'}`,
-        hint: issue.hint ?? 'Run opencove agent prompt --help for the supported input.',
+        hint: issue.hint ?? 'Run eclipse-code agent prompt --help for the supported input.',
       }
     : {
         message: 'The prompt request is invalid. Nothing was sent.',
-        hint: 'Check the target, text and timeout requirements in opencove agent prompt --help.',
+        hint: 'Check the target, text and timeout requirements in eclipse-code agent prompt --help.',
       }
 }

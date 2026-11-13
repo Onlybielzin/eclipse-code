@@ -78,7 +78,7 @@ async function resolveParent(ctx: CommandContext) {
       if (
         ctx.options.in === '@self' &&
         error.code === 'cli.usage' &&
-        error.message === 'This OpenCove terminal does not belong to a space.'
+        error.message === 'This Eclipse Code terminal does not belong to a space.'
       ) {
         throw new CliError(
           error.code,
@@ -108,12 +108,14 @@ async function resolveParent(ctx: CommandContext) {
 
 async function currentProject(ctx: CommandContext) {
   let io = ctx.io
-  if (io.env.OPENCOVE_ENV !== '1' || !io.env.OPENCOVE_NODE_ID) {
+  if (io.env.ECLIPSE_CODE_ENV !== '1' || !io.env.ECLIPSE_CODE_NODE_ID) {
     const caller = await ctx.whoami()
     if (caller.caller !== 'session-grant' || !caller.nodeId) {
-      usage('Creating a top-level space requires --project <selector> outside an OpenCove terminal')
+      usage(
+        'Creating a top-level space requires --project <selector> outside an Eclipse Code terminal',
+      )
     }
-    io = { ...io, env: { ...io.env, OPENCOVE_ENV: '1' } }
+    io = { ...io, env: { ...io.env, ECLIPSE_CODE_ENV: '1' } }
   }
   const args: CommandArgs = { options: {}, positionals: [] }
   await resolveCurrentContainer(
@@ -132,7 +134,7 @@ export const spaceCreateCommand = defineCommand({
   usage:
     '--name <name> [--project <selector>] [--directory <path>] | --name <name> --in <selector> [--frame <json>] [--move <selector>]...',
   description:
-    'Top-level spaces use your terminal node’s current project unless --project is given; outside OpenCove, supply --project. Placement is automatic. --directory must be an existing absolute local directory within the project’s default mount; symlinks cannot escape that mount. Omit it to use the mount root.\n\nWith --in, create a child space in the selected parent and inherit its directory. --move selects direct members of that parent. Without --frame, the boundary encloses the moved nodes, or defaults to 420×300 at the parent’s center. The server fits the boundary inside the parent, preserves room for moved nodes, and grows ancestors when needed. The result reports rect as {x,y,width,height} in canvas coordinates.',
+    'Top-level spaces use your terminal node’s current project unless --project is given; outside Eclipse Code, supply --project. Placement is automatic. --directory must be an existing absolute local directory within the project’s default mount; symlinks cannot escape that mount. Omit it to use the mount root.\n\nWith --in, create a child space in the selected parent and inherit its directory. --move selects direct members of that parent. Without --frame, the boundary encloses the moved nodes, or defaults to 420×300 at the parent’s center. The server fits the boundary inside the parent, preserves room for moved nodes, and grows ancestors when needed. The result reports rect as {x,y,width,height} in canvas coordinates.',
   connect: true,
   operation: 'space.create',
   operationAliases: ['space.createChild'],
@@ -189,19 +191,21 @@ export const spaceCreateCommand = defineCommand({
     { id: 'space-123' },
   ),
   examples: [
-    'opencove space create --name "Review"',
-    'opencove space create --name "Migration" --project project-123 --directory /workspace/migration',
-    'opencove space create --name "Review notes" --in @self --move "Brief" --move "Checklist"',
+    'eclipse-code space create --name "Review"',
+    'eclipse-code space create --name "Migration" --project project-123 --directory /workspace/migration',
+    'eclipse-code space create --name "Review notes" --in @self --move "Brief" --move "Checklist"',
   ],
   validateBeforeConnect({ options: o }, env) {
     if (
       o.in === undefined &&
       o.project === undefined &&
-      !(env.OPENCOVE_ENV === '1' && env.OPENCOVE_NODE_ID) &&
+      !(env.ECLIPSE_CODE_ENV === '1' && env.ECLIPSE_CODE_NODE_ID) &&
       !o.token &&
-      !env.OPENCOVE_CONTROL_TOKEN
+      !env.ECLIPSE_CODE_CONTROL_TOKEN
     ) {
-      usage('Creating a top-level space requires --project <selector> outside an OpenCove terminal')
+      usage(
+        'Creating a top-level space requires --project <selector> outside an Eclipse Code terminal',
+      )
     }
   },
   buildInput: spaceInput,
@@ -224,7 +228,7 @@ export const spaceCreateCommand = defineCommand({
           nodes_not_in_parent:
             'Every node selected with --move must belong directly to the parent space selected with --in.',
           parent_missing_rect:
-            'The selected parent space has no canvas boundary. Open it in OpenCove before creating a child space.',
+            'The selected parent space has no canvas boundary. Open it in Eclipse Code before creating a child space.',
           invalid_rect:
             'The child space boundary is invalid. Supply --frame with finite x, y and positive width and height.',
         }
@@ -253,7 +257,7 @@ function spaceOutput(projectId: string, space: CreateSpaceResult['space'], moved
       'cli.result_unavailable',
       1,
       'The space was created, but this Worker did not return its details.',
-      'Run "opencove space list" to find it. Do not repeat the creation command.',
+      'Run "eclipse-code space list" to find it. Do not repeat the creation command.',
     )
   }
   return {

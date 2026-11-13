@@ -32,11 +32,11 @@ export interface PersistencePort {
   writeWorkspaceStateRaw: (raw: string) => Promise<PersistWriteResult>
 }
 
-const NODE_SCROLLBACK_KEY_PREFIX = 'opencove:m0:node-scrollback:'
+const NODE_SCROLLBACK_KEY_PREFIX = 'eclipse-code:m0:node-scrollback:'
 const LEGACY_NODE_SCROLLBACK_KEY_PREFIX = 'cove:m0:node-scrollback:'
-const AGENT_PLACEHOLDER_SCROLLBACK_KEY_PREFIX = 'opencove:m0:agent-placeholder-scrollback:'
+const AGENT_PLACEHOLDER_SCROLLBACK_KEY_PREFIX = 'eclipse-code:m0:agent-placeholder-scrollback:'
 const LEGACY_AGENT_PLACEHOLDER_SCROLLBACK_KEY_PREFIX = 'cove:m0:agent-placeholder-scrollback:' // legacy
-const LOCAL_SYNC_WRITE_EVENT_NAME = 'opencove.localSyncWrite'
+const LOCAL_SYNC_WRITE_EVENT_NAME = 'eclipse-code.localSyncWrite'
 
 export function publishLocalSyncWriteRevision(revision: unknown): void {
   if (typeof window === 'undefined') {
@@ -63,7 +63,7 @@ function createIpcPort(): PersistencePort | null {
     return null
   }
 
-  const persistenceApi = window.opencoveApi?.persistence
+  const persistenceApi = window.eclipseCodeApi?.persistence
   if (!persistenceApi) {
     return null
   }

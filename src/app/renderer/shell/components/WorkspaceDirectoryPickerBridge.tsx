@@ -11,7 +11,7 @@ export function WorkspaceDirectoryPickerBridge(): React.JSX.Element | null {
   const [requestId, setRequestId] = useState<string | null>(null)
 
   useEffect(() => {
-    const runtime = window.opencoveApi?.meta?.runtime ?? 'electron'
+    const runtime = window.eclipseCodeApi?.meta?.runtime ?? 'electron'
     if (runtime !== 'browser') {
       return
     }

@@ -36,7 +36,7 @@ export async function resolveFilesystemNodeRootUri({
     return null
   }
   if (mountId !== null) {
-    const target = await window.opencoveApi?.controlSurface?.invoke<ResolveMountTargetResult>({
+    const target = await window.eclipseCodeApi?.controlSurface?.invoke<ResolveMountTargetResult>({
       kind: 'query',
       id: 'mountTarget.resolve',
       payload: { mountId },

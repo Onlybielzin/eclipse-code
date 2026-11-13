@@ -21,7 +21,7 @@ function fixture(value: unknown = { pong: true }) {
         stderr += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://localhost:1', OPENCOVE_CONTROL_TOKEN: 'token' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://localhost:1', ECLIPSE_CODE_CONTROL_TOKEN: 'token' },
     fetch,
     now: Date.now,
     readTextFile: vi.fn(async () => {
@@ -106,7 +106,7 @@ describe('TypeScript CLI core', () => {
   })
   it('uses explicit profile ahead of environment profile', async () => {
     const f = fixture()
-    f.io.env = { OPENCOVE_USER_DATA_DIR: '/b' }
+    f.io.env = { ECLIPSE_CODE_USER_DATA_DIR: '/b' }
     f.io.readTextFile = vi.fn(async p => {
       if (p === '/a/control-surface.json') {
         return file
@@ -300,7 +300,7 @@ it('status invokes only capabilities with protocol header', async () => {
   expect(await run(['status', '--pretty'], f.io)).toBe(0)
   expect(f.fetch).toHaveBeenCalledTimes(1)
   const call = f.fetch.mock.calls[0] as unknown as [string, RequestInit]
-  expect(call[1].headers).toHaveProperty('x-opencove-protocol')
+  expect(call[1].headers).toHaveProperty('x-eclipse-code-protocol')
   expect(JSON.parse(String(call[1].body)).id).toBe('system.capabilities')
   expect(f.out()).toContain('\n  "appVersion"')
 })
@@ -389,14 +389,14 @@ it('returns exit 6 for an ambiguous space locator and preserves server error', a
       candidates: ['space-a', 'space-b'],
       message: 'Multiple spaces match this name',
       details: { ...details, space: { kind: 'spaceName', name: 'same-name' } },
-      hint: 'Run "opencove space list" to find available targets.',
+      hint: 'Run "eclipse-code space list" to find available targets.',
     },
   })
 })
 
 it('validates parsed command arguments once before connection discovery', async () => {
   const f = fixture()
-  f.io.env = { OPENCOVE_PROJECT_ID: 'untrusted-project' }
+  f.io.env = { ECLIPSE_CODE_PROJECT_ID: 'untrusted-project' }
   f.io.profileCandidates = vi.fn(() => ['/isolated/profile'])
   const validateBeforeConnect = vi.fn(() => {
     throw new CliError('cli.usage', 2, 'Choose --project before connecting.')

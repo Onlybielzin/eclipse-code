@@ -63,7 +63,7 @@ for (const [kind, args, id, name, operation, key] of [
       expect(f.error()).toMatchObject({
         code: `${kind}.not_found`,
         message: expect.stringContaining('was not found'),
-        hint: expect.stringContaining(`opencove ${kind} list`),
+        hint: expect.stringContaining(`eclipse-code ${kind} list`),
       })
       const mutation =
         kind === 'node' ? 'node.delete' : kind === 'space' ? 'worktree.archive' : operation
@@ -101,8 +101,8 @@ for (const [kind, args, id, name, operation, key] of [
     const f = identityFixture(false)
     expect(await run([...args, `--${kind}`, '@self'], f.io)).toBe(2)
     expect(f.error()).toMatchObject({
-      message: expect.stringContaining('only works inside an OpenCove terminal'),
-      hint: expect.stringContaining('OPENCOVE_NODE_ID'),
+      message: expect.stringContaining('only works inside an Eclipse Code terminal'),
+      hint: expect.stringContaining('ECLIPSE_CODE_NODE_ID'),
     })
     const mutation =
       kind === 'node' ? 'node.delete' : kind === 'space' ? 'worktree.archive' : operation
@@ -110,7 +110,7 @@ for (const [kind, args, id, name, operation, key] of [
   })
   it(`falls back to whoami for token-only ${kind} @self`, async () => {
     const f = identityFixture()
-    f.io.env = { OPENCOVE_CONTROL_URL: 'http://fixture', OPENCOVE_CONTROL_TOKEN: 'secret' }
+    f.io.env = { ECLIPSE_CODE_CONTROL_URL: 'http://fixture', ECLIPSE_CODE_CONTROL_TOKEN: 'secret' }
     expect(await run([...args, `--${kind}`, '@self'], f.io)).toBe(0)
     expect(f.requests.filter(r => r.id === 'system.whoami')).toHaveLength(1)
     expect(f.requests.at(-1)).toMatchObject({ id: operation, payload: { [key]: id } })
@@ -149,7 +149,7 @@ it.each(['node', 'space', 'project'])('accepts short exact %s IDs and names', as
   expect(Object.values(f.requests.at(-1)!.payload)).toContain('abc')
 })
 
-it.each([true, false])('applies defaults only inside OpenCove: %s', async inside => {
+it.each([true, false])('applies defaults only inside Eclipse Code: %s', async inside => {
   const f = identityFixture(inside)
   expect(await run(['space', 'get'], f.io)).toBe(inside ? 0 : 2)
   if (inside) {
@@ -192,26 +192,26 @@ it('adds selector metadata to every target option, including plugin targets', ()
   }
 })
 
-it('rejects @self outside OpenCove without trying profile discovery', async () => {
+it('rejects @self outside Eclipse Code without trying profile discovery', async () => {
   const f = identityFixture(false)
   f.io.env = {}
   expect(await run(['node', 'get', '--node', '@self'], f.io)).toBe(2)
-  expect(f.error().hint).toContain('OPENCOVE_PROJECT_ID')
+  expect(f.error().hint).toContain('ECLIPSE_CODE_PROJECT_ID')
   expect(f.fetch).not.toHaveBeenCalled()
   expect(f.io.readTextFile).not.toHaveBeenCalled()
 })
 
 it('does not treat identity variables alone as permission to use @self', async () => {
   const f = identityFixture(false)
-  f.io.env.OPENCOVE_NODE_ID = node.id
+  f.io.env.ECLIPSE_CODE_NODE_ID = node.id
   expect(await run(['node', 'get', '--node', '@self'], f.io)).toBe(2)
 })
 
 it('uses one whoami fallback for multiple missing environment identities', async () => {
   const f = identityFixture()
-  delete f.io.env.OPENCOVE_PROJECT_ID
-  delete f.io.env.OPENCOVE_SPACE_ID
-  delete f.io.env.OPENCOVE_NODE_ID
+  delete f.io.env.ECLIPSE_CODE_PROJECT_ID
+  delete f.io.env.ECLIPSE_CODE_SPACE_ID
+  delete f.io.env.ECLIPSE_CODE_NODE_ID
   expect(await run(['node', 'create', 'note'], f.io)).toBe(0)
   expect(f.requests.filter(request => request.id === 'system.whoami')).toHaveLength(1)
   expect(f.requests.at(-1)).toMatchObject({
@@ -310,6 +310,10 @@ it.each(targets)(
     if (command.path.join(' ') === 'space update') {
       // It needs --name or --frame; neither is required alone.
       args.push('--name', 'sample')
+    }
+    if (command.path.join(' ') === 'role import') {
+      vi.mocked(f.io.readTextFile).mockResolvedValue('[{"name":"Dev 1","prompt":"x"}]')
+      f.values['role.set'] = { projectId: project.id, role: { name: 'Dev 1' }, created: true }
     }
     if (command.path.join(' ') === 'agent prompt') {
       // The positional 'sample' above is its text; adding --text too would be rejected.

@@ -114,7 +114,7 @@ export function useAgentStandbyNotificationGitContext({
         return await existingInFlight
       }
 
-      const listWorktrees = window.opencoveApi?.worktree?.listWorktrees
+      const listWorktrees = window.eclipseCodeApi?.worktree?.listWorktrees
       if (typeof listWorktrees !== 'function') {
         return []
       }
@@ -157,7 +157,7 @@ export function useAgentStandbyNotificationGitContext({
         return await existingInFlight
       }
 
-      const resolvePullRequests = window.opencoveApi?.integration?.github?.resolvePullRequests
+      const resolvePullRequests = window.eclipseCodeApi?.integration?.github?.resolvePullRequests
       if (typeof resolvePullRequests !== 'function') {
         return null
       }

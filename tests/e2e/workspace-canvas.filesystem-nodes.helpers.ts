@@ -8,7 +8,7 @@ import { resolveE2ETmpDir } from './workspace-canvas.testUtils'
 export const FILESYSTEM_SPACE = 'filesystem-space'
 
 export async function createFilesystemNodeFixture() {
-  const root = await mkdtemp(path.join(resolveE2ETmpDir(), 'opencove-filesystem-nodes-'))
+  const root = await mkdtemp(path.join(resolveE2ETmpDir(), 'eclipse-code-filesystem-nodes-'))
   const docs = path.join(root, 'docs')
   const design = path.join(docs, 'design')
   const guide = path.join(design, 'guide.md')
@@ -95,7 +95,7 @@ export async function dragEntryToCanvas(page: Page, entry: Locator, y = 230) {
 
 export async function readPersistedFolder(page: Page) {
   return page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }

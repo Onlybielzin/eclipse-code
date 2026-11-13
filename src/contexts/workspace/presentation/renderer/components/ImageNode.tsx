@@ -75,7 +75,7 @@ export function ImageNode({
     setImageUrl(null)
     setIsMissing(false)
 
-    const readCanvasImage = window.opencoveApi?.workspace?.readCanvasImage
+    const readCanvasImage = window.eclipseCodeApi?.workspace?.readCanvasImage
     if (typeof readCanvasImage !== 'function') {
       setIsMissing(true)
       return () => undefined

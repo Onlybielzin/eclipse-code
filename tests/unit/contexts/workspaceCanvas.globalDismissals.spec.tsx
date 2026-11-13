@@ -58,10 +58,10 @@ vi.mock(
 )
 
 vi.mock(
-  '../../../src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceSpaceSwitcher',
+  '../../../src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceTaskTabs',
   () => {
     return {
-      WorkspaceSpaceSwitcher: () => <input data-testid="workspace-dummy-input" />,
+      WorkspaceTaskTabs: () => <input data-testid="workspace-dummy-input" />,
     }
   },
 )

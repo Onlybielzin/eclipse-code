@@ -86,7 +86,7 @@ describe.each(addressOperations)('$id address compatibility', operation => {
     const results = await Promise.all(payloads.map(invoke))
     for (const result of results) {
       expect(result).toMatchObject({
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: false,
         error: { code: 'common.invalid_input' },
       })

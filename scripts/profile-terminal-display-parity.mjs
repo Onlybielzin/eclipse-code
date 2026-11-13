@@ -19,18 +19,18 @@ const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'terminal-display-parity-profile')
 const PNPM_COMMAND = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 
-const nodeId = process.env.OPENCOVE_PROFILE_TERMINAL_NODE_ID ?? 'display-parity-terminal'
-const terminalFontSize = parsePositiveInt(process.env.OPENCOVE_PROFILE_TERMINAL_FONT_SIZE, 13)
-const terminalWidth = parsePositiveInt(process.env.OPENCOVE_PROFILE_TERMINAL_WIDTH, 640)
-const terminalHeight = parsePositiveInt(process.env.OPENCOVE_PROFILE_TERMINAL_HEIGHT, 420)
+const nodeId = process.env.ECLIPSE_CODE_PROFILE_TERMINAL_NODE_ID ?? 'display-parity-terminal'
+const terminalFontSize = parsePositiveInt(process.env.ECLIPSE_CODE_PROFILE_TERMINAL_FONT_SIZE, 13)
+const terminalWidth = parsePositiveInt(process.env.ECLIPSE_CODE_PROFILE_TERMINAL_WIDTH, 640)
+const terminalHeight = parsePositiveInt(process.env.ECLIPSE_CODE_PROFILE_TERMINAL_HEIGHT, 420)
 const webDeviceScaleFactors = parseDeviceScaleFactors(
-  process.env.OPENCOVE_PROFILE_WEB_DEVICE_SCALE_FACTORS ?? '1,2',
+  process.env.ECLIPSE_CODE_PROFILE_WEB_DEVICE_SCALE_FACTORS ?? '1,2',
 )
-const shouldBuild = !isTruthyEnv(process.env.OPENCOVE_PROFILE_SKIP_BUILD)
-const shouldKeepUserData = isTruthyEnv(process.env.OPENCOVE_PROFILE_KEEP_USER_DATA)
-const shouldAssertParity = isTruthyEnv(process.env.OPENCOVE_PROFILE_ASSERT_PARITY)
-const shouldRunWebHeadless = !isTruthyEnv(process.env.OPENCOVE_PROFILE_WEB_HEADFUL)
-const shouldCalibrateDisplay = process.env.OPENCOVE_PROFILE_CALIBRATE_DISPLAY !== '0'
+const shouldBuild = !isTruthyEnv(process.env.ECLIPSE_CODE_PROFILE_SKIP_BUILD)
+const shouldKeepUserData = isTruthyEnv(process.env.ECLIPSE_CODE_PROFILE_KEEP_USER_DATA)
+const shouldAssertParity = isTruthyEnv(process.env.ECLIPSE_CODE_PROFILE_ASSERT_PARITY)
+const shouldRunWebHeadless = !isTruthyEnv(process.env.ECLIPSE_CODE_PROFILE_WEB_HEADFUL)
+const shouldCalibrateDisplay = process.env.ECLIPSE_CODE_PROFILE_CALIBRATE_DISPLAY !== '0'
 
 function isTruthyEnv(value) {
   return value === '1' || value?.toLowerCase() === 'true'
@@ -71,7 +71,7 @@ async function ensureDir(dirPath) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-display-parity-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-display-parity-'))
 }
 
 async function writeHomeWorkerConfig(userDataDir) {
@@ -113,7 +113,7 @@ function createSeededState() {
         id: workspaceId,
         name: 'display parity',
         path: repoPath,
-        worktreesRoot: path.join(repoPath, '.opencove', 'worktrees'),
+        worktreesRoot: path.join(repoPath, '.eclipse-code', 'worktrees'),
         pullRequestBaseBranchOptions: [],
         environmentVariables: {},
         spaceArchiveRecords: [],
@@ -175,12 +175,12 @@ async function launchDesktop(userDataDir, artifactDir) {
     env: {
       ...env,
       NODE_ENV: 'test',
-      OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TEST_WORKSPACE: repoPath,
-      OPENCOVE_E2E_WINDOW_MODE: process.env.OPENCOVE_PROFILE_ELECTRON_WINDOW_MODE ?? 'inactive',
-      OPENCOVE_WORKER_CLIENT: '1',
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: env.ECLIPSE_CODE_PROFILE_ELECTRON_WINDOW_MODE ?? 'inactive',
+      ECLIPSE_CODE_WORKER_CLIENT: '1',
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     },
   })
 
@@ -211,7 +211,7 @@ async function launchDesktop(userDataDir, artifactDir) {
 
 async function seedDesktopWorkspace(window) {
   const writeResult = await window.evaluate(async state => {
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(state),
     })
   }, createSeededState())
@@ -230,7 +230,7 @@ async function waitForTerminal(page, label) {
   await page.locator('.terminal-node .xterm').first().waitFor({ state: 'visible', timeout: 60_000 })
   await page.waitForFunction(
     currentNodeId => {
-      return Boolean(window.__opencoveTerminalSelectionTestApi?.getSize?.(currentNodeId))
+      return Boolean(window.__eclipseCodeTerminalSelectionTestApi?.getSize?.(currentNodeId))
     },
     nodeId,
     { timeout: 60_000 },
@@ -240,9 +240,9 @@ async function waitForTerminal(page, label) {
 
 async function getDesktopWebUiUrl(window) {
   await window.evaluate(async () => {
-    await window.opencoveApi.worker.start()
+    await window.eclipseCodeApi.worker.start()
   })
-  const url = await window.evaluate(async () => await window.opencoveApi.worker.getWebUiUrl())
+  const url = await window.evaluate(async () => await window.eclipseCodeApi.worker.getWebUiUrl())
   if (!url) {
     throw new Error('[display-parity] Desktop did not return a Web UI URL')
   }
@@ -250,7 +250,7 @@ async function getDesktopWebUiUrl(window) {
 }
 
 function readMetricsInPage(currentNodeId) {
-  const api = window.__opencoveTerminalSelectionTestApi
+  const api = window.__eclipseCodeTerminalSelectionTestApi
   const nodeElement = [...document.querySelectorAll('.react-flow__node-terminalNode')].find(
     node => {
       if (!(node instanceof HTMLElement)) {
@@ -328,7 +328,7 @@ async function readMetrics(page, label) {
 async function applyDisplayCandidate(page, candidate) {
   return await page.evaluate(
     async ({ currentNodeId, nextCandidate }) => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       if (!api?.setDisplayOptions?.(currentNodeId, nextCandidate)) {
         return false
       }
@@ -401,7 +401,7 @@ async function profileWebContext({
   try {
     await page.goto(webUiUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 })
     const authedOrigin = new URL(page.url()).origin
-    await page.goto(`${authedOrigin}/?opencoveTerminalTestApi=1`, {
+    await page.goto(`${authedOrigin}/?eclipseCodeTerminalTestApi=1`, {
       waitUntil: 'domcontentloaded',
       timeout: 60_000,
     })

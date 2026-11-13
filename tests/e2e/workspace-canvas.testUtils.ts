@@ -5,7 +5,7 @@ import path from 'path'
 
 const E2E_PATH_DELETE_RETRY_MS = 500
 const E2E_PATH_DELETE_MAX_ATTEMPTS = 40
-const E2E_PARENT_DIR_NAME = 'opencove-e2e'
+const E2E_PARENT_DIR_NAME = 'eclipse-code-e2e'
 const E2E_USER_DATA_DIR_PREFIX = 'cove-e2e-user-data-'
 const LINUX_CI_LARGE_TMP_DIR = '/mnt'
 
@@ -18,7 +18,7 @@ function isTruthyEnv(rawValue: string | undefined): boolean {
 }
 
 export function resolveE2ETmpDir(): string {
-  const configuredTmpDir = process.env['OPENCOVE_E2E_TMPDIR']?.trim()
+  const configuredTmpDir = process.env['ECLIPSE_CODE_E2E_TMPDIR']?.trim()
   if (configuredTmpDir) {
     return configuredTmpDir
   }

@@ -5,10 +5,10 @@ for public state, blocking dialogs, turn boundaries and readiness invariants.
 
 ## Claude queued continuations
 
-A human message queued while Claude works belongs to the **current OpenCove turn**.
+A human message queued while Claude works belongs to the **current Eclipse Code turn**.
 Claude Code 2.1.319 can absorb it at a tool boundary (`queue-operation: remove`),
 or dequeue it into another provider turn (`user`, `promptSource: queued`, new
-`promptId`) without another start hook. Both paths keep the OpenCove turn ID and
+`promptId`) without another start hook. Both paths keep the Eclipse Code turn ID and
 start timestamp. More queued messages during a continuation follow the same rule.
 
 A same-ID `UserPromptSubmit` is submission evidence, never activity evidence: it
@@ -33,7 +33,7 @@ and never enter public DTOs, renderer messages, remote mirrors or receipt rings.
 With unresolved queue evidence, Stop retains its reply/outcome as an intermediate
 and keeps the turn working, with no completion event, lastEndedTurn or readiness.
 A queued user record attaches its provider ID to that turn. Its matching Stop
-ends the OpenCove turn once, inserts final history before any callback and publishes
+ends the Eclipse Code turn once, inserts final history before any callback and publishes
 one completion. Retained provider IDs include the earlier provider segments to
 prevent replay. Exact turn waits therefore include continuations; exact reads
 return the final reply. Default reads select only the latest ended turn, not all
@@ -59,7 +59,7 @@ cancel the existing entry scheduler and release private buffers.
 Ctrl+Enter, Esc and interrupts are not independently identifiable from these
 records; interruptions need not emit Stop. A distinct fresh hook submission uses
 P2-E supersession (prior outcome unknown), unless its ID is already a retained
-segment. The original OpenCove start's relay timestamp remains the freshness fence
+segment. The original Eclipse Code start's relay timestamp remains the freshness fence
 through continuations; transcript timestamps never become relay timestamps.
 Missing/equal/older relay times cannot authorize supersession. No PTY keystroke
 heuristic changes activity or invents an aborted/completed turn.
@@ -111,7 +111,7 @@ invocation-authenticated after conversation end; history correlation still rejec
 conflicting ends. The [Claude hooks reference](https://code.claude.com/docs/en/hooks#sessionstart)
 distinguishes `startup`, `resume`, `clear`, `compact` and `fork` sources. Those values
 travel only in the private envelope as `sessionStartSource`; malformed sources are
-discarded. OpenCove treats an ongoing same-session refresh (including compaction,
+discarded. Eclipse Code treats an ongoing same-session refresh (including compaction,
 resume, and repeated startup without an end) as an observer refresh, preserving
 its active turn, permission wait, continuation and recovery ticket. Its eventual
 Stop completes the same turn and retains that Stop's reply. Fresh relay-ordered
@@ -157,7 +157,7 @@ completion, restores readiness. Recovery updates the selected hook observation a
 `lastTurnEnd` atomically, without revising history/outcome or emitting a second
 completion. Relay timestamps are never synthesized from transcript/arrival times.
 
-Set `OPENCOVE_DEBUG_AGENT_CONTINUATION=1` on the Worker/main process for content-free
+Set `ECLIPSE_CODE_DEBUG_AGENT_CONTINUATION=1` on the Worker/main process for content-free
 stderr diagnostics: decisions, pending counts, generations, positions and elapsed
 milliseconds, with eight-character sanitized ID prefixes. No message text, token,
 envelope, filesystem path or tool input is logged. The switch is off by default.

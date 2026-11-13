@@ -39,7 +39,7 @@ function normalizeBoundedInteger(
 
 export function resolveCodexWriterLockWaitMs(env: NodeJS.ProcessEnv = process.env): number {
   return normalizeBoundedInteger(
-    env['OPENCOVE_CODEX_WRITER_LOCK_WAIT_MS'],
+    env['ECLIPSE_CODE_CODEX_WRITER_LOCK_WAIT_MS'],
     DEFAULT_WRITER_LOCK_WAIT_MS,
     MAX_WRITER_LOCK_WAIT_MS,
   )

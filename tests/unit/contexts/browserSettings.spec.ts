@@ -18,11 +18,11 @@ describe('browser settings helpers', () => {
     expect(resolveBrowserNavigationTarget('open cove browser', 'duckduckgo')).toBe(
       'https://duckduckgo.com/?q=open%20cove%20browser',
     )
-    expect(resolveBrowserNavigationTarget('opencove', 'bing')).toBe(
-      'https://www.bing.com/search?q=opencove',
+    expect(resolveBrowserNavigationTarget('eclipse-code', 'bing')).toBe(
+      'https://www.bing.com/search?q=eclipse-code',
     )
-    expect(resolveBrowserNavigationTarget('opencove', 'google')).toBe(
-      'https://www.google.com/search?igu=1&q=opencove',
+    expect(resolveBrowserNavigationTarget('eclipse-code', 'google')).toBe(
+      'https://www.google.com/search?igu=1&q=eclipse-code',
     )
     expect(resolveBrowserSearchUrl('canvas browser', 'brave')).toBe(
       'https://search.brave.com/search?q=canvas%20browser',

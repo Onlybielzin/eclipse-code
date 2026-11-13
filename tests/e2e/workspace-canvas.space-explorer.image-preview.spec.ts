@@ -69,7 +69,7 @@ test.describe('Workspace Canvas - Space Explorer image preview', () => {
 
       await window.evaluate(
         async ({ workspaceId, spaceId }) => {
-          const mountResult = await window.opencoveApi.controlSurface.invoke<{
+          const mountResult = await window.eclipseCodeApi.controlSurface.invoke<{
             mounts: Array<{ mountId: string; endpointId: string }>
           }>({
             kind: 'query',
@@ -83,7 +83,7 @@ test.describe('Workspace Canvas - Space Explorer image preview', () => {
             throw new Error('Missing local mount for mounted image preview test.')
           }
 
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           if (!raw) {
             throw new Error('Missing persisted workspace state.')
           }
@@ -108,7 +108,7 @@ test.describe('Workspace Canvas - Space Explorer image preview', () => {
             }
           })
 
-          const result = await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          const result = await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify(parsed),
           })
           if (!result.ok) {
@@ -170,7 +170,7 @@ test.describe('Workspace Canvas - Space Explorer image preview', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

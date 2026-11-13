@@ -15,7 +15,7 @@ import { promptDeliveryRuntimeFixture } from '../../support/promptDeliveryRuntim
 it.each(['queued', 'delay'] as const)(
   'production beginShutdown revokes %s bearer delivery before transport drain',
   async phase => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-prompt-shutdown-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-prompt-shutdown-'))
     const spy = vi.spyOn(contextFactory, 'createControlSurfaceHttpServerContext')
     const worker = createControlSurfaceHttpRuntime({
       userDataPath: root,

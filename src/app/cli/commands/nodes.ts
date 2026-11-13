@@ -28,6 +28,8 @@ const optionChoices: Record<string, readonly string[]> = {
     'folder',
     'image',
     'role',
+    'question',
+    'todos',
   ],
   Priority: ['low', 'medium', 'high', 'urgent'],
   Status: ['todo', 'doing', 'ai_done', 'done'],
@@ -158,7 +160,7 @@ export const nodeCommands = [
     description:
       nodeContentHelp +
       '\n\n' +
-      'Lists per-kind summaries: data carries kind plus requirement, status, priority and tags for tasks, or url for websites; data carries only kind for notes, agents and terminals. Read full content, such as note text, with "opencove node get --node <id>".\n\ndata.status is task status. Top-level status is session lifecycle (for example running or exited) for agents and terminals, not whether an agent is idle or working. STATE shows task status or session lifecycle; agentState is the separate work-state field. sessionStatus aliases lifecycle status. agentState {state, quality, turnId} reports work for agents and observed agents in terminals; state working means the agent is working. Missing observations are unknown/degraded. context keeps its legacy state field.',
+      'Lists per-kind summaries: data carries kind plus requirement, status, priority and tags for tasks, or url for websites; data carries only kind for notes, agents and terminals. Read full content, such as note text, with "eclipse-code node get --node <id>".\n\ndata.status is task status. Top-level status is session lifecycle (for example running or exited) for agents and terminals, not whether an agent is idle or working. STATE shows task status or session lifecycle; agentState is the separate work-state field. sessionStatus aliases lifecycle status. agentState {state, quality, turnId} reports work for agents and observed agents in terminals; state working means the agent is working. Missing observations are unknown/degraded. context keeps its legacy state field.',
     targetSpace: 'optional',
     currentContainer: true,
     connect: true,
@@ -273,7 +275,7 @@ export const nodeCommands = [
           ? (kind === 'agent'
               ? 'Use --prompt or --prompt-file with --wait to wait for the initial Claude Code or Codex turn. Add --read for its exact reply; unavailable replies return reply: null with replyUnavailableReason. Check outcome: every ended outcome exits 0. Waiting for the user exits 10, an exited target 11, timeout 124 and interruption 130. Unsupported providers refuse after creation; the node remains.\n\n--timeout covers first-turn identification and waiting (default 20s; minimum 250ms); creation keeps its own 20s budget. If no first turn is observed, lifecycle telemetry may be unavailable even if the agent is running or has finished. Inspect the existing session; do not recreate the node or resend the prompt. Errors keep known nodeId, sessionId and turnId. Never repeat creation after an error: resume agent wait/read with those IDs. With --wait, -q prints only the node ID after completion. Stderr shows "Created agent node <nodeId> (session <sessionId>)." before identification, then "Waiting for turn <turnId> of node <nodeId>..." with an interruption-only continuation command. The final JSON and exit status report the result.\n\n'
               : '') +
-            'Without explicit x/y, root-canvas placement searches next to you when run inside OpenCove and avoids Spaces. If your node belongs to another project, the search starts at the canvas origin. Use --focus to reveal the node. A --frame with both x and y places the node exactly there, even if it overlaps a Space.'
+            'Without explicit x/y, root-canvas placement searches next to you when run inside Eclipse Code and avoids Spaces. If your node belongs to another project, the search starts at the canvas origin. Use --focus to reveal the node. A --frame with both x and y places the node exactly there, even if it overlaps a Space.'
           : kind === 'agent' || kind === 'terminal'
             ? 'Rename this window and keep its name when the agent session changes. The name is saved as provided, with surrounding whitespace removed. Use --frame to also move or resize it.'
             : undefined,
@@ -288,7 +290,7 @@ export const nodeCommands = [
             ? ({ options }) =>
                 options.wait ? createdAgentWaitOutput() : nodeKindOutput(kind, create)
             : undefined,
-        operationCommand: `opencove node ${action}`,
+        operationCommand: `eclipse-code node ${action}`,
         options: {
           ...specific,
           ...(create ? nodeLocatorOptions : { node: stringOption('Node ID', true) }),
@@ -314,14 +316,14 @@ export const nodeCommands = [
         examples:
           create && kind === 'note'
             ? [
-                'opencove node create note --space space-123 --title "Release checklist" --text "Run the smoke tests"',
-                'opencove node create note --root-canvas --project project-123 --text "Canvas note" --focus',
-                'opencove node create note --space-name "Sprint planning" --project project-123 --text-file ./notes.md --focus',
-                "printf 'Review the release notes\\n' | opencove node create note --space space-123 --text-file -",
+                'eclipse-code node create note --space space-123 --title "Release checklist" --text "Run the smoke tests"',
+                'eclipse-code node create note --root-canvas --project project-123 --text "Canvas note" --focus',
+                'eclipse-code node create note --space-name "Sprint planning" --project project-123 --text-file ./notes.md --focus',
+                "printf 'Review the release notes\\n' | eclipse-code node create note --space space-123 --text-file -",
               ]
             : [
-                `opencove node ${action} ${kind} ${create ? '--space space-123' : '--node node-123'}${kind === 'task' ? ' --requirement "Review release notes"' : kind === 'website' ? ' --url https://example.com' : kind === 'note' ? ' --text "Updated note"' : kind === 'agent' && create ? ' --prompt "Review the test failures" --wait --read --timeout 2m' : !create && (kind === 'agent' || kind === 'terminal') ? ' --title "Lead"' : ''}`,
-                `opencove node ${action} ${kind} ${create ? '--root-canvas --project project-123' : '--node node-123'}${kind === 'task' ? ' --requirement "Review release notes"' : kind === 'website' ? ' --url https://example.com' : ''} --title "Release review" --pretty`,
+                `eclipse-code node ${action} ${kind} ${create ? '--space space-123' : '--node node-123'}${kind === 'task' ? ' --requirement "Review release notes"' : kind === 'website' ? ' --url https://example.com' : kind === 'note' ? ' --text "Updated note"' : kind === 'agent' && create ? ' --prompt "Review the test failures" --wait --read --timeout 2m' : !create && (kind === 'agent' || kind === 'terminal') ? ' --title "Lead"' : ''}`,
+                `eclipse-code node ${action} ${kind} ${create ? '--root-canvas --project project-123' : '--node node-123'}${kind === 'task' ? ' --requirement "Review release notes"' : kind === 'website' ? ' --url https://example.com' : ''} --title "Release review" --pretty`,
               ],
         buildInput: ({ options: o }: CommandArgs) => {
           if (

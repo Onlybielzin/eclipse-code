@@ -28,8 +28,8 @@ import { basename } from 'node:path'
 import { appendClaudeRecord, resolveScenarioSessionFile } from '../test-agent-session-jsonl.mjs'
 
 async function postHook(envelope) {
-  const endpoint = process.env.OPENCOVE_CLAUDE_HOOK_ENDPOINT
-  const token = process.env.OPENCOVE_CLAUDE_HOOK_TOKEN
+  const endpoint = process.env.ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT
+  const token = process.env.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN
   if (!endpoint || !token) {
     throw new Error('Claude hook stub did not receive its correlation environment.')
   }
@@ -37,7 +37,7 @@ async function postHook(envelope) {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-opencove-hook-token': token,
+      'x-eclipse-code-hook-token': token,
     },
     body: JSON.stringify(envelope),
   })
@@ -63,7 +63,7 @@ async function runClaudeHookScenario(
       message: { content: [{ type: 'text', text: 'Begin arbitration test.' }] },
     })
   }
-  process.stdout.write('[opencove-test-hook] ready\n')
+  process.stdout.write('[eclipse-code-test-hook] ready\n')
 
   await new Promise((resolveRun, reject) => {
     let input = ''
@@ -90,7 +90,7 @@ async function runClaudeHookScenario(
                 stop_reason: 'end_turn',
               },
             })
-            process.stdout.write('[opencove-test-hook] session-standby\n')
+            process.stdout.write('[eclipse-code-test-hook] session-standby\n')
           })
           continue
         }
@@ -99,7 +99,7 @@ async function runClaudeHookScenario(
           input = ''
           operation = operation.then(async () => {
             await postHook({ ...matched[1], claudeSessionId })
-            process.stdout.write(`[opencove-test-hook] ${matched[1].state}\n`)
+            process.stdout.write(`[eclipse-code-test-hook] ${matched[1].state}\n`)
           })
         } else if (input.length > 64) {
           input = input.slice(-64)
@@ -136,7 +136,7 @@ export async function runClaudeHookFallbackScenario(
       stop_reason: 'end_turn',
     },
   })
-  process.stdout.write('[opencove-test-hook-fallback] ready\n')
+  process.stdout.write('[eclipse-code-test-hook-fallback] ready\n')
   await new Promise(resolveRun => {
     process.stdin.on('data', chunk => {
       if (Buffer.from(chunk).includes(0x03)) {

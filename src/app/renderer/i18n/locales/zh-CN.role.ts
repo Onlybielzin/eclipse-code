@@ -15,6 +15,13 @@ export const zhCNRole = {
     nameRequired: '请输入角色名称。',
     promptRequired: '请输入 Prompt 模板。',
     duplicateName: '当前项目已存在同名角色。',
+    provider: 'Provider',
+    providerDefault: 'Default',
+    model: 'Model',
+    modelPlaceholder: 'Empty uses the provider default, e.g. claude-sonnet-5-5',
+    lead: 'Team lead',
+    leadHelp:
+      'Receives every task and creates the other roles as agents (eclipse-code mcp). One per project.',
   },
   roleActions: {
     more: '角色操作',

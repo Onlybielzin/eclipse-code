@@ -128,8 +128,9 @@ export function useWorkspaceSpacePullRequests(options: {
       return
     }
 
-    const controlSurfaceInvoke = window.opencoveApi?.controlSurface?.invoke
-    const legacyResolvePullRequests = window.opencoveApi?.integration?.github?.resolvePullRequests
+    const controlSurfaceInvoke = window.eclipseCodeApi?.controlSurface?.invoke
+    const legacyResolvePullRequests =
+      window.eclipseCodeApi?.integration?.github?.resolvePullRequests
     const canResolveMountRequests =
       pullRequestTargets.mountRequests.length > 0 && typeof controlSurfaceInvoke === 'function'
     const canResolveLegacyRequests =

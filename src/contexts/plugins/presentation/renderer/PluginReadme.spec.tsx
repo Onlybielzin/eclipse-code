@@ -8,13 +8,13 @@ describe('plugin documentation', () => {
   it('renders authored Markdown, tables, code, bundled images and external links', () => {
     const detail = {
       readme:
-        '# Your tool\n\n| Feature | Purpose |\n| --- | --- |\n| Window | Working area |\n\n`opencove plugin guide`\n\n![Example](./example.svg)\n\n[API](https://example.com/api)',
+        '# Your tool\n\n| Feature | Purpose |\n| --- | --- |\n| Window | Working area |\n\n`eclipse-code plugin guide`\n\n![Example](./example.svg)\n\n[API](https://example.com/api)',
       assets: { './example.svg': '/example.svg' },
     }
     render(<PluginReadme markdown={detail.readme} assets={detail.assets} />)
     expect(screen.getByRole('heading', { name: 'Your tool' })).toBeVisible()
     expect(screen.getByRole('table')).toHaveTextContent('Working area')
-    expect(screen.getByText('opencove plugin guide').tagName).toBe('CODE')
+    expect(screen.getByText('eclipse-code plugin guide').tagName).toBe('CODE')
     const image = screen.getByRole('img')
     expect(image).toHaveAttribute('src', detail.assets['./example.svg'])
     expect(image).toHaveAttribute('referrerpolicy', 'no-referrer')

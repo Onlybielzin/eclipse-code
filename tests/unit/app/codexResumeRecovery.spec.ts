@@ -106,7 +106,7 @@ describe('codex resume writer recovery', () => {
   it.skipIf(process.platform !== 'darwin')(
     'observes a real flock holder and waits until the kernel releases it',
     async () => {
-      const codexHome = await mkdtemp(join(tmpdir(), 'opencove-codex-writer-lock-'))
+      const codexHome = await mkdtemp(join(tmpdir(), 'eclipse-code-codex-writer-lock-'))
       const lockDirectory = join(codexHome, 'thread-writer-locks')
       const lockPath = join(lockDirectory, 'thread-real.lock')
       await mkdir(lockDirectory, { recursive: true })

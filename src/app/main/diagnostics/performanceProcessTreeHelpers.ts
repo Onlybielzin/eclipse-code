@@ -14,7 +14,7 @@ function normalizeCommandLine(commandLine: string): string {
   return commandLine.replace(/\\/g, '/').toLowerCase()
 }
 
-function isOpenCoveWorkerCommandLine(commandLine: string): boolean {
+function isEclipseCodeWorkerCommandLine(commandLine: string): boolean {
   const normalized = normalizeCommandLine(commandLine)
   return (
     normalized.includes('worker.js') &&
@@ -25,7 +25,7 @@ function isOpenCoveWorkerCommandLine(commandLine: string): boolean {
 }
 
 export function readWorkerParentPidFromCommandLine(commandLine: string): number | null {
-  if (!isOpenCoveWorkerCommandLine(commandLine)) {
+  if (!isEclipseCodeWorkerCommandLine(commandLine)) {
     return null
   }
 

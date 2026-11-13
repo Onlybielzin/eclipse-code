@@ -66,7 +66,7 @@ it.each([
     const plan = await provider.hookInjection.prepareHookInjection({
       artifacts,
       workspaceDirectory: '/tmp',
-      environment: { CODEX_HOME: '/tmp/opencove-coverage-fixture' },
+      environment: { CODEX_HOME: '/tmp/eclipse-code-coverage-fixture' },
       ...(branch === 'daemon' ? { codexReuseRunningAppServer: true } : {}),
     })
     expect(plan).toMatchObject({ hookCoverage, hookInstallState })

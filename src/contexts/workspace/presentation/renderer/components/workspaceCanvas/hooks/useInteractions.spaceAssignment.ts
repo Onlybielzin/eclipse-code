@@ -18,10 +18,54 @@ interface SetNodes {
   ): void
 }
 
+/**
+ * Open task per project (Eclipse Code tasks): the canvas registers its active top-level Space so
+ * every "where does a new window go" lookup keeps new windows inside the open task.
+ */
+const activeTaskSpaceIdByWorkspace = new Map<string, string>()
+
+export function setActiveTaskSpace(workspaceId: string, spaceId: string | null): void {
+  if (spaceId) {
+    activeTaskSpaceIdByWorkspace.set(workspaceId, spaceId)
+  } else {
+    activeTaskSpaceIdByWorkspace.delete(workspaceId)
+  }
+}
+
+function resolveActiveTaskSpaces(spaces: WorkspaceSpaceState[]): {
+  active: WorkspaceSpaceState
+  members: WorkspaceSpaceState[]
+} | null {
+  for (const activeId of activeTaskSpaceIdByWorkspace.values()) {
+    const active = spaces.find(space => space.id === activeId)
+    if (!active) {
+      continue
+    }
+    const ids = new Set([active.id])
+    let grew = true
+    while (grew) {
+      grew = false
+      for (const space of spaces) {
+        if (space.parentSpaceId && ids.has(space.parentSpaceId) && !ids.has(space.id)) {
+          ids.add(space.id)
+          grew = true
+        }
+      }
+    }
+    return { active, members: spaces.filter(space => ids.has(space.id)) }
+  }
+  return null
+}
+
 export function findContainingSpaceByAnchor(
   spaces: WorkspaceSpaceState[],
   anchor: Point,
 ): WorkspaceSpaceState | null {
+  // With a task open, other tasks are hidden: never drop a new window into one of them.
+  const task = resolveActiveTaskSpaces(spaces)
+  if (task) {
+    return resolveInnermostSpaceAtPoint(task.members, anchor) ?? task.active
+  }
   return resolveInnermostSpaceAtPoint(spaces, anchor)
 }
 

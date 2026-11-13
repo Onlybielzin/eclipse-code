@@ -36,7 +36,7 @@ it('acknowledges a local recovery publication even when its shared-state echo is
   const state = toPersistedState([workspace], workspace.id)
   const readAppState = vi.fn(async () => ({ state, recovery: null }))
   let emit!: (event: SyncEventPayload) => void
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: { readAppState },
@@ -51,7 +51,9 @@ it('acknowledges a local recovery publication even when its shared-state echo is
   const hook = renderHook(() => useWorkerSyncStateUpdates({ enabled: true }))
   try {
     act(() => {
-      window.dispatchEvent(new CustomEvent('opencove.localSyncWrite', { detail: { revision: 2 } }))
+      window.dispatchEvent(
+        new CustomEvent('eclipse-code.localSyncWrite', { detail: { revision: 2 } }),
+      )
       emit({ type: 'app_state.updated', operationId: 'sync.writeState', revision: 2 })
     })
     await waitFor(() =>

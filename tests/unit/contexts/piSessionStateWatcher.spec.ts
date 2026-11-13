@@ -14,7 +14,7 @@ const line = (value: unknown) => `${JSON.stringify(value)}\n`
 
 describe('PiSessionStateWatcher', () => {
   it('streams working through a toolResult and reaches standby on final assistant output', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-session-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-session-'))
     const filePath = join(directory, 'session.jsonl')
     await fs.writeFile(filePath, line(header))
     const onState = vi.fn()

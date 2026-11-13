@@ -61,9 +61,9 @@ test.describe('Workspace Canvas - Codex hook channel', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'inactive',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-lifecycle',
-        OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-lifecycle',
+        ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
       },
     })
     try {
@@ -91,9 +91,9 @@ test.describe('Workspace Canvas - Codex hook channel', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'inactive',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-fallback',
-        OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-hook-fallback',
+        ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
       },
     })
     try {

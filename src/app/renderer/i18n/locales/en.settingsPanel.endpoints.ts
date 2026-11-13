@@ -2,7 +2,7 @@ export const enSettingsPanelEndpoints = {
   title: 'Remote machines',
   list: {
     title: 'Remote machines',
-    help: 'Machines that OpenCove can connect to, repair, browse, and mount.',
+    help: 'Machines that Eclipse Code can connect to, repair, browse, and mount.',
     countLabel: 'Count',
     empty: 'No remote machines',
     localSubtitle: 'local',
@@ -16,7 +16,7 @@ export const enSettingsPanelEndpoints = {
   },
   register: {
     title: 'Add remote machine',
-    help: 'Add a remote machine that OpenCove can connect to and browse.',
+    help: 'Add a remote machine that Eclipse Code can connect to and browse.',
     recommendedTitle: 'Recommended path',
     recommendedHint: 'Over SSH keeps tunnel and bootstrap details out of the way.',
     modeLabel: 'Connection method',
@@ -45,7 +45,7 @@ export const enSettingsPanelEndpoints = {
     managedPortLabel: 'SSH port (optional)',
     managedPortPlaceholder: '22',
     managedRemotePortLabel: 'Remote service port (optional)',
-    managedRemotePortHelp: 'Leave empty to let OpenCove allocate a dedicated high port.',
+    managedRemotePortHelp: 'Leave empty to let Eclipse Code allocate a dedicated high port.',
     managedRemotePortPlaceholder: 'Auto',
     hostnameLabel: 'Hostname',
     portLabel: 'Port',
@@ -58,7 +58,7 @@ export const enSettingsPanelEndpoints = {
   },
   remove: {
     title: 'Remove remote machine?',
-    description: '“{{name}}” will no longer be available to OpenCove.',
+    description: '“{{name}}” will no longer be available to Eclipse Code.',
     impact_one: 'This will unbind {{count}} mount from the remote machine.',
     impact_other: 'This will unbind {{count}} mounts from the remote machine.',
   },

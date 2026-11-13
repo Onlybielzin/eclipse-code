@@ -29,7 +29,7 @@ test.describe('Settings SSH config host picker', () => {
         const before = await window.evaluate(
           async () =>
             (
-              await window.opencoveApi.controlSurface.invoke<{ endpoints: unknown[] }>({
+              await window.eclipseCodeApi.controlSurface.invoke<{ endpoints: unknown[] }>({
                 kind: 'query',
                 id: 'endpoint.list',
                 payload: null,
@@ -82,7 +82,7 @@ test.describe('Settings SSH config host picker', () => {
         const after = await window.evaluate(
           async () =>
             (
-              await window.opencoveApi.controlSurface.invoke<{ endpoints: unknown[] }>({
+              await window.eclipseCodeApi.controlSurface.invoke<{ endpoints: unknown[] }>({
                 kind: 'query',
                 id: 'endpoint.list',
                 payload: null,
@@ -101,7 +101,7 @@ test.describe('Settings SSH config host picker', () => {
     browserName,
   }, testInfo) => {
     const userDataDir = await mkdtemp(
-      path.join(tmpdir(), `opencove-e2e-ssh-config-picker-${browserName}-`),
+      path.join(tmpdir(), `eclipse-code-e2e-ssh-config-picker-${browserName}-`),
     )
     const sshDirectory = path.join(userDataDir, 'home', '.ssh')
     await mkdir(sshDirectory, { recursive: true })
@@ -118,7 +118,7 @@ test.describe('Settings SSH config host picker', () => {
     try {
       const seeded = await window.evaluate(
         async () =>
-          await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify({
               formatVersion: 1,
               activeWorkspaceId: null,
@@ -133,7 +133,7 @@ test.describe('Settings SSH config host picker', () => {
       await switchSettingsPage(window, 'endpoints')
 
       const endpointCountBefore = await window.evaluate(async () => {
-        const result = await window.opencoveApi.controlSurface.invoke<{ endpoints: unknown[] }>({
+        const result = await window.eclipseCodeApi.controlSurface.invoke<{ endpoints: unknown[] }>({
           kind: 'query',
           id: 'endpoint.list',
           payload: null,
@@ -164,7 +164,7 @@ test.describe('Settings SSH config host picker', () => {
       ).toHaveValue('')
 
       const endpointCountAfter = await window.evaluate(async () => {
-        const result = await window.opencoveApi.controlSurface.invoke<{ endpoints: unknown[] }>({
+        const result = await window.eclipseCodeApi.controlSurface.invoke<{ endpoints: unknown[] }>({
           kind: 'query',
           id: 'endpoint.list',
           payload: null,

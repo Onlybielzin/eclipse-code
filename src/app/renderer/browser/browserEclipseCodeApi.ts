@@ -1,0 +1,450 @@
+import { normalizeReadFileBytesResult, type WorkspaceDirectory } from '@shared/contracts/dto'
+import { BrowserPtyClient } from './BrowserPtyClient'
+import { invokeBrowserControlSurface } from './browserControlSurface'
+import type { ControlSurfaceInvokeRequest } from '@shared/contracts/controlSurface'
+import {
+  createUnsupportedUpdateState,
+  resolveBrowserPlatform,
+  unsupportedCliStatus,
+  unsupportedPathOpeners,
+  unsupportedReleaseNotes,
+  unsupportedWorkerConfig,
+  unsupportedWorkerStatus,
+} from './browserEclipseCodeApi.helpers'
+import { createBrowserPersistenceApi } from './browserEclipseCodeApi.persistence'
+import { createBrowserAgentApi } from './browserEclipseCodeApi.agent'
+import { createBrowserSystemApi } from './browserEclipseCodeApi.system'
+import {
+  WORKSPACE_SELECT_DIRECTORY_REQUEST_EVENT,
+  WORKSPACE_SELECT_DIRECTORY_RESPONSE_EVENT,
+  type WorkspaceSelectDirectoryResponseDetail,
+} from '../workspaceDirectoryPickerEvents'
+
+const ptyClient = new BrowserPtyClient()
+const unsupportedUpdateState = createUnsupportedUpdateState()
+
+function randomRequestId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+
+  return `request-${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+async function selectWorkspaceDirectoryInBrowser(): Promise<WorkspaceDirectory | null> {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const requestId = randomRequestId()
+
+  return await new Promise(resolve => {
+    let settled = false
+    let timeoutHandle: number | null = null
+
+    const finalize = (value: WorkspaceDirectory | null) => {
+      if (settled) {
+        return
+      }
+
+      settled = true
+      window.removeEventListener(
+        WORKSPACE_SELECT_DIRECTORY_RESPONSE_EVENT,
+        onResponse as EventListener,
+      )
+      if (timeoutHandle !== null) {
+        window.clearTimeout(timeoutHandle)
+      }
+      resolve(value)
+    }
+
+    const onResponse = (event: Event) => {
+      const detail = (event as CustomEvent<WorkspaceSelectDirectoryResponseDetail>).detail
+      if (!detail || detail.requestId !== requestId) {
+        return
+      }
+
+      finalize(detail.directory ?? null)
+    }
+
+    timeoutHandle = window.setTimeout(() => {
+      finalize(null)
+    }, 60_000)
+
+    window.addEventListener(WORKSPACE_SELECT_DIRECTORY_RESPONSE_EVENT, onResponse as EventListener)
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent(WORKSPACE_SELECT_DIRECTORY_REQUEST_EVENT, { detail: { requestId } }),
+      )
+    } catch {
+      finalize(null)
+    }
+  })
+}
+
+export function installBrowserEclipseCodeApi(): void {
+  const enableTerminalTestApi = shouldEnableBrowserTerminalTestApi()
+  const api = {
+    meta: {
+      isTest: false,
+      isPackaged: false,
+      allowWhatsNewInTests: false,
+      enableTerminalDiagnostics: false,
+      enableTerminalInputDiagnostics: false,
+      enableTerminalTestApi,
+      disableTerminalTranscriptMirror: false,
+      runtime: 'browser',
+      platform: resolveBrowserPlatform(),
+      mainPid: null,
+      windowsPty: null,
+    },
+    debug: {
+      logTerminalDiagnostics: () => undefined,
+      recordUiDiagnosticBreadcrumb: () => undefined,
+      logRuntimeDiagnostics: () => undefined,
+    },
+    performanceDiagnostics: {
+      getSnapshot: async () => ({
+        capturedAt: new Date().toISOString(),
+        platform: resolveBrowserPlatform(),
+        arch: 'browser',
+        mainPid: 0,
+        processTree: {
+          status: 'unsupported',
+          rootPid: 0,
+          sampledProcessCount: 0,
+          message: 'Process diagnostics are unavailable in browser runtime.',
+        },
+        processes: [],
+        processSummary: [],
+        electronMetrics: [],
+        notes: ['Process diagnostics are unavailable in browser runtime.'],
+      }),
+    },
+    issueReport: {
+      prepare: async () => {
+        throw new Error('Issue reports are only available in the desktop app')
+      },
+      openGitHubIssue: async () => undefined,
+      showReportFile: async () => undefined,
+    },
+    controlSurface: {
+      resolvePluginResourceUrl: async (resourcePath: string): Promise<string> => {
+        if (!/^\/plugin-assets\/[a-zA-Z0-9-]+\//.test(resourcePath)) {
+          throw new Error('Invalid plugin resource path.')
+        }
+        return new URL(resourcePath, window.location.origin).href
+      },
+      invoke: async <TValue>(request: ControlSurfaceInvokeRequest): Promise<TValue> =>
+        await invokeBrowserControlSurface<TValue>(request),
+    },
+    windowChrome: {
+      setTheme: async () => undefined,
+      // A browser tab has no native full screen of its own to report.
+      getFullScreen: async () => ({ isFullScreen: false }),
+      onFullScreenChange: () => () => undefined,
+      // A browser tab answers for itself: there is no main process to ask.
+      getFocus: async () => ({ isFocused: document.hasFocus() }),
+      onFocusChange: listener => {
+        const onFocus = () => listener({ isFocused: true })
+        const onBlur = () => listener({ isFocused: false })
+        window.addEventListener('focus', onFocus)
+        window.addEventListener('blur', onBlur)
+        return () => {
+          window.removeEventListener('focus', onFocus)
+          window.removeEventListener('blur', onBlur)
+        }
+      },
+    },
+    windowMetrics: {
+      getDisplayInfo: async () => ({
+        contentWidthDip: window.innerWidth,
+        contentHeightDip: window.innerHeight,
+        displayScaleFactor: window.devicePixelRatio || 1,
+        effectiveWidthPx: Math.round(window.innerWidth * (window.devicePixelRatio || 1)),
+        effectiveHeightPx: Math.round(window.innerHeight * (window.devicePixelRatio || 1)),
+      }),
+    },
+    clipboard: {
+      readTerminalPaste: async () => ({
+        text: navigator.clipboard?.readText ? await navigator.clipboard.readText() : '',
+        hasImage: false,
+      }),
+      readText: async () => {
+        if (navigator.clipboard?.readText) {
+          return await navigator.clipboard.readText()
+        }
+        return ''
+      },
+      writeText: async text => {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text)
+        }
+      },
+    },
+    filesystem: {
+      createDirectory: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.createDirectory',
+          payload,
+        })
+      },
+      copyEntry: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.copyEntry',
+          payload,
+        })
+      },
+      moveEntry: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.moveEntry',
+          payload,
+        })
+      },
+      renameEntry: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.renameEntry',
+          payload,
+        })
+      },
+      deleteEntry: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.deleteEntry',
+          payload,
+        })
+      },
+      readFileBytes: async payload =>
+        normalizeReadFileBytesResult(
+          await invokeBrowserControlSurface({
+            kind: 'query',
+            id: 'filesystem.readFileBytes',
+            payload,
+          }),
+          'filesystem.readFileBytes',
+        ),
+      readFileText: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'filesystem.readFileText',
+          payload,
+        }),
+      writeFileText: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'filesystem.writeFileText',
+          payload,
+        })
+      },
+      readDirectory: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'filesystem.readDirectory',
+          payload,
+        }),
+      stat: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'filesystem.stat',
+          payload,
+        }),
+    },
+    persistence: {
+      ...createBrowserPersistenceApi(),
+    },
+    lifecycle: {
+      onRequestPersistFlush: () => () => undefined,
+    },
+    sync: {
+      onStateUpdated: listener => {
+        const token = new URLSearchParams(window.location.search).get('token')
+        const url = new URL('/events', window.location.origin)
+        if (token) {
+          url.searchParams.set('token', token)
+        }
+        const source = new EventSource(url.toString(), { withCredentials: true })
+
+        const handler = (event: MessageEvent<string>) => {
+          try {
+            listener(JSON.parse(event.data) as Parameters<typeof listener>[0])
+          } catch {
+            // ignore invalid payloads
+          }
+        }
+
+        const onOpen = () => listener({ type: 'resync_required', revision: 0 })
+        source.addEventListener('open', onOpen)
+        source.addEventListener('eclipse-code.sync', handler as EventListener)
+        return () => {
+          source.removeEventListener('open', onOpen)
+          source.removeEventListener('eclipse-code.sync', handler as EventListener)
+          source.close()
+        }
+      },
+    },
+    workspace: {
+      selectDirectory: async () => await selectWorkspaceDirectoryInBrowser(),
+      ensureDirectory: async payload => {
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'workspace.ensureDirectory',
+          payload,
+        })
+      },
+      copyPath: async payload => {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(payload.path)
+        }
+      },
+      listPathOpeners: async () => unsupportedPathOpeners(),
+      openPath: async () => undefined,
+      writeCanvasImage: async () => {
+        throw new Error('Canvas image uploads are unavailable in browser runtime')
+      },
+      readCanvasImage: async () => null,
+      deleteCanvasImage: async () => undefined,
+    },
+    worktree: {
+      listBranches: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'gitWorktree.listBranches',
+          payload,
+        }),
+      listWorktrees: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'gitWorktree.listWorktrees',
+          payload,
+        }),
+      statusSummary: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'gitWorktree.statusSummary',
+          payload,
+        }),
+      getDefaultBranch: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'gitWorktree.getDefaultBranch',
+          payload,
+        }),
+      create: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'command',
+          id: 'gitWorktree.create',
+          payload,
+        }),
+      remove: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'command',
+          id: 'gitWorktree.remove',
+          payload,
+        }),
+      renameBranch: async payload =>
+        await invokeBrowserControlSurface<void>({
+          kind: 'command',
+          id: 'gitWorktree.renameBranch',
+          payload,
+        }),
+      suggestNames: async payload =>
+        await invokeBrowserControlSurface({
+          kind: 'query',
+          id: 'gitWorktree.suggestNames',
+          payload,
+        }),
+    },
+    integration: {
+      github: {
+        resolvePullRequests: async () => ({ pullRequestsByBranch: {} }),
+      },
+    },
+    update: {
+      getState: async () => unsupportedUpdateState,
+      configure: async () => unsupportedUpdateState,
+      checkForUpdates: async () => unsupportedUpdateState,
+      downloadUpdate: async () => unsupportedUpdateState,
+      installUpdate: async () => undefined,
+      onState: () => () => undefined,
+    },
+    releaseNotes: {
+      getCurrent: async () => unsupportedReleaseNotes(),
+    },
+    pty: {
+      listProfiles: () => ptyClient.listProfiles(),
+      spawn: payload => ptyClient.spawn(payload),
+      write: payload => ptyClient.write(payload),
+      reexecAgent: payload => ptyClient.reexecAgent(payload),
+      resize: payload => ptyClient.resize(payload),
+      kill: payload => ptyClient.kill(payload),
+      attach: payload => ptyClient.attach(payload),
+      detach: payload => ptyClient.detach(payload),
+      snapshot: payload => ptyClient.snapshot(payload),
+      presentationSnapshot: payload => ptyClient.presentationSnapshot(payload),
+      debugCrashHost: () => ptyClient.debugCrashHost(),
+      onData: listener => ptyClient.onData(listener),
+      onExit: listener => ptyClient.onExit(listener),
+      onForeground: () => () => undefined,
+      onGeometry: listener => ptyClient.onGeometry(listener),
+      onResync: listener => ptyClient.onResync(listener),
+      onState: listener => ptyClient.onState(listener),
+      onMetadata: listener => ptyClient.onMetadata(listener),
+    },
+    agent: {
+      ...createBrowserAgentApi(),
+    },
+    task: {
+      suggestTitle: async payload => ({
+        title: payload.requirement.split('\n')[0]?.trim() || 'Task',
+        priority: 'medium',
+        tags: [],
+        provider: payload.provider,
+        effectiveModel: payload.model ?? null,
+      }),
+    },
+    system: createBrowserSystemApi(),
+    worker: {
+      getStatus: async () => unsupportedWorkerStatus(),
+      start: async () => unsupportedWorkerStatus(),
+      stop: async () => unsupportedWorkerStatus(),
+      getWebUiUrl: async () => window.location.href,
+    },
+    workerClient: {
+      getConfig: async () => unsupportedWorkerConfig(),
+      getConfigurationSnapshot: async () => ({
+        config: unsupportedWorkerConfig(),
+        webAccess: { state: 'disabled', generation: 0, drainingGenerations: [] },
+      }),
+      setConfig: async () => unsupportedWorkerConfig(),
+      setWebUiSettings: async () => unsupportedWorkerConfig(),
+      setWebUiSecurity: async () => unsupportedWorkerConfig(),
+      relaunch: async () => undefined,
+    },
+    cli: {
+      getStatus: async () => unsupportedCliStatus(),
+      install: async () => unsupportedCliStatus(),
+      uninstall: async () => unsupportedCliStatus(),
+    },
+  } as Window['eclipseCodeApi']
+
+  window.eclipseCodeApi = api
+}
+
+function shouldEnableBrowserTerminalTestApi(): boolean {
+  const hostname = window.location.hostname.toLowerCase()
+  const isLoopback =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1' ||
+    hostname.endsWith('.localhost')
+  if (!isLoopback) {
+    return false
+  }
+
+  return new URLSearchParams(window.location.search).get('eclipseCodeTerminalTestApi') === '1'
+}

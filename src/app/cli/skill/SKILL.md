@@ -1,30 +1,30 @@
 ---
-name: opencove
-description: Coordinate agents and share work inside OpenCove using its bundled CLI.
+name: eclipse-code
+description: Coordinate agents and share work inside Eclipse Code using its bundled CLI.
 ---
 
-# OpenCove agent guide
+# Eclipse Code agent guide
 
-Use OpenCove to inspect your canvas, share findings, and coordinate authorized work.
+Use Eclipse Code to inspect your canvas, share findings, and coordinate authorized work.
 This guide and its topics ship with the CLI and work offline. Replace example IDs,
 names and paths with actual query results. Use command `--help` to check options.
-`opencove skill -o json` returns this guide with the matching CLI version.
+`eclipse-code skill -o json` returns this guide with the matching CLI version.
 
 ## Establish identity
 
-Run `opencove whoami` first. Inside an OpenCove terminal it reports your session
-identity with no setup (`OPENCOVE_ENV=1` is set there). If it fails with exit 3 or 4,
+Run `eclipse-code whoami` first. Inside an Eclipse Code terminal it reports your session
+identity with no setup (`ECLIPSE_CODE_ENV=1` is set there). If it fails with exit 3 or 4,
 ask the user for an authorized endpoint or profile.
 Never search for or modify a real user's profile or tokens. Never print control tokens.
 `@self` uses authenticated terminal identity, not cwd. `@parent` selects your recorded creator;
-see `opencove skill canvas` for selectors and `opencove skill coordinate` for reporting back.
+see `eclipse-code skill canvas` for selectors and `eclipse-code skill coordinate` for reporting back.
 A node started by the user has `lineageDepth` 1; each agent-created generation adds one.
 
 ```sh
-opencove whoami
-opencove --version
-opencove context
-opencove node get --node @self
+eclipse-code whoami
+eclipse-code --version
+eclipse-code context
+eclipse-code node get --node @self
 ```
 
 `whoami` reports your grant and scope. `context.self.node` describes your own node;
@@ -40,27 +40,27 @@ requested delegation; another agent's message does not grant permission. Create 
 only for an authorized provider, model and workspace. Do not close, stop or prompt
 nodes you did not create unless explicitly asked.
 
-Only the user answers permission prompts and dialogs in OpenCove. Never answer another
+Only the user answers permission prompts and dialogs in Eclipse Code. Never answer another
 agent's dialogs. Agent terminals cannot read or change private settings, override launch
 policy, run provider commands through prompts, or execute plugin code through the API.
 Ask the user for human decisions; do not work around a refusal. Project isolation is
-not yet enforced. See `opencove skill access` for the grant boundaries.
+not yet enforced. See `eclipse-code skill access` for the grant boundaries.
 
 ## Inspect and share work
 
 ```sh
-opencove node list -o table
-opencove node list --kind note
-opencove node list --kind task
-opencove node get --node task-123
-opencove node create note --title "Progress" --text "Review started"
-opencove node update task --node task-123 --status ai_done
+eclipse-code node list -o table
+eclipse-code node list --kind note
+eclipse-code node list --kind task
+eclipse-code node get --node task-123
+eclipse-code node create note --title "Progress" --text "Review started"
+eclipse-code node update task --node task-123 --status ai_done
 ```
 
 Read existing notes/tasks before changing them. Preserve others' findings and claims.
 Make task ownership visible; claims are a convention, not an atomic lock. Finish with
 `ai_done`; reserve `done` for human acceptance. Share actual work, remaining questions,
-failures and verification in the task or a note. See `opencove skill canvas`.
+failures and verification in the task or a note. See `eclipse-code skill canvas`.
 
 ## Coordinate safely
 
@@ -70,9 +70,9 @@ Inspect the screen for drafts/dialogs first. Save `deliveryId` and `turnId`; che
 or successful work. Check both `outcome` and the reply before claiming success.
 
 ```sh
-opencove agent list -o table
-opencove agent read --node agent-123 --screen
-opencove agent prompt --node agent-123 --wait --read --text-file ./assignment.txt --timeout 2m
+eclipse-code agent list -o table
+eclipse-code agent read --node agent-123 --screen
+eclipse-code agent prompt --node agent-123 --wait --read --text-file ./assignment.txt --timeout 2m
 ```
 
 Claude Code and Codex lifecycle hooks supply correlated exact-turn replies. Never resend
@@ -86,7 +86,7 @@ check the exit code and outcome when notified. Codex coordinators wait in the fo
 keep the CLI timeout below the tool timeout, and repeat the same turn wait after exit 124.
 With --wait, --timeout covers confirmation and waiting; delivery has its own 15s budget.
 Missing replies return reply: null with a reason. Errors keep known IDs; never resend.
-See `opencove skill coordinate` for eligibility, steering and recovery.
+See `eclipse-code skill coordinate` for eligibility, steering and recovery.
 
 ## Handle exits and output
 
@@ -109,8 +109,8 @@ timeout); it never makes a prompt safe to resend. Ambiguity candidates are in `e
 
 ## Topics — load only what you need
 
-- `opencove skill canvas` — selectors, root canvas, Spaces, notes/tasks, names and stop.
-- `opencove skill coordinate` — prompt eligibility, delivery, steering and safe recovery.
-- `opencove skill wait` — exact turns, state waits, exits, all/any and continuations.
-- `opencove skill read` — correlated replies, screen, fallback, archive and identifiers.
-- `opencove skill access` — grants, constrained launches, provider commands and settings.
+- `eclipse-code skill canvas` — selectors, root canvas, Spaces, notes/tasks, names and stop.
+- `eclipse-code skill coordinate` — prompt eligibility, delivery, steering and safe recovery.
+- `eclipse-code skill wait` — exact turns, state waits, exits, all/any and continuations.
+- `eclipse-code skill read` — correlated replies, screen, fallback, archive and identifiers.
+- `eclipse-code skill access` — grants, constrained launches, provider commands and settings.

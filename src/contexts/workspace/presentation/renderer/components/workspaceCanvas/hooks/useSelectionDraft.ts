@@ -37,7 +37,6 @@ interface UseSelectionDraftParams {
 
 export function useWorkspaceCanvasSelectionDraft({
   workspaceId,
-  isTrackpadCanvasMode,
   isShiftPressedRef,
   selectionDraftRef,
   setSelectionDraftUi,
@@ -56,7 +55,7 @@ export function useWorkspaceCanvasSelectionDraft({
   handleCanvasPointerUpCapture: (event?: { clientX: number; clientY: number }) => boolean
 } {
   const cancelSelectionOnWindowBlur = !(
-    typeof window !== 'undefined' && window.opencoveApi?.meta?.isTest === true
+    typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.isTest === true
   )
   const pendingSelectionFrameRef = useRef<number | null>(null)
   const pendingSelectionUiFrameRef = useRef<number | null>(null)
@@ -306,10 +305,8 @@ export function useWorkspaceCanvasSelectionDraft({
 
   const handleCanvasPointerDownCapture = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      const canStartBoxSelection =
-        isTrackpadCanvasMode || event.shiftKey || isShiftPressedRef.current
-
-      if (event.button !== 0 || !canStartBoxSelection) {
+      // Every left drag on the empty canvas starts a box selection, mouse or trackpad.
+      if (event.button !== 0) {
         return
       }
 
@@ -418,7 +415,6 @@ export function useWorkspaceCanvasSelectionDraft({
     [
       detachGlobalPointerListeners,
       isShiftPressedRef,
-      isTrackpadCanvasMode,
       reactFlow,
       registerGlobalPointerListeners,
       selectedSpaceIdsRef,

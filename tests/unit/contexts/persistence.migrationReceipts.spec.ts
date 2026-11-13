@@ -4,7 +4,7 @@ import { DEFAULT_AGENT_SETTINGS } from '@contexts/settings/domain/agentSettings'
 import { STORAGE_KEY } from '@contexts/workspace/presentation/renderer/utils/persistence/constants'
 import { installMockStorage } from '../../support/persistenceTestStorage'
 installMockStorage()
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 const draft = {
   formatVersion: 1,
   activeWorkspaceId: null,
@@ -13,7 +13,7 @@ const draft = {
 }
 afterEach(() => {
   window.localStorage.clear()
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original })
 })
 it.each(['corrected', 'merged', 'uncertain'] as const)(
   'reads the actual post-migration revision after a concurrent %s write',
@@ -27,7 +27,7 @@ it.each(['corrected', 'merged', 'uncertain'] as const)(
       .fn()
       .mockResolvedValueOnce({ revision: 0, state: null, recovery: null })
       .mockResolvedValue({ revision: 4, state: canonical, recovery: null })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         persistence: {
@@ -56,7 +56,7 @@ it('does not acknowledge a migration draft when corrected canonical read fails',
     .fn()
     .mockResolvedValueOnce({ revision: 0, state: null, recovery: null })
     .mockRejectedValue(new Error('disconnected'))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

@@ -52,7 +52,7 @@ export function registerControlSurfaceHttpServer(
     ).catch(error => {
       const detail = error instanceof Error ? `${error.name}: ${error.message}` : 'unknown error'
       process.stderr.write(
-        `[opencove] failed to write control surface connection file: ${detail}\n`,
+        `[eclipse-code] failed to write control surface connection file: ${detail}\n`,
       )
     })
 

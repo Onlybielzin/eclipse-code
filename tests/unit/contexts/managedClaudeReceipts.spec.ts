@@ -1,6 +1,6 @@
 import { withWorkerCompatibility } from '../../support/workerCompatibilityFetch'
 import { afterEach, expect, it, vi } from 'vitest'
-import { createBrowserPersistenceApi } from '@app/renderer/browser/browserOpenCoveApi.persistence'
+import { createBrowserPersistenceApi } from '@app/renderer/browser/browserEclipseCodeApi.persistence'
 import { invokeBrowserControlSurface } from '@app/renderer/browser/browserControlSurface'
 import { createRemotePersistenceStore } from '@app/main/controlSurface/remote/remotePersistenceStore'
 import { DEFAULT_AGENT_SETTINGS } from '@contexts/settings/domain/agentSettings'
@@ -36,7 +36,7 @@ it.each([true, false, undefined] as const)(
     const fetchMock = vi.fn(async () => ({
       status: 200,
       text: async () =>
-        JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value: values.shift() }),
+        JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value: values.shift() }),
     }))
     vi.stubGlobal('fetch', withWorkerCompatibility(fetchMock as typeof fetch))
     const remote = createRemotePersistenceStore(async () => ({

@@ -23,7 +23,7 @@ async function openTerminal(page: Page, workspacePath: string): Promise<string> 
       settings: { language: 'en', canvasInputMode: 'mouse' },
     }),
   )
-  await openAuthedCanvas(page, '/?opencoveTerminalTestApi=1')
+  await openAuthedCanvas(page, '/?eclipseCodeTerminalTestApi=1')
   await page
     .locator('.workspace-canvas .react-flow__pane')
     .click({ button: 'right', position: { x: 260, y: 220 } })

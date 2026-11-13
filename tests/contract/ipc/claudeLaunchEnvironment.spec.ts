@@ -17,7 +17,7 @@ afterEach(() => {
 it('desktop Claude launch uses one resolved shell environment for both reservation planning and the actual spawn', async () => {
   vi.resetModules()
   vi.stubEnv('NODE_ENV', 'test')
-  vi.stubEnv('OPENCOVE_TEST_USE_REAL_AGENTS', '1')
+  vi.stubEnv('ECLIPSE_CODE_TEST_USE_REAL_AGENTS', '1')
   const handlers = new Map<string, (...args: unknown[]) => unknown>()
   vi.doMock('electron', () => ({
     ipcMain: {

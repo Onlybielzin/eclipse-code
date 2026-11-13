@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`TypeScript CLI core > help snapshot "--help" 1`] = `
-"OpenCove CLI — Control projects, spaces, canvas nodes and worker runtimes
+"Eclipse Code CLI — Control projects, spaces, canvas nodes and worker runtimes
 
-Usage: opencove <command> [options]
+Usage: eclipse-code <command> [options]
 
 Workspace:
   project  List projects and find their IDs
@@ -35,7 +35,7 @@ Plugins:
 
 Selectors:
   Node, space and project options accept @self, an exact ID, an exact name (case-sensitive), or a unique ID prefix of 6+ characters.
-  @self uses your terminal identity. Names are scoped by --project or your own project inside OpenCove; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.
+  @self uses your terminal identity. Names are scoped by --project or your own project inside Eclipse Code; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.
 
 Global options:
   --endpoint <url>         Connect to this Control Surface URL
@@ -51,16 +51,16 @@ Global options:
 
 Exit codes: 0 success; 1 operation failure; 2 invalid input; 3 unreachable; 4 unauthorized; 5 incompatible protocol; 6 ambiguous target; 10 waiting observed; 11 agent exited during wait; 124 timeout; 130 interrupted.
 
-Run "opencove <group> --help" for commands in a group.
-Start with "opencove api ops --domains" for a compact domain map.
-Then run "opencove api ops --prefix node --fields id,cliCommand" to explore one domain.
-Run "opencove api ops" only when you need the full catalog.
-AI agents: run \`opencove skill\` for a usage guide.
+Run "eclipse-code <group> --help" for commands in a group.
+Start with "eclipse-code api ops --domains" for a compact domain map.
+Then run "eclipse-code api ops --prefix node --fields id,cliCommand" to explore one domain.
+Run "eclipse-code api ops" only when you need the full catalog.
+AI agents: run \`eclipse-code skill\` for a usage guide.
 "
 `;
 
 exports[`TypeScript CLI core > help snapshot "node" 1`] = `
-"Usage: opencove node <command> [options]
+"Usage: eclipse-code node <command> [options]
 
 Commands:
   list                                       List canvas nodes
@@ -69,18 +69,18 @@ Commands:
   update <note|task|website|agent|terminal>  Update canvas nodes
   delete                                     Delete a canvas node
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`TypeScript CLI core > help snapshot "node" 2`] = `
-"Usage: opencove node create note [--root-canvas | --space <id> | <other-target-space-options>] [options]
+"Usage: eclipse-code node create note [--root-canvas | --space <id> | <other-target-space-options>] [options]
 
 Create a note node
 
-Without explicit x/y, root-canvas placement searches next to you when run inside OpenCove and avoids Spaces. If your node belongs to another project, the search starts at the canvas origin. Use --focus to reveal the node. A --frame with both x and y places the node exactly there, even if it overlaps a Space.
+Without explicit x/y, root-canvas placement searches next to you when run inside Eclipse Code and avoids Spaces. If your node belongs to another project, the search starts at the canvas origin. Use --focus to reveal the node. A --frame with both x and y places the node exactly there, even if it overlaps a Space.
 
-Default target inside OpenCove: your current Space, or the root canvas when you are outside any Space. An explicit --project selects project scope for lists; creation also needs --root-canvas or a Space target.
+Default target inside Eclipse Code: your current Space, or the root canvas when you are outside any Space. An explicit --project selects project scope for lists; creation also needs --root-canvas or a Space target.
 
 Target container (choose one):
   --root-canvas                                 Create on the project's root canvas, outside every Space
@@ -107,23 +107,23 @@ Field descriptions:
   lineageStatus  recorded when creation is recorded, root when no parent is recorded, unavailable when lineage cannot be read
 
 Projection example:
-  opencove node create note --space space-123 --fields id,title
+  eclipse-code node create note --space space-123 --fields id,title
   {"revision":1,"projectId":"p","spaceId":"space-123","node":{"id":"n","title":"Note"}}
 
 Examples:
-  opencove node create note --space space-123 --title "Release checklist" --text "Run the smoke tests"
-  opencove node create note --root-canvas --project project-123 --text "Canvas note" --focus
-  opencove node create note --space-name "Sprint planning" --project project-123 --text-file ./notes.md --focus
-  printf 'Review the release notes\\n' | opencove node create note --space space-123 --text-file -
+  eclipse-code node create note --space space-123 --title "Release checklist" --text "Run the smoke tests"
+  eclipse-code node create note --root-canvas --project project-123 --text "Canvas note" --focus
+  eclipse-code node create note --space-name "Sprint planning" --project project-123 --text-file ./notes.md --focus
+  printf 'Review the release notes\\n' | eclipse-code node create note --space space-123 --text-file -
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`TypeScript CLI core > help snapshot undefined 1`] = `
-"OpenCove CLI — Control projects, spaces, canvas nodes and worker runtimes
+"Eclipse Code CLI — Control projects, spaces, canvas nodes and worker runtimes
 
-Usage: opencove <command> [options]
+Usage: eclipse-code <command> [options]
 
 Workspace:
   project  List projects and find their IDs
@@ -155,7 +155,7 @@ Plugins:
 
 Selectors:
   Node, space and project options accept @self, an exact ID, an exact name (case-sensitive), or a unique ID prefix of 6+ characters.
-  @self uses your terminal identity. Names are scoped by --project or your own project inside OpenCove; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.
+  @self uses your terminal identity. Names are scoped by --project or your own project inside Eclipse Code; explicit --space constrains every node selector, including full IDs. Ambiguous targets require a full ID.
 
 Global options:
   --endpoint <url>         Connect to this Control Surface URL
@@ -171,10 +171,10 @@ Global options:
 
 Exit codes: 0 success; 1 operation failure; 2 invalid input; 3 unreachable; 4 unauthorized; 5 incompatible protocol; 6 ambiguous target; 10 waiting observed; 11 agent exited during wait; 124 timeout; 130 interrupted.
 
-Run "opencove <group> --help" for commands in a group.
-Start with "opencove api ops --domains" for a compact domain map.
-Then run "opencove api ops --prefix node --fields id,cliCommand" to explore one domain.
-Run "opencove api ops" only when you need the full catalog.
-AI agents: run \`opencove skill\` for a usage guide.
+Run "eclipse-code <group> --help" for commands in a group.
+Start with "eclipse-code api ops --domains" for a compact domain map.
+Then run "eclipse-code api ops --prefix node --fields id,cliCommand" to explore one domain.
+Run "eclipse-code api ops" only when you need the full catalog.
+AI agents: run \`eclipse-code skill\` for a usage guide.
 "
 `;

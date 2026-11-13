@@ -51,7 +51,7 @@ it('reuses the shared title cache and tolerates its failure', async () => {
 })
 
 it('lists a saved Pi session so the session switch menu can select its exact file', async () => {
-  const root = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-catalog-'))
+  const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-catalog-'))
   directories.push(root)
   const cwd = join(root, 'workspace')
   const filePath = join(root, 'saved-session.jsonl')
@@ -103,7 +103,7 @@ it('lists a saved Pi session so the session switch menu can select its exact fil
 })
 
 async function seedSessions(): Promise<{ root: string; cwd: string }> {
-  const root = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-catalog-'))
+  const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-catalog-'))
   directories.push(root)
   vi.stubEnv('PI_CODING_AGENT_SESSION_DIR', root)
   return { root, cwd: join(root, 'workspace') }

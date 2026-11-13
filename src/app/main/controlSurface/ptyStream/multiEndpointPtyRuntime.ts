@@ -103,7 +103,7 @@ export function createMultiEndpointPtyRuntime(options: {
   } = state
   const launchArtifactOwner = new AgentLaunchArtifactOwner(error => {
     const detail = error instanceof Error ? (error.stack ?? error.message) : String(error)
-    process.stderr.write(`[opencove] failed to dispose Agent launch artifacts: ${detail}\n`)
+    process.stderr.write(`[eclipse-code] failed to dispose Agent launch artifacts: ${detail}\n`)
   })
   const localSessionRegistrations = new SessionRegistrationOwner()
 

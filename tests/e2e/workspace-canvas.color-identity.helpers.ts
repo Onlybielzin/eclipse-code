@@ -236,7 +236,7 @@ export async function readNodeIdentity(page: Page) {
 
 export async function terminalIdentity(page: Page) {
   return await page.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const body = document.querySelector<HTMLElement>(`[data-id="${id}"] .terminal-node__terminal`)
     return {
       sessionId: api?.getRuntimeSessionId(id),
@@ -265,7 +265,7 @@ export async function printIdentityMarker(page: Page) {
 
 export async function persistedLabels(page: Page) {
   return await page.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = raw
       ? (JSON.parse(raw) as {
           workspaces?: Array<{

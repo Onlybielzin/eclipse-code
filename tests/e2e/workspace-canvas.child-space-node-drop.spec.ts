@@ -35,7 +35,7 @@ function contains(container: Rect, child: Rect): boolean {
 
 async function readSnapshot(window: Page): Promise<Snapshot> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return { nodes: {}, spaces: {} }
     }

@@ -10,10 +10,10 @@ import { fileURLToPath } from 'node:url'
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'debug-pnpm-dev-agent-launch')
-const port = Number.parseInt(process.env.OPENCOVE_DEV_AGENT_REMOTE_DEBUGGING_PORT ?? '9436', 10)
-const keepUserData = process.env.OPENCOVE_DEV_AGENT_KEEP_USER_DATA === '1'
-const provider = process.env.OPENCOVE_DEV_AGENT_PROVIDER ?? 'codex'
-const pnpmCommand = process.env.OPENCOVE_DEV_AGENT_PNPM_COMMAND ?? 'pnpm'
+const port = Number.parseInt(process.env.ECLIPSE_CODE_DEV_AGENT_REMOTE_DEBUGGING_PORT ?? '9436', 10)
+const keepUserData = process.env.ECLIPSE_CODE_DEV_AGENT_KEEP_USER_DATA === '1'
+const provider = process.env.ECLIPSE_CODE_DEV_AGENT_PROVIDER ?? 'codex'
+const pnpmCommand = process.env.ECLIPSE_CODE_DEV_AGENT_PNPM_COMMAND ?? 'pnpm'
 
 function delay(ms) {
   return new Promise(resolve => {
@@ -37,7 +37,7 @@ async function ensureDir(dirPath) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-pnpm-dev-agent-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-pnpm-dev-agent-'))
 }
 
 function workspaceState(workspaceId, spaceId, mountId) {
@@ -111,7 +111,7 @@ async function seedUserData(userDataDir, ids) {
         {
           mountId: ids.mountId,
           projectId: ids.workspaceId,
-          name: 'opencove',
+          name: 'eclipse-code',
           sortOrder: 0,
           endpointId: 'local',
           targetId: ids.targetId,
@@ -225,7 +225,7 @@ async function waitForProviderScreen(page, sessionId) {
   while (Date.now() < deadline) {
     snapshot = await page.evaluate(
       async id =>
-        await window.opencoveApi.pty.presentationSnapshot({ sessionId: id }).catch(error => ({
+        await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }).catch(error => ({
           error: error instanceof Error ? error.message : String(error),
         })),
       sessionId,
@@ -243,7 +243,7 @@ async function waitForProviderScreen(page, sessionId) {
 }
 
 async function launchDirectAgent(page) {
-  return await page.evaluate(async payload => await window.opencoveApi.agent.launch(payload), {
+  return await page.evaluate(async payload => await window.eclipseCodeApi.agent.launch(payload), {
     cwd: repoPath,
     provider,
     profileId: 'wsl:Ubuntu',
@@ -259,7 +259,7 @@ async function launchDirectAgent(page) {
 async function launchMountAgent(page, mountId) {
   return await page.evaluate(
     async payload =>
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'command',
         id: 'session.launchAgentInMount',
         payload,
@@ -285,7 +285,7 @@ async function runLaunchCase(page, name, launch) {
   const snapshot = await waitForProviderScreen(page, result.sessionId)
 
   await page.evaluate(
-    async sessionId => await window.opencoveApi.pty.kill({ sessionId }).catch(() => undefined),
+    async sessionId => await window.eclipseCodeApi.pty.kill({ sessionId }).catch(() => undefined),
     result.sessionId,
   )
   await delay(2_000)
@@ -341,9 +341,9 @@ async function main() {
     await seedUserData(userDataDir, ids)
     const env = cleanEnv({
       ...process.env,
-      OPENCOVE_DEV_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_DEV_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     })
     delete env.ELECTRON_RUN_AS_NODE
 
@@ -373,12 +373,12 @@ async function main() {
     const context = browser.contexts()[0]
     const page = context.pages()[0] ?? (await context.waitForEvent('page'))
     await page.waitForLoadState('domcontentloaded')
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.controlSurface?.invoke), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.controlSurface?.invoke), null, {
       timeout: 60_000,
     })
 
     const writeResult = await page.evaluate(
-      async state => await window.opencoveApi.persistence.writeWorkspaceStateRaw({ raw: state }),
+      async state => await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({ raw: state }),
       JSON.stringify(workspaceState(ids.workspaceId, ids.spaceId, ids.mountId)),
     )
     if (!writeResult?.ok) {
@@ -386,17 +386,17 @@ async function main() {
     }
 
     await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.controlSurface?.invoke), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.controlSurface?.invoke), null, {
       timeout: 60_000,
     })
 
     const workerStatus = await page.evaluate(
-      async () => await window.opencoveApi.worker.getStatus(),
+      async () => await window.eclipseCodeApi.worker.getStatus(),
     )
     process.stdout.write(`[pnpm-dev-agent] worker ${JSON.stringify(workerStatus)}\n`)
 
     const availability = await page.evaluate(
-      async () => await window.opencoveApi.agent.listInstalledProviders({}),
+      async () => await window.eclipseCodeApi.agent.listInstalledProviders({}),
     )
     process.stdout.write(
       `[pnpm-dev-agent] provider-availability ${JSON.stringify(
@@ -406,7 +406,7 @@ async function main() {
 
     const mounts = await page.evaluate(
       async projectId =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'mount.list',
           payload: { projectId },

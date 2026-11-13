@@ -4,7 +4,7 @@ const terminalIndex = Number.parseInt(process.argv[2] ?? '0', 10)
 const intervalMs = Math.max(16, Number.parseInt(process.argv[3] ?? '100', 10))
 const payloadBytes = Math.max(0, Number.parseInt(process.argv[4] ?? '160', 10))
 const maxDurationMs = Math.max(1_000, Number.parseInt(process.argv[5] ?? '120000', 10))
-const label = `opencove-profile-terminal-output-stub-${terminalIndex}`
+const label = `eclipse-code-profile-terminal-output-stub-${terminalIndex}`
 const startedAt = Date.now()
 let tick = 0
 

@@ -33,7 +33,7 @@ afterEach(async () => {
 })
 
 it('keeps draining the real child pipe after its ready handshake so logging cannot block work', async () => {
-  state.directory = await mkdtemp(join(tmpdir(), 'opencove-worker-stdout-'))
+  state.directory = await mkdtemp(join(tmpdir(), 'eclipse-code-worker-stdout-'))
   const entryDirectory = join(state.directory, 'out', 'main')
   await mkdir(entryDirectory, { recursive: true })
   const completionPath = join(state.directory, 'output-drained')

@@ -86,21 +86,24 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string)
 }
 
 export async function runPtyHostStressTest(): Promise<void> {
-  if (!isTruthyEnv(process.env['OPENCOVE_PTY_HOST_STRESS'])) {
+  if (!isTruthyEnv(process.env['ECLIPSE_CODE_PTY_HOST_STRESS'])) {
     return
   }
 
   if (process.platform === 'win32') {
-    throw new Error('[opencove] pty-host stress currently supports only macOS/Linux')
+    throw new Error('[eclipse-code] pty-host stress currently supports only macOS/Linux')
   }
 
-  const sessionCount = parsePositiveInt(process.env['OPENCOVE_PTY_HOST_STRESS_SESSIONS'], 8)
-  const bytesPerSession = parsePositiveInt(process.env['OPENCOVE_PTY_HOST_STRESS_BYTES'], 2_000_000)
+  const sessionCount = parsePositiveInt(process.env['ECLIPSE_CODE_PTY_HOST_STRESS_SESSIONS'], 8)
+  const bytesPerSession = parsePositiveInt(
+    process.env['ECLIPSE_CODE_PTY_HOST_STRESS_BYTES'],
+    2_000_000,
+  )
   const concurrency = parsePositiveInt(
-    process.env['OPENCOVE_PTY_HOST_STRESS_CONCURRENCY'],
+    process.env['ECLIPSE_CODE_PTY_HOST_STRESS_CONCURRENCY'],
     Math.min(8, sessionCount),
   )
-  const timeoutMs = parsePositiveInt(process.env['OPENCOVE_PTY_HOST_STRESS_TIMEOUT_MS'], 60_000)
+  const timeoutMs = parsePositiveInt(process.env['ECLIPSE_CODE_PTY_HOST_STRESS_TIMEOUT_MS'], 60_000)
 
   const logsDir = pathResolve(app.getPath('userData'), 'logs')
   const logFilePath = pathResolve(logsDir, 'pty-host-stress.log')
@@ -115,7 +118,7 @@ export async function runPtyHostStressTest(): Promise<void> {
     createProcess: modulePath => {
       const child = utilityProcess.fork(modulePath, [], {
         stdio: 'pipe',
-        serviceName: 'OpenCove PTY Host (Stress)',
+        serviceName: 'Eclipse Code PTY Host (Stress)',
       })
       hostPid = child.pid
       hostRssStartKb = tryResolveRssKb(child.pid)
@@ -170,7 +173,7 @@ export async function runPtyHostStressTest(): Promise<void> {
   await withTimeout(
     Promise.all(workers),
     timeoutMs,
-    `[opencove] pty-host stress timed out while spawning sessions after ${timeoutMs}ms`,
+    `[eclipse-code] pty-host stress timed out while spawning sessions after ${timeoutMs}ms`,
   )
 
   const exitPromises = sessionIds.map(sessionId => {
@@ -186,7 +189,7 @@ export async function runPtyHostStressTest(): Promise<void> {
     return withTimeout(
       exitPromise,
       timeoutMs,
-      `[opencove] pty-host stress timed out waiting for session exit after ${timeoutMs}ms: ${sessionId}`,
+      `[eclipse-code] pty-host stress timed out waiting for session exit after ${timeoutMs}ms: ${sessionId}`,
     )
   })
 
@@ -212,7 +215,7 @@ export async function runPtyHostStressTest(): Promise<void> {
 
   process.stderr.write(
     [
-      '[opencove] pty-host stress completed',
+      '[eclipse-code] pty-host stress completed',
       `sessions=${sessionCount}`,
       `bytesPerSession=${formatBytes(bytesPerSession)}`,
       `total=${formatBytes(totalBytes)}`,

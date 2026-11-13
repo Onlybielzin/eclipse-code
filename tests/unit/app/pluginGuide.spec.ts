@@ -19,10 +19,11 @@ describe('plugin guide paths', () => {
   })
 
   it('resolves docs beside the packaged app.asar CLI', () => {
-    const scriptPath = '/Applications/OpenCove.app/Contents/Resources/app.asar/out/cli/opencove.mjs'
+    const scriptPath =
+      '/Applications/Eclipse Code.app/Contents/Resources/app.asar/out/cli/eclipse-code.mjs'
 
     expect(resolvePluginGuideDirectory(scriptPath)).toBe(
-      '/Applications/OpenCove.app/Contents/Resources/app.asar/docs/plugins',
+      '/Applications/Eclipse Code.app/Contents/Resources/app.asar/docs/plugins',
     )
   })
 

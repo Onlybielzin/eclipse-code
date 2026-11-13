@@ -1,22 +1,21 @@
 {
-  "name": "opencove",
+  "name": "eclipse-code",
   "version": "0.4.0",
-  "productName": "OpenCove",
+  "productName": "Eclipse Code",
   "description": "An infinite canvas for Claude Code, Codex, terminals, tasks, and notes.",
   "main": "./out/main/index.js",
   "author": {
-    "name": "deadwavewave",
-    "email": "deadwavewave@gmail.com"
+    "name": "Onlybielzin"
   },
-  "publisher": "DeadWaveWave",
+  "publisher": "Onlybielzin",
   "license": "MIT",
-  "homepage": "https://github.com/DeadWaveWave/opencove#readme",
+  "homepage": "https://github.com/Onlybielzin/eclipse-code#readme",
   "bugs": {
-    "url": "https://github.com/DeadWaveWave/opencove/issues"
+    "url": "https://github.com/Onlybielzin/eclipse-code/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DeadWaveWave/opencove.git"
+    "url": "git+https://github.com/Onlybielzin/eclipse-code.git"
   },
   "keywords": [
     "electron",
@@ -29,13 +28,13 @@
   ],
   "build": {
     "afterPack": "./scripts/verify-windows-terminal-capability.cjs",
-    "appId": "dev.deadwave.opencove",
-    "productName": "OpenCove",
-    "executableName": "OpenCove",
+    "appId": "dev.vings.eclipsecode",
+    "productName": "Eclipse Code",
+    "executableName": "eclipse-code",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "files": [
       "out{,/**/*}",
-      "src/app/cli/opencove.mjs",
+      "src/app/cli/eclipse-code.mjs",
       "src/app/cli/publishRuntime.mjs",
       "docs/plugins{,/**/*}",
       "package.json"
@@ -50,8 +49,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "DeadWaveWave",
-        "repo": "opencove"
+        "owner": "Onlybielzin",
+        "repo": "eclipse-code"
       }
     ],
     "win": {
@@ -62,7 +61,7 @@
     }
   },
   "bin": {
-    "opencove": "out/cli/opencove.mjs"
+    "eclipse-code": "out/cli/eclipse-code.mjs"
   },
   "engines": {
     "node": ">=22.12.0",
@@ -94,7 +93,7 @@
     "test:e2e:web-canvas": "node scripts/test-e2e-web-canvas.mjs",
     "test:e2e:web-shell": "node scripts/test-e2e-web-shell.mjs",
     "test:terminal:presentation": "node scripts/test-terminal-presentation-contract.mjs",
-    "recover:opencove-db": "node scripts/recover-opencove-db-from-sqlite-recover.mjs",
+    "recover:eclipse-code-db": "node scripts/recover-eclipse-code-db-from-sqlite-recover.mjs",
     "profile:terminal:display-parity": "node scripts/profile-terminal-display-parity.mjs",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -106,7 +105,7 @@
     "arch:results": "node harness/architecture/check.mjs --mode audit --write-results harness/architecture/results",
     "arch:results:check": "node harness/architecture/check-doc-sync.mjs --verify-results",
     "arch:test": "vitest --run --config harness/architecture/vitest.config.ts",
-    "opencove": "node out/cli/opencove.mjs",
+    "eclipse-code": "node out/cli/eclipse-code.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format-check:staged": "node scripts/check-format-staged.mjs",

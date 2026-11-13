@@ -69,7 +69,7 @@ it('retries a genuine endpoint connection refusal and succeeds with the same com
     .mockResolvedValue(
       new Response(
         JSON.stringify({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { now: 'now', pid: 1 },
         }),

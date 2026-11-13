@@ -42,7 +42,7 @@ function run(
 
 describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () => {
   it('preserves empty PATH entries and resolves the same current-directory executable', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-empty-path-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-empty-path-'))
     roots.push(root)
     const realBin = join(root, 'later-bin')
     await mkdir(realBin)
@@ -104,7 +104,7 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
   it.skipIf(!existsSync('/bin/zsh'))(
     'mirrors the zsh login startup chain after a custom ZDOTDIR replaces PATH',
     async () => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-zsh-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-zsh-'))
       roots.push(root)
       const home = join(root, 'home')
       const userZdot = join(root, 'user-zdot')
@@ -178,7 +178,7 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
   it.each(['claude', 'pi'])(
     'survives bash rc PATH replacement and preserves %s binary, args, and exit code',
     async command => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-'))
       roots.push(root)
       const home = join(root, 'home')
       const realBin = join(root, 'real bin')
@@ -249,7 +249,7 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
           env: {
             ...prepared.environment,
             PATH: `${published.shimDirectory}:${realBin}:/usr/bin:/bin`,
-            OPENCOVE_PI_STATUS_OWNER_PID: '123',
+            ECLIPSE_CODE_PI_STATUS_OWNER_PID: '123',
           },
         })
         expect(nested.stdout).toContain('ARGS=<nested arg><>')
@@ -262,7 +262,7 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
   )
 
   it('waits for hook planning before launching the real provider', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-planning-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-planning-'))
     roots.push(root)
     const realBin = join(root, 'real')
     await mkdir(realBin)
@@ -296,9 +296,9 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
       env: {
         ...process.env,
         ELECTRON_RUN_AS_NODE: '1',
-        OPENCOVE_TERMINAL_AGENT_ENDPOINT: terminal.endpoint,
-        OPENCOVE_TERMINAL_AGENT_TOKEN: terminal.token,
-        OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
+        ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT: terminal.endpoint,
+        ECLIPSE_CODE_TERMINAL_AGENT_TOKEN: terminal.token,
+        ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
         PATH: `${published.shimDirectory}:${realBin}:/usr/bin:/bin`,
       },
     })
@@ -311,7 +311,7 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
   })
 
   it('skips canonical aliases of its own directory and launches the same real executable', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-signal-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-signal-'))
     roots.push(root)
     const realBin = join(root, 'real')
     await mkdir(realBin)
@@ -331,9 +331,9 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
       env: {
         ...process.env,
         ELECTRON_RUN_AS_NODE: '1',
-        OPENCOVE_TERMINAL_AGENT_ENDPOINT: 'http://127.0.0.1:1/unavailable',
-        OPENCOVE_TERMINAL_AGENT_TOKEN: 'unavailable',
-        OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
+        ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT: 'http://127.0.0.1:1/unavailable',
+        ECLIPSE_CODE_TERMINAL_AGENT_TOKEN: 'unavailable',
+        ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
         PATH: `${shimAlias}:${published.shimDirectory}:${realBin}:/usr/bin:/bin`,
       },
     })
@@ -345,9 +345,9 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
 
   it('skips its own provider shims when the environment does not name them', async () => {
     // A canvas agent launch resolves `claude` by name. If provider shims reach that PATH without
-    // OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY, the launcher must still find the real executable
+    // ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY, the launcher must still find the real executable
     // instead of re-entering its own shim forever.
-    const root = await mkdtemp(join(tmpdir(), 'opencove-terminal-shim-unnamed-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-shim-unnamed-'))
     roots.push(root)
     const realBin = join(root, 'real')
     await mkdir(realBin)
@@ -365,24 +365,24 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
       ELECTRON_RUN_AS_NODE: '1',
       PATH: `${published.cliShimDirectory}:${published.shimDirectory}:${realBin}:/usr/bin:/bin`,
     }
-    delete env.OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY
-    delete env.OPENCOVE_TERMINAL_AGENT_ENDPOINT
-    delete env.OPENCOVE_TERMINAL_AGENT_TOKEN
+    delete env.ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY
+    delete env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT
+    delete env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN
     const result = await run(join(published.shimDirectory, 'claude'), [], { cwd: root, env })
 
     expect(result.stdout).toContain(`REAL_EXECUTABLE=${realClaude}`)
     expect(result).toMatchObject({ code: 23, signal: null })
     // The CLI shim directory is the only one a canvas session gets; it must not shadow providers.
-    expect(existsSync(join(published.cliShimDirectory, 'opencove'))).toBe(true)
+    expect(existsSync(join(published.cliShimDirectory, 'eclipse-code'))).toBe(true)
     expect(existsSync(join(published.cliShimDirectory, 'claude'))).toBe(false)
-    expect(existsSync(join(published.shimDirectory, 'opencove'))).toBe(false)
+    expect(existsSync(join(published.shimDirectory, 'eclipse-code'))).toBe(false)
     await assets.dispose()
   })
 
   it.each(['SIGHUP', 'SIGINT', 'SIGTERM'] as const)(
     'forwards %s and boundedly kills a child that ignores it',
     async signal => {
-      const root = await mkdtemp(join(tmpdir(), `opencove-terminal-shim-${signal}-`))
+      const root = await mkdtemp(join(tmpdir(), `eclipse-code-terminal-shim-${signal}-`))
       roots.push(root)
       const realBin = join(root, 'real')
       await mkdir(realBin)
@@ -416,9 +416,9 @@ describe.skipIf(process.platform === 'win32')('terminal Agent POSIX shim', () =>
         env: {
           ...process.env,
           ELECTRON_RUN_AS_NODE: '1',
-          OPENCOVE_TERMINAL_AGENT_ENDPOINT: 'http://127.0.0.1:1/unavailable',
-          OPENCOVE_TERMINAL_AGENT_TOKEN: 'unavailable',
-          OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
+          ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT: 'http://127.0.0.1:1/unavailable',
+          ECLIPSE_CODE_TERMINAL_AGENT_TOKEN: 'unavailable',
+          ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
           PATH: `${published.shimDirectory}:${realBin}:/usr/bin:/bin`,
         },
         stdio: ['ignore', 'pipe', 'pipe'],

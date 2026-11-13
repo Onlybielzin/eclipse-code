@@ -5,6 +5,6 @@ export function useApplyUiFontScale(uiFontSize: number): void {
     const root = document.documentElement
     const uiFontScale = (uiFontSize / 16).toFixed(2)
     root.style.setProperty('--cove-user-font-scale', uiFontScale)
-    window.dispatchEvent(new Event('opencove-ui-font-scale-changed'))
+    window.dispatchEvent(new Event('eclipse-code-ui-font-scale-changed'))
   }, [uiFontSize])
 }

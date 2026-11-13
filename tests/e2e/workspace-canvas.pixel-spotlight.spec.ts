@@ -45,8 +45,8 @@ async function pointFrame(page: Page, { x, y }: Point) {
   await page.mouse.move(x, y)
   // Repaint at a fixed ambient time, so the signature isolates the pointer, not drifting clouds.
   const before = await page.evaluate(() => {
-    const frames = window.__opencovePixelWallTestApi!.getFrameCount()
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    const frames = window.__eclipseCodePixelWallTestApi!.getFrameCount()
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
     return frames
   })
   // A native callback queued before installing the clock may still paint once. Only accept
@@ -100,7 +100,7 @@ test('lights the pointer over finished wall tiles and disables it with ambient m
       const fixedTime = performance.now() + 60000
       window.requestAnimationFrame = callback =>
         original(() => {
-          const api = window.__opencovePixelWallTestApi!
+          const api = window.__eclipseCodePixelWallTestApi!
           const before = api.getFrameCount()
           callback(fixedTime)
           if (api.getFrameCount() > before) {
@@ -156,7 +156,7 @@ test('lights the pointer over finished wall tiles and disables it with ambient m
       setPixelEffect(page, 'canvasBackgroundTwinkleEnabled', true),
     )
     const budget = await page.evaluate(async () => {
-      const api = window.__opencovePixelWallTestApi!
+      const api = window.__eclipseCodePixelWallTestApi!
       const frames = api.getFrameCount(),
         at = performance.now(),
         focused = document.hasFocus()

@@ -89,14 +89,18 @@ describe.skipIf(process.platform === 'win32')(
       it.skipIf(!existsSync(shell)).each(['replaced', 'duplicated'])(
         'restores unique shim paths after user PATH is %s',
         async pathMode => {
-          const root = await mkdtemp(join(tmpdir(), 'opencove-startup-path-'))
+          const root = await mkdtemp(join(tmpdir(), 'eclipse-code-startup-path-'))
           roots.push(root)
           const home = join(root, 'home with spaces')
           await mkdir(home)
           const wrapped = await createWrappedShell({
             root,
             shell,
-            args: [...args, '-c', 'command -v opencove; command -v claude; printf "%s\\n" "$PATH"'],
+            args: [
+              ...args,
+              '-c',
+              'command -v eclipse-code; command -v claude; printf "%s\\n" "$PATH"',
+            ],
             env: { ...process.env, ...noShellSessionRestore, HOME: home, ZDOTDIR: home },
           })
           try {
@@ -113,14 +117,14 @@ describe.skipIf(process.platform === 'win32')(
               ),
             )
             const env = { ...wrapped.prepared.environment }
-            env.OPENCOVE_CLI_SHIM_DIRECTORY = assets.cliShimDirectory
+            env.ECLIPSE_CODE_CLI_SHIM_DIRECTORY = assets.cliShimDirectory
             const actual = await run(wrapped.prepared.command, wrapped.prepared.args, {
               cwd: home,
               env,
             })
             expect(actual.code).toBe(0)
             const [cli, provider, path] = actual.stdout.trimEnd().split('\n')
-            expect(cli).toBe(join(assets.cliShimDirectory, 'opencove'))
+            expect(cli).toBe(join(assets.cliShimDirectory, 'eclipse-code'))
             expect(provider).toBe(join(assets.shimDirectory, 'claude'))
             expect(path).toBe(`${assets.cliShimDirectory}:${assets.shimDirectory}:/usr/bin::/bin:`)
           } finally {
@@ -134,7 +138,7 @@ describe.skipIf(process.platform === 'win32')(
       it.skipIf(!existsSync(shell))(
         'does not inject a CLI directory into an ungranted session',
         async () => {
-          const root = await mkdtemp(join(tmpdir(), 'opencove-startup-no-cli-'))
+          const root = await mkdtemp(join(tmpdir(), 'eclipse-code-startup-no-cli-'))
           roots.push(root)
           const home = join(root, 'home')
           await mkdir(home)
@@ -169,7 +173,7 @@ describe.skipIf(process.platform === 'win32')(
     it.skipIf(!existsSync('/bin/zsh'))(
       'matches baseline zsh login and non-login startup with a custom ZDOTDIR',
       async () => {
-        const root = await mkdtemp(join(tmpdir(), 'opencove-zsh-startup-parity-'))
+        const root = await mkdtemp(join(tmpdir(), 'eclipse-code-zsh-startup-parity-'))
         roots.push(root)
         const home = join(root, 'home')
         const zdot = join(root, 'custom-zdot')
@@ -215,7 +219,7 @@ describe.skipIf(process.platform === 'win32')(
       { label: 'malformed', content: 'export STARTUP_SENTINEL=before\nif [\n' },
       { label: 'unreadable', content: 'export STARTUP_SENTINEL=should-not-load\n' },
     ])('matches baseline bash $label user-rc outcome', async ({ label, content }) => {
-      const root = await mkdtemp(join(tmpdir(), `opencove-bash-${label}-`))
+      const root = await mkdtemp(join(tmpdir(), `eclipse-code-bash-${label}-`))
       roots.push(root)
       const home = join(root, 'home')
       await mkdir(home)

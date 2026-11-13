@@ -4,7 +4,7 @@ import { registerNodeControlHandlers } from '../../../src/app/main/controlSurfac
 import type { ControlSurfaceContext } from '../../../src/app/main/controlSurface/types'
 import type { WorkerTopologyStore } from '../../../src/app/main/controlSurface/topology/topologyStore'
 import type { MountDto, WorkerEndpointDto } from '../../../src/shared/contracts/dto'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 import {
   createNodeForNodeControl,
   type NodeControlRuntimeDeps,
@@ -178,7 +178,7 @@ describe('node control application use cases', () => {
           expect.objectContaining({ spaceId: 'space-b', matchReason: 'space-name' }),
         ],
       },
-    } satisfies Partial<OpenCoveAppError>)
+    } satisfies Partial<EclipseCodeAppError>)
   })
 
   it('creates a terminal node in the uniquely resolved worker path space', async () => {

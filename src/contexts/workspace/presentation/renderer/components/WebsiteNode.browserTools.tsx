@@ -89,8 +89,8 @@ export function WebsiteNodeBrowserTools({
   trailing,
 }: WebsiteNodeBrowserToolsProps): JSX.Element {
   const { t } = useTranslation()
-  const browserApi = window.opencoveApi?.browserProfile ?? null
-  const websiteApi = window.opencoveApi?.websiteWindow ?? null
+  const browserApi = window.eclipseCodeApi?.browserProfile ?? null
+  const websiteApi = window.eclipseCodeApi?.websiteWindow ?? null
   const scope = useMemo(() => resolveScope(sessionMode, profileId), [profileId, sessionMode])
   const displayUrl = resolveDisplayUrl(currentUrl, url)
   const [activePanel, setActivePanel] = useState<BrowserPanel>(null)

@@ -27,7 +27,7 @@ export async function tryManagedClaudeTestHook(input: {
     input.req.url !== '/_test/managed-claude-rebind' ||
     input.req.method !== 'POST' ||
     process.env.NODE_ENV !== 'test' ||
-    process.env.OPENCOVE_TEST_ENABLE_MANAGED_CLAUDE_REBIND !== '1'
+    process.env.ECLIPSE_CODE_TEST_ENABLE_MANAGED_CLAUDE_REBIND !== '1'
   ) {
     return false
   }

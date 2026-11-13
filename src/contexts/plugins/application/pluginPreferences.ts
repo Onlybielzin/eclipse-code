@@ -4,7 +4,7 @@ import type { PluginPreferenceDeclaration, PluginPreferenceValue } from '../doma
 import { isPluginPreferenceValue } from '../domain/pluginHostExtensionValidation'
 
 /** Reserved to the host owner; generic plugin storage must reject this key. */
-export const PLUGIN_PREFERENCES_KEY = 'opencove.host.preferences'
+export const PLUGIN_PREFERENCES_KEY = 'eclipse-code.host.preferences'
 export type PluginPreferences = Record<string, PluginPreferenceValue>
 
 export function resolvePluginPreferences(

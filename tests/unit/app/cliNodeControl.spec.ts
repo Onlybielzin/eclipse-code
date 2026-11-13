@@ -15,7 +15,7 @@ function stubInvokeRequests(): CapturedRequest[] {
     requests.push(JSON.parse(body) as CapturedRequest)
     return new Response(
       JSON.stringify({
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: true,
         value: { ok: true },
       }),
@@ -30,7 +30,7 @@ async function invokeNodeArgs(args: string[]): Promise<boolean> {
     (await run(args, {
       stdout: { write() {} },
       stderr: { write() {} },
-      env: { OPENCOVE_CONTROL_URL: 'http://localhost:1', OPENCOVE_CONTROL_TOKEN: 'token' },
+      env: { ECLIPSE_CODE_CONTROL_URL: 'http://localhost:1', ECLIPSE_CODE_CONTROL_TOKEN: 'token' },
       fetch,
       now: Date.now,
       readTextFile: async () => '',

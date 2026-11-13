@@ -18,7 +18,7 @@ afterEach(async () => {
 })
 
 async function fixture(fileName: string) {
-  root = await mkdtemp(path.join(tmpdir(), 'opencove-continuity-connection-'))
+  root = await mkdtemp(path.join(tmpdir(), 'eclipse-code-continuity-connection-'))
   const profile = path.join(root, 'profile')
   const home = path.join(root, 'home')
   const workspace = path.join(root, 'workspace')
@@ -70,9 +70,9 @@ it.each(['control-surface.json', 'worker-control-surface.json'])(
   'uses CLI discovery for %s without inheriting parent-shell credentials',
   async fileName => {
     const f = await fixture(fileName)
-    vi.stubEnv('OPENCOVE_CONTROL_URL', 'http://unrelated-profile.test')
-    vi.stubEnv('OPENCOVE_CONTROL_TOKEN', 'unrelated-token')
-    vi.stubEnv('OPENCOVE_USER_DATA_DIR', path.join(root!, 'unrelated-profile'))
+    vi.stubEnv('ECLIPSE_CODE_CONTROL_URL', 'http://unrelated-profile.test')
+    vi.stubEnv('ECLIPSE_CODE_CONTROL_TOKEN', 'unrelated-token')
+    vi.stubEnv('ECLIPSE_CODE_USER_DATA_DIR', path.join(root!, 'unrelated-profile'))
     const listeners = process.listenerCount('SIGINT')
     expect(await waitForControlSurfaceConnection(f.profile)).toMatchObject({
       endpoint: 'http://127.0.0.1:4312',

@@ -9,7 +9,7 @@ import {
 
 type SparkRecord = { added: number; removed: number }
 
-const SPARK_LOG = '__opencoveIslandSparkLog'
+const SPARK_LOG = '__eclipseCodeIslandSparkLog'
 
 /** Sparks fly for about three seconds; a runner step can take longer, so record them as they come. */
 async function recordSparks(window: Page): Promise<void> {
@@ -38,7 +38,7 @@ async function readSparks(window: Page): Promise<SparkRecord> {
   )
 }
 
-/** E2E windows are never focused (`inactive` mode); this is OpenCove coming to the front. */
+/** E2E windows are never focused (`inactive` mode); this is Eclipse Code coming to the front. */
 async function emitWindowFocus(electronApp: ElectronApplication): Promise<void> {
   await electronApp.evaluate(({ BrowserWindow }) => {
     BrowserWindow.getAllWindows()[0]!.emit('focus')
@@ -97,7 +97,7 @@ test.describe('Agent island', () => {
       const { electronApp, window } = await launchApp({
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
         },
       })
       try {
@@ -134,13 +134,13 @@ test.describe('Agent island', () => {
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     test(`a card grows out of the pill${
       reducedMotion === 'reduce' ? ' without sparks under reduced motion' : ' with sparks'
-    }, holds while OpenCove is behind, retracts into the pill six seconds after it comes to the front, and the jump answers it`, async () => {
+    }, holds while Eclipse Code is behind, retracts into the pill six seconds after it comes to the front, and the jump answers it`, async () => {
       const commandDirectory = await createAgentCommandPath()
       const executionDirectory = await mkdtemp(path.join(testWorkspacePath, 'island-'))
       const { electronApp, window } = await launchApp({
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
         },
       })
       try {

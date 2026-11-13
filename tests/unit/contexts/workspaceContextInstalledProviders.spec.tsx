@@ -32,7 +32,7 @@ function Harness({ order }: { order: AgentProvider[] }) {
 
 describe('useWorkspaceContextInstalledProviders', () => {
   afterEach(() => {
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
   })
 
   it('keeps host-unavailable providers launchable unless an override is misconfigured', async () => {
@@ -75,11 +75,11 @@ describe('useWorkspaceContextInstalledProviders', () => {
       fetchedAt: '2026-05-12T00:00:00.000Z',
     }))
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       agent: {
         listInstalledProviders,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     render(<Harness order={['codex', 'claude-code', 'opencode', 'gemini']} />)
 

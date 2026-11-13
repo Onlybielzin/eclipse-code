@@ -60,7 +60,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
       const widthResizedNode = await window.evaluate(async key => {
         void key
 
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -99,7 +99,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
       const heightResizedNode = await window.evaluate(async key => {
         void key
 
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -139,7 +139,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
       const cornerResizedNode = await window.evaluate(async key => {
         void key
 
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -224,7 +224,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
       const agentNode = window.locator('.terminal-node').first()
       await expect(agentNode).toBeVisible()
       await expect(agentNode.locator('.xterm')).toBeVisible()
-      await expect(agentNode).toContainText('[opencove-test-agent]')
+      await expect(agentNode).toContainText('[eclipse-code-test-agent]')
 
       const header = agentNode.locator('.terminal-node__header')
       const pane = window.locator('.workspace-canvas .react-flow__pane')
@@ -237,7 +237,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
 
       await expect(agentNode).toBeVisible()
       await expect(agentNode.locator('.xterm')).toBeVisible()
-      await expect(agentNode).toContainText('[opencove-test-agent]')
+      await expect(agentNode).toContainText('[eclipse-code-test-agent]')
     } finally {
       await electronApp.close()
     }
@@ -308,7 +308,7 @@ test.describe('Workspace Canvas - Drag & Resize', () => {
             return await window.evaluate(async key => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

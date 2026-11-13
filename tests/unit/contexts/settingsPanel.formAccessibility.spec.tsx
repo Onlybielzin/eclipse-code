@@ -52,7 +52,7 @@ function installWorkerApi(
     updatedAt: null,
   }
 
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       meta: { isPackaged: false },
@@ -90,7 +90,7 @@ describe('Settings form accessible names', () => {
   })
 
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 
@@ -302,19 +302,19 @@ describe('Settings form accessible names', () => {
 
     expectNamedTestId('settings-experimental-worker-web-ui-port', 'Port')
     expectNamedTestId('settings-experimental-worker-web-ui-password', 'Password')
-    await waitFor(() => expect(window.opencoveApi.workerClient.getConfig).toHaveBeenCalled())
+    await waitFor(() => expect(window.eclipseCodeApi.workerClient.getConfig).toHaveBeenCalled())
     expect(screen.queryByTestId('settings-worker-home-mode-trigger')).not.toBeInTheDocument()
-    expect(window.opencoveApi.workerClient.setConfig).not.toHaveBeenCalled()
-    expect(window.opencoveApi.workerClient.setWebUiSettings).not.toHaveBeenCalled()
-    expect(window.opencoveApi.workerClient.setWebUiSecurity).not.toHaveBeenCalled()
-    expect(window.opencoveApi.workerClient.relaunch).not.toHaveBeenCalled()
-    expect(window.opencoveApi.worker.start).not.toHaveBeenCalled()
-    expect(window.opencoveApi.worker.stop).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.workerClient.setConfig).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.workerClient.setWebUiSettings).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.workerClient.setWebUiSecurity).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.workerClient.relaunch).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.worker.start).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.worker.stop).not.toHaveBeenCalled()
   })
 
   it('applies Web UI settings without restarting a running Worker', async () => {
     installWorkerApi('local')
-    const api = window.opencoveApi
+    const api = window.eclipseCodeApi
     vi.mocked(api.worker.getStatus).mockResolvedValue({
       status: 'running',
       connection: {
@@ -346,7 +346,7 @@ describe('Settings form accessible names', () => {
   it('localizes Worker Web access apply failures in Chinese', async () => {
     await applyUiLanguage('zh-CN')
     installWorkerApi('local')
-    const api = window.opencoveApi
+    const api = window.eclipseCodeApi
     vi.mocked(api.workerClient.setWebUiSettings).mockRejectedValue(
       createAppError('worker.unavailable'),
     )
@@ -359,7 +359,7 @@ describe('Settings form accessible names', () => {
 
   it('shows degraded restoration and hides Open after a double-bind failure', async () => {
     installWorkerApi('local')
-    const api = window.opencoveApi
+    const api = window.eclipseCodeApi
     vi.mocked(api.worker.getStatus).mockResolvedValue({
       status: 'running',
       connection: {
@@ -421,7 +421,7 @@ describe('Settings form accessible names', () => {
       <WorkspaceSection
         workspaceName="Cove"
         workspacePath="/repo/cove"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         onChangeWorktreesRoot={noop}
         environmentVariables={{}}
         onChangeEnvironmentVariables={noop}
@@ -440,7 +440,7 @@ describe('Settings form accessible names', () => {
       <WorkspaceSection
         workspaceName="Cove"
         workspacePath="/repo/cove"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         onChangeWorktreesRoot={noop}
         environmentVariables={{}}
         onChangeEnvironmentVariables={noop}

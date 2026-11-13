@@ -43,7 +43,10 @@ describe('ReactFlow removal closure notifications', () => {
         order.push('kill')
         return new Promise<void>(() => undefined)
       })
-      Object.defineProperty(window, 'opencoveApi', { configurable: true, value: { pty: { kill } } })
+      Object.defineProperty(window, 'eclipseCodeApi', {
+        configurable: true,
+        value: { pty: { kill } },
+      })
       const nodesRef = {
         current: [pixelNode(), { ...pixelNode({ kind: 'note', sessionId: '' }), id: 'note-2' }],
       }

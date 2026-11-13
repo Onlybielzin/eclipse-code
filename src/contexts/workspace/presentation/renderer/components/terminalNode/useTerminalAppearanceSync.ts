@@ -8,7 +8,7 @@ import {
 } from './diagnostics'
 
 function isTerminalDiagnosticsEnabled(): boolean {
-  return window.opencoveApi?.meta?.enableTerminalDiagnostics === true
+  return window.eclipseCodeApi?.meta?.enableTerminalDiagnostics === true
 }
 
 function logAppearanceSyncDiagnostics({
@@ -34,7 +34,7 @@ function logAppearanceSyncDiagnostics({
       : null
   const logger = createTerminalDiagnosticsLogger({
     enabled: true,
-    emit: window.opencoveApi?.debug?.logTerminalDiagnostics ?? (() => undefined),
+    emit: window.eclipseCodeApi?.debug?.logTerminalDiagnostics ?? (() => undefined),
     base: {
       source: 'renderer-terminal',
       nodeId: 'unknown',

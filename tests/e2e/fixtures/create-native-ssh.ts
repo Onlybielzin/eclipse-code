@@ -14,9 +14,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 class Ssh {
-  static string gates = Environment.GetEnvironmentVariable("OPENCOVE_FAKE_SSH_GATE_DIR");
+  static string gates = Environment.GetEnvironmentVariable("ECLIPSE_CODE_FAKE_SSH_GATE_DIR");
   static void Phase(string phase) {
-    string line = "[opencove-bootstrap-progress:v1] " + phase + "\\n";
+    string line = "[eclipse-code-bootstrap-progress:v1] " + phase + "\\n";
     Console.Write(line); Console.Out.Flush();
     File.AppendAllText(Path.Combine(gates, "phases.log"), line);
     while (!File.Exists(Path.Combine(gates, phase + ".release"))) Thread.Sleep(20);
@@ -50,8 +50,8 @@ class Ssh {
     Console.In.ReadToEnd();
     if (!String.IsNullOrEmpty(gates)) {
       Phase("checking_remote_runtime"); Phase("installing_runtime"); Phase("starting_runtime");
-      string failure = Environment.GetEnvironmentVariable("OPENCOVE_FAKE_SSH_FAILURE");
-      if (!String.IsNullOrEmpty(failure)) { Console.Error.WriteLine("[opencove-bootstrap:" + failure + "] Runtime activation deferred."); return 1; }
+      string failure = Environment.GetEnvironmentVariable("ECLIPSE_CODE_FAKE_SSH_FAILURE");
+      if (!String.IsNullOrEmpty(failure)) { Console.Error.WriteLine("[eclipse-code-bootstrap:" + failure + "] Runtime activation deferred."); return 1; }
     }
     return 0;
   }

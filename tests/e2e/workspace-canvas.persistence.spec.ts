@@ -52,7 +52,7 @@ test.describe('Workspace Canvas - Persistence', () => {
       await expect(terminal).toBeVisible()
       await expect(terminal.locator('.xterm')).toBeVisible()
 
-      const token = `OPENCOVE_PERSIST_${Date.now()}`
+      const token = `ECLIPSE_CODE_PERSIST_${Date.now()}`
       await terminal.locator('.xterm').click()
       await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
       await window.keyboard.type(`echo ${token}`)
@@ -114,8 +114,8 @@ test.describe('Workspace Canvas - Persistence', () => {
       await expect(terminal).toBeVisible()
       await expect(terminal.locator('.xterm')).toBeVisible()
 
-      const headToken = `OPENCOVE_SCROLLBACK_HEAD_${Date.now()}`
-      const tailToken = `OPENCOVE_SCROLLBACK_TAIL_${Date.now()}`
+      const headToken = `ECLIPSE_CODE_SCROLLBACK_HEAD_${Date.now()}`
+      const tailToken = `ECLIPSE_CODE_SCROLLBACK_TAIL_${Date.now()}`
 
       await terminal.locator('.xterm').click()
       await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
@@ -226,18 +226,19 @@ test.describe('Workspace Canvas - Persistence', () => {
       await expect(terminal.locator('.xterm')).toBeVisible()
 
       await window.evaluate(() => {
-        ;(window as unknown as { __opencoveTestExitCode?: number | null }).__opencoveTestExitCode =
-          null
+        ;(
+          window as unknown as { __eclipseCodeTestExitCode?: number | null }
+        ).__eclipseCodeTestExitCode = null
 
-        const unsubscribe = window.opencoveApi.pty.onExit(event => {
+        const unsubscribe = window.eclipseCodeApi.pty.onExit(event => {
           ;(
-            window as unknown as { __opencoveTestExitCode?: number | null }
-          ).__opencoveTestExitCode = event.exitCode
+            window as unknown as { __eclipseCodeTestExitCode?: number | null }
+          ).__eclipseCodeTestExitCode = event.exitCode
           unsubscribe()
         })
       })
 
-      const token = `OPENCOVE_INACTIVE_EXIT_${Date.now()}`
+      const token = `ECLIPSE_CODE_INACTIVE_EXIT_${Date.now()}`
       await terminal.locator('.xterm').click()
       await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
       await window.keyboard.type(`sleep 1; echo ${token}; exit`)
@@ -252,8 +253,8 @@ test.describe('Workspace Canvas - Persistence', () => {
           async () => {
             return await window.evaluate(
               () =>
-                (window as unknown as { __opencoveTestExitCode?: number | null })
-                  .__opencoveTestExitCode,
+                (window as unknown as { __eclipseCodeTestExitCode?: number | null })
+                  .__eclipseCodeTestExitCode,
             )
           },
           { timeout: 10_000 },
@@ -311,10 +312,10 @@ test.describe('Workspace Canvas - Persistence', () => {
       await expect(terminal).toBeVisible()
       await expect(terminal.locator('.xterm')).toBeVisible()
 
-      const rawModeDoneToken = `OPENCOVE_ARROW_HISTORY_DONE_${Date.now()}`
+      const rawModeDoneToken = `ECLIPSE_CODE_ARROW_HISTORY_DONE_${Date.now()}`
       const rawModeCommand = buildNodeEvalCommand(
         [
-          'process.stdout.write("\\x1b[?1049h\\x1b[?1hOPENCOVE_ARROW_HISTORY_START\\n");',
+          'process.stdout.write("\\x1b[?1049h\\x1b[?1hECLIPSE_CODE_ARROW_HISTORY_START\\n");',
           'if (process.stdin.isTTY && typeof process.stdin.setRawMode === "function") {',
           '  process.stdin.setRawMode(true);',
           '}',
@@ -333,7 +334,7 @@ test.describe('Workspace Canvas - Persistence', () => {
       await window.keyboard.type(rawModeCommand)
       await window.keyboard.press('Enter')
 
-      await expect(terminal).toContainText('OPENCOVE_ARROW_HISTORY_START', { timeout: 20_000 })
+      await expect(terminal).toContainText('ECLIPSE_CODE_ARROW_HISTORY_START', { timeout: 20_000 })
 
       await window.locator('.workspace-item').nth(1).click()
       await expect(window.locator('.workspace-item').nth(1)).toHaveClass(/workspace-item--active/)
@@ -345,7 +346,7 @@ test.describe('Workspace Canvas - Persistence', () => {
               async ({ key, nodeId, expected }) => {
                 void key
 
-                const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+                const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
                 if (!raw) {
                   return false
                 }
@@ -416,7 +417,7 @@ test.describe('Workspace Canvas - Persistence', () => {
       await expect(terminal).toBeVisible()
       await expect(terminal.locator('.xterm')).toBeVisible()
 
-      const token = `OPENCOVE_RELOAD_${Date.now()}`
+      const token = `ECLIPSE_CODE_RELOAD_${Date.now()}`
       await terminal.locator('.xterm').click()
       await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
       await window.keyboard.type(`echo ${token}`)
@@ -430,7 +431,7 @@ test.describe('Workspace Canvas - Persistence', () => {
               async ({ key, nodeId, expected }) => {
                 void key
 
-                const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+                const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
                 if (!raw) {
                   return false
                 }

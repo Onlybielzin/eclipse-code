@@ -18,7 +18,7 @@ vi.mock('../../../src/contexts/settings/presentation/renderer/terminalDisplayMea
   TERMINAL_DISPLAY_MEASUREMENT_WIDTH: 638,
   TERMINAL_DISPLAY_MEASUREMENT_HEIGHT: 384,
   TERMINAL_DISPLAY_MEASUREMENT_HANDLES_CHANGED:
-    'opencove:terminal-display-measurement-handles-changed',
+    'eclipse-code:terminal-display-measurement-handles-changed',
   hasMountedTerminalDisplayMeasurementHandle: vi.fn(() => true),
   measureTerminalDisplayReferenceBaseline: vi.fn(),
   readTerminalDisplayRuntime: vi.fn(() => 'desktop'),
@@ -70,7 +70,7 @@ describe('useTerminalDisplayReferenceAutoCapture', () => {
     vi.mocked(readTerminalDisplayRuntime).mockReturnValue('desktop')
     vi.mocked(resolveMountedTerminalDisplayRendererKind).mockReset()
     vi.mocked(resolveMountedTerminalDisplayRendererKind).mockReturnValue('webgl')
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { meta: { runtime: 'electron' } },
     })
@@ -158,7 +158,7 @@ describe('useTerminalDisplayReferenceAutoCapture', () => {
     expect(measureTerminalDisplayReferenceBaseline).not.toHaveBeenCalled()
 
     handlesAvailable = true
-    window.dispatchEvent(new Event('opencove:terminal-display-measurement-handles-changed'))
+    window.dispatchEvent(new Event('eclipse-code:terminal-display-measurement-handles-changed'))
 
     await waitFor(() => expect(nextSettings?.terminalDisplayReference).not.toBeNull())
     expect(measureTerminalDisplayReferenceBaseline).toHaveBeenCalledTimes(1)

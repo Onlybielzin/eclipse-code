@@ -9,10 +9,10 @@ import { CONTROL_SURFACE_PROTOCOL_VERSION } from '../../../src/app/cli/constants
 import { resolvePluginCommandTimeout } from '../../../src/app/cli/commands/plugins'
 
 let root: string
-const cli = resolve('out/cli/opencove.mjs')
+const cli = resolve('out/cli/eclipse-code.mjs')
 
 beforeEach(async () => {
-  root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-plugin-command-')))
+  root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-command-')))
 })
 
 afterEach(async () => {
@@ -22,7 +22,7 @@ afterEach(async () => {
 function runPlugin(args: string[]) {
   return runCommand(process.execPath, [cli, 'plugin', ...args], root, {
     timeoutMs: 3_000,
-    env: { ...process.env, OPENCOVE_USER_DATA_DIR: root },
+    env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: root },
   })
 }
 
@@ -51,7 +51,7 @@ describe('offline plugin commands', () => {
       const result = await runPlugin([...(subcommand ? [subcommand] : []), '--endpoint', 'invalid'])
       expect(result.exitCode).toBe(2)
       expect(result.stderr).toContain('cli.usage')
-      expect(result.stderr).toContain('opencove')
+      expect(result.stderr).toContain('eclipse-code')
       expect(result.stderr).not.toContain('control surface')
       expect(result.stderr).not.toContain('--token')
       expect(result.stdout).toBe('')

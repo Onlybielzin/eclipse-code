@@ -1,6 +1,6 @@
 # Waiting for agents
 
-`opencove agent wait` observes Worker run state without sending input or stopping the agent.
+`eclipse-code agent wait` observes Worker run state without sending input or stopping the agent.
 After a prompt, save its `turnId`, wait with `--turn <turnId>`, then read the same turn.
 All ended outcomes exit 0: inspect `outcome` before claiming completion succeeded.
 PTY exit ends an active turn with outcome `unknown`, so an exact wait normally returns 0.
@@ -47,14 +47,14 @@ Exits 10/11 leave stdout empty and use the standard stderr error envelope:
 `turnId`, and `targets` with `nodeId`, `sessionId`, `status` (fulfilled/pending/waiting/exited),
 `state`, `blockedReason` and active `turnId` when available. No credentials are included.
 
-Ask the user to resolve it in OpenCove (Desktop or this Worker's Web UI). Inspect with
-`opencove agent read --node <id> --screen` using the same connection options, and check
+Ask the user to resolve it in Eclipse Code (Desktop or this Worker's Web UI). Inspect with
+`eclipse-code agent read --node <id> --screen` using the same connection options, and check
 the session/turn IDs match. Then run the same wait again; for exact turns reuse the same
 `--turn`. Event waits (`--until turn-end`) cannot resume a completion already observed:
 prefer `--turn`. Never approve or answer another agent's dialog automatically.
 
 中文：退出 10 表示观察到等待，agent 可能需要用户处理；先查看屏幕和 session/turn ID，
-不要据此自动批准请求。请用户在 OpenCove 桌面端或该 Worker 的 Web UI 处理后，重跑原命令。
+不要据此自动批准请求。请用户在 Eclipse Code 桌面端或该 Worker 的 Web UI 处理后，重跑原命令。
 退出 11 表示未完成目标已退出；`--through-waiting` 不会忽略退出。节点解绑或更换 session
 会清除旧的完成进度；请用独立 `completion` 对象中的 sessionId 和 turnId 查询结束证据。
 同一绑定回放多次完成事件时，结果仍保留最先观察到的完成及其结果。

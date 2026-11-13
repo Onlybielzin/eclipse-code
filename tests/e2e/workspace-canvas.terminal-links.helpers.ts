@@ -32,7 +32,7 @@ export async function printTerminalLinkFixture(
         // A shell prompt can share a path prefix. Wait for the complete output, including
         // soft-wrapped rows and OSC 8 labels, ignoring row padding and line breaks.
         ({ id, expected }) =>
-          window.__opencoveTerminalSelectionTestApi
+          window.__eclipseCodeTerminalSelectionTestApi
             ?.getBufferText(id, '')
             ?.viewportLines.join('')
             .replace(/\s+/g, '')
@@ -52,7 +52,7 @@ export async function terminalLinkCellPoint(
   return window
     .waitForFunction(
       ({ id, column, bufferRow }) => {
-        const point = window.__opencoveTerminalSelectionTestApi?.getCellCenter(
+        const point = window.__eclipseCodeTerminalSelectionTestApi?.getCellCenter(
           id,
           column,
           bufferRow,
@@ -68,5 +68,8 @@ export async function terminalLinkCellPoint(
 }
 
 export async function clearTerminalLinkSelection(window: Page, nodeId: string): Promise<void> {
-  await window.evaluate(id => window.__opencoveTerminalSelectionTestApi?.clearSelection(id), nodeId)
+  await window.evaluate(
+    id => window.__eclipseCodeTerminalSelectionTestApi?.clearSelection(id),
+    nodeId,
+  )
 }

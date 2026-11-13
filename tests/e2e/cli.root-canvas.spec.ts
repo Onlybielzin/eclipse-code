@@ -16,7 +16,7 @@ const spaceId = 'cli-root-space'
 async function createTerminal(page: Page, inSpace: boolean) {
   const created = await page.evaluate(
     async payload => {
-      return window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+      return window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
         kind: 'command',
         id: 'node.create',
         payload: {
@@ -41,7 +41,7 @@ async function createTerminal(page: Page, inSpace: boolean) {
     throw new Error('Created terminal has no session ID')
   }
   await page.evaluate(async nodeId => {
-    await window.opencoveApi.controlSurface.invoke({
+    await window.eclipseCodeApi.controlSurface.invoke({
       kind: 'command',
       id: 'canvas.focus',
       payload: { target: { kind: 'node', nodeId } },
@@ -59,7 +59,7 @@ async function expectRootNode(page: Page, result: CreateNodeResult) {
   expect(result.spaceId).toBeNull()
   expect(result.node.spaceId).toBeNull()
   const spaces = await page.evaluate(async selectedProjectId => {
-    return window.opencoveApi.controlSurface.invoke<ListSpacesResult>({
+    return window.eclipseCodeApi.controlSurface.invoke<ListSpacesResult>({
       kind: 'query',
       id: 'space.list',
       payload: { projectId: selectedProjectId },
@@ -84,7 +84,7 @@ async function expectRootNode(page: Page, result: CreateNodeResult) {
 
 test('canvas terminals create and list nodes on the root canvas', async () => {
   const testInfo = test.info()
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-root-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-root-'))
   const workspace = join(root, 'project')
   let app: ElectronApplication | undefined
   try {
@@ -93,9 +93,9 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -127,7 +127,7 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
       await terminalCommand(
         page,
         inside,
-        'opencove node create note --root-canvas --text hi',
+        'eclipse-code node create note --root-canvas --text hi',
         'ROOT_CREATE',
       ),
     ) as unknown as CreateNodeResult
@@ -147,7 +147,7 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
       await terminalCommand(
         page,
         inside,
-        `opencove canvas focus node --node ${explicit.node.id}`,
+        `eclipse-code canvas focus node --node ${explicit.node.id}`,
         'ROOT_FOCUS',
       ),
     )
@@ -162,7 +162,7 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
 
     const outside = await createTerminal(page, false)
     const rootContext = jsonOutput(
-      await terminalCommand(page, outside, 'opencove context', 'ROOT_CONTEXT'),
+      await terminalCommand(page, outside, 'eclipse-code context', 'ROOT_CONTEXT'),
     )
     expect(rootContext).toMatchObject({
       self: {
@@ -174,14 +174,14 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
       nodes: [],
     })
     const implicit = jsonOutput(
-      await terminalCommand(page, outside, 'opencove node create note', 'DEFAULT_CREATE'),
+      await terminalCommand(page, outside, 'eclipse-code node create note', 'DEFAULT_CREATE'),
     ) as unknown as CreateNodeResult
     await expectRootNode(page, implicit)
     const listed = jsonOutput(
       await terminalCommand(
         page,
         outside,
-        'opencove node list --fields id,spaceId',
+        'eclipse-code node list --fields id,spaceId',
         'DEFAULT_LIST',
       ),
     ) as unknown as ListNodesResult
@@ -196,7 +196,7 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
       await terminalCommand(
         page,
         inside,
-        'opencove node list --root-canvas --fields id,spaceId',
+        'eclipse-code node list --root-canvas --fields id,spaceId',
         'ROOT_LIST',
       ),
     ) as unknown as ListNodesResult
@@ -211,21 +211,21 @@ test('canvas terminals create and list nodes on the root canvas', async () => {
   }
 })
 
-test('root creation outside OpenCove requires a project before connecting', () => {
+test('root creation outside Eclipse Code requires a project before connecting', () => {
   const env = { ...process.env }
   for (const key of Object.keys(env)) {
-    if (key.startsWith('OPENCOVE_')) {
+    if (key.startsWith('ECLIPSE_CODE_')) {
       delete env[key]
     }
   }
   const result = spawnSync(
     process.execPath,
-    [resolve('out/cli/opencove.mjs'), 'node', 'create', 'note', '--root-canvas'],
+    [resolve('out/cli/eclipse-code.mjs'), 'node', 'create', 'note', '--root-canvas'],
     { env, encoding: 'utf8' },
   )
   expect(result.status).toBe(2)
   expect(result.stdout).toBe('')
   expect(JSON.parse(result.stderr).error.message).toBe(
-    '--root-canvas needs a project outside OpenCove: add --project <id>',
+    '--root-canvas needs a project outside Eclipse Code: add --project <id>',
   )
 })

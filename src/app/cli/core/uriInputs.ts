@@ -47,7 +47,7 @@ export function validateUriInputs(id: string, input: unknown): void {
     if (!valid) {
       usage(
         `Invalid input for ${id}: ${key} expects an absolute file:// URI; received ${JSON.stringify(value)}.`,
-        `For example: ${exampleUri(typeof value === 'string' ? value : '')}. Use the target's approved root URI, not the CLI working directory. Run opencove mount list --project "@self" --fields mountId,rootUri`,
+        `For example: ${exampleUri(typeof value === 'string' ? value : '')}. Use the target's approved root URI, not the CLI working directory. Run eclipse-code mount list --project "@self" --fields mountId,rootUri`,
       )
     }
   }

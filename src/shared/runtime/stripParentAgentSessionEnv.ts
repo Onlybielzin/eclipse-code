@@ -8,7 +8,7 @@ const PARENT_AGENT_SESSION_ENV_KEYS = [
   'CLAUDE_CODE_MESSAGING_SOCKET', // Routes messages to the parent session's private socket.
   'CLAUDE_CODE_MESSAGING_TOKEN', // Authorizes messaging that parent session.
   'CLAUDE_CODE_SESSION_ATTENDED', // Describes whether that session is attended.
-  'CLAUDE_CODE_SESSION_ID', // Identifies that session, not a new OpenCove-owned session.
+  'CLAUDE_CODE_SESSION_ID', // Identifies that session, not a new Eclipse Code-owned session.
   'CLAUDE_CODE_SSE_PORT', // Locates the parent session's SSE transport.
   'CLAUDE_PID', // Identifies the parent Claude process.
 ] as const

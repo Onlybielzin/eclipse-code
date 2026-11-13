@@ -32,18 +32,18 @@ export async function invokeManagedRuntime(
   }
   if (response.status === 401 || response.status === 403) {
     throw new Error(
-      '[opencove-bootstrap:credential_mismatch] The remote service rejected the stored credential; its token will not be adopted.',
+      '[eclipse-code-bootstrap:credential_mismatch] The remote service rejected the stored credential; its token will not be adopted.',
     )
   }
   if (response.status !== 200) {
     throw new Error(
-      `[opencove-bootstrap:runtime_start_failed] Remote service returned HTTP ${response.status}.`,
+      `[eclipse-code-bootstrap:runtime_start_failed] Remote service returned HTTP ${response.status}.`,
     )
   }
   const envelope = (await response.json()) as { ok?: boolean; value?: Record<string, unknown> }
   if (envelope.ok !== true || !envelope.value || typeof envelope.value !== 'object') {
     throw new Error(
-      '[opencove-bootstrap:protocol_mismatch] Remote runtime does not support the required operation.',
+      '[eclipse-code-bootstrap:protocol_mismatch] Remote runtime does not support the required operation.',
     )
   }
   return envelope.value
@@ -63,7 +63,7 @@ export async function probeManagedRuntime(
     value.deploymentId !== connection.deploymentId
   ) {
     throw new Error(
-      '[opencove-bootstrap:runtime_legacy] Existing service cannot prove its managed deployment identity; arrange a safe stop before upgrading.',
+      '[eclipse-code-bootstrap:runtime_legacy] Existing service cannot prove its managed deployment identity; arrange a safe stop before upgrading.',
     )
   }
   if (value.runtimeReady !== true) {
@@ -71,7 +71,7 @@ export async function probeManagedRuntime(
   }
   if (!hasManagedRuntimeCapabilities(value, build)) {
     throw new Error(
-      '[opencove-bootstrap:protocol_mismatch] Remote transports do not match the required protocol.',
+      '[eclipse-code-bootstrap:protocol_mismatch] Remote transports do not match the required protocol.',
     )
   }
   const status = await invokeManagedRuntime(connection, 'worker.maintenance.status')
@@ -79,7 +79,7 @@ export async function probeManagedRuntime(
     return null
   }
   if (!['active', 'candidate', 'maintenance', 'stopping'].includes(String(status.phase))) {
-    throw new Error('[opencove-bootstrap:protocol_mismatch] Invalid runtime maintenance state.')
+    throw new Error('[eclipse-code-bootstrap:protocol_mismatch] Invalid runtime maintenance state.')
   }
   return {
     instanceId: value.instanceId,

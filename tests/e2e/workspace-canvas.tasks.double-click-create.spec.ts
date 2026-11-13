@@ -27,7 +27,7 @@ test.describe('Workspace Canvas - Notes (Double Click Create)', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

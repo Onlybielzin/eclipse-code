@@ -21,7 +21,7 @@ describe('GitWorktreeService (Windows cleanup warnings)', () => {
 
   it('returns a directory cleanup warning when git unregisters the worktree before reporting a delete failure', async () => {
     const repoPath = '/repo'
-    const worktreePath = '/repo/.opencove/worktrees/space-1'
+    const worktreePath = '/repo/.eclipse-code/worktrees/space-1'
 
     const runGitMock = vi.fn()
     const ensureGitRepoMock = vi.fn(async () => undefined)

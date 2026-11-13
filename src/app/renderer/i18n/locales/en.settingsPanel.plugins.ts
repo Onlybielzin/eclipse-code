@@ -148,7 +148,7 @@ export const enSettingsPanelPlugins = {
     loading: 'Reading repository…',
     details: 'View details',
     choose: 'Use this reviewed commit',
-    hostVersion: 'OpenCove version',
+    hostVersion: 'Eclipse Code version',
     platforms: 'Worker systems',
     allPlatforms: 'All systems (not independently verified)',
     notDeclared: 'Not declared',
@@ -176,7 +176,7 @@ export const enSettingsPanelPlugins = {
     applyCandidate: 'Apply resolved candidate',
     copyResolution: 'Copy resolution instructions',
     resolvePrompt:
-      'Inspect the OpenCove plugin candidate at {{directory}} on the connected Worker. Read opencove plugin guide first. Resolve merge conflicts or the reported build problem, review the changes, and commit the resolution. Do not reset or overwrite the original source. Apply only when ready with: opencove plugin apply {{candidate}}. If the candidate is stale, prepare a fresh update and preserve the reviewed changes.',
+      'Inspect the Eclipse Code plugin candidate at {{directory}} on the connected Worker. Read eclipse-code plugin guide first. Resolve merge conflicts or the reported build problem, review the changes, and commit the resolution. Do not reset or overwrite the original source. Apply only when ready with: eclipse-code plugin apply {{candidate}}. If the candidate is stale, prepare a fresh update and preserve the reviewed changes.',
 
     repository: 'Repository',
     dirty: 'Your source has local changes. An update merges in a separate working copy.',

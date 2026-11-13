@@ -43,7 +43,7 @@ async function unreadable(ctx: CommandContext, error: CliError): Promise<never> 
   }
   const nodeId = locator.nodeId ?? snapshot?.nodeId
   const target = `--node ${shellWord(nodeId ?? '<selector>')}`
-  const screen = `opencove agent read ${target} --screen`
+  const screen = `eclipse-code agent read ${target} --screen`
   const message = 'No readable final message is available for this session.'
   if (
     snapshot?.state === 'idle' &&
@@ -63,7 +63,7 @@ async function unreadable(ctx: CommandContext, error: CliError): Promise<never> 
     1,
     message,
     snapshot?.state === 'working'
-      ? `Use "opencove agent wait ${target} --until idle", then read again. Inspect the terminal with "${screen}".`
+      ? `Use "eclipse-code agent wait ${target} --until idle", then read again. Inspect the terminal with "${screen}".`
       : `Inspect the terminal with "${screen}" and check provider transcript saving. Use agent get to inspect the current run state.`,
     error.details,
   )

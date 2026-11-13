@@ -134,7 +134,7 @@ async function blankPointInsideHiddenPeerFrame(page: Page) {
 
 async function readFolderPlacement(page: Page) {
   return page.evaluate(async projectId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{
         id: string
@@ -162,7 +162,7 @@ for (const zoom of [0.65, 1.2]) {
   }, testInfo) => {
     const fixture = await createFilesystemNodeFixture()
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.root },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.root },
     })
     try {
       await seedDropWorkspace(window, fixture.root, zoom)

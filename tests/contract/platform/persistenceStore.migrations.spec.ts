@@ -246,7 +246,7 @@ describe('PersistenceStore (migrations)', () => {
     'applies cumulative migrations when upgrading a version 2 db',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [dbPath, createMockDbState({ userVersion: 2, version2Schema: true })],
       ])
@@ -338,7 +338,7 @@ describe('PersistenceStore (migrations)', () => {
     'repairs a schema marked current when additive columns are missing',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [dbPath, createMockDbState({ userVersion: DB_SCHEMA_VERSION, version2Schema: true })],
       ])

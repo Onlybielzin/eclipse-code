@@ -82,7 +82,7 @@ it.each(REQUIRED_SESSION_GRANT_DENIALS)(
       { kind: 'cookie' as const, webSessionGeneration: 0 },
     ]) {
       expect(await surface.invoke({ ...base, requestAuth: auth }, request)).toEqual({
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: true,
         value: { secret: 'never' },
       })

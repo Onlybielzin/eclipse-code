@@ -21,7 +21,7 @@ function toDateDirectoryParts(timestampMs) {
 
 export async function createCodexSessionFile(cwd) {
   const startedAtMs = Date.now()
-  const sessionId = `opencove-test-session-${startedAtMs}`
+  const sessionId = `eclipse-code-test-session-${startedAtMs}`
   const [year, month, day] = toDateDirectoryParts(startedAtMs)
   const sessionFilePath = join(
     os.homedir(),
@@ -120,7 +120,7 @@ export async function appendCodexRecord(sessionFilePath, record, { newline = tru
 
 export async function createClaudeSessionFile(cwd, assignedSessionId = null) {
   const startedAtMs = Date.now()
-  const sessionId = assignedSessionId?.trim() || `opencove-test-session-${startedAtMs}`
+  const sessionId = assignedSessionId?.trim() || `eclipse-code-test-session-${startedAtMs}`
   const sessionFilePath = join(
     os.homedir(),
     '.claude',
@@ -321,7 +321,7 @@ export async function runJsonlStdinSubmitDrivenTurnScenario(
     }
     // Printed only after the requested transcript exists and was successfully opened.
     process.stdout.write(
-      `[opencove-test-claude-session] ${mode}\n${basename(sessionFilePath, '.jsonl')}\n`,
+      `[eclipse-code-test-claude-session] ${mode}\n${basename(sessionFilePath, '.jsonl')}\n`,
     )
 
     process.stdin.on('data', chunk => {
@@ -393,7 +393,7 @@ export async function runJsonlStdinSubmitTurnLifecycleScenario(
   mode = 'new',
   resumeSessionId = null,
 ) {
-  process.stdout.write(`\u001b[?1049h[opencove-test-overlay] ${provider} ready\n`)
+  process.stdout.write(`\u001b[?1049h[eclipse-code-test-overlay] ${provider} ready\n`)
 
   let sessionFilePath = null
   let turnQueue = Promise.resolve()
@@ -432,7 +432,7 @@ export async function runJsonlStdinSubmitTurnLifecycleScenario(
         type: 'event_msg',
         payload: {
           type: 'task_started',
-          turn_id: 'opencove-test-terminal-turn',
+          turn_id: 'eclipse-code-test-terminal-turn',
           model_context_window: 128_000,
           collaboration_mode_kind: 'default',
         },
@@ -442,7 +442,7 @@ export async function runJsonlStdinSubmitTurnLifecycleScenario(
         type: 'event_msg',
         payload: {
           type: 'task_complete',
-          turn_id: 'opencove-test-terminal-turn',
+          turn_id: 'eclipse-code-test-terminal-turn',
           last_agent_message: 'Done.',
         },
       })

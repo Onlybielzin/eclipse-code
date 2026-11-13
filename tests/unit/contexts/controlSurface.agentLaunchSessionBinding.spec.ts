@@ -42,7 +42,7 @@ describe('managed Claude launch session binding', () => {
   it.each(['plain', 'mount', 'remote'] as const)(
     'preserves the assigned session through the %s launch response, record and watcher',
     async route => {
-      vi.stubEnv('OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER', '1')
+      vi.stubEnv('ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER', '1')
       const cwd = process.cwd()
       const rootUri = pathToFileURL(cwd).href
       const registry = createTestAgentProviderRegistry()
@@ -77,7 +77,7 @@ describe('managed Claude launch session binding', () => {
       registerSessionHandlers(controlSurface, {
         ...createReadyTerminalAdmissionDeps(),
         agentProviderRegistry: registry,
-        userDataPath: '/tmp/opencove-test-user-data',
+        userDataPath: '/tmp/eclipse-code-test-user-data',
         approvedWorkspaces: { isPathApproved: async () => true } as never,
         getPersistenceStore: async () =>
           ({ readAppState: async () => ({ settings: {} }) }) as never,

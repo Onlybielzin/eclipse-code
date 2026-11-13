@@ -33,7 +33,7 @@ function MenuHarness() {
           Agents
         </button>
         <button onClick={() => setEditing(true)}>Edit name</button>
-        {editing ? <input ref={renameRef} aria-label="Rename" defaultValue="OpenCove" /> : null}
+        {editing ? <input ref={renameRef} aria-label="Rename" defaultValue="Eclipse Code" /> : null}
       </ViewportMenuSurface>
       <ViewportMenuSurface
         open={open && nested}

@@ -25,7 +25,7 @@ export function useCloseSelectedNodeShortcut({
       return
     }
     let active = true
-    const unsubscribe = window.opencoveApi?.lifecycle?.onApplicationShortcut?.(event => {
+    const unsubscribe = window.eclipseCodeApi?.lifecycle?.onApplicationShortcut?.(event => {
       if (event !== 'close-selected-node') {
         return
       }

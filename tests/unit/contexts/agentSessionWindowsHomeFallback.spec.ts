@@ -33,8 +33,8 @@ describe('agent session discovery with Windows home overrides', () => {
   })
 
   it('finds codex resume metadata from the actual profile home when HOME is overridden', async () => {
-    const overriddenHome = await fs.mkdtemp(join(tmpdir(), 'opencove-overridden-home-'))
-    const actualHome = await fs.mkdtemp(join(tmpdir(), 'opencove-actual-home-'))
+    const overriddenHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-overridden-home-'))
+    const actualHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-actual-home-'))
     const cwd = join(actualHome, 'workspace')
     const startedAtMs = Date.now()
     const sessionId = 'codex-session-real-home'

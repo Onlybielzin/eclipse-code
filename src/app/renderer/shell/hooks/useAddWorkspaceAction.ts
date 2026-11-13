@@ -6,7 +6,7 @@ import { useAppStore } from '../store/useAppStore'
 
 export function useAddWorkspaceAction(): () => Promise<void> {
   return useCallback(async (): Promise<void> => {
-    const selected = await window.opencoveApi.workspace.selectDirectory()
+    const selected = await window.eclipseCodeApi.workspace.selectDirectory()
     if (!selected) {
       return
     }

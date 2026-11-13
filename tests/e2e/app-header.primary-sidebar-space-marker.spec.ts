@@ -19,7 +19,7 @@ test.describe('Primary Sidebar Space Marker', () => {
           workspaces: [
             {
               id: workspaceId,
-              name: 'OpenCove',
+              name: 'Eclipse Code',
               path: testWorkspacePath,
               nodes: [
                 createRailAgent(

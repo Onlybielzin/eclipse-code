@@ -28,7 +28,7 @@ function fixture(legacy = false, compatible = true) {
     })
   }
   const kill = vi.fn(async () => {})
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     pty: { kill },
     controlSurface: {
       invoke: async request => {
@@ -39,7 +39,7 @@ function fixture(legacy = false, compatible = true) {
         return result.value
       },
     },
-  } as typeof window.opencoveApi
+  } as typeof window.eclipseCodeApi
   return { ...f, kill }
 }
 describe('managed Claude ownership lookup without persisted nodes', () => {
@@ -126,12 +126,12 @@ describe('managed Claude ownership lookup without persisted nodes', () => {
 
 it('does not treat an omitted binding field as definitive absence', async () => {
   const kill = vi.fn(async () => {})
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     pty: { kill },
     controlSurface: {
       invoke: vi.fn(async () => ({ retired: false, managedClaudeBinding: undefined })),
     },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   await expect(killUnownedNodeRuntime(node)).rejects.toMatchObject({
     code: 'persistence.unavailable',
   })

@@ -1,0 +1,30 @@
+export const zhCNSettingsPanelTeam = {
+  title: 'Team',
+  description:
+    'Agents of this project. The lead receives every task and creates the other roles as agents (eclipse-code MCP tools).',
+  empty: 'No roles yet. Create the default team (Lead, Devs, Tests, Reviewer) or add a role.',
+  noLead: 'This team has no lead. Mark one role as lead so it can coordinate the others.',
+  createDefault: 'Create default team',
+  completeDefault: 'Add missing default roles ({{count}})',
+  addRole: 'Add role',
+  newRoleName: 'Role {{index}}',
+  newRolePrompt:
+    'Describe this role: what it does, which files it may change and how it finishes. Members end every turn with "STATUS: PRONTO | DUVIDA | BLOQUEADO".',
+  leadBadge: 'Lead',
+  provider: 'Provider',
+  providerDefault: 'Default',
+  model: 'Model',
+  modelPlaceholder: 'Provider default',
+  edit: 'Edit',
+  close: 'Close',
+  name: 'Name',
+  roleDescription: 'When to use',
+  prompt: 'Role prompt',
+  lead: 'Team lead',
+  leadHelp: 'Receives every task and creates the other roles. One per project.',
+  confirmDelete: 'Delete again',
+  nameRequired: 'The name cannot be empty.',
+  duplicateName: 'Another role already has this name.',
+  howToRun:
+    'To start: right click the canvas > Run Role > the lead, write the task and press Run. Team changes apply to the next run.',
+} as const

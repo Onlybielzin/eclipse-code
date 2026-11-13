@@ -73,7 +73,7 @@ function sparkColors(stack: HTMLElement): string[] {
  * The agent island's cards (docs/ui/AGENT_ISLAND.md): each Agent that ends a turn you have not
  * answered grows a card out of the pill, with sparks flying from the pill into its icon. At
  * most three show, the older ones tucked behind the newest; pointing at or focusing the stack
- * fans them out and holds every countdown, as does OpenCove being behind another app.
+ * fans them out and holds every countdown, as does Eclipse Code being behind another app.
  * A card that runs out, or that a newer one pushes past the third, retracts into the pill: the
  * Agent still waits there. Opening the pill's list folds every card into it the same way.
  * Only ✕ and going to the Agent answer it.

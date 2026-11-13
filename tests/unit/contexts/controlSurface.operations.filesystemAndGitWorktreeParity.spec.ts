@@ -131,7 +131,7 @@ for (const [id, oracle] of Object.entries(oracles)) {
   if (id === 'gitWorktree.createInMount') {
     cases.push({
       mountId: 'mount-1',
-      worktreesRootUri: 'file:///repo/.opencove/worktrees',
+      worktreesRootUri: 'file:///repo/.eclipse-code/worktrees',
       branchMode: { kind: 'existing', name: 'feature-a' },
     })
   }

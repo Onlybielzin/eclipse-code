@@ -4,7 +4,7 @@ import { getControlSurfaceOperation } from '../../../src/shared/contracts/contro
 import { runWithTargetFixtures as run } from './cliTargetFixtures.helpers'
 import type { CliIo } from '../../../src/app/cli/core/io'
 import { nodeListOperation } from '../../../src/shared/contracts/controlSurface/operations/domains/node'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 
 function fixture(value: unknown = { nodes: [] }, error?: unknown) {
   let out = '',
@@ -23,7 +23,7 @@ function fixture(value: unknown = { nodes: [] }, error?: unknown) {
         err += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     fetch,
     now: Date.now,
     readStdinText: vi.fn(),
@@ -37,8 +37,8 @@ it('reports server unknown keys with a correction, allowed keys and a valid exam
   try {
     nodeListOperation.legacyNormalize!({ spaceId: 's' })
   } catch (error) {
-    expect(error).toBeInstanceOf(OpenCoveAppError)
-    descriptor = (error as OpenCoveAppError).toDescriptor()
+    expect(error).toBeInstanceOf(EclipseCodeAppError)
+    descriptor = (error as EclipseCodeAppError).toDescriptor()
   }
   const f = fixture({}, descriptor)
   expect(await run(['api', 'call', 'node.list', '--input', '{"spaceId":"s"}'], f.io)).toBe(2)
@@ -176,7 +176,7 @@ it('includes the dedicated command in the operations table', async () => {
   const f = fixture()
   expect(await run(['api', 'ops', '--prefix', 'node', '-o', 'table'], f.io)).toBe(0)
   expect(f.out().split('\n')[0]).toContain('COMMAND')
-  expect(f.out()).toContain('opencove node create')
+  expect(f.out()).toContain('eclipse-code node create')
 })
 it('prints one JSON location followed by the parser reason', async () => {
   const f = fixture()

@@ -22,7 +22,7 @@ function writeRuntimeDiagnosticsLine(payload: RuntimeDiagnosticsLogInput): void 
     ...payload,
   })
   const stream = payload.level === 'error' ? process.stderr : process.stdout
-  stream.write(`[opencove-runtime-diagnostics] ${line}\n`)
+  stream.write(`[eclipse-code-runtime-diagnostics] ${line}\n`)
   appendRuntimeDiagnosticsFile(line)
 }
 

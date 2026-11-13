@@ -14,7 +14,7 @@ const nodeId = 'pixel-native-reveal'
 async function nativeVisible(app: ElectronApplication) {
   return await app.evaluate(({ BrowserWindow }, id) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const runtime = win.__opencoveWebsiteWindowManager?.runtimeByNodeId.get(id)
+    const runtime = win.__eclipseCodeWebsiteWindowManager?.runtimeByNodeId.get(id)
     return runtime?.hostView?.getVisible() ?? false
   }, nodeId)
 }

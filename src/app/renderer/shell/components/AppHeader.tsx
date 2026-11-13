@@ -103,11 +103,12 @@ export function AppHeader({
   onInstallUpdate: () => void
 }): React.JSX.Element {
   const { t } = useTranslation()
-  const isMac = typeof window !== 'undefined' && window.opencoveApi?.meta?.platform === 'darwin'
-  const isWindows = typeof window !== 'undefined' && window.opencoveApi?.meta?.platform === 'win32'
+  const isMac = typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform === 'darwin'
+  const isWindows =
+    typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform === 'win32'
   const isFullScreen = useWindowFullScreen()
   const isBrowserRuntime =
-    typeof window !== 'undefined' && window.opencoveApi?.meta?.runtime === 'browser'
+    typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.runtime === 'browser'
   const updateAction = useMemo(() => {
     if (!updateState) {
       return null

@@ -3,10 +3,13 @@ import { cli, launchRealClaude, prompt } from './agent.prompt.real-claude.helper
 
 // Opt-in local acceptance with the installed Claude Code CLI, an isolated config and a local
 // Messages API stand-in (no credentials, no model calls). Run with
-// OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-claude*.spec.ts
+// ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-claude*.spec.ts
 
 test.describe('agent.prompt with the real Claude Code CLI', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX acceptance')
 
   test('submits one multi-line message and refuses an open question dialog', async ({
@@ -60,7 +63,7 @@ test.describe('agent.prompt with the real Claude Code CLI', () => {
       // The transcript lives under CLAUDE_CONFIG_DIR, not ~/.claude: the final message must still be found.
       const final = await window.evaluate(
         id =>
-          window.opencoveApi.controlSurface.invoke<{ message: string | null }>({
+          window.eclipseCodeApi.controlSurface.invoke<{ message: string | null }>({
             kind: 'query',
             id: 'session.finalMessage',
             payload: { nodeId: id },
@@ -128,7 +131,7 @@ test.describe('agent.prompt with the real Claude Code CLI', () => {
 
       // A draft someone left in the editor is submitted together with the prompt: the
       // submission is still observed, but its text is reported as different.
-      await window.evaluate(async payload => await window.opencoveApi.pty.write(payload), {
+      await window.evaluate(async payload => await window.eclipseCodeApi.pty.write(payload), {
         sessionId,
         data: 'leftover draft ',
       })

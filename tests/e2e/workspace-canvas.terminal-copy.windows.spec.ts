@@ -2,15 +2,15 @@ import { expect, test } from '@playwright/test'
 import { clearAndSeedWorkspace, launchApp } from './workspace-canvas.helpers'
 
 const windowsOnly = process.platform !== 'win32'
-const READY_ENV_KEY = 'OPENCOVE_WINDOWS_COPY_READY_TOKEN'
-const SIGINT_ENV_KEY = 'OPENCOVE_WINDOWS_COPY_SIGINT_TOKEN'
+const READY_ENV_KEY = 'ECLIPSE_CODE_WINDOWS_COPY_READY_TOKEN'
+const SIGINT_ENV_KEY = 'ECLIPSE_CODE_WINDOWS_COPY_SIGINT_TOKEN'
 
 async function selectTerminalOutput(
   window: Parameters<typeof clearAndSeedWorkspace>[0],
   nodeId: string,
 ) {
   return await window.evaluate(async currentNodeId => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     if (!api) {
       return { hasSelection: false, selection: null }
     }
@@ -32,8 +32,8 @@ test.describe('Workspace Canvas - Terminal Copy (Windows)', () => {
   test.skip(windowsOnly, 'Windows only')
 
   test('Ctrl+C copies selected terminal output without sending SIGINT', async () => {
-    const readyToken = `OPENCOVE_WINDOWS_COPY_READY_${Date.now()}`
-    const sigintToken = `OPENCOVE_WINDOWS_COPY_SIGINT_${Date.now()}`
+    const readyToken = `ECLIPSE_CODE_WINDOWS_COPY_READY_${Date.now()}`
+    const sigintToken = `ECLIPSE_CODE_WINDOWS_COPY_SIGINT_${Date.now()}`
     const { electronApp, window } = await launchApp({
       env: {
         [READY_ENV_KEY]: readyToken,

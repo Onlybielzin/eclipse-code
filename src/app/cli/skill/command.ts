@@ -18,7 +18,11 @@ export const skillCommand = defineCommand({
   description:
     'Print the core guide, or select a topic: canvas, coordinate, wait, read, access. All guides are bundled and available offline. -o json returns {version, content}, plus topic when selected; --fields projects those fields.',
   positionals: [{ name: 'topic' }],
-  examples: ['opencove skill', 'opencove skill coordinate', 'opencove skill read -o json'],
+  examples: [
+    'eclipse-code skill',
+    'eclipse-code skill coordinate',
+    'eclipse-code skill read -o json',
+  ],
   render: declaredOutput(['version', 'content', 'topic'], { version }),
   textOutput: result => (result as { content: string }).content,
   validateBeforeConnect({ positionals }) {

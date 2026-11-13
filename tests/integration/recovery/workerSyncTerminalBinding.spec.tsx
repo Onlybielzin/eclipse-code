@@ -16,10 +16,10 @@ import type { SyncEventPayload, WriteAppStateInput } from '@shared/contracts/dto
 import type { PersistedAppState } from '@contexts/workspace/presentation/renderer/types'
 
 const originalState = useAppStore.getState()
-const originalApi = window.opencoveApi
+const originalApi = window.eclipseCodeApi
 afterEach(() => {
   useAppStore.setState(originalState, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
   vi.useRealTimers()
 })
 
@@ -77,7 +77,7 @@ it.each(['none', 'note', 'terminal'] as const)(
       return { ok: true, level: 'full', bytes: 1, revision: ++revision }
     })
     let emit!: (event: SyncEventPayload) => void
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         persistence: { readAppState, writeAppState },

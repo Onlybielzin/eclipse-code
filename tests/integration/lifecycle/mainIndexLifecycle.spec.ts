@@ -17,7 +17,7 @@ function createMockApp() {
       },
     })),
     waitForStartup: () => startup,
-    getPath: vi.fn((_name: string) => '/tmp/opencove-test-userdata'),
+    getPath: vi.fn((_name: string) => '/tmp/eclipse-code-test-userdata'),
     setPath: vi.fn(),
     commandLine: {
       appendSwitch: vi.fn(),

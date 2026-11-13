@@ -5,7 +5,7 @@ import { getActiveUiLanguage, translate } from '@app/renderer/i18n'
 import {
   formatAppErrorMessage,
   isAppErrorDescriptor,
-  OpenCoveAppError,
+  EclipseCodeAppError,
 } from '@shared/errors/appError'
 
 const relativeTimeFormatterByLanguage = new Map<string, Intl.RelativeTimeFormat>()
@@ -40,7 +40,7 @@ function getDateTimeFormatter(language: string): Intl.DateTimeFormat {
 }
 
 export function toErrorMessage(error: unknown): string {
-  if (error instanceof OpenCoveAppError || isAppErrorDescriptor(error)) {
+  if (error instanceof EclipseCodeAppError || isAppErrorDescriptor(error)) {
     if (error.code === 'agent.managed_launch_commit_failed') {
       return translate('messages.managedAgentLaunchUncertain')
     }
@@ -70,7 +70,7 @@ export function toErrorMessage(error: unknown): string {
       return translate('messages.managedAgentChanged')
     }
   }
-  if (error instanceof OpenCoveAppError) {
+  if (error instanceof EclipseCodeAppError) {
     if (error.code === 'worker.stop_not_owned') {
       return translate('common.workerStopNotOwned')
     }

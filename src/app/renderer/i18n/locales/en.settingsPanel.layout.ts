@@ -49,7 +49,7 @@ export const enSettingsPanelLayout = {
     plugins: 'Manage installed plugins and find development guides.',
     tasksShortcuts: 'Keyboard shortcuts, commands, and quick phrases.',
     worker: 'Manage the local Worker, browser access, and remote connections.',
-    integrations: 'Connect OpenCove with external services.',
+    integrations: 'Connect Eclipse Code with external services.',
     advanced: 'Manage experimental features and diagnostics.',
   },
   groups: {
@@ -110,6 +110,7 @@ export const enSettingsPanelLayout = {
       closeLabel: 'Node Closing Effect',
       closeHelp: 'Play the current theme’s closing animation.',
       backgroundLabel: 'Background',
+      backgroundStyle_wallpaper: 'Eclipse',
       backgroundStyle_pixel: 'Pixel',
       backgroundStyle_minimal: 'Minimal',
       backgroundStyle_off: 'Off',
@@ -129,7 +130,7 @@ export const enSettingsPanelLayout = {
   },
   terminal: {
     title: 'Terminal Environment',
-    help: 'Choose the default shell profile used when OpenCove creates terminals.',
+    help: 'Choose the default shell profile used when Eclipse Code creates terminals.',
     profileLabel: 'Shell Profile',
     profileHelp:
       'Choose the shell profile used for new Windows terminals. Automatic falls back to {{defaultProfile}}.',

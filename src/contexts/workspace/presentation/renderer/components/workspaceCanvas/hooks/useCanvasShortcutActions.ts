@@ -412,8 +412,8 @@ export function useWorkspaceCanvasShortcutActions({
   useWorkspaceCanvasShortcuts({
     enabled,
     platform:
-      typeof window !== 'undefined' && window.opencoveApi?.meta?.platform
-        ? window.opencoveApi.meta.platform
+      typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform
+        ? window.eclipseCodeApi.meta.platform
         : undefined,
     disableWhenTerminalFocused: agentSettings.disableAppShortcutsWhenTerminalFocused,
     keybindings: agentSettings.keybindings,

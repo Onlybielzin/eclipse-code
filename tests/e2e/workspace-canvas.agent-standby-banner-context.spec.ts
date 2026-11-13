@@ -52,7 +52,7 @@ test.describe('Workspace Canvas - Agent Standby Banner Context', () => {
     const stamp = Date.now()
     const branchName = `e2e/banner-context-${stamp}`
     const worktreeName = `wt-e2e-banner-context-${stamp}`
-    const worktreePath = path.join(testWorkspacePath, '.opencove', 'worktrees', worktreeName)
+    const worktreePath = path.join(testWorkspacePath, '.eclipse-code', 'worktrees', worktreeName)
 
     await createGitWorktree({ branchName, worktreePath })
 
@@ -62,9 +62,9 @@ test.describe('Workspace Canvas - Agent Standby Banner Context', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
-          OPENCOVE_TEST_GITHUB_INTEGRATION: '1',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
+          ECLIPSE_CODE_TEST_GITHUB_INTEGRATION: '1',
         },
       })
 

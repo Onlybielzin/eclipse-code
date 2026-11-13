@@ -133,7 +133,7 @@ it.each([
       turnId: 't',
       targets: [{ blockedSummary: { kind: 'plan' } }],
     },
-    hint: expect.stringContaining('opencove agent wait --node n --turn t'),
+    hint: expect.stringContaining('eclipse-code agent wait --node n --turn t'),
   })
   expect(f.invoke.mock.calls.filter(c => c[0] === 'agent.get')).toHaveLength(1)
 })

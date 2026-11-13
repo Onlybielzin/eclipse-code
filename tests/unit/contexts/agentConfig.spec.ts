@@ -23,7 +23,7 @@ describe('agent settings normalization', () => {
     expect(DEFAULT_AGENT_SETTINGS.standbyBannerShowBranch).toBe(true)
     expect(DEFAULT_AGENT_SETTINGS.standbyBannerShowPullRequest).toBe(true)
     expect(DEFAULT_AGENT_SETTINGS.canvasInputMode).toBe('auto')
-    expect(DEFAULT_AGENT_SETTINGS.canvasWheelBehavior).toBe('zoom')
+    expect(DEFAULT_AGENT_SETTINGS.canvasWheelBehavior).toBe('pan')
     expect(DEFAULT_AGENT_SETTINGS.canvasWheelZoomModifier).toBe('primary')
     expect(DEFAULT_AGENT_SETTINGS.browserDefaultMode).toBe('native')
     expect(DEFAULT_AGENT_SETTINGS.browserSearchEngine).toBe('google')

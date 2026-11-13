@@ -101,7 +101,7 @@ export function useWorkspaceGitStatusSummary({
       return
     }
 
-    const statusSummary = window.opencoveApi?.worktree?.statusSummary
+    const statusSummary = window.eclipseCodeApi?.worktree?.statusSummary
     if (typeof statusSummary !== 'function') {
       setChangedFilesByRepoKey(new Map())
       return

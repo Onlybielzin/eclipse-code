@@ -15,7 +15,7 @@ describeWithElectronNativeModules('managed Claude resume schema and orphan recla
   let sql: Database.Database
   let store: Awaited<ReturnType<typeof createPersistenceStore>> | undefined
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-resume-schema-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-resume-schema-'))
     sql = new Database(join(root, 'state.db'))
   })
   afterEach(async () => {

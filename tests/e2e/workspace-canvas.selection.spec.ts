@@ -33,12 +33,13 @@ test.describe('Workspace Canvas - Selection', () => {
       await expect(
         window.locator('[data-testid="workspace-empty-selection-create-space"]'),
       ).toHaveCount(0)
-      await expect(window.locator('.workspace-space-switcher')).toHaveCount(0)
+      // No Space was created: the task tabs hold only "All".
+      await expect(window.locator('[data-testid^="workspace-space-switch-"]')).toHaveCount(1)
 
       const spaceCount = await window.evaluate(async key => {
         void key
 
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return 0
         }
@@ -233,7 +234,8 @@ test.describe('Workspace Canvas - Selection', () => {
     }
   })
 
-  test('does not select nodes on plain drag in mouse mode', async () => {
+  // Eclipse Code: a plain left drag selects in mouse mode too (the wheel and middle button pan).
+  test('selects a terminal on plain drag in mouse mode', async () => {
     const { electronApp, window } = await launchApp()
 
     try {
@@ -265,7 +267,7 @@ test.describe('Workspace Canvas - Selection', () => {
         start: { x: paneBox.x + 80, y: paneBox.y + 80 },
         end: { x: paneBox.x + 760, y: paneBox.y + 560 },
       })
-      await expect(window.locator('.react-flow__node.selected')).toHaveCount(0)
+      await expect(window.locator('.react-flow__node.selected')).toHaveCount(1)
     } finally {
       await electronApp.close()
     }

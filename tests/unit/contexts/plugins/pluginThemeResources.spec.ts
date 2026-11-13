@@ -27,11 +27,11 @@ const manifest = {
 }
 const managers: PluginInstallationManager[] = []
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-theme-resources-'))
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-theme-resources-'))
   source = join(root, 'source')
   await mkdir(join(source, 'styles'), { recursive: true })
   await mkdir(join(source, 'assets'), { recursive: true })
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify(manifest))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify(manifest))
   await writeFile(join(source, 'assets/dot.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>')
 })
 afterEach(async () => {
@@ -62,7 +62,7 @@ describe('theme styles from immutable plugin packages', () => {
     expect(css).toContain(`${scope},${scope}`)
     expect(css).toContain(`${scope} body .header:is([data-kind="a,b"], .node)::before`)
     expect(css).toContain(`${scope} [data-cove-part="window-header"]`)
-    expect(css).toMatch(/@keyframes (opencove-theme-[a-f0-9]+-pulse)/)
+    expect(css).toMatch(/@keyframes (eclipse-code-theme-[a-f0-9]+-pulse)/)
     const name = css.match(/@keyframes (\S+)/)![1]
     expect(css).toContain(`animation: ${name} 1s ease-in`)
     expect(css).toContain('from { opacity:0 }')

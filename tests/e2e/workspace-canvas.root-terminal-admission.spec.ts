@@ -37,7 +37,7 @@ test.describe('Workspace Canvas - Root terminal admission', () => {
       const { electronApp, window } = await launchApp({
         userDataDir,
         cleanupUserDataDir: false,
-        env: { OPENCOVE_WORKER_CLIENT: '1' },
+        env: { ECLIPSE_CODE_WORKER_CLIENT: '1' },
       })
 
       try {
@@ -74,7 +74,7 @@ test.describe('Workspace Canvas - Root terminal admission', () => {
       const { electronApp: restartedApp, window: restartedWindow } = await launchApp({
         userDataDir,
         cleanupUserDataDir: false,
-        env: { OPENCOVE_WORKER_CLIENT: '1' },
+        env: { ECLIPSE_CODE_WORKER_CLIENT: '1' },
       })
 
       try {
@@ -95,7 +95,7 @@ test.describe('Workspace Canvas - Root terminal admission', () => {
         const created = await restartedWindow.evaluate(
           point => {
             return (
-              window.__opencoveWorkspaceCanvasTestApi?.createTerminalAtFlowPoint(point) ?? false
+              window.__eclipseCodeWorkspaceCanvasTestApi?.createTerminalAtFlowPoint(point) ?? false
             )
           },
           { x: 900, y: 700 },
@@ -109,7 +109,7 @@ test.describe('Workspace Canvas - Root terminal admission', () => {
         await expect
           .poll(async () => {
             return await restartedWindow.evaluate(async workspaceId => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

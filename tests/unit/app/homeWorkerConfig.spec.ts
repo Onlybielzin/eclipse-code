@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 import {
   ensureHomeWorkerConfig,
   mutateHomeWorkerConfigFile,
@@ -27,7 +27,7 @@ describe('home worker config', () => {
   })
 
   async function createTempUserDataDir(): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'opencove-test-home-worker-'))
+    const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-home-worker-'))
     userDataDir = dir
     return dir
   }
@@ -82,7 +82,7 @@ describe('home worker config', () => {
         mode: 'remote',
         remote: null,
       }),
-    ).rejects.toBeInstanceOf(OpenCoveAppError)
+    ).rejects.toBeInstanceOf(EclipseCodeAppError)
   })
 
   it('rejects standalone mode when standalone is disabled', async () => {
@@ -97,7 +97,7 @@ describe('home worker config', () => {
         },
         { allowStandaloneMode: false, allowRemoteMode: false },
       ),
-    ).rejects.toBeInstanceOf(OpenCoveAppError)
+    ).rejects.toBeInstanceOf(EclipseCodeAppError)
   })
 
   it('rejects remote mode when remote is disabled', async () => {
@@ -112,7 +112,7 @@ describe('home worker config', () => {
         },
         { allowStandaloneMode: false, allowRemoteMode: false },
       ),
-    ).rejects.toBeInstanceOf(OpenCoveAppError)
+    ).rejects.toBeInstanceOf(EclipseCodeAppError)
   })
 
   it('repairs legacy standalone configs when standalone is disabled', async () => {
@@ -206,7 +206,7 @@ describe('home worker config', () => {
 
     await expect(
       setHomeWorkerWebUiSettings(dir, { enabled: true, port: 70_000 }),
-    ).rejects.toBeInstanceOf(OpenCoveAppError)
+    ).rejects.toBeInstanceOf(EclipseCodeAppError)
   })
 
   it('serializes config mutations without losing unrelated fields', async () => {
@@ -340,7 +340,7 @@ describe('home worker config', () => {
         expectedUpdatedAt: previous.updatedAt,
         mutate: current => current,
       }),
-    ).rejects.toBeInstanceOf(OpenCoveAppError)
+    ).rejects.toBeInstanceOf(EclipseCodeAppError)
     expect((await readHomeWorkerConfig(dir)).webUi.port).toBe(19992)
   })
 })

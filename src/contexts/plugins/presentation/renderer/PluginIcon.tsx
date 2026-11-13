@@ -14,8 +14,8 @@ interface PluginIconProps {
 const BUILTIN_ICONS = { 'git-branch': GitBranchIcon, puzzle: ExtensionIcon }
 
 function subscribeTheme(notify: () => void): () => void {
-  window.addEventListener('opencove-theme-changed', notify)
-  return () => window.removeEventListener('opencove-theme-changed', notify)
+  window.addEventListener('eclipse-code-theme-changed', notify)
+  return () => window.removeEventListener('eclipse-code-theme-changed', notify)
 }
 
 function readTheme(): 'light' | 'dark' {

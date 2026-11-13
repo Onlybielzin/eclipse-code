@@ -195,6 +195,20 @@ function isPluginNodeData(value: unknown): value is PersistedPluginNodeData {
   )
 }
 
+// Canvas cards: shape checks only. Readers repair individual fields (ensureQuestionCardData).
+function isQuestionCardPayload(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    (Array.isArray(value.questions) ||
+      (typeof value.question === 'string' && Array.isArray(value.options))) &&
+    (value.status === 'pending' || value.status === 'answered')
+  )
+}
+
+function isTodosCardPayload(value: unknown): boolean {
+  return isRecord(value) && Array.isArray(value.items)
+}
+
 function isAgentPayloadForKind(kind: PersistedWorkspaceNodeKind, value: unknown): boolean {
   if (kind === 'terminal') {
     return value === undefined || value === null || isTerminalAgentSessionBinding(value)
@@ -223,6 +237,10 @@ function isNodePayloadForKind(kind: PersistedWorkspaceNodeKind, value: unknown):
       return value === undefined || value === null || isWebsiteNodeData(value)
     case 'plugin':
       return value === undefined || value === null || isPluginNodeData(value)
+    case 'question':
+      return isQuestionCardPayload(value)
+    case 'todos':
+      return isTodosCardPayload(value)
     default:
       return value === undefined || value === null
   }

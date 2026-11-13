@@ -28,11 +28,11 @@ const manifest = {
 }
 
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-plugin-runtime-'))
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-runtime-'))
   source = join(root, 'source')
   userData = join(root, 'profile')
   await mkdir(join(source, 'ui'), { recursive: true })
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify(manifest))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify(manifest))
   await writeFile(
     join(source, 'main.mjs'),
     'export function activate() { return { invoke: (method, params, context) => ({ method, params, context }) } }',
@@ -275,7 +275,7 @@ describe('independent plugin installation ownership', () => {
       { platforms: [process.platform === 'win32' ? 'linux' : 'win32'] },
     ]) {
       await writeFile(
-        join(source, 'opencove.plugin.json'),
+        join(source, 'eclipse-code.plugin.json'),
         JSON.stringify({ ...manifest, ...patch }),
       )
       await expect(manager.install(source)).rejects.toThrow()

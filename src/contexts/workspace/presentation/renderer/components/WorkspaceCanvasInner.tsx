@@ -194,6 +194,8 @@ export function WorkspaceCanvasInner({
   // prettier-ignore
   workspaceCanvasHooks.useWorkspaceCanvasLifecycleBindings({ workspaceId, persistedMinimapVisible, canvasState, cancelSpaceRename: spacesApi.cancelSpaceRename, reactFlow, viewport, agentSettings, focusSpaceId, focusNodeId, focusNodeInput, focusSequence, expandNode: collapse.expandNode, focusSpaceInViewport: spacesApi.focusSpaceInViewport, nodes: canvasState.flowNodes, isFocusNodeTargetZoomPreviewing, nodesRef: nodeStore.nodesRef, requestNodeDeleteRef: actionRefs.requestNodeDeleteRef })
   // prettier-ignore
+  workspaceCanvasHooks.useOpenTaskOfFocusTarget({ activeSpaceId, focusNodeId, focusSpaceId, focusSequence, spaces, openTask: spacesApi.setActiveSpaceIdFromNodeNavigation })
+  // prettier-ignore
   const { canConvertSelectedNoteToTask, isConvertSelectedNoteToTaskDisabled, convertSelectedNoteToTask, convertNoteToTask, arrangeAll, arrangeCanvas, arrangeInSpace } = workspaceCanvasHooks.useWorkspaceCanvasMenuActions({ selectedNodeIds: canvasState.selectedNodeIds, selectedNodeIdsRef: canvasState.selectedNodeIdsRef, flowNodes: canvasState.flowNodes, nodesRef: nodeStore.nodesRef, setNodes: nodeStore.setNodes, onRequestPersistFlush, onShowMessage, setContextMenu: canvasState.setContextMenu, reactFlow, spacesRef: canvasState.spacesRef, onSpacesChange, standardWindowSizeBucket: agentSettings.standardWindowSizeBucket, focusNodeTargetZoom: agentSettings.focusNodeTargetZoom })
   const { nodeTypes, nodeTypesParameters } =
     workspaceCanvasHooks.useWorkspaceCanvasComposedNodeTypes({
@@ -412,6 +414,7 @@ export function WorkspaceCanvasInner({
         selectionDraft={canvasState.selectionDraftUi}
         snapGuides={canvasState.snapGuides}
         spaceVisuals={spacesApi.spaceVisuals}
+        activeSpaceId={activeSpaceId}
         spaceFramePreview={spaceFramePreview ?? nodeDragSession.nodeSpaceFramePreview}
         selectedSpaceIds={canvasState.selectedSpaceIds}
         handleSpaceDragHandlePointerDown={handleSpaceDragHandlePointerDown}

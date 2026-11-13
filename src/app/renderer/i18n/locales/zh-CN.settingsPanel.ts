@@ -1,3 +1,4 @@
+import { zhCNSettingsPanelTeam } from './zh-CN.settingsPanel.team'
 import { zhCNSettingsPanelNotifications } from './zh-CN.settingsPanel.notifications'
 import { zhCNSettingsPanelAgent } from './zh-CN.settingsPanel.agent'
 import { zhCNSettingsPanelPlugins } from './zh-CN.settingsPanel.plugins'
@@ -28,9 +29,9 @@ export const zhCNSettingsPanel = {
   general: {
     title: '通用',
     languageLabel: '界面语言',
-    languageHelp: 'OpenCove 界面使用的语言。',
+    languageHelp: 'Eclipse Code 界面使用的语言。',
     uiThemeLabel: '外观',
-    uiThemeHelp: '选择 OpenCove 的显示外观。',
+    uiThemeHelp: '选择 Eclipse Code 的显示外观。',
     uiTheme: {
       dark: 'Cove',
       light: '浅色 Cove',
@@ -47,12 +48,12 @@ export const zhCNSettingsPanel = {
     terminalDisplayCalibration: zhCNTerminalDisplayCalibration,
     updates: {
       title: '更新',
-      help: '跟踪 GitHub Releases，并选择 OpenCove 如何应用应用更新。',
+      help: '跟踪 GitHub Releases，并选择 Eclipse Code 如何应用应用更新。',
       currentVersionLabel: '当前版本',
       policyLabel: '更新方式',
       policyHelp: '忽略更新、提示后下载，或自动安装更新。',
       channelLabel: '发布渠道',
-      channelHelp: '选择 OpenCove 跟踪哪个发布流。',
+      channelHelp: '选择 Eclipse Code 跟踪哪个发布流。',
       statusLabel: '状态',
       actionsLabel: '操作',
       checkNow: '检查更新',
@@ -84,6 +85,7 @@ export const zhCNSettingsPanel = {
   appearance: zhCNSettingsPanelLayout.appearance,
   terminal: zhCNSettingsPanelLayout.terminal,
   agent: zhCNSettingsPanelAgent,
+  team: zhCNSettingsPanelTeam,
   agentEnv: {
     title: 'Agent 环境变量',
     help: '启动 Agent 时新增或覆写环境变量。',
@@ -285,7 +287,7 @@ export const zhCNSettingsPanel = {
     title: '快捷键',
     disableWhenTerminalFocusedLabel: '终端聚焦时禁用快捷键',
     disableWhenTerminalFocusedHelp:
-      '开启后，当 {{terminal}} 获得焦点时，OpenCove 不会捕获应用快捷键。',
+      '开启后，当 {{terminal}} 获得焦点时，Eclipse Code 不会捕获应用快捷键。',
     bindings: '快捷键绑定',
     bindingsHelp: '为常用操作设置快捷键。若冲突，会自动取消另一个操作的绑定。',
     unassigned: '未分配',
@@ -373,7 +375,7 @@ export const zhCNSettingsPanel = {
   tasks: {
     title: '任务配置',
     titleProviderLabel: '标题提供方',
-    titleProviderHelp: 'OpenCove 为新任务生成标题时使用的提供方。',
+    titleProviderHelp: 'Eclipse Code 为新任务生成标题时使用的提供方。',
     followDefaultAgent: '跟随默认 Agent（{{provider}}）',
     titleModelLabel: '标题模型',
     titleModelHelp: '任务标题生成的可选模型覆盖。',
@@ -405,8 +407,8 @@ export const zhCNSettingsPanel = {
     },
     home: {
       title: 'Worker 模式',
-      help: '选择 OpenCove 不使用 Worker、使用本机 Worker，或连接远程机器。',
-      packagedHelp: 'OpenCove 会使用这台电脑上的本机 Worker。通常你只需要在下面启动或重启它。',
+      help: '选择 Eclipse Code 不使用 Worker、使用本机 Worker，或连接远程机器。',
+      packagedHelp: 'Eclipse Code 会使用这台电脑上的本机 Worker。通常你只需要在下面启动或重启它。',
       packagedModeLabel: '当前模式',
       packagedModeValue: '本机 Worker',
       modeLabel: '当前模式',
@@ -428,7 +430,7 @@ export const zhCNSettingsPanel = {
     },
     cli: {
       title: 'CLI',
-      help: '将 `opencove` 命令安装到 PATH。',
+      help: '将 `eclipse-code` 命令安装到 PATH。',
       statusLabel: 'CLI 状态',
       status: {
         installed: '已安装（{{path}}）',

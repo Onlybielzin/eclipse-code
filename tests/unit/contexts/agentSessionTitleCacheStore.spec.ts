@@ -81,12 +81,12 @@ describe('AgentSessionTitleCacheStore', () => {
   })
 
   async function createStore(): Promise<{ store: AgentSessionTitleCacheStore; directory: string }> {
-    const directory = await mkdtemp(path.join(tmpdir(), 'opencove-title-cache-'))
+    const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-title-cache-'))
     tempDirectories.push(directory)
     const { createAgentSessionTitleCacheStore } =
       await import('../../../src/contexts/agent/infrastructure/cli/AgentSessionTitleCacheStore')
     const store = await createAgentSessionTitleCacheStore({
-      dbPath: path.join(directory, 'opencove.db'),
+      dbPath: path.join(directory, 'eclipse-code.db'),
     })
     stores.push(store)
     return { store, directory }

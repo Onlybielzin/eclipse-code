@@ -5,7 +5,7 @@ import { createTemporaryProviderConfig } from '../../../src/contexts/agent/infra
 describe('createTemporaryProviderConfig', () => {
   it('writes a private config and removes its directory idempotently', async () => {
     const config = await createTemporaryProviderConfig(
-      'opencove-provider-test-',
+      'eclipse-code-provider-test-',
       'settings.json',
       '{"private":true}',
     )
@@ -21,7 +21,7 @@ describe('createTemporaryProviderConfig', () => {
   it('aggregates setup and rollback failures', async () => {
     const error = await createTemporaryProviderConfig('prefix-', 'settings.json', '{}', {
       chmod: vi.fn(async () => undefined),
-      mkdtemp: vi.fn(async () => '/tmp/opencove-provider-rollback'),
+      mkdtemp: vi.fn(async () => '/tmp/eclipse-code-provider-rollback'),
       rm: vi.fn(async () => await Promise.reject(new Error('rollback failed'))),
       writeFile: vi.fn(async () => await Promise.reject(new Error('setup failed'))),
     }).catch((caught: unknown) => caught)

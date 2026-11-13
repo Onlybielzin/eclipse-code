@@ -19,12 +19,12 @@ async function runGit(args: string[], cwd: string): Promise<void> {
 
 async function createTempRepo(): Promise<string> {
   const repoDir = await mkdtemp(
-    path.join(resolveE2ETmpDir(), 'OpenCove Worktree Create Light E2E '),
+    path.join(resolveE2ETmpDir(), 'Eclipse Code Worktree Create Light E2E '),
   )
 
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
@@ -57,7 +57,7 @@ test.describe('Workspace Canvas - Worktree Create (Light Theme)', () => {
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
         env: {
-          OPENCOVE_TEST_WORKSPACE: repoPath,
+          ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
         },
       })
 

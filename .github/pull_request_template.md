@@ -1,5 +1,5 @@
 <!--
-Thanks for contributing to OpenCove! 🌌
+Thanks for contributing to Eclipse Code! 🌌
 
 🚨 CRITICAL: Before submitting, ensure you have read `DEVELOPMENT.md` and `CONTRIBUTING.md`.
 Please fill out the template completely to avoid delays in review.

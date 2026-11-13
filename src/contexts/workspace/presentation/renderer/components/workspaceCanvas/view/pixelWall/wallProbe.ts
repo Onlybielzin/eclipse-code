@@ -30,7 +30,7 @@ export interface PixelWallTestApi {
 
 declare global {
   interface Window {
-    __opencovePixelWallTestApi?: PixelWallTestApi
+    __eclipseCodePixelWallTestApi?: PixelWallTestApi
   }
 }
 
@@ -90,10 +90,10 @@ export function recordWallFrame(
   for (const key of rippleKeys) {
     seenRippleKeys.add(key)
   }
-  if (typeof window === 'undefined' || window.__opencovePixelWallTestApi) {
+  if (typeof window === 'undefined' || window.__eclipseCodePixelWallTestApi) {
     return
   }
-  window.__opencovePixelWallTestApi = {
+  window.__eclipseCodePixelWallTestApi = {
     getLights: () => lastLights.map(light => ({ ...light })),
     getGlassCount: () => lastGlassCount,
     getGlassRects: () => unpackRects(lastGlass),

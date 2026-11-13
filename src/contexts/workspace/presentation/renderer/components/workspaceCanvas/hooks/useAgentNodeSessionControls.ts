@@ -30,7 +30,7 @@ export function useAgentNodeSessionControls({
         return []
       }
 
-      const result = await window.opencoveApi.agent.listSessions({
+      const result = await window.eclipseCodeApi.agent.listSessions({
         provider: node.data.agent.provider,
         cwd,
         limit,
@@ -54,14 +54,14 @@ export function useAgentNodeSessionControls({
         invalidateCachedTerminalScreenState(nodeId, node.data.sessionId)
         const binding = await readManagedClaudeBinding(nodeId, node.data.agent?.provider)
         if (binding) {
-          await window.opencoveApi.controlSurface.invoke({
+          await window.eclipseCodeApi.controlSurface.invoke({
             kind: 'command',
             id: 'session.kill',
             clientFeatures: { managedClaudeResumeBindingV1: true },
             payload: { sessionId: node.data.sessionId },
           })
         } else {
-          await window.opencoveApi.pty.kill({ sessionId: node.data.sessionId })
+          await window.eclipseCodeApi.pty.kill({ sessionId: node.data.sessionId })
         }
       }
 

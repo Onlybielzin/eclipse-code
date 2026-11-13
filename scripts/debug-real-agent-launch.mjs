@@ -10,10 +10,10 @@ import { fileURLToPath } from 'node:url'
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'debug-real-agent-launch')
 const defaultProviders = ['codex', 'claude-code']
-const workerClientEnabled = process.env.OPENCOVE_REAL_AGENT_WORKER_CLIENT !== '0'
-const keepUserData = process.env.OPENCOVE_REAL_AGENT_KEEP_USER_DATA === '1'
-const providers = parseProviders(process.env.OPENCOVE_REAL_AGENT_PROVIDERS)
-const requestedProfiles = parseRequestedProfiles(process.env.OPENCOVE_REAL_AGENT_PROFILES)
+const workerClientEnabled = process.env.ECLIPSE_CODE_REAL_AGENT_WORKER_CLIENT !== '0'
+const keepUserData = process.env.ECLIPSE_CODE_REAL_AGENT_KEEP_USER_DATA === '1'
+const providers = parseProviders(process.env.ECLIPSE_CODE_REAL_AGENT_PROVIDERS)
+const requestedProfiles = parseRequestedProfiles(process.env.ECLIPSE_CODE_REAL_AGENT_PROFILES)
 
 function parseProviders(rawValue) {
   const parsed = String(rawValue ?? '')
@@ -45,7 +45,7 @@ async function ensureDir(dirPath) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-real-agent-launch-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-real-agent-launch-'))
 }
 
 async function seedUserData(userDataDir) {
@@ -137,13 +137,13 @@ async function launchApp(userDataDir, logs) {
     env: {
       ...env,
       NODE_ENV: 'test',
-      OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TEST_WORKSPACE: repoPath,
-      OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-      OPENCOVE_TEST_NODE_EXECUTABLE: process.execPath,
-      OPENCOVE_E2E_WINDOW_MODE: 'offscreen',
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TEST_WORKSPACE: repoPath,
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+      ECLIPSE_CODE_TEST_NODE_EXECUTABLE: process.execPath,
+      ECLIPSE_CODE_E2E_WINDOW_MODE: 'offscreen',
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     },
   })
 
@@ -162,7 +162,7 @@ async function launchApp(userDataDir, logs) {
   const window = await electronApp.firstWindow()
   await window.waitForLoadState('domcontentloaded')
   const writeResult = await window.evaluate(async state => {
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(state),
     })
   }, createSeededWorkspaceState())
@@ -177,7 +177,7 @@ async function launchApp(userDataDir, logs) {
 
   if (workerClientEnabled) {
     await window.evaluate(async () => {
-      await window.opencoveApi.worker.start()
+      await window.eclipseCodeApi.worker.start()
     })
   }
 
@@ -204,7 +204,7 @@ async function waitForPresentationSnapshot(window, sessionId, provider) {
   while (Date.now() < deadline) {
     latest = await window.evaluate(async currentSessionId => {
       try {
-        return await window.opencoveApi.pty.presentationSnapshot({ sessionId: currentSessionId })
+        return await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: currentSessionId })
       } catch (error) {
         return { error: error instanceof Error ? error.message : String(error) }
       }
@@ -253,7 +253,7 @@ function assertWindowsNativeLaunch(result, requestedProfileId) {
 async function launchAgentCase(window, provider, requestedProfileId) {
   const result = await window.evaluate(
     async payload =>
-      await window.opencoveApi.agent.launch({
+      await window.eclipseCodeApi.agent.launch({
         cwd: payload.cwd,
         provider: payload.provider,
         profileId: payload.profileId,
@@ -271,7 +271,7 @@ async function launchAgentCase(window, provider, requestedProfileId) {
   const snapshot = await waitForPresentationSnapshot(window, result.sessionId, provider)
 
   await window.evaluate(async sessionId => {
-    await window.opencoveApi.pty.kill({ sessionId }).catch(() => undefined)
+    await window.eclipseCodeApi.pty.kill({ sessionId }).catch(() => undefined)
   }, result.sessionId)
 
   return {

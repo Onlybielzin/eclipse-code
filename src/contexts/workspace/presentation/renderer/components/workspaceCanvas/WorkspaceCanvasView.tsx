@@ -16,6 +16,10 @@ import type { WorkspaceCanvasViewProps } from './WorkspaceCanvasView.types'
 import { useActiveExplorerSpace } from './hooks/useActiveExplorerSpace'
 import { useWorkspaceCanvasGlobalDismissals } from './hooks/useGlobalDismissals'
 import { useWorkspaceCanvasSpaceMenuState } from './hooks/useCanvasSpaceMenuState'
+import { TaskDecisionHistory } from './tasks/TaskDecisionHistory'
+import { useCanvasCardLifecycle } from './hooks/useCanvasCardLifecycle'
+import { useActiveTaskIsolation } from './hooks/useActiveTaskIsolation'
+import { WorkspaceTaskTabs } from './view/WorkspaceTaskTabs'
 import { useWorkspaceCanvasLabelColorFilter } from './hooks/useLabelColorFilter'
 import { useViewportDprSnapping } from './hooks/useViewportDprSnapping'
 import { useSpaceWorktreeBusyLabels } from './hooks/useSpaceWorktreeBusyLabels'
@@ -71,7 +75,6 @@ export function WorkspaceCanvasView({
   viewport,
   isTrackpadCanvasMode,
   useManualCanvasWheelGestures,
-  isShiftPressed,
   selectionDraft,
   snapGuides,
   spaceVisuals,
@@ -106,6 +109,7 @@ export function WorkspaceCanvasView({
   spaces,
   activateSpace,
   activateAllSpaces,
+  activeSpaceId = null,
   onOpenSpaceContextMenu,
   contextMenu,
   closeContextMenu,
@@ -120,6 +124,7 @@ export function WorkspaceCanvasView({
   arrangeInSpace,
   openTaskCreator,
   openRoleCreator,
+  createDefaultTeam,
   openAgentLauncher,
   openAgentLauncherForProvider,
   projectRoles,
@@ -187,8 +192,13 @@ export function WorkspaceCanvasView({
 }: WorkspaceCanvasViewProps): React.JSX.Element {
   const reactFlowStore = useStoreApi()
   const isDragSurfaceSelectionMode = useStore(selectDragSurfaceSelectionMode)
-  const { labelColorFilter, setLabelColorFilter, usedLabelColors, filteredNodes, filteredEdges } =
-    useWorkspaceCanvasLabelColorFilter({ nodes, edges, spaces })
+  // prettier-ignore
+  const { labelColorFilter, setLabelColorFilter, usedLabelColors, filteredNodes: labelFilteredNodes, filteredEdges: labelFilteredEdges } = useWorkspaceCanvasLabelColorFilter({ nodes, edges, spaces })
+  // prettier-ignore
+  const { nodes: filteredNodes, edges: filteredEdges, spaceVisuals: visibleSpaceVisuals, shownNodes } = useActiveTaskIsolation({ nodes: labelFilteredNodes, edges: labelFilteredEdges, spaces, spaceVisuals, activeSpaceId, workspaceId, openSpaceArchive })
+  // prettier-ignore
+  const taskTabs = <WorkspaceTaskTabs spaces={spaces} activeSpaceId={activeSpaceId} workspaceId={workspaceId} activateSpace={activateSpace} activateAllSpaces={activateAllSpaces} cancelSpaceRename={cancelSpaceRename} onOpenSpaceContextMenu={(spaceId, anchor) => { closeContextMenu(); onOpenSpaceContextMenu?.(spaceId, anchor) }} onCloseTask={openSpaceArchive} />
+  useCanvasCardLifecycle({ nodes, closeNodesById })
   const busyOperationBySpaceId = useSpaceWorktreeBusyLabels(spaceWorktreeOperations)
 
   useWorkspaceCanvasGlobalDismissals({
@@ -285,10 +295,11 @@ export function WorkspaceCanvasView({
         deleteKeyCode={null}
         selectionKeyCode={null}
         multiSelectionKeyCode={null}
-        selectionOnDrag={isTrackpadCanvasMode || isShiftPressed}
+        // Left drag selects (useSelectionDraft); mouse users pan with the wheel or middle button.
+        selectionOnDrag
         nodesDraggable
         elementsSelectable
-        panOnDrag={isTrackpadCanvasMode ? false : !isShiftPressed}
+        panOnDrag={isTrackpadCanvasMode ? false : [1]}
         zoomOnScroll={!useManualCanvasWheelGestures}
         panOnScroll={false}
         panOnScrollMode={PanOnScrollMode.Free}
@@ -307,7 +318,7 @@ export function WorkspaceCanvasView({
         />
         <WorkspaceSpaceRegionsOverlay
           workspacePath={workspacePath}
-          spaceVisuals={spaceVisuals}
+          spaceVisuals={visibleSpaceVisuals}
           busyOperationBySpaceId={busyOperationBySpaceId}
           spaceFramePreview={spaceFramePreview}
           selectedSpaceIds={selectedSpaceIds}
@@ -323,7 +334,7 @@ export function WorkspaceCanvasView({
           activateSpaceTitle={activateSpaceTitle}
           onOpenSpaceMenu={openSpaceActionMenu}
         />
-        <WorkspaceFarView canvasRef={canvasRef} nodes={filteredNodes} />
+        <WorkspaceFarView canvasRef={canvasRef} nodes={shownNodes} />
         <WorkspaceMinimapDock
           isMinimapVisible={isMinimapVisible}
           minimapNodeColor={minimapNodeColor}
@@ -331,10 +342,12 @@ export function WorkspaceCanvasView({
           onMinimapVisibilityChange={onMinimapVisibilityChange}
         />
         <WorkspaceCanvasControls />
-        <WorkspaceEdgeBeacons nodes={filteredNodes} canvasRef={canvasRef} />
+        <TaskDecisionHistory spaces={spaces} />
+        <WorkspaceEdgeBeacons nodes={shownNodes} canvasRef={canvasRef} />
         <WorkspaceCanvasHud
           canvasRef={canvasRef}
           farViewEnabled={agentSettings.canvasFarViewEnabled}
+          taskTabs={taskTabs}
         />
         <ViewportSpaceReporter workspaceId={workspaceId} spaces={spaces} />
       </ReactFlow>
@@ -377,14 +390,6 @@ export function WorkspaceCanvasView({
         resolveDropTargetLabel={resolveDropTargetLabel}
       />
       <WorkspaceCanvasTopOverlays
-        spaces={spaces}
-        activateSpace={activateSpace}
-        activateAllSpaces={activateAllSpaces}
-        cancelSpaceRename={cancelSpaceRename}
-        onOpenSpaceContextMenu={(spaceId, anchor) => {
-          closeContextMenu()
-          onOpenSpaceContextMenu?.(spaceId, anchor)
-        }}
         usedLabelColors={usedLabelColors}
         activeLabelColorFilter={labelColorFilter}
         onToggleLabelColorFilter={color => {
@@ -404,6 +409,7 @@ export function WorkspaceCanvasView({
         createPluginNodeFromContextMenu={createPluginNodeFromContextMenu}
         openTaskCreator={openTaskCreator}
         openRoleCreator={openRoleCreator}
+        createDefaultTeam={createDefaultTeam}
         openAgentLauncher={openAgentLauncher}
         openAgentLauncherForProvider={openAgentLauncherForProvider}
         projectRoles={projectRoles}

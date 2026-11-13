@@ -19,7 +19,7 @@ type XtermMouseService = {
         y: number
       }
     | undefined
-  __opencovePatched?: boolean
+  __eclipseCodePatched?: boolean
 }
 
 function resolveElementScale({ element, rect }: { element: HTMLElement; rect: DOMRect }): {
@@ -120,7 +120,7 @@ export function patchXtermMouseService(terminal: Terminal): boolean {
     return false
   }
 
-  if (mouseService.__opencovePatched) {
+  if (mouseService.__eclipseCodePatched) {
     return true
   }
 
@@ -130,7 +130,7 @@ export function patchXtermMouseService(terminal: Terminal): boolean {
     return false
   }
 
-  mouseService.__opencovePatched = true
+  mouseService.__eclipseCodePatched = true
 
   const originalGetCoords = mouseService.getCoords.bind(mouseService)
   mouseService.getCoords = (event, element, colCount, rowCount, isSelection = false) => {

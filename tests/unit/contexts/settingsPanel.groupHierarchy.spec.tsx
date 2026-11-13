@@ -37,7 +37,7 @@ describe('Settings group hierarchy', () => {
   })
 
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 

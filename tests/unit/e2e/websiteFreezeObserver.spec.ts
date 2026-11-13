@@ -27,7 +27,7 @@ function fixture() {
     BrowserWindow: {
       getAllWindows: () => [
         {
-          __opencoveWebsiteWindowManager: {
+          __eclipseCodeWebsiteWindowManager: {
             runtimeByNodeId: new Map([['website-freeze-node', runtime]]),
           },
         },

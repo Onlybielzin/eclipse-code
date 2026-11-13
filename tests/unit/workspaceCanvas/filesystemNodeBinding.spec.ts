@@ -11,7 +11,7 @@ import type {
 import type { NodeWorkerBinding } from '@shared/types/nodeWorkerBinding'
 
 function setApi(value: unknown): void {
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value })
 }
 
 afterEach(() => setApi(undefined))

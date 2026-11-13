@@ -51,7 +51,7 @@ export function choiceMessage(field: string, value: unknown, choices: readonly u
 }
 
 export function inputErrorMessage(id: string, message?: string) {
-  return `Invalid input for ${id}: ${message && message !== 'The request was invalid.' ? message : 'check the input fields against "opencove api schema ' + id + '"'}`
+  return `Invalid input for ${id}: ${message && message !== 'The request was invalid.' ? message : 'check the input fields against "eclipse-code api schema ' + id + '"'}`
 }
 
 function inputAtPath(input: unknown, path: unknown[]): unknown {

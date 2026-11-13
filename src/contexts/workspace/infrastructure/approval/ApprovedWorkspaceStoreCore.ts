@@ -21,7 +21,7 @@ async function toCanonicalPathEvenIfMissing(pathValue: string): Promise<string> 
     return await fs.realpath(normalized)
   } catch {
     // Walk up the directory chain until we can resolve an existing parent. This lets us
-    // canonicalize paths that do not exist yet (e.g. `.opencove/worktrees`) while still
+    // canonicalize paths that do not exist yet (e.g. `.eclipse-code/worktrees`) while still
     // handling macOS `/var` -> `/private/var` style symlinks.
     const parentCandidates: string[] = []
     let current = normalized

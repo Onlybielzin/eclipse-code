@@ -55,7 +55,7 @@ describe('external plugin preview lifecycle', () => {
     const invoke = vi
       .fn()
       .mockResolvedValue({ plugin, readme: '', assets: {}, sourceDirectory: '/fixture', logs: [] })
-    vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+    vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
     const changed = vi.fn()
     const unsubscribe = useAppStore.subscribe(changed)
     try {

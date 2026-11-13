@@ -23,7 +23,7 @@ const enqueue =
 
 async function fixture(beforeCommit = false) {
   vi.stubEnv('NODE_ENV', 'test')
-  vi.stubEnv('OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER', '0')
+  vi.stubEnv('ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER', '0')
   const config = await fs.mkdtemp(join(tmpdir(), 'claude-hook-transcript-'))
   vi.stubEnv('CLAUDE_CONFIG_DIR', config)
   const path = join(config, 'projects', 'authoritative', 'provider.jsonl')

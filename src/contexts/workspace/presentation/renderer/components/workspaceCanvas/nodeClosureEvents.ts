@@ -1,4 +1,4 @@
-const WORKSPACE_NODES_CLOSED_EVENT = 'opencove-workspace-nodes-closed'
+const WORKSPACE_NODES_CLOSED_EVENT = 'eclipse-code-workspace-nodes-closed'
 
 function closedNodeIds(value: unknown): string[] {
   if (!Array.isArray(value)) {

@@ -127,7 +127,7 @@ describe('WorkspaceCanvas agent launch guard', () => {
       rootPath: '/tmp',
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -306,7 +306,7 @@ describe('WorkspaceCanvas agent launch guard', () => {
       rootPath: '/tmp',
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

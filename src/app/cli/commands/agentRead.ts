@@ -68,8 +68,8 @@ export const agentReadCommand = defineCommand({
     'Read the latest ended reply, or exactly --turn <turnId> from agent prompt. Plain text is the default even when piped; -o json exposes outcome, durability and retained deliveryIds/promptIds. Exact reads never fall back to another turn or transcript.',
     'Loop: prompt → delivery status → wait --turn <turnId> → read --turn <turnId> -o json. Check outcome and reply; never resend because a read fails. Local archived exact reads survive restart. Claude and Codex lifecycle hooks supply exact-turn replies. Codex keeps the first matching Stop reply that ends the local turn; later continuation does not replace it.',
     '--screen shows the visible terminal (last 40 lines); --scrollback adds retained history (last 200; --lines 1–5000; none on the alternate screen). Both work for terminals and agent windows and strip ANSI. Inspect --screen for drafts/dialogs before prompting. Reading never sends input. --screen and --scrollback exclude each other and --last/--turn.',
-    'Exit codes: 0 readable result (including empty content); 1 unavailable reply/transcript; 2 invalid input; 4 authentication or grant-policy refusal. Detailed fallback rules, truncation, retention and recovery: opencove skill read.',
-    'deliveryIds are retained correlations of OpenCove deliveries with this turn, including refused or uncertain attempts. Membership proves neither submission nor consumption, and an empty list proves nothing either: delivery records live in memory only, are cleared when OpenCove restarts and expire 30 minutes after resolving; inspect each deliveryId with opencove agent delivery <id>. promptIds are the provider prompt IDs for this turn (Claude continuations included); agent delivery does not accept them.',
+    'Exit codes: 0 readable result (including empty content); 1 unavailable reply/transcript; 2 invalid input; 4 authentication or grant-policy refusal. Detailed fallback rules, truncation, retention and recovery: eclipse-code skill read.',
+    'deliveryIds are retained correlations of Eclipse Code deliveries with this turn, including refused or uncertain attempts. Membership proves neither submission nor consumption, and an empty list proves nothing either: delivery records live in memory only, are cleared when Eclipse Code restarts and expire 30 minutes after resolving; inspect each deliveryId with eclipse-code agent delivery <id>. promptIds are the provider prompt IDs for this turn (Claude continuations included); agent delivery does not accept them.',
   ].join('\n\n'),
   options: {
     node: stringOption('Node ID', true),
@@ -83,7 +83,7 @@ export const agentReadCommand = defineCommand({
       normalize: value => value.trim(),
       valueName: 'turnId',
       conflicts: ['screen', 'scrollback'],
-      description: 'Read exactly this OpenCove turn ID from agent prompt; never falls back',
+      description: 'Read exactly this Eclipse Code turn ID from agent prompt; never falls back',
     },
     screen: {
       type: 'boolean',
@@ -118,12 +118,12 @@ export const agentReadCommand = defineCommand({
   selectRender: ({ options }) =>
     options.screen || options.scrollback ? screenOutput : messageOutput,
   examples: [
-    'opencove agent read --node "Reviewer" --screen',
-    'opencove agent read --node "Shell" --scrollback --lines 200',
-    'opencove agent read --node "Reviewer" --screen --lines 20 -o json',
-    'opencove agent read --node "Reviewer" --last',
-    'opencove agent read --node node-123 --turn turn-123',
-    'opencove agent read --node node-123 --turn turn-123 -o json',
+    'eclipse-code agent read --node "Reviewer" --screen',
+    'eclipse-code agent read --node "Shell" --scrollback --lines 200',
+    'eclipse-code agent read --node "Reviewer" --screen --lines 20 -o json',
+    'eclipse-code agent read --node "Reviewer" --last',
+    'eclipse-code agent read --node node-123 --turn turn-123',
+    'eclipse-code agent read --node node-123 --turn turn-123 -o json',
   ],
   textOutput: result => {
     const value = result as ScreenResult | HookFinalMessage | GetSessionFinalMessageResult
@@ -146,7 +146,7 @@ export const agentReadCommand = defineCommand({
           ctx.options.screen || ctx.options.scrollback
             ? 'No current terminal screen was found for this node.'
             : 'No agent conversation was found for this node.',
-          'Run opencove node list to check the selector, then start or resume its agent session before reading.',
+          'Run eclipse-code node list to check the selector, then start or resume its agent session before reading.',
           error.details,
         )
       }

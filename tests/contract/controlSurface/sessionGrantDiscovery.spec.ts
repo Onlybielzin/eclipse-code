@@ -180,7 +180,7 @@ it('distinguishes message delivery from user-only permission prompts and dialogs
     error: {
       details: {
         message:
-          'session.writeNode is not available to agent terminals: send messages with opencove agent prompt; only the user can answer permission prompts and dialogs in OpenCove.',
+          'session.writeNode is not available to agent terminals: send messages with eclipse-code agent prompt; only the user can answer permission prompts and dialogs in Eclipse Code.',
       },
     },
   })

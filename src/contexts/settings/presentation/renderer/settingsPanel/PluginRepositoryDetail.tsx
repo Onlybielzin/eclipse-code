@@ -48,7 +48,7 @@ export function PluginRepositoryDetail({
     let alive = true
     setDetails(null)
     setError(null)
-    void window.opencoveApi.controlSurface
+    void window.eclipseCodeApi.controlSurface
       .invoke<PluginRepositoryDetails>({
         kind: 'query',
         id: 'plugin.repository.details',
@@ -122,7 +122,7 @@ export function PluginRepositoryDetail({
               <div>
                 <dt>{t('settingsPanel.plugins.repository.hostVersion')}</dt>
                 <dd>
-                  {details.manifest.engines?.opencove ??
+                  {details.manifest.engines?.eclipseCode ??
                     t('settingsPanel.plugins.repository.notDeclared')}
                 </dd>
               </div>

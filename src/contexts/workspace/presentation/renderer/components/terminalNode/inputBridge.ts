@@ -213,10 +213,10 @@ export async function copyTextToClipboard(text: string): Promise<void> {
 export async function readTextFromClipboard(): Promise<string> {
   if (
     typeof window !== 'undefined' &&
-    typeof window.opencoveApi?.clipboard?.readText === 'function'
+    typeof window.eclipseCodeApi?.clipboard?.readText === 'function'
   ) {
     try {
-      return await window.opencoveApi.clipboard.readText()
+      return await window.eclipseCodeApi.clipboard.readText()
     } catch {
       // Fall through to the browser Clipboard API.
     }

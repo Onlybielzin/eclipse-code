@@ -1,6 +1,6 @@
 import type { AttachTerminalResult } from '@shared/contracts/dto'
 
-export type AttachablePtyApi = typeof window.opencoveApi.pty & {
+export type AttachablePtyApi = typeof window.eclipseCodeApi.pty & {
   attach?: (payload: {
     sessionId: string
     afterSeq?: number | null
@@ -9,5 +9,5 @@ export type AttachablePtyApi = typeof window.opencoveApi.pty & {
 }
 
 export function resolveAttachablePtyApi(): AttachablePtyApi {
-  return window.opencoveApi.pty as AttachablePtyApi
+  return window.eclipseCodeApi.pty as AttachablePtyApi
 }

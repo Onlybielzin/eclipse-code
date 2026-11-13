@@ -32,8 +32,8 @@ export function createClaudeHookChannel(options: {
     }),
     publishManagedSessionIdentity: true,
     buildReservationEnv: (endpoint, token) => ({
-      OPENCOVE_CLAUDE_HOOK_ENDPOINT: endpoint,
-      OPENCOVE_CLAUDE_HOOK_TOKEN: token,
+      ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT: endpoint,
+      ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: token,
     }),
   })
   return {

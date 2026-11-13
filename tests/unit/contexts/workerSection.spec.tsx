@@ -13,7 +13,7 @@ function installWorkerApi(
 ) {
   const workerStart = vi.fn()
 
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       meta: {
@@ -58,7 +58,7 @@ function installWorkerApi(
 describe('WorkerSection', () => {
   afterEach(async () => {
     await applyUiLanguage('en')
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 
@@ -70,7 +70,7 @@ describe('WorkerSection', () => {
   ] as const)('shows %s text for %s', async (language, code, message) => {
     await applyUiLanguage(language)
     installWorkerApi('local')
-    vi.mocked(window.opencoveApi.worker.getStatus).mockResolvedValue({
+    vi.mocked(window.eclipseCodeApi.worker.getStatus).mockResolvedValue({
       status: 'running',
       connection: {
         version: 1,
@@ -83,7 +83,7 @@ describe('WorkerSection', () => {
         startedBy: 'cli',
       },
     })
-    vi.mocked(window.opencoveApi.worker.stop).mockRejectedValue(
+    vi.mocked(window.eclipseCodeApi.worker.stop).mockRejectedValue(
       language === 'en' ? createAppError(code) : { code },
     )
     render(<WorkerSection />)
@@ -91,7 +91,7 @@ describe('WorkerSection', () => {
     await waitFor(() => expect(button).toBeEnabled())
     fireEvent.click(button)
     expect(await screen.findByText(message)).toBeVisible()
-    expect(window.opencoveApi.worker.stop).toHaveBeenCalledTimes(1)
+    expect(window.eclipseCodeApi.worker.stop).toHaveBeenCalledTimes(1)
   })
 
   it('explains unavailable local control without changing the session configuration', async () => {
@@ -124,10 +124,10 @@ describe('WorkerSection', () => {
       expect(screen.queryByTestId('settings-worker-home-mode-trigger')).not.toBeInTheDocument()
       expect(screen.queryByTestId('settings-worker-apply-restart')).not.toBeInTheDocument()
       expect(screen.queryByTestId('settings-worker-remote-hostname')).not.toBeInTheDocument()
-      expect(window.opencoveApi.workerClient.setConfig).not.toHaveBeenCalled()
-      expect(window.opencoveApi.workerClient.relaunch).not.toHaveBeenCalled()
-      expect(window.opencoveApi.worker.start).not.toHaveBeenCalled()
-      expect(window.opencoveApi.worker.stop).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.workerClient.setConfig).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.workerClient.relaunch).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.worker.start).not.toHaveBeenCalled()
+      expect(window.eclipseCodeApi.worker.stop).not.toHaveBeenCalled()
     },
   )
 })

@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs'
 import { posix as pathPosix } from 'node:path'
 import { createAppError } from '../../../../shared/errors/appError'
 
@@ -49,6 +50,33 @@ function normalizeFileUriPathname(uri: string): { host: string; pathname: string
   return { host, pathname }
 }
 
+function isPathWithin(rootPathname: string, targetPathname: string): boolean {
+  return (
+    rootPathname === '/' ||
+    targetPathname === rootPathname ||
+    (targetPathname.startsWith(rootPathname) && targetPathname[rootPathname.length] === '/')
+  )
+}
+
+/** Resolves symlinks of a local path; the deepest existing ancestor for a path not created yet. */
+function realLocalPath(pathname: string): string | null {
+  const missing: string[] = []
+  let current = pathname
+  for (;;) {
+    try {
+      const real = realpathSync.native(current)
+      return missing.length > 0 ? pathPosix.join(real, ...missing.reverse()) : real
+    } catch {
+      const parent = pathPosix.dirname(current)
+      if (parent === current) {
+        return null
+      }
+      missing.push(pathPosix.basename(current))
+      current = parent
+    }
+  }
+}
+
 export function assertFileUriWithinRootUri(options: {
   rootUri: string
   uri: string
@@ -61,16 +89,18 @@ export function assertFileUriWithinRootUri(options: {
     throw createAppError('common.invalid_input', { debugMessage: options.debugMessage })
   }
 
-  if (root.pathname === '/') {
+  if (isPathWithin(root.pathname, target.pathname)) {
     return
   }
 
-  if (target.pathname === root.pathname) {
-    return
-  }
-
-  if (target.pathname.startsWith(root.pathname) && target.pathname[root.pathname.length] === '/') {
-    return
+  // A local root added through a symlink (/home/u/Projects -> /data/Projects) and a path git
+  // reports in its real form (worktrees) name the same place: compare the resolved paths.
+  if (root.host === '' && process.platform !== 'win32') {
+    const realRoot = realLocalPath(root.pathname)
+    const realTarget = realLocalPath(target.pathname)
+    if (realRoot && realTarget && isPathWithin(realRoot, realTarget)) {
+      return
+    }
   }
 
   throw createAppError('common.invalid_input', { debugMessage: options.debugMessage })

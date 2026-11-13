@@ -12,7 +12,7 @@ export function resolvePtyHostSpawnEnv(optionsEnv?: NodeJS.ProcessEnv): NodeJS.P
   delete env.NODE_DISABLE_COLORS
   // The app uses ELECTRON_RUN_AS_NODE to run bundled CLI/worker entrypoints via Electron.
   // Leaking it into interactive shells breaks launching Electron-based tooling (including
-  // OpenCove dev via electron-vite), but test stubs may opt in explicitly.
+  // Eclipse Code dev via electron-vite), but test stubs may opt in explicitly.
   if (!preserveElectronRunAsNode) {
     delete env.ELECTRON_RUN_AS_NODE
   }

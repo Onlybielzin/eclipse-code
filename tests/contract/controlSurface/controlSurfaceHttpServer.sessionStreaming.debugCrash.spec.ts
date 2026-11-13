@@ -14,7 +14,7 @@ import {
 
 describe('Control Surface HTTP server (session streaming debug crash)', () => {
   it('exposes the test-only PTY host crash command through the worker control surface', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.pty.debug-crash.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 

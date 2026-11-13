@@ -12,7 +12,7 @@ import {
 
 async function readTerminalBoundDirectory(window: Parameters<typeof clearAndSeedWorkspace>[0]) {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -51,8 +51,8 @@ test.describe('Recovery - Terminal worktree reopen', () => {
   test('reopens a space terminal in its bound worktree directory after app restart', async () => {
     const userDataDir = await createTestUserDataDir()
     const worktreeName = `wt-e2e-terminal-reopen-${Date.now()}`
-    const worktreePath = path.join(testWorkspacePath, '.opencove', 'worktrees', worktreeName)
-    const historyToken = `OPENCOVE_RESTART_HISTORY_${Date.now()}`
+    const worktreePath = path.join(testWorkspacePath, '.eclipse-code', 'worktrees', worktreeName)
+    const historyToken = `ECLIPSE_CODE_RESTART_HISTORY_${Date.now()}`
 
     await mkdir(worktreePath, { recursive: true })
 
@@ -122,7 +122,7 @@ test.describe('Recovery - Terminal worktree reopen', () => {
       })
 
       try {
-        const cwdToken = `OPENCOVE_RESTART_CWD_${Date.now()}:`
+        const cwdToken = `ECLIPSE_CODE_RESTART_CWD_${Date.now()}:`
         const normalizeTerminalText = (value: string | null): string =>
           (value ?? '').replace(/\s+/g, '')
         const normalizedToken = normalizeTerminalText(cwdToken)

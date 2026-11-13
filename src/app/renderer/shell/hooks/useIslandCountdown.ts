@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 /**
  * A card's countdown: `onExpire` runs once `durationMs` of unpaused time has passed. Pausing
- * keeps what is left, so a card you hovered, or one that arrived while OpenCove was behind,
+ * keeps what is left, so a card you hovered, or one that arrived while Eclipse Code was behind,
  * still gets its full time.
  */
 export function useIslandCountdown({

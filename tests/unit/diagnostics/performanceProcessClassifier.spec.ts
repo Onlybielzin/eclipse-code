@@ -7,23 +7,23 @@ import {
 } from '../../../src/app/main/diagnostics/performanceProcessClassifier'
 
 describe('performance process classifier', () => {
-  it('separates OpenCove, external agents, shells, and console hosts', () => {
+  it('separates Eclipse Code, external agents, shells, and console hosts', () => {
     expect(
       classifyPerformanceProcess({
         pid: 100,
         mainPid: 100,
-        name: 'OpenCove.exe',
-        commandLine: 'OpenCove.exe',
+        name: 'Eclipse Code.exe',
+        commandLine: 'Eclipse Code.exe',
       }),
-    ).toBe('opencove-main')
+    ).toBe('eclipse-code-main')
     expect(
       classifyPerformanceProcess({
         pid: 101,
         mainPid: 100,
-        name: 'OpenCove.exe',
-        commandLine: 'OpenCove.exe --type=renderer',
+        name: 'Eclipse Code.exe',
+        commandLine: 'Eclipse Code.exe --type=renderer',
       }),
-    ).toBe('opencove-renderer')
+    ).toBe('eclipse-code-renderer')
     expect(
       classifyPerformanceProcess({
         pid: 102,
@@ -31,16 +31,16 @@ describe('performance process classifier', () => {
         name: 'node.exe',
         commandLine: 'node.exe out/main/ptyHost/entry.js',
       }),
-    ).toBe('opencove-pty-host')
+    ).toBe('eclipse-code-pty-host')
     expect(
       classifyPerformanceProcess({
         pid: 107,
         mainPid: 100,
-        name: 'OpenCove.exe',
+        name: 'Eclipse Code.exe',
         commandLine:
-          'OpenCove.exe C:/Users/app/resources/app.asar/out/main/worker.js --started-by desktop',
+          'Eclipse Code.exe C:/Users/app/resources/app.asar/out/main/worker.js --started-by desktop',
       }),
-    ).toBe('opencove-worker')
+    ).toBe('eclipse-code-worker')
     expect(
       classifyPerformanceProcess({
         pid: 103,
@@ -112,8 +112,8 @@ describe('performance process classifier', () => {
         {
           pid: 100,
           parentPid: null,
-          name: 'OpenCove.exe',
-          commandLine: 'OpenCove.exe',
+          name: 'Eclipse Code.exe',
+          commandLine: 'Eclipse Code.exe',
           workingSetBytes: 100,
           privateBytes: 70,
           cpuUserTimeMs: 1,
@@ -140,20 +140,20 @@ describe('performance process classifier', () => {
 
     expect(summarizePerformanceProcesses(processes)).toEqual([
       {
+        kind: 'eclipse-code-main',
+        scope: 'eclipse-code',
+        count: 1,
+        workingSetBytes: 100,
+        privateBytes: 70,
+        threadCount: 4,
+      },
+      {
         kind: 'external-agent-codex',
         scope: 'external-agent',
         count: 1,
         workingSetBytes: 50,
         privateBytes: 40,
         threadCount: 2,
-      },
-      {
-        kind: 'opencove-main',
-        scope: 'opencove',
-        count: 1,
-        workingSetBytes: 100,
-        privateBytes: 70,
-        threadCount: 4,
       },
     ])
   })

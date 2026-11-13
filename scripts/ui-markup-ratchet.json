@@ -83,7 +83,6 @@
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceSpaceExplorerOverlayWindows.tsx": 2,
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceSpaceRegion.tsx": 3,
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceSpaceRegionItem.tsx": 4,
-    "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/view/WorkspaceSpaceSwitcher.tsx": 2,
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/windows/NodeDeleteConfirmationWindow.tsx": 2,
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/windows/RoleCreatorWindow.tsx": 2,
     "src/contexts/workspace/presentation/renderer/components/workspaceCanvas/windows/SpaceTargetMountPickerWindow.tsx": 2,

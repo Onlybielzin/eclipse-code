@@ -248,7 +248,7 @@ it.each(['agent.blocked', 'agent.prompt_interrupted', 'agent.prompt_stalled'])(
           )
         : original(url, init)
     expect(await run(['agent', 'prompt', '--node', '@self', '--text', 'Review'], f.io)).toBe(1)
-    expect(f.error().hint).toContain('opencove agent read --node <selector> --screen')
+    expect(f.error().hint).toContain('eclipse-code agent read --node <selector> --screen')
     if (code === 'agent.prompt_stalled') {
       expect(f.error().hint).toContain('Do not resend.')
     }

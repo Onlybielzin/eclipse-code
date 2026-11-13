@@ -10,7 +10,7 @@ test.describe('Issue report', () => {
       const initialInnerWidth = await window.evaluate(() => window.innerWidth)
       await window.evaluate(
         ({ localPath, token }) => {
-          window.opencoveApi.debug?.recordUiDiagnosticBreadcrumb({
+          window.eclipseCodeApi.debug?.recordUiDiagnosticBreadcrumb({
             source: 'renderer-ui',
             event: 'canvas-geometry',
             details: { localPath, token, canvasWidth: 960 },
@@ -26,7 +26,7 @@ test.describe('Issue report', () => {
       // ring buffer capacity, so the redacted breadcrumb above is not evicted.
       await window.evaluate(() => {
         for (let index = 0; index < 40; index += 1) {
-          window.opencoveApi.debug?.recordUiDiagnosticBreadcrumb({
+          window.eclipseCodeApi.debug?.recordUiDiagnosticBreadcrumb({
             source: 'renderer-ui',
             event: 'canvas-geometry',
             details: { filler: index, canvasWidth: 960 + index, canvasHeight: 540 + index },
@@ -52,7 +52,7 @@ test.describe('Issue report', () => {
 
       await window
         .locator('[data-testid="issue-report-description"]')
-        .fill('Run Agent no longer starts after updating OpenCove.')
+        .fill('Run Agent no longer starts after updating Eclipse Code.')
       await window.locator('[data-testid="issue-report-generate"]').click()
 
       await expect(window.locator('[data-testid="issue-report-ready"]')).toBeVisible({
@@ -68,7 +68,7 @@ test.describe('Issue report', () => {
       await window.getByRole('button', { name: /Copy Report|复制报告/u }).click()
       const clipboardText = await electronApp.evaluate(({ clipboard }) => clipboard.readText())
 
-      expect(clipboardText).toContain('Run Agent no longer starts after updating OpenCove.')
+      expect(clipboardText).toContain('Run Agent no longer starts after updating Eclipse Code.')
       expect(clipboardText).toContain('## Diagnostics Manifest')
       expect(clipboardText).toContain('## App Runtime')
       expect(clipboardText).toContain('## Worker State')
@@ -94,7 +94,7 @@ test.describe('Issue report', () => {
       const githubIssueUrl = await window.evaluate(
         async () =>
           (
-            await window.opencoveApi.issueReport.prepare({
+            await window.eclipseCodeApi.issueReport.prepare({
               kind: 'other',
               description: 'Prefilled GitHub body check.',
               includeLocalPaths: false,

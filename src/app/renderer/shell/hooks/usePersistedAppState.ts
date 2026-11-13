@@ -118,7 +118,7 @@ export function usePersistedAppState({
   }, [handlePersistWriteResult, isHydrated, producePersistedState])
 
   useEffect(() => {
-    if (window.opencoveApi?.meta?.isTest) {
+    if (window.eclipseCodeApi?.meta?.isTest) {
       return
     }
 

@@ -19,6 +19,6 @@ export async function initializeTerminalRuntimeAvailability(options: {
   } catch (error) {
     options.availability.failStartup()
     const detail = toAppErrorDescriptor(error).debugMessage ?? String(error)
-    process.stderr.write(`[opencove] terminal runtime admission unavailable: ${detail}\n`)
+    process.stderr.write(`[eclipse-code] terminal runtime admission unavailable: ${detail}\n`)
   }
 }

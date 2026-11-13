@@ -97,7 +97,7 @@ describe('filesystem node ownership across async work', () => {
   const stat = vi.fn()
   beforeEach(() => {
     stat.mockReset().mockResolvedValue({ kind: 'file' })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { filesystem: { stat } },
     })

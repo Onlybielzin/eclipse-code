@@ -25,6 +25,7 @@ import { TerminalSettingsSection } from './TerminalSettingsSection'
 import { AgentSettingsPage } from './AgentSettingsPage'
 import { WorkerConnectionsSection } from './WorkerConnectionsSection'
 import { WorkspaceSection } from './WorkspaceSection'
+import { ProjectTeamSection } from './ProjectTeamSection'
 
 type Props = Pick<
   SettingsPanelProps,
@@ -109,6 +110,7 @@ export function SettingsPanelContent({
     updateUpdatePolicy,
     updateUpdateChannel,
     updateQuickCommands,
+    updateProjectRoles,
     updateQuickPhrases,
     updateAgentEnvByProvider,
     updateDisableAppShortcutsWhenTerminalFocused,
@@ -338,6 +340,14 @@ export function SettingsPanelContent({
           onChangeEnvironmentVariables={envVars =>
             onWorkspaceEnvironmentVariablesChange(activeWorkspace.id, envVars)
           }
+        />
+      ) : null}
+
+      {isWorkspacePageId(activePageId) && activeWorkspace ? (
+        <ProjectTeamSection
+          workspaceId={activeWorkspace.id}
+          roles={settings.projectRolesByWorkspaceId[activeWorkspace.id] ?? []}
+          onChangeRoles={roles => updateProjectRoles(activeWorkspace.id, roles)}
         />
       ) : null}
     </>

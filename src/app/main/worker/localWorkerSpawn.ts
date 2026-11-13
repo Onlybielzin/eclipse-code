@@ -11,9 +11,9 @@ export function resolveForwardedLocalWorkerDiagnosticsEnv(
 ): Record<string, string> {
   const env: Record<string, string> = {}
   const keys = [
-    'OPENCOVE_AGENT_LAUNCH_DIAGNOSTICS',
-    'OPENCOVE_TERMINAL_DIAGNOSTICS',
-    'OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS',
+    'ECLIPSE_CODE_AGENT_LAUNCH_DIAGNOSTICS',
+    'ECLIPSE_CODE_TERMINAL_DIAGNOSTICS',
+    'ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS',
   ]
 
   for (const key of keys) {

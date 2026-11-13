@@ -19,8 +19,10 @@ describe('Control Surface terminal startup admission', () => {
   it.each(['terminal', 'agent'] as const)(
     'creates a new %s while an old terminal is still recovering',
     async kind => {
-      const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-terminal-admission-'))
-      const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-terminal-admission-workspace-'))
+      const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-admission-'))
+      const workspacePath = await mkdtemp(
+        join(tmpdir(), 'eclipse-code-terminal-admission-workspace-'),
+      )
       const connectionFileName = 'control-surface.terminal-admission.json'
       const connectionFilePath = resolve(userDataPath, connectionFileName)
       const workspaceId = randomUUID()
@@ -160,7 +162,7 @@ describe('Control Surface terminal startup admission', () => {
           if (String(input) === 'http://127.0.0.1:4310/invoke') {
             return new Response(
               JSON.stringify({
-                __opencoveControlEnvelope: true,
+                __eclipseCodeControlEnvelope: true,
                 ok: true,
                 value: { revision: 3, state: {} },
               }),
@@ -178,8 +180,10 @@ describe('Control Surface terminal startup admission', () => {
       },
     },
   ])('keeps terminal spawn admission closed when $failure', async ({ createPersistenceStore }) => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-terminal-admission-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-terminal-admission-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-admission-'))
+    const workspacePath = await mkdtemp(
+      join(tmpdir(), 'eclipse-code-terminal-admission-workspace-'),
+    )
     const connectionFileName = 'control-surface.terminal-admission.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
     const workspaceId = randomUUID()

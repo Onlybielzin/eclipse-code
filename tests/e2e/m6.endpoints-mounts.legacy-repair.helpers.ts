@@ -19,7 +19,7 @@ export async function createRepo(repoDir: string): Promise<string> {
   await mkdir(repoDir, { recursive: true })
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'legacy@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Legacy'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Legacy'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# legacy\n', 'utf8')
@@ -30,7 +30,7 @@ export async function createRepo(repoDir: string): Promise<string> {
 
 export async function resetWorkspaceState(window: Page, state: unknown): Promise<void> {
   const result = await window.evaluate(async rawState => {
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify(rawState),
     })
   }, state)

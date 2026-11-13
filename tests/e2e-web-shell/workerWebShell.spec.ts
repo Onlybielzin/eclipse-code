@@ -24,10 +24,10 @@ async function readOutputJson(page: Page): Promise<unknown> {
 
 test.describe('Worker web shell', () => {
   test('loads the shell page', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
     await page.goto(`/debug/shell?token=${encodeURIComponent(token)}`)
 
-    await expect(page).toHaveTitle('OpenCove Worker Shell')
+    await expect(page).toHaveTitle('Eclipse Code Worker Shell')
     await expect(page.locator('#token')).toBeVisible()
     await expect(page.locator('#ping')).toBeVisible()
     await expect(page.locator('#send')).toBeVisible()
@@ -36,7 +36,7 @@ test.describe('Worker web shell', () => {
   })
 
   test('ping works with a valid token', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
     await page.goto(`/debug/shell?token=${encodeURIComponent(token)}`)
 
     await page.locator('#ping').click()
@@ -68,8 +68,8 @@ test.describe('Worker web shell', () => {
   })
 
   test('can read an approved file via filesystem.readFileText', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
-    const fileUri = requireEnv('OPENCOVE_WEB_SHELL_TEST_FILE_URI')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
+    const fileUri = requireEnv('ECLIPSE_CODE_WEB_SHELL_TEST_FILE_URI')
 
     await page.goto(`/debug/shell?token=${encodeURIComponent(token)}`)
 
@@ -87,11 +87,11 @@ test.describe('Worker web shell', () => {
 
     expect(result.httpStatus).toBe(200)
     expect(result.data?.ok).toBe(true)
-    expect(result.data?.value?.content).toBe('hello from opencove web shell e2e\n')
+    expect(result.data?.value?.content).toBe('hello from eclipse-code web shell e2e\n')
   })
 
   test('does not expose desktop-only open-path actions via control surface', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
     await page.goto(`/debug/shell?token=${encodeURIComponent(token)}`)
 
     await page.locator('#kind').selectOption('command')
@@ -112,8 +112,8 @@ test.describe('Worker web shell', () => {
   })
 
   test('emits sync events for note.create', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
-    const testFileUri = requireEnv('OPENCOVE_WEB_SHELL_TEST_FILE_URI')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
+    const testFileUri = requireEnv('ECLIPSE_CODE_WEB_SHELL_TEST_FILE_URI')
     const workspacePath = dirname(fileURLToPath(new URL(testFileUri)))
     const workspaceId = randomUUID()
     const spaceId = randomUUID()
@@ -207,7 +207,7 @@ test.describe('Worker web shell', () => {
             reject(new Error('Timed out waiting for sync event'))
           }, 7_500)
 
-          source.addEventListener('opencove.sync', event => {
+          source.addEventListener('eclipse-code.sync', event => {
             try {
               const parsed = JSON.parse(event.data)
               if (
@@ -264,8 +264,8 @@ test.describe('Worker web shell', () => {
   })
 
   test('pty streaming reconnect replays output', async ({ page }) => {
-    const token = requireEnv('OPENCOVE_WEB_SHELL_TOKEN')
-    const testFileUri = requireEnv('OPENCOVE_WEB_SHELL_TEST_FILE_URI')
+    const token = requireEnv('ECLIPSE_CODE_WEB_SHELL_TOKEN')
+    const testFileUri = requireEnv('ECLIPSE_CODE_WEB_SHELL_TEST_FILE_URI')
     const workspacePath = dirname(fileURLToPath(new URL(testFileUri)))
     const workspaceId = randomUUID()
     const spaceId = randomUUID()

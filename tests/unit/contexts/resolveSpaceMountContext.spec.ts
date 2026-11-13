@@ -37,7 +37,7 @@ describe('resolveSpaceMountContext', () => {
   it('keeps a macOS realpath worktree directory under a symlinked /var mount root', () => {
     const resolved = resolveSpaceMountContext({
       space: {
-        directoryPath: '/private/var/folders/demo/repo/.opencove/worktrees/feature-a',
+        directoryPath: '/private/var/folders/demo/repo/.eclipse-code/worktrees/feature-a',
         targetMountId: 'mount-1',
       },
       workspacePath: '/var/folders/demo/repo',
@@ -51,7 +51,7 @@ describe('resolveSpaceMountContext', () => {
 
     expect(resolved.mount?.mountId).toBe('mount-1')
     expect(resolved.workingDirectory).toBe(
-      '/private/var/folders/demo/repo/.opencove/worktrees/feature-a',
+      '/private/var/folders/demo/repo/.eclipse-code/worktrees/feature-a',
     )
     expect(resolved.repair).toBeNull()
   })

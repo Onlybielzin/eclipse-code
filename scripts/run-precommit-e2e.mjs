@@ -12,11 +12,11 @@ if (args.some(arg => arg !== '--full') || args.length > 1) {
 }
 const full = args.includes('--full')
 const baseEnvironment = { ...process.env }
-delete baseEnvironment.OPENCOVE_E2E_TEST_MATCH
+delete baseEnvironment.ECLIPSE_CODE_E2E_TEST_MATCH
 const env = createRequiredE2EEnvironment(baseEnvironment)
 if (!full) {
   // Explicit quick files include the cross-platform core, not only Windows-only filenames.
-  delete env.OPENCOVE_E2E_TEST_MATCH
+  delete env.ECLIPSE_CODE_E2E_TEST_MATCH
 }
 let selection
 try {

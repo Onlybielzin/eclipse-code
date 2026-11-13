@@ -206,7 +206,7 @@ export function createSessionStateWatcherController({
       const detail =
         error instanceof Error ? `${error.name}: ${error.message}` : 'unknown watcher error'
       reportIssue(
-        `[opencove] state watcher failed for ${input.provider} session ${sessionId}: ${detail}`,
+        `[eclipse-code] state watcher failed for ${input.provider} session ${sessionId}: ${detail}`,
       )
       broadcastObservationUnavailable(sessionId)
       clearSessionStateWatcher(sessionId)
@@ -264,7 +264,7 @@ export function createSessionStateWatcherController({
 
       if (input.provider === 'opencode') {
         if (!input.opencodeBaseUrl) {
-          reportIssue(`[opencove] state watcher missing opencode baseUrl for session ${sessionId}`)
+          reportIssue(`[eclipse-code] no opencode baseUrl for session ${sessionId}`)
           return
         }
 

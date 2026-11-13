@@ -51,7 +51,7 @@ test.describe('Worker web canvas', () => {
 
     await openAuthedCanvas(page)
 
-    await expect(page).toHaveTitle('full-web-demo — OpenCove')
+    await expect(page).toHaveTitle('full-web-demo — Eclipse Code')
     await expect(page.locator('.workspace-canvas')).toBeVisible()
     await expect(page.locator('[data-testid="note-node-textarea"]').first()).toHaveValue(
       'hello from full web canvas',
@@ -427,7 +427,7 @@ test.describe('Worker web canvas', () => {
     const terminal = page.locator('.terminal-node').first()
     await expect(terminal).toBeVisible()
     await expect(terminal.locator('.xterm')).toBeVisible()
-    await expect(terminal).toContainText('[opencove-test-agent] codex new')
+    await expect(terminal).toContainText('[eclipse-code-test-agent] codex new')
     await expect(terminal).toContainText('gpt-5.2-codex')
   })
 })

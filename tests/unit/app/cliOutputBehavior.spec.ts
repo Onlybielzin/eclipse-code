@@ -23,7 +23,7 @@ function fixture(value: unknown = {}, error?: unknown) {
         stderr += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://unused', OPENCOVE_CONTROL_TOKEN: 'test' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://unused', ECLIPSE_CODE_CONTROL_TOKEN: 'test' },
     fetch,
     now: Date.now,
     readTextFile: vi.fn(),
@@ -134,7 +134,7 @@ it.each([
   const f = fixture(null, { code })
   expect(await run(args as string[], f.io)).toBe(1)
   expect(f.error().details).toEqual(details)
-  expect(f.error().hint).toContain(`opencove ${list}`)
+  expect(f.error().hint).toContain(`eclipse-code ${list}`)
 })
 it('filters operations offline and maps dedicated commands without expanding default output', async () => {
   const f = fixture()
@@ -167,7 +167,9 @@ it('filters operations offline and maps dedicated commands without expanding def
       g.io,
     ),
   ).toBe(0)
-  expect(JSON.parse(g.out())).toEqual([{ id: 'node.create', cliCommand: 'opencove node create' }])
+  expect(JSON.parse(g.out())).toEqual([
+    { id: 'node.create', cliCommand: 'eclipse-code node create' },
+  ])
   expect(f.fetch).not.toHaveBeenCalled()
 })
 it('matches summaries and returns an empty projected operation search', async () => {
@@ -249,7 +251,7 @@ it('preserves session targets and points to nodes that expose session IDs', asyn
   const f = fixture(null, { code: 'session.not_found' })
   expect(await run(['session', 'get', '--session', 'gone'], f.io)).toBe(1)
   expect(f.error().details).toEqual({ sessionId: 'gone' })
-  expect(f.error().hint).toContain('opencove node list')
+  expect(f.error().hint).toContain('eclipse-code node list')
 })
 it('projects raw API output paths after reading', async () => {
   const f = fixture({ homeDirectory: '/home' })
@@ -266,8 +268,8 @@ it('keeps generic API table requests consistent with its help', async () => {
   expect(f.fetch).not.toHaveBeenCalled()
 })
 it.each([
-  ['setEnabled', 'plugin', 'plugin.setEnabled', 'opencove plugin enable'],
-  ['readFileTextInMount', 'filesystem', 'filesystem.readFileTextInMount', 'opencove fs read'],
+  ['setEnabled', 'plugin', 'plugin.setEnabled', 'eclipse-code plugin enable'],
+  ['readFileTextInMount', 'filesystem', 'filesystem.readFileTextInMount', 'eclipse-code fs read'],
 ])(
   'maps alternate operation routes to real dedicated commands %s',
   async (search, prefix, id, command) => {
@@ -334,7 +336,7 @@ it.each([
       retryable: false,
       message: expect.stringMatching(/is unavailable$/),
       details: { reason: 'offline', ...target },
-      hint: 'Run "opencove endpoint list" to find available targets.',
+      hint: 'Run "eclipse-code endpoint list" to find available targets.',
     })
     expect(f.out()).toBe('')
   },

@@ -17,7 +17,7 @@ export async function readChildSpaceSnapshot(window: {
   evaluate: <T>(fn: () => T | Promise<T>) => Promise<T>
 }): Promise<ChildSpaceSnapshot> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return { nodes: {}, spaces: {} }
     }

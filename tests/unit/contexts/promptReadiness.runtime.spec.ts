@@ -235,7 +235,7 @@ it('Codex buffers launch Stop and notify before hook commit, then confirms the n
   const unsubscribe = socket.channel.onState(event => f.runtime.observe(event))
   try {
     const reservation = await socket.channel.reserveSpawn()
-    const token = reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!
+    const token = reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!
     expect(await socket.post(token, 'Stop', '1000')).toBe(204)
     expect(await socket.post(token, 'notify', '1000')).toBe(204)
     expect(f.registry.readFence({ sessionId: 's' })!.lastTurnEnd).toBeNull()

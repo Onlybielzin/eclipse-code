@@ -90,7 +90,7 @@ export function normalizeAgentEnvByProvider(value: unknown): AgentEnvByProvider 
 
 export function resolveEnabledEnvForAgent({
   rows,
-  reservedPrefix = 'OPENCOVE_',
+  reservedPrefix = 'ECLIPSE_CODE_',
 }: {
   rows: AgentEnvRow[]
   reservedPrefix?: string

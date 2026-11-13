@@ -38,7 +38,7 @@ describe('explicit plugin installation', () => {
       manifest: null,
       manifestError: null,
     })
-    vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+    vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
     const installed = vi.fn()
     render(<PluginInstallPanel onCancel={vi.fn()} onInstalled={installed} />)
     fireEvent.click(screen.getByRole('radio', { name: /^Discover$/ }))

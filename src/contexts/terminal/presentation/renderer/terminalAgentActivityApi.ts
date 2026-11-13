@@ -43,7 +43,7 @@ export function createTerminalAgentActivityApi(
 ): TerminalAgentActivityApi {
   const invoke =
     options.invoke ??
-    (async request => await window.opencoveApi.controlSurface.invoke<unknown>(request))
+    (async request => await window.eclipseCodeApi.controlSurface.invoke<unknown>(request))
   return {
     listLatestMetadata: async () => {
       const value = await invoke({

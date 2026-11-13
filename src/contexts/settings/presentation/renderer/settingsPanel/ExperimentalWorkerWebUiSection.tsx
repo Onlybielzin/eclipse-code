@@ -12,7 +12,7 @@ import type {
   WorkerStatusResult,
   WorkerWebAccessRuntimeStatusDto,
 } from '@shared/contracts/dto'
-import { isAppErrorDescriptor, OpenCoveAppError } from '@shared/errors/appError'
+import { isAppErrorDescriptor, EclipseCodeAppError } from '@shared/errors/appError'
 import { toErrorMessage } from './workerSectionUtils'
 import { SettingsGroup, SettingsGroupBody, SettingsModule } from './SettingsGroup'
 import {
@@ -35,7 +35,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
   const formatApplyError = useCallback(
     (error: unknown): string => {
       const code =
-        error instanceof OpenCoveAppError || isAppErrorDescriptor(error) ? error.code : null
+        error instanceof EclipseCodeAppError || isAppErrorDescriptor(error) ? error.code : null
       if (
         code !== null ||
         (error instanceof Error &&
@@ -77,7 +77,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
     try {
       const [snapshot, status] = await Promise.all([
         readWorkerConfigurationSnapshot(),
-        window.opencoveApi.worker.getStatus(),
+        window.eclipseCodeApi.worker.getStatus(),
       ])
 
       applyConfigurationSnapshot(snapshot)
@@ -147,7 +147,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
     setWorkerWebUiBusy(true)
 
     try {
-      const url = await window.opencoveApi.worker.getWebUiUrl()
+      const url = await window.eclipseCodeApi.worker.getWebUiUrl()
       if (!url) {
         setWorkerWebUiError(t('settingsPanel.experimental.workerWebUi.errors.noUrl'))
         return
@@ -180,7 +180,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
 
       try {
         setWorkerConfig(
-          await window.opencoveApi.workerClient.setWebUiSettings({
+          await window.eclipseCodeApi.workerClient.setWebUiSettings({
             enabled,
             port: workerConfig.webUi.port,
           }),
@@ -224,7 +224,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
     setWorkerWebUiBusy(true)
 
     try {
-      const nextConfig = await window.opencoveApi.workerClient.setWebUiSettings({
+      const nextConfig = await window.eclipseCodeApi.workerClient.setWebUiSettings({
         enabled: workerConfig.webUi.enabled,
         port: nextPort,
       })
@@ -259,7 +259,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
     setWorkerWebUiError(null)
     setWorkerWebUiBusy(true)
     try {
-      const nextConfig = await window.opencoveApi.workerClient.setWebUiSecurity({
+      const nextConfig = await window.eclipseCodeApi.workerClient.setWebUiSecurity({
         exposeOnLan: workerConfig?.webUi.exposeOnLan ?? false,
         password: normalized,
       })
@@ -294,7 +294,7 @@ export function ExperimentalWorkerWebUiSection(): React.JSX.Element {
       setWorkerWebUiError(null)
       setWorkerWebUiBusy(true)
       try {
-        const nextConfig = await window.opencoveApi.workerClient.setWebUiSecurity({
+        const nextConfig = await window.eclipseCodeApi.workerClient.setWebUiSecurity({
           exposeOnLan: enabled,
           password: null,
         })

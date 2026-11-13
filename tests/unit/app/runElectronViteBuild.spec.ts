@@ -32,7 +32,7 @@ describe('run-electron-vite-build', () => {
     expect(
       buildElectronViteEnv({
         NODE_OPTIONS: '--trace-warnings',
-        OPENCOVE_BUILD_MAX_OLD_SPACE_SIZE_MB: '5120',
+        ECLIPSE_CODE_BUILD_MAX_OLD_SPACE_SIZE_MB: '5120',
       }).NODE_OPTIONS,
     ).toBe('--trace-warnings --max-old-space-size=5120')
   })

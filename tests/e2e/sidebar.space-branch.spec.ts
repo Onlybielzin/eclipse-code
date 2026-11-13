@@ -46,16 +46,16 @@ test.describe('Sidebar - Space branch', () => {
   })
 
   test('a long Space name and branch stay inside the card and end in an ellipsis', async () => {
-    const root = await realpath(await mkdtemp(path.join(tmpdir(), 'opencove-space-branch-')))
+    const root = await realpath(await mkdtemp(path.join(tmpdir(), 'eclipse-code-space-branch-')))
     const repo = path.join(root, 'repo')
-    const worktree = path.join(repo, '.opencove', 'worktrees', 'renamed')
+    const worktree = path.join(repo, '.eclipse-code', 'worktrees', 'renamed')
     const branch = 'feat/supporting-renamed-agent-sessions-after-the-review'
     await mkdir(repo, { recursive: true })
     await writeFile(path.join(repo, 'README.md'), '# branch\n')
-    await writeFile(path.join(repo, '.gitignore'), '.opencove/\n')
+    await writeFile(path.join(repo, '.gitignore'), '.eclipse-code/\n')
     const git = (...args: string[]) => execFileSync('git', args, { cwd: repo })
     git('init', '-b', 'main')
-    git('config', 'user.name', 'OpenCove E2E')
+    git('config', 'user.name', 'Eclipse Code E2E')
     git('config', 'user.email', 'e2e@example.com')
     git('add', '.')
     git('commit', '--no-gpg-sign', '-m', 'init')

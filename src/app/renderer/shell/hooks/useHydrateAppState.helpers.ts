@@ -282,7 +282,7 @@ async function hydrateRuntimeNodeLocally({
     typeof node.data.sessionId === 'string' ? node.data.sessionId.trim() : ''
   if (existingSessionId.length > 0) {
     try {
-      const snapshot = await window.opencoveApi.pty.snapshot({ sessionId: existingSessionId })
+      const snapshot = await window.eclipseCodeApi.pty.snapshot({ sessionId: existingSessionId })
       const liveScrollback = typeof snapshot?.data === 'string' ? snapshot.data : ''
       return {
         ...node,
@@ -334,7 +334,7 @@ async function hydrateRuntimeNodeLocally({
   }
 
   try {
-    const spawned = await window.opencoveApi.pty.spawn({
+    const spawned = await window.eclipseCodeApi.pty.spawn({
       canvasNodeId: node.id,
       cwd: resolveTerminalHydrationCwd(node, workspacePath),
       profileId: node.data.profileId ?? agentSettings.defaultTerminalProfileId ?? undefined,
@@ -395,7 +395,7 @@ export async function prepareWorkspaceRuntimeNodes({
     return []
   }
 
-  const controlSurfaceInvoke = window.opencoveApi?.controlSurface?.invoke
+  const controlSurfaceInvoke = window.eclipseCodeApi?.controlSurface?.invoke
   const shouldRequireWorker = workerOnly ?? typeof controlSurfaceInvoke === 'function'
   const preparedNodes = await mapWithConcurrency(runtimeNodes, 4, async node => {
     if (isCancelled()) {

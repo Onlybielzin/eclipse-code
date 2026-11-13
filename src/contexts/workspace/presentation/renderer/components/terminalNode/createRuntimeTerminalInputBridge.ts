@@ -78,7 +78,7 @@ export function createRuntimeTerminalInputBridge({
     }
 
     try {
-      await window.opencoveApi.pty.write({
+      await window.eclipseCodeApi.pty.write({
         sessionId,
         data,
         ...(encoding === 'binary' ? { encoding } : {}),
@@ -223,7 +223,7 @@ export function createRuntimeTerminalInputBridge({
   const handleClipboard = createTerminalClipboardHandler({
     provider: terminalProvider,
     getProvider: getTerminalProvider,
-    platform: window.opencoveApi?.meta?.platform ?? navigator.platform,
+    platform: window.eclipseCodeApi?.meta?.platform ?? navigator.platform,
     write: forwardUtf8UserInput,
     isBracketedPasteMode: inputModeTracker.isBracketedPasteMode,
     isDisposed: () => isDisposed,

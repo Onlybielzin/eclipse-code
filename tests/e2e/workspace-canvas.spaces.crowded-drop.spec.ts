@@ -106,7 +106,7 @@ test.describe('Workspace Canvas - Spaces (Crowded Drop)', () => {
       // geometry, and node position must remain at their drag baseline.
       await window.waitForTimeout(180)
       const durableDuringPreview = await window.evaluate(async () => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -146,7 +146,7 @@ test.describe('Workspace Canvas - Spaces (Crowded Drop)', () => {
             async ({ key, spaceId, nodeAId, nodeBId, initialWidth, initialHeight }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return false
               }

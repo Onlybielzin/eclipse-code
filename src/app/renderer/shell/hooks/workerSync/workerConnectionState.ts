@@ -25,4 +25,4 @@ export function clearWorkerConnectionFailure(): void {
     }))
   }
 }
-export const WORKER_CONNECTION_RETRY_EVENT = 'opencove.retryWorkerConnection'
+export const WORKER_CONNECTION_RETRY_EVENT = 'eclipse-code.retryWorkerConnection'

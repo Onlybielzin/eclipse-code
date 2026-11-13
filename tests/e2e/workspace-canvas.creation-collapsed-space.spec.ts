@@ -30,7 +30,7 @@ interface SavedSpace {
 
 async function readLayout(page: Page) {
   return page.evaluate(async workspaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{ id: string; nodes: SavedNode[]; spaces: SavedSpace[] }>
     }
@@ -123,7 +123,7 @@ for (const nesting of ['root', 'child'] as const) {
       )
       await window.evaluate(workspaceId => {
         localStorage.setItem(
-          'opencove:canvas-collapse:v1',
+          'eclipse-code:canvas-collapse:v1',
           JSON.stringify({
             [workspaceId]: { collapsedNodeIds: { compact: true }, collapsedSpaceIds: {} },
           }),

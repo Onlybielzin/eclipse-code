@@ -45,7 +45,7 @@ for (const theme of ['dark', 'light']) {
       page.request,
       buildAppState({
         workspaceId: 'surfaces',
-        workspaceName: 'OpenCove',
+        workspaceName: 'Eclipse Code',
         workspacePath,
         spaces: [],
         settings: { uiTheme: theme, isPrimarySidebarCollapsed: false },

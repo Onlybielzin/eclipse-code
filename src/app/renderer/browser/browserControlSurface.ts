@@ -42,7 +42,7 @@ export async function invokeBrowserControlSurface<TValue>(
   const result =
     parsed &&
     typeof parsed === 'object' &&
-    (parsed as Record<string, unknown>).__opencoveControlEnvelope === true
+    (parsed as Record<string, unknown>).__eclipseCodeControlEnvelope === true
       ? (parsed as ControlSurfaceInvokeResult<TValue>)
       : null
 

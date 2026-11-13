@@ -40,7 +40,7 @@ describe('remote PTY multi-subscriber reconnect', () => {
       response.setHeader('content-type', 'application/json')
       response.end(
         JSON.stringify({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: { code: 'session.not_found' },
         }),

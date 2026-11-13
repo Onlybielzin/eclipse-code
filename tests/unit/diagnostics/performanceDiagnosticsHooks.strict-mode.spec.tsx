@@ -28,8 +28,8 @@ const snapshotFixture: PerformanceDiagnosticsSnapshotResult = {
   processes: [],
   processSummary: [
     {
-      kind: 'opencove-renderer',
-      scope: 'opencove',
+      kind: 'eclipse-code-renderer',
+      scope: 'eclipse-code',
       count: 1,
       workingSetBytes: 24 * 1024 * 1024,
       privateBytes: 20 * 1024 * 1024,
@@ -118,18 +118,18 @@ function IncidentHarness({
 
 describe('performance diagnostics hooks in StrictMode', () => {
   afterEach(() => {
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 
   it('settles the diagnostics snapshot request in StrictMode', async () => {
     const getSnapshot = vi.fn(async () => snapshotFixture)
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     render(
       <React.StrictMode>
@@ -151,7 +151,7 @@ describe('performance diagnostics hooks in StrictMode', () => {
     vi.spyOn(performance, 'now').mockReturnValue(20_000)
     const getSnapshot = vi.fn(async () => snapshotFixture)
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot,
       },
@@ -159,7 +159,7 @@ describe('performance diagnostics hooks in StrictMode', () => {
         logTerminalDiagnostics: vi.fn(),
         logRuntimeDiagnostics: vi.fn(),
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     const { rerender } = render(
       <React.StrictMode>

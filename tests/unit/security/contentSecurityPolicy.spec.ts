@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildOpenCoveContentSecurityPolicy } from '../../../electron.vite.config'
+import { buildEclipseCodeContentSecurityPolicy } from '../../../electron.vite.config'
 
 function getCspDirective(csp: string, directive: string): string | null {
   const prefix = `${directive} `
@@ -12,9 +12,9 @@ function getCspDirective(csp: string, directive: string): string | null {
   return null
 }
 
-describe('buildOpenCoveContentSecurityPolicy', () => {
+describe('buildEclipseCodeContentSecurityPolicy', () => {
   it('keeps production `style-src` strict while allowing the xterm inline channels it requires', () => {
-    const productionPolicy = buildOpenCoveContentSecurityPolicy(false)
+    const productionPolicy = buildEclipseCodeContentSecurityPolicy(false)
     const styleDirective = getCspDirective(productionPolicy, 'style-src')
     const styleAttrDirective = getCspDirective(productionPolicy, 'style-src-attr')
     const styleElemDirective = getCspDirective(productionPolicy, 'style-src-elem')
@@ -26,21 +26,21 @@ describe('buildOpenCoveContentSecurityPolicy', () => {
   })
 
   it('allows website fallback iframe windows to load remote pages', () => {
-    const productionPolicy = buildOpenCoveContentSecurityPolicy(false)
+    const productionPolicy = buildEclipseCodeContentSecurityPolicy(false)
     const frameDirective = getCspDirective(productionPolicy, 'frame-src')
 
     expect(frameDirective).toBe("frame-src 'self' http: https:")
   })
 
   it('allows HTTPS documentation images without granting remote script or fetch access', () => {
-    const policy = buildOpenCoveContentSecurityPolicy(false)
+    const policy = buildEclipseCodeContentSecurityPolicy(false)
     expect(getCspDirective(policy, 'img-src')).toBe("img-src 'self' data: blob: https:")
     expect(getCspDirective(policy, 'script-src')).toBe("script-src 'self'")
     expect(getCspDirective(policy, 'connect-src')).toBe("connect-src 'self'")
   })
 
   it("keeps 'unsafe-inline' styles in development builds for Vite", () => {
-    const developmentPolicy = buildOpenCoveContentSecurityPolicy(true)
+    const developmentPolicy = buildEclipseCodeContentSecurityPolicy(true)
     const styleDirective = getCspDirective(developmentPolicy, 'style-src')
     const styleAttrDirective = getCspDirective(developmentPolicy, 'style-src-attr')
     const styleElemDirective = getCspDirective(developmentPolicy, 'style-src-elem')

@@ -30,7 +30,7 @@ test.describe('Workspace Canvas - Spaces (Empty Allowed)', () => {
       await terminalNode.click({ button: 'right' })
       await window.locator('[data-testid="workspace-selection-create-space"]').click()
 
-      await expect(window.locator('.workspace-space-switcher')).toHaveCount(1)
+      await expect(window.getByTestId('workspace-task-switcher')).toHaveCount(1)
       await expect(window.locator('.workspace-space-region')).toHaveCount(1)
 
       const pane = window.locator('.workspace-canvas .react-flow__pane')
@@ -49,7 +49,7 @@ test.describe('Workspace Canvas - Spaces (Empty Allowed)', () => {
         },
       })
 
-      await expect(window.locator('.workspace-space-switcher')).toHaveCount(1)
+      await expect(window.getByTestId('workspace-task-switcher')).toHaveCount(1)
       await expect(window.locator('.workspace-space-region')).toHaveCount(1)
 
       await expect
@@ -58,7 +58,7 @@ test.describe('Workspace Canvas - Spaces (Empty Allowed)', () => {
             async ({ key }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return { spaceCount: 0, firstSpaceNodeIdsCount: null }
               }

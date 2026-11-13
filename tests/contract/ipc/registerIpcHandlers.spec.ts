@@ -92,7 +92,7 @@ describe('registerIpcHandlers', () => {
     }
 
     vi.doMock('electron', () => ({
-      app: { getPath: vi.fn(() => '/tmp/opencove-user-data') },
+      app: { getPath: vi.fn(() => '/tmp/eclipse-code-user-data') },
       ipcMain,
       clipboard,
     }))
@@ -217,7 +217,7 @@ describe('registerIpcHandlers', () => {
     const createPersistenceStore = vi.fn().mockResolvedValue(persistenceStore)
 
     vi.doMock('electron', () => ({
-      app: { getPath: vi.fn(() => '/tmp/opencove-user-data') },
+      app: { getPath: vi.fn(() => '/tmp/eclipse-code-user-data') },
       ipcMain,
       clipboard,
       dialog: { showOpenDialog: vi.fn() },

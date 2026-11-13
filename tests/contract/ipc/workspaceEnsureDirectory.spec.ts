@@ -65,10 +65,10 @@ describe('workspace ensureDirectory IPC', () => {
       }),
     }
 
-    const previousTestWorkspace = process.env.OPENCOVE_TEST_WORKSPACE
+    const previousTestWorkspace = process.env.ECLIPSE_CODE_TEST_WORKSPACE
     const previousNodeEnv = process.env.NODE_ENV
     process.env.NODE_ENV = 'test'
-    process.env.OPENCOVE_TEST_WORKSPACE = '/tmp/cove-approved-workspace'
+    process.env.ECLIPSE_CODE_TEST_WORKSPACE = '/tmp/cove-approved-workspace'
 
     try {
       const { registerWorkspaceIpcHandlers } =
@@ -100,11 +100,11 @@ describe('workspace ensureDirectory IPC', () => {
 
       await expect(
         invokeHandledIpc(ensureHandler, null, {
-          path: '/tmp/cove-approved-workspace/.opencove/worktrees/demo',
+          path: '/tmp/cove-approved-workspace/.eclipse-code/worktrees/demo',
         }),
       ).resolves.toBeUndefined()
       expect(mkdir).toHaveBeenCalledWith(
-        '/tmp/cove-approved-workspace/.opencove/worktrees/demo',
+        '/tmp/cove-approved-workspace/.eclipse-code/worktrees/demo',
         expect.objectContaining({ recursive: true }),
       )
 
@@ -113,9 +113,9 @@ describe('workspace ensureDirectory IPC', () => {
       expect(ipcMain.removeHandler).toHaveBeenCalledWith(IPC_CHANNELS.workspaceEnsureDirectory)
     } finally {
       if (typeof previousTestWorkspace === 'string') {
-        process.env.OPENCOVE_TEST_WORKSPACE = previousTestWorkspace
+        process.env.ECLIPSE_CODE_TEST_WORKSPACE = previousTestWorkspace
       } else {
-        delete process.env.OPENCOVE_TEST_WORKSPACE
+        delete process.env.ECLIPSE_CODE_TEST_WORKSPACE
       }
 
       if (typeof previousNodeEnv === 'string') {

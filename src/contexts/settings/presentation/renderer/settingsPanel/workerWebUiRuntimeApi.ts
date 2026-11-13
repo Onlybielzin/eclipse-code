@@ -22,12 +22,12 @@ export function readWorkerConfigurationSnapshotFromError(
 }
 
 export async function readWorkerConfigurationSnapshot(): Promise<HomeWorkerConfigurationSnapshotDto> {
-  const readSnapshot = window.opencoveApi.workerClient.getConfigurationSnapshot
+  const readSnapshot = window.eclipseCodeApi.workerClient.getConfigurationSnapshot
   const value =
     typeof readSnapshot === 'function'
       ? await readSnapshot()
       : {
-          config: await window.opencoveApi.workerClient.getConfig(),
+          config: await window.eclipseCodeApi.workerClient.getConfig(),
           webAccess: { state: 'disabled', generation: 0, drainingGenerations: [] },
         }
   return normalizeHomeWorkerConfigurationSnapshot(value)

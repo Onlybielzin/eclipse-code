@@ -26,7 +26,7 @@ describe('terminal selection test handle ownership', () => {
     const terminal = terminalWithSize(80, 24)
     const dispose = registerTerminalSelectionTestHandle(nodeId, terminal)
 
-    expect(window.__opencoveTerminalSelectionTestApi?.simulateDetachedRendererOnce(nodeId)).toBe(
+    expect(window.__eclipseCodeTerminalSelectionTestApi?.simulateDetachedRendererOnce(nodeId)).toBe(
       true,
     )
     expect(hasPendingDetachedTerminalRendererReadForTests(terminal as never)).toBe(true)
@@ -44,12 +44,12 @@ describe('terminal selection test handle ownership', () => {
 
     disposeOld()
 
-    expect(window.__opencoveTerminalSelectionTestApi?.getSize(nodeId)).toEqual({
+    expect(window.__eclipseCodeTerminalSelectionTestApi?.getSize(nodeId)).toEqual({
       cols: 100,
       rows: 30,
     })
 
     disposeCurrent()
-    expect(window.__opencoveTerminalSelectionTestApi?.getSize(nodeId)).toBeNull()
+    expect(window.__eclipseCodeTerminalSelectionTestApi?.getSize(nodeId)).toBeNull()
   })
 })

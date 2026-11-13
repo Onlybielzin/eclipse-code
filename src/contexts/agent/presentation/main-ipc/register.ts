@@ -79,7 +79,7 @@ function resolveOpenCodeEmbeddedXdgStateHome(): string {
     // Vitest electron mocks may throw when accessing undefined exports.
   }
 
-  const fallback = process.env['OPENCOVE_TEST_USER_DATA_DIR']?.trim()
+  const fallback = process.env['ECLIPSE_CODE_TEST_USER_DATA_DIR']?.trim()
   return fallback && fallback.length > 0 ? fallback : process.cwd()
 }
 
@@ -360,8 +360,8 @@ export function registerAgentIpcHandlers(
       const internalSessionEnv =
         opencodeServer && normalized.provider === 'opencode'
           ? {
-              OPENCOVE_OPENCODE_SERVER_HOSTNAME: opencodeServer.hostname,
-              OPENCOVE_OPENCODE_SERVER_PORT: String(opencodeServer.port),
+              ECLIPSE_CODE_OPENCODE_SERVER_HOSTNAME: opencodeServer.hostname,
+              ECLIPSE_CODE_OPENCODE_SERVER_PORT: String(opencodeServer.port),
               XDG_STATE_HOME: resolveOpenCodeEmbeddedXdgStateHome(),
               ...(opencodeTuiConfigPath ? { OPENCODE_TUI_CONFIG: opencodeTuiConfigPath } : {}),
             }
@@ -424,7 +424,7 @@ export function registerAgentIpcHandlers(
       const resumeSessionId = launchCommand.resumeSessionId
       const shouldStartStateWatcher =
         process.env.NODE_ENV !== 'test' ||
-        process.env['OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER'] === '1'
+        process.env['ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER'] === '1'
       const { sessionId } = await launchSessionRegistrations
         .spawn({
           spawn: async () =>

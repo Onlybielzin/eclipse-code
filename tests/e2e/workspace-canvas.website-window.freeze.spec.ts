@@ -24,7 +24,7 @@ async function readWebsiteRuntimeState(
 ): Promise<WebsiteRuntimeState | null> {
   return await electronApp.evaluate(async ({ BrowserWindow }, targetNodeId) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const manager = win.__opencoveWebsiteWindowManager
+    const manager = win.__eclipseCodeWebsiteWindowManager
     const runtime = manager?.runtimeByNodeId.get(targetNodeId) ?? null
     if (!runtime) {
       return null
@@ -106,7 +106,7 @@ test.describe('Workspace Canvas - Website Window', () => {
       await prepareIdleWebsiteSnapshot(electronApp)
 
       await window.evaluate(() => {
-        window.opencoveApi.websiteWindow.captureSnapshot({
+        window.eclipseCodeApi.websiteWindow.captureSnapshot({
           nodeId: 'website-freeze-node',
           quality: 60,
         })

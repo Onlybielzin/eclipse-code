@@ -66,7 +66,7 @@ test.describe('Workspace Canvas - Color Identity', () => {
     void browserName
     const fixture = await createIdentityFixture()
     const { electronApp, window: page } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
     })
     try {
       await (
@@ -186,7 +186,7 @@ test.describe('Workspace Canvas - Color Identity', () => {
     void browserName
     const fixture = await createIdentityFixture()
     const { electronApp, window: page } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
     })
     try {
       await (
@@ -306,7 +306,7 @@ test.describe('Workspace Canvas - Color Identity', () => {
     void browserName
     const fixture = await createIdentityFixture()
     const { electronApp, window: page } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
     })
     try {
       await (

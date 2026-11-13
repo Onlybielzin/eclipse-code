@@ -34,13 +34,13 @@ function resolveElectronMetricKind(
   const label = `${metric.name ?? ''} ${metric.serviceName ?? ''}`.toLowerCase()
 
   if (type === 'browser') {
-    return 'opencove-main'
+    return 'eclipse-code-main'
   }
   if (type === 'tab' || type === 'renderer' || label.includes('renderer')) {
-    return 'opencove-renderer'
+    return 'eclipse-code-renderer'
   }
   if (type === 'utility' || type === 'gpu' || label.includes('utility')) {
-    return 'opencove-utility'
+    return 'eclipse-code-utility'
   }
   return 'other'
 }
@@ -113,7 +113,7 @@ export function summarizeElectronMetrics(
     const kind = resolveElectronMetricKind(metric)
     const existing = rows.get(kind) ?? {
       kind,
-      scope: kind === 'other' ? 'other' : 'opencove',
+      scope: kind === 'other' ? 'other' : 'eclipse-code',
       count: 0,
       workingSetBytes: 0,
       privateBytes: 0,

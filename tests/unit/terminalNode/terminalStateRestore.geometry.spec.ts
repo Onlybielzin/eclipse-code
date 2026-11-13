@@ -115,7 +115,7 @@ describe('alternate hydration across an appearance geometry commit', () => {
           }
           return captured
         })
-        Object.assign(window.opencoveApi.pty, { presentationSnapshot })
+        Object.assign(window.eclipseCodeApi.pty, { presentationSnapshot })
         const attach = vi.fn(async () => ({
           sessionId,
           authority: { role: 'controller' as const, epoch: 1 },

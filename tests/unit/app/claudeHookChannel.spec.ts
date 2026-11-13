@@ -11,7 +11,7 @@ afterEach(async () => {
 })
 
 async function createChannel(port = 0) {
-  const homeDirectory = await mkdtemp(join(tmpdir(), 'opencove-hook-channel-'))
+  const homeDirectory = await mkdtemp(join(tmpdir(), 'eclipse-code-hook-channel-'))
   roots.push(homeDirectory)
   const channel = createClaudeHookChannel({
     homeDirectory,
@@ -45,7 +45,7 @@ async function post(
       headers: {
         'content-type': options.contentType ?? 'application/json',
         'content-length': Buffer.byteLength(body),
-        ...(token ? { 'x-opencove-hook-token': token } : {}),
+        ...(token ? { 'x-eclipse-code-hook-token': token } : {}),
       },
     })
     outgoing.once('error', reject)
@@ -65,7 +65,7 @@ describe('Claude hook channel', () => {
       throw new Error('Missing receiver endpoint.')
     }
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN
+    const token = reservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN
     if (!token) {
       throw new Error('Missing correlation token.')
     }
@@ -96,7 +96,7 @@ describe('Claude hook channel', () => {
     const channel = await createChannel()
     const endpoint = channel.getEndpoint()!
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const token = reservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
     const events: unknown[] = []
     channel.onState(event => events.push(event))
 
@@ -119,7 +119,7 @@ describe('Claude hook channel', () => {
     const channel = await createChannel()
     const endpoint = channel.getEndpoint()!
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const token = reservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
 
     await expect(
       post(endpoint, token, 'working', { payload: { version: 1, state: 'working' } }),

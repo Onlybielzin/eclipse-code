@@ -50,7 +50,7 @@ import {
   registerWorkerSyncPresentation,
 } from './workerSync/acceptWorkerSyncSnapshot'
 
-const LOCAL_SYNC_WRITE_EVENT_NAME = 'opencove.localSyncWrite'
+const LOCAL_SYNC_WRITE_EVENT_NAME = 'eclipse-code.localSyncWrite'
 
 export function useWorkerSyncStateUpdates(options: { enabled: boolean }): void {
   const refreshTimerRef = useRef<number | null>(null)
@@ -143,7 +143,7 @@ export function useWorkerSyncStateUpdates(options: { enabled: boolean }): void {
       }, normalizedDelay)
     }
 
-    const syncApi = window.opencoveApi?.sync
+    const syncApi = window.eclipseCodeApi?.sync
     const SYNC_WRITE_EVENT_DELAY_MS = 200
     const unsubscribe =
       typeof syncApi?.onStateUpdated === 'function'

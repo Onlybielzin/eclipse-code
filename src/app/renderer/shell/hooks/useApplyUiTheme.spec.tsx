@@ -50,12 +50,12 @@ describe('useApplyUiTheme', () => {
 
   it('switches Cove dark to light and notifies chrome with the light base scheme', () => {
     const setTheme = vi.fn(async () => undefined)
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { windowChrome: { setTheme } },
     })
     const listener = vi.fn()
-    window.addEventListener('opencove-theme-changed', listener)
+    window.addEventListener('eclipse-code-theme-changed', listener)
     try {
       const { rerender } = render(<HookHost uiTheme="dark" />)
       rerender(<HookHost uiTheme="light" />)
@@ -71,13 +71,13 @@ describe('useApplyUiTheme', () => {
       rerender(<HookHost uiTheme="light" />)
       expect(listener).toHaveBeenCalledTimes(eventCount)
     } finally {
-      window.removeEventListener('opencove-theme-changed', listener)
+      window.removeEventListener('eclipse-code-theme-changed', listener)
     }
   })
 
   it('reapplies theme-id when only the named theme changes but base scheme stays the same', () => {
     const setTheme = vi.fn(async () => undefined)
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { windowChrome: { setTheme } },
     })
@@ -86,7 +86,7 @@ describe('useApplyUiTheme', () => {
     const listener = (event: Event): void => {
       events.push((event as CustomEvent).detail)
     }
-    window.addEventListener('opencove-theme-changed', listener)
+    window.addEventListener('eclipse-code-theme-changed', listener)
     // The system is dark, so moving from Cove dark to Cove (System) keeps the base scheme.
     vi.spyOn(window, 'matchMedia').mockReturnValue({
       matches: true,
@@ -112,6 +112,6 @@ describe('useApplyUiTheme', () => {
       { theme: 'dark', themeId: 'system' },
     ])
 
-    window.removeEventListener('opencove-theme-changed', listener)
+    window.removeEventListener('eclipse-code-theme-changed', listener)
   })
 })

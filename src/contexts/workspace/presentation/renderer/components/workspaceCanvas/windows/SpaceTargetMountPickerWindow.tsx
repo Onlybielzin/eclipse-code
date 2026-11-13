@@ -27,11 +27,13 @@ export function SpaceTargetMountPickerWindow({
 
     void (async () => {
       try {
-        const result = await window.opencoveApi.controlSurface.invoke<ListWorkerEndpointsResult>({
-          kind: 'query',
-          id: 'endpoint.list',
-          payload: null,
-        })
+        const result = await window.eclipseCodeApi.controlSurface.invoke<ListWorkerEndpointsResult>(
+          {
+            kind: 'query',
+            id: 'endpoint.list',
+            payload: null,
+          },
+        )
         if (cancelled) {
           return
         }

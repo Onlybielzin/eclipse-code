@@ -4,7 +4,7 @@ import type { WindowFocusState } from '../../../shared/contracts/dto'
 
 /**
  * Tells the window's renderer when it gains or loses focus, so a countdown can wait while
- * OpenCove is behind another app. The renderer's own focus signals cannot tell (see
+ * Eclipse Code is behind another app. The renderer's own focus signals cannot tell (see
  * docs/agent/ATTENTION.md). The listeners live as long as the window.
  */
 export function broadcastWindowFocus(window: BrowserWindow): void {

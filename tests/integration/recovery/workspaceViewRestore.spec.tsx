@@ -25,14 +25,14 @@ import { installMockStorage } from '../../support/persistenceTestStorage'
 
 const original = {
   state: useAppStore.getState(),
-  api: window.opencoveApi,
+  api: window.eclipseCodeApi,
   storage: window.localStorage,
 }
 afterEach(async () => {
   cleanup()
   await flushScheduledPersistedStateWriteAsync()
   useAppStore.setState(original.state, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original.api })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original.api })
   Object.defineProperty(window, 'localStorage', { configurable: true, value: original.storage })
 })
 
@@ -119,7 +119,7 @@ function setup() {
     return { ok: true, level: 'full', bytes: 1, revision: ++revision, corrected: false }
   })
   const connect = () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         // A new IPC identity discards volatile publication state on every cold boot.

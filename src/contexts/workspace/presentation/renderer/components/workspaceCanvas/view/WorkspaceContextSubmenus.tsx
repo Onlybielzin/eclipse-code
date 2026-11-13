@@ -49,6 +49,7 @@ export function WorkspaceContextSubmenus({
   enabledQuickPhrases,
   projectRoles,
   openRoleCreator,
+  createDefaultTeam,
   keepAgentProviderSubmenuOpen,
   keepQuickCommandsSubmenuOpen,
   keepQuickPhrasesSubmenuOpen,
@@ -87,6 +88,7 @@ export function WorkspaceContextSubmenus({
   enabledQuickPhrases: QuickPhrase[]
   projectRoles: ProjectRoleDefinition[]
   openRoleCreator: () => void
+  createDefaultTeam: () => void
   keepAgentProviderSubmenuOpen: () => void
   keepQuickCommandsSubmenuOpen: () => void
   keepQuickPhrasesSubmenuOpen: () => void
@@ -202,6 +204,7 @@ export function WorkspaceContextSubmenus({
           scheduleSubmenuClose={scheduleSubmenuClose}
           runProjectRoleFromContextMenu={runProjectRoleFromContextMenu}
           openRoleCreator={openRoleCreator}
+          createDefaultTeam={createDefaultTeam}
           openRoleEditor={openRoleEditor}
           deleteProjectRole={deleteProjectRole}
         />

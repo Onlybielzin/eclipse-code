@@ -58,27 +58,27 @@ function isExplicitLegacyLine(line) {
 }
 
 function includesLegacyStoragePrefix(line) {
-  // `opencove:*` contains the substring `cove:*`, so we must guard on a word boundary-like separator.
+  // `eclipse-code:*` contains the substring `cove:*`, so we must guard on a word boundary-like separator.
   return /(^|[^a-zA-Z0-9_])cove:m0:/i.test(line)
 }
 
 function includesCoveProtocolPrefix(line) {
-  // `opencove:*` contains the substring `cove:*`, so we must guard on a word boundary-like separator.
+  // `eclipse-code:*` contains the substring `cove:*`, so we must guard on a word boundary-like separator.
   return /(^|[^a-zA-Z0-9_])cove:/i.test(line)
 }
 
 function includesCoveTestPrefix(line) {
-  // `opencove-test-*` contains the substring `cove-test-*`, so we must guard on a word boundary-like separator.
+  // `eclipse-code-test-*` contains the substring `cove-test-*`, so we must guard on a word boundary-like separator.
   return /(^|[^a-zA-Z0-9_])cove-test-/i.test(line)
 }
 
 function includesCoveDbFileName(line) {
-  // `opencove.db` contains the substring `cove.db`, so we must guard on a word boundary-like separator.
+  // `eclipse-code.db` contains the substring `cove.db`, so we must guard on a word boundary-like separator.
   return /(^|[^a-zA-Z0-9_])cove\.db\b/i.test(line)
 }
 
 function includesCoveApiToken(line) {
-  // `opencoveApi` contains the substring `coveApi`, but without a word boundary before `c`.
+  // `eclipseCodeApi` contains the substring `coveApi`, but without a word boundary before `c`.
   return /\bcoveApi\b/.test(line)
 }
 
@@ -126,7 +126,7 @@ for (const rawLine of lines) {
     violations.push({
       file: currentFile,
       rule: 'coveApi',
-      hint: 'Use `opencoveApi` (global API) instead of `coveApi`.',
+      hint: 'Use `eclipseCodeApi` (global API) instead of `coveApi`.',
       line: addedLine.trimEnd(),
     })
   }
@@ -135,7 +135,7 @@ for (const rawLine of lines) {
     violations.push({
       file: currentFile,
       rule: '[cove] log prefix',
-      hint: 'Use `[opencove]` for log prefixes.',
+      hint: 'Use `[eclipse-code]` for log prefixes.',
       line: addedLine.trimEnd(),
     })
   }
@@ -144,7 +144,7 @@ for (const rawLine of lines) {
     violations.push({
       file: currentFile,
       rule: 'cove-test-*',
-      hint: 'Use `opencove-test-*` for test identifiers/prefixes.',
+      hint: 'Use `eclipse-code-test-*` for test identifiers/prefixes.',
       line: addedLine.trimEnd(),
     })
   }
@@ -153,7 +153,7 @@ for (const rawLine of lines) {
     violations.push({
       file: currentFile,
       rule: 'cove.db',
-      hint: 'Use `opencove.db` as the persisted database filename.',
+      hint: 'Use `eclipse-code.db` as the persisted database filename.',
       line: addedLine.trimEnd(),
     })
   }
@@ -163,7 +163,7 @@ for (const rawLine of lines) {
       violations.push({
         file: currentFile,
         rule: 'cove:m0:*',
-        hint: 'Use `opencove:m0:*` for new keys. If this is an intentional legacy migration path, add `LEGACY_` or comment `legacy` on the same line.',
+        hint: 'Use `eclipse-code:m0:*` for new keys. If this is an intentional legacy migration path, add `LEGACY_` or comment `legacy` on the same line.',
         line: addedLine.trimEnd(),
       })
     }
@@ -175,7 +175,7 @@ for (const rawLine of lines) {
     violations.push({
       file: currentFile,
       rule: 'cove:* prefix',
-      hint: 'Use `opencove:*` (event/protocol/key prefix) instead of `cove:*`.',
+      hint: 'Use `eclipse-code:*` (event/protocol/key prefix) instead of `cove:*`.',
       line: addedLine.trimEnd(),
     })
   }
@@ -186,7 +186,7 @@ if (checkedFiles.size === 0 && !targetFiles) {
     '[gate:naming] WARNING: no staged files matched — this gate checked NOTHING and is not a pass.\n' +
       'Stage your changes first (git add -A) and confirm: git diff --cached --name-only\n',
   )
-  process.exit(process.env.OPENCOVE_REQUIRE_STAGED === '1' ? 1 : 0)
+  process.exit(process.env.ECLIPSE_CODE_REQUIRE_STAGED === '1' ? 1 : 0)
 }
 
 if (violations.length === 0) {

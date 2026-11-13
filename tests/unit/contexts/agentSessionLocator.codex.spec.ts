@@ -58,7 +58,7 @@ function createRolloutFirstLineWithRecordTimestamp({
 
 describe('locateAgentResumeSessionId (codex)', () => {
   it('returns the uniquely matching session_meta candidate near launch time', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-test-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-test-home-'))
     const previousHome = process.env.HOME
     process.env.HOME = tempHome
 
@@ -105,7 +105,7 @@ describe('locateAgentResumeSessionId (codex)', () => {
   })
 
   it('selects the same-cwd rollout closest to the launch hint when multiple are plausible', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-test-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-test-home-'))
     const previousHome = process.env.HOME
     process.env.HOME = tempHome
 
@@ -152,7 +152,7 @@ describe('locateAgentResumeSessionId (codex)', () => {
   })
 
   it('returns null when every same-cwd rollout candidate is outside the safety window', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-test-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-test-home-'))
     const previousHome = process.env.HOME
     process.env.HOME = tempHome
 
@@ -197,7 +197,7 @@ describe('locateAgentResumeSessionId (codex)', () => {
   })
 
   it('fails closed when two different sessions are exactly equally near the launch hint', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-test-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-test-home-'))
     const previousHome = process.env.HOME
     process.env.HOME = tempHome
 
@@ -242,7 +242,7 @@ describe('locateAgentResumeSessionId (codex)', () => {
   })
 
   it('matches session_meta using the timestamp closest to startedAtMs', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-test-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-test-home-'))
     const previousHome = process.env.HOME
     process.env.HOME = tempHome
 

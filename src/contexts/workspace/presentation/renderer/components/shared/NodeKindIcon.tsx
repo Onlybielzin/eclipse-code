@@ -17,6 +17,8 @@ const NODE_KIND_GLYPHS: Record<Exclude<WorkspaceNodeKind, 'plugin'>, PixelGlyphN
   image: 'image',
   document: 'document',
   folder: 'folder',
+  question: 'question',
+  todos: 'checklist',
 }
 
 /**

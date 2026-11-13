@@ -125,7 +125,7 @@ export function useWorkspaceCanvasQuickMenuActions(
 
       try {
         // Control Surface spawns do not register the session with the Desktop PTY client.
-        await window.opencoveApi.pty.attach({ sessionId: created.sessionId })
+        await window.eclipseCodeApi.pty.attach({ sessionId: created.sessionId })
         if (
           !launchScope.active ||
           !nodesRef.current.some(
@@ -135,7 +135,7 @@ export function useWorkspaceCanvasQuickMenuActions(
           return
         }
         const data = command.command.replace(/\r?\n/g, '\r')
-        await window.opencoveApi.pty.write({
+        await window.eclipseCodeApi.pty.write({
           sessionId: created.sessionId,
           data: data.endsWith('\r') ? data : `${data}\r`,
         })
@@ -192,7 +192,7 @@ export function useWorkspaceCanvasQuickMenuActions(
       }
 
       const text = phrase.content
-      const writeText = window.opencoveApi?.clipboard?.writeText
+      const writeText = window.eclipseCodeApi?.clipboard?.writeText
       if (typeof writeText === 'function') {
         void writeText(text)
         return

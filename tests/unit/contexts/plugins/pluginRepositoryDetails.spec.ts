@@ -59,7 +59,7 @@ describe('read-only GitHub plugin details', () => {
       'https://api.github.com/repos/example/plugin',
       'https://api.github.com/repos/example/plugin/commits/feature%2Fdocs',
       `https://api.github.com/repos/example/plugin/readme?ref=${commit}`,
-      `https://api.github.com/repos/example/plugin/contents/opencove.plugin.json?ref=${commit}`,
+      `https://api.github.com/repos/example/plugin/contents/eclipse-code.plugin.json?ref=${commit}`,
     ])
   })
   it.each([

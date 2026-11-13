@@ -17,10 +17,10 @@ const invoke = vi.fn()
 beforeEach(() => {
   writeText.mockReset().mockResolvedValue(undefined)
   invoke.mockReset()
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     clipboard: { writeText },
     controlSurface: { invoke },
-  } as unknown as Window['opencoveApi']
+  } as unknown as Window['eclipseCodeApi']
 })
 
 function setup(data: Partial<TerminalNodeData>, spaces: WorkspaceSpaceState[] = []) {

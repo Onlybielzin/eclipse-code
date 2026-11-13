@@ -47,7 +47,7 @@ Harness 是仓库治理检查。它们检查项目是否仍然遵守已约定的
 
 架构示例：
 
-- 把 renderer 中直接访问 `window.opencoveApi` 的代码收回到批准的边界 adapter 后面。
+- 把 renderer 中直接访问 `window.eclipseCodeApi` 的代码收回到批准的边界 adapter 后面。
 - 移除违反 `domain -> application -> infrastructure/presentation` 依赖方向的跨层 import。
 - 当已修复的 warning 组归零后，把对应规则收紧为 hard error。
 

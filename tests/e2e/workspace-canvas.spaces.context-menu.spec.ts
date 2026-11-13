@@ -107,13 +107,20 @@ test.describe('Workspace Canvas - Spaces (Menu & Switch)', () => {
       await renameInput.fill('Infra Core')
       await renameInput.press('Enter')
 
-      await expect(window.locator('.workspace-space-switcher__item--active')).toHaveCount(0)
+      // Eclipse Code: exactly one tab is highlighted (the open task, or "All").
+      await expect(
+        window.locator(
+          '[data-testid="workspace-task-tabs"] .cove-segmented__option[data-state="on"]',
+        ),
+      ).toHaveCount(1)
       await expect(window.locator('.workspace-space-region--active')).toHaveCount(0)
       await expect(window.locator('.workspace-space-region__label').first()).toHaveText(
         'Infra Core',
       )
       await expect(
-        window.locator('.workspace-space-switcher__item', { hasText: 'Infra Core' }),
+        window.locator('[data-testid="workspace-task-tabs"] .cove-segmented__option', {
+          hasText: 'Infra Core',
+        }),
       ).toBeVisible()
     } finally {
       await electronApp.close()
@@ -178,7 +185,12 @@ test.describe('Workspace Canvas - Spaces (Menu & Switch)', () => {
       }
 
       await window.locator('[data-testid="workspace-space-switch-space-focus"]').click()
-      await expect(window.locator('.workspace-space-switcher__item--active')).toHaveCount(0)
+      // Eclipse Code: exactly one tab is highlighted (the open task, or "All").
+      await expect(
+        window.locator(
+          '[data-testid="workspace-task-tabs"] .cove-segmented__option[data-state="on"]',
+        ),
+      ).toHaveCount(1)
       await expect(window.locator('.workspace-space-region--active')).toHaveCount(0)
 
       await expect
@@ -291,7 +303,12 @@ test.describe('Workspace Canvas - Spaces (Menu & Switch)', () => {
       }
 
       await window.locator('[data-testid="workspace-space-switch-space-all-focus"]').click()
-      await expect(window.locator('.workspace-space-switcher__item--active')).toHaveCount(0)
+      // Eclipse Code: exactly one tab is highlighted (the open task, or "All").
+      await expect(
+        window.locator(
+          '[data-testid="workspace-task-tabs"] .cove-segmented__option[data-state="on"]',
+        ),
+      ).toHaveCount(1)
       await expect(window.locator('.workspace-space-region--active')).toHaveCount(0)
       await expect
         .poll(async () => {
@@ -315,7 +332,12 @@ test.describe('Workspace Canvas - Spaces (Menu & Switch)', () => {
           element.click()
         }
       })
-      await expect(window.locator('.workspace-space-switcher__item--active')).toHaveCount(0)
+      // Eclipse Code: exactly one tab is highlighted (the open task, or "All").
+      await expect(
+        window.locator(
+          '[data-testid="workspace-task-tabs"] .cove-segmented__option[data-state="on"]',
+        ),
+      ).toHaveCount(1)
       await expect(window.locator('.workspace-space-region--active')).toHaveCount(0)
 
       const targetNodes = [
@@ -382,57 +404,30 @@ test.describe('Workspace Canvas - Spaces (Menu & Switch)', () => {
         },
       )
 
-      await expect(window.locator('.workspace-space-switcher')).toBeVisible()
-      const switcherLayoutBeforeSelection = await window.evaluate(() => {
-        const container = document.querySelector('.workspace-space-switcher')
-        if (!(container instanceof HTMLElement)) {
-          return null
-        }
-
-        const items = Array.from(container.querySelectorAll('.workspace-space-switcher__item'))
-        const rowCount = new Set(
-          items.map(item => (item instanceof HTMLElement ? item.offsetTop : 0)),
-        ).size
-        const rect = container.getBoundingClientRect()
-
-        return { rowCount, top: rect.top, bottom: rect.bottom }
-      })
-
-      if (!switcherLayoutBeforeSelection) {
-        throw new Error('workspace space switcher layout unavailable')
-      }
+      // Eclipse Code: the task tabs are one scrollable row in the HUD; the selection hint must
+      // not move them and must sit below them.
+      const tabs = window.getByTestId('workspace-task-switcher')
+      await expect(tabs).toBeVisible()
+      const readTabs = () =>
+        tabs.evaluate(element => {
+          const rect = element.getBoundingClientRect()
+          const rows = new Set(
+            Array.from(element.querySelectorAll('.cove-segmented__option')).map(
+              option => (option as HTMLElement).getBoundingClientRect().top,
+            ),
+          ).size
+          return { top: rect.top, bottom: rect.bottom, left: rect.left, rows }
+        })
+      const before = await readTabs()
+      expect(before.rows).toBe(1)
 
       await clickHeaderDragSurface(window.locator('.terminal-node__header').first())
-      await expect(window.locator('.workspace-selection-hint')).toBeVisible()
-
-      await expect
-        .poll(async () => {
-          return await window.evaluate(expectedLayout => {
-            const container = document.querySelector('.workspace-space-switcher')
-            const hint = document.querySelector('.workspace-selection-hint')
-            if (!(container instanceof HTMLElement) || !(hint instanceof HTMLElement)) {
-              return false
-            }
-
-            const items = Array.from(container.querySelectorAll('.workspace-space-switcher__item'))
-            const rowCount = new Set(
-              items.map(item => (item instanceof HTMLElement ? item.offsetTop : 0)),
-            ).size
-            const switcherRect = container.getBoundingClientRect()
-            const hintRect = hint.getBoundingClientRect()
-
-            return (
-              rowCount > 1 &&
-              rowCount === expectedLayout.rowCount &&
-              container.scrollWidth <= container.clientWidth + 2 &&
-              window.getComputedStyle(container).overflowX === 'hidden' &&
-              Math.abs(switcherRect.top - expectedLayout.top) <= 1 &&
-              Math.abs(switcherRect.bottom - expectedLayout.bottom) <= 1 &&
-              switcherRect.bottom <= hintRect.top
-            )
-          }, switcherLayoutBeforeSelection)
-        })
-        .toBe(true)
+      const hint = window.locator('.workspace-selection-hint')
+      await expect(hint).toBeVisible()
+      const after = await readTabs()
+      expect(after).toEqual(before)
+      const hintTop = await hint.evaluate(element => element.getBoundingClientRect().top)
+      expect(hintTop).toBeGreaterThanOrEqual(before.bottom)
     } finally {
       await electronApp.close()
     }

@@ -32,7 +32,7 @@ export function useWorkspaceCanvasPluginNodeCreation({
       }
       const targetSpace = findContainingSpaceByAnchor(spacesRef.current, anchor)
       // The Worker owns all creation, placement and singleton identity across projects/clients.
-      void window.opencoveApi.controlSurface
+      void window.eclipseCodeApi.controlSurface
         .invoke<{ nodeId: string; projectId: string; created: boolean }>({
           kind: 'command',
           id: 'plugin.window.open',

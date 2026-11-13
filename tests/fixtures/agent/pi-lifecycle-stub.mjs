@@ -1,5 +1,5 @@
 // Deterministic Pi API fixture, NOT a real Pi CLI or real-model parity test.
-// Executes the exact launch-injected OpenCove extension rather than posting fabricated hooks.
+// Executes the exact launch-injected Eclipse Code extension rather than posting fabricated hooks.
 import { readFile, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { join } from 'node:path'
@@ -18,7 +18,7 @@ const source = await readFile(extension, 'utf8')
 let handlers = new Map()
 let idle = true
 let id = randomUUID()
-let file = join(process.env.OPENCOVE_TEST_PI_SESSION_DIR, `${id}.jsonl`)
+let file = join(process.env.ECLIPSE_CODE_TEST_PI_SESSION_DIR, `${id}.jsonl`)
 let restoredReply = null
 if (args.includes('--session')) {
   file = args[args.indexOf('--session') + 1]
@@ -106,7 +106,7 @@ for await (const line of input) {
     await emit('session_shutdown', { reason })
     if (reason === 'new') {
       id = randomUUID()
-      file = join(process.env.OPENCOVE_TEST_PI_SESSION_DIR, `${id}.jsonl`)
+      file = join(process.env.ECLIPSE_CODE_TEST_PI_SESSION_DIR, `${id}.jsonl`)
       restoredReply = null
     }
     await load(reason)

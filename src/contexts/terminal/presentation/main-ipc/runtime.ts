@@ -97,8 +97,8 @@ export function createPtyRuntime(deps: {
   const profileResolver = new TerminalProfileResolver()
   const debugCrashHostEnabled = isDebugCrashHostEnabled()
   const writeDiagnosticsEnabled =
-    process.env.OPENCOVE_TERMINAL_DIAGNOSTICS === '1' ||
-    process.env.OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS === '1'
+    process.env.ECLIPSE_CODE_TERMINAL_DIAGNOSTICS === '1' ||
+    process.env.ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS === '1'
   const warnedWriteSessions = new Map<string, string>()
   const transcripts = new ClaudeTranscriptChannel()
   const externalStateListeners = new Set<(event: TerminalSessionStateEvent) => void>()
@@ -124,7 +124,7 @@ export function createPtyRuntime(deps: {
     }
 
     process.stderr.write(
-      `[opencove-pty-write] ${JSON.stringify({ ts: new Date().toISOString(), ...payload })}\n`,
+      `[eclipse-code-pty-write] ${JSON.stringify({ ts: new Date().toISOString(), ...payload })}\n`,
     )
   }
 
@@ -134,7 +134,7 @@ export function createPtyRuntime(deps: {
     }
 
     process.stderr.write(
-      `[opencove-pty-resize] ${JSON.stringify({ ts: new Date().toISOString(), ...payload })}\n`,
+      `[eclipse-code-pty-resize] ${JSON.stringify({ ts: new Date().toISOString(), ...payload })}\n`,
     )
   }
 

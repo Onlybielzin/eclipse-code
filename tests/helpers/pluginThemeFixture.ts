@@ -6,9 +6,9 @@ export const themePluginId = 'theme-studio-fixture'
 export const themeIdentity = (name: string) => `plugin:${themePluginId}:${name}`
 
 export async function createThemePlugin(options: { includeFont?: boolean } = {}) {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-theme-studio-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-theme-studio-'))
   await writeFile(
-    join(directory, 'opencove.plugin.json'),
+    join(directory, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id: themePluginId,
@@ -80,8 +80,8 @@ export async function createThemePlugin(options: { includeFont?: boolean } = {})
   await writeFile(
     join(directory, 'view.js'),
     `const render = context => { document.querySelector('#context').textContent = JSON.stringify({ ...context, fonts: context.fonts?.map(({ family }) => ({ family })) }); };
-     window.opencovePlugin.ready.then(render);
-     window.opencovePlugin.onThemeChange((_theme, _colors, context) => render(context));`,
+     window.eclipseCodePlugin.ready.then(render);
+     window.eclipseCodePlugin.onThemeChange((_theme, _colors, context) => render(context));`,
   )
   return directory
 }
@@ -99,10 +99,10 @@ export const paletteThemeInput = {
 } as const
 
 export async function createPaletteThemePlugin() {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-theme-palette-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-theme-palette-'))
   const { baseHue, baseChroma, accentHue, accentChroma, contrast } = paletteThemeInput
   await writeFile(
-    join(directory, 'opencove.plugin.json'),
+    join(directory, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id: paletteThemePluginId,

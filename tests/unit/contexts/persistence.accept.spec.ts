@@ -30,7 +30,7 @@ it.each(['primary', 'legacy'] as const)(
     })!
     const state = { formatVersion: 1, activeWorkspaceId: workspace.id, workspaces: [workspace] }
     const writeAppState = vi.fn(async () => ({ ok: true, level: 'full', bytes: 1 }))
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         persistence: {
@@ -84,7 +84,7 @@ it('restores disclosure after a rejected legacy migration without suppressing th
       error: createAppErrorDescriptor('persistence.io_failed'),
     })
     .mockResolvedValue({ ok: true, level: 'full', bytes: 123 })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

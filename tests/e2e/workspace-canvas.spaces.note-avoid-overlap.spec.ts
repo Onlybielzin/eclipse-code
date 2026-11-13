@@ -49,7 +49,7 @@ test.describe('Workspace Canvas - Spaces (Note Avoid Overlap)', () => {
       await expect(window.locator('.note-node')).toHaveCount(1)
 
       const snapshot = await window.evaluate(async () => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }

@@ -39,7 +39,7 @@ function gatewayTransport() {
           const request = Object.assign(Readable.from([JSON.stringify(payload)]), {
             method: 'POST',
             url: '/terminal-agent/activity',
-            headers: { 'x-opencove-terminal-agent-token': token },
+            headers: { 'x-eclipse-code-terminal-agent-token': token },
           }) as unknown as IncomingMessage
           const response = {
             statusCode: 0,
@@ -104,7 +104,7 @@ async function fixture(
     return reply
   }
   const start = async (env: Readonly<NodeJS.ProcessEnv>) =>
-    await hook.postReply(env[`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]!, 'SessionStart')
+    await hook.postReply(env[`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]!, 'SessionStart')
   return {
     hook,
     registry,

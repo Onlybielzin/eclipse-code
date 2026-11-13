@@ -40,7 +40,7 @@ test.describe('Workspace Canvas - Terminal Wheel Raw TUI (Windows)', () => {
       const x10WheelReport = '\u001b[M' + String.fromCharCode(32 + 64, 32 + 120, 32 + 120)
       const dispatched = await window.evaluate(
         ({ currentNodeId, report }) => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           if (!api || typeof api.emitBinaryInput !== 'function') {
             return false
           }
@@ -52,8 +52,8 @@ test.describe('Workspace Canvas - Terminal Wheel Raw TUI (Windows)', () => {
 
       expect(dispatched).toBe(true)
 
-      await expect(terminal).toContainText('[opencove-test-wheel] wheel-up')
-      await expect(terminal).not.toContainText('[opencove-test-wheel] timeout')
+      await expect(terminal).toContainText('[eclipse-code-test-wheel] wheel-up')
+      await expect(terminal).not.toContainText('[eclipse-code-test-wheel] timeout')
     } finally {
       await electronApp.close()
     }

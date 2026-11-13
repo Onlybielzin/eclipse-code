@@ -35,7 +35,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render(): React.ReactNode {
     if (this.state.hasError) {
-      const isTestEnvironment = window.opencoveApi?.meta?.isTest === true
+      const isTestEnvironment = window.eclipseCodeApi?.meta?.isTest === true
       const errorDetails =
         this.state.error?.stack && isTestEnvironment
           ? this.state.error.stack

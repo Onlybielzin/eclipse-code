@@ -283,7 +283,7 @@ describe('collapsed Agent presentation', () => {
   it('shows only a compact icon and title without polling Agent messages', async () => {
     vi.useFakeTimers()
     const readLastMessage = vi.fn(async () => ({ message: 'Latest runtime progress' }))
-    window.opencoveApi = { agent: { readLastMessage } } as never
+    window.eclipseCodeApi = { agent: { readLastMessage } } as never
     const value = context()
     render(
       <WorkspaceCollapseContext.Provider value={value}>

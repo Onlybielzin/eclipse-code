@@ -21,7 +21,7 @@ beforeEach(async () => {
   vi.spyOn(registry, 'usePluginManifest').mockReturnValue(examplePlugin)
   vi.spyOn(registry, 'changeInstalledPlugin').mockResolvedValue(undefined)
   vi.spyOn(details, 'usePluginDetails').mockReturnValue({ detail: exampleDetails, error: null })
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke: vi.fn().mockResolvedValue(null) } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke: vi.fn().mockResolvedValue(null) } })
 })
 afterEach(() => {
   cleanup()
@@ -147,7 +147,7 @@ describe('PluginsSection', () => {
       expect(screen.getByRole('heading', { name: title })).toHaveFocus()
       fireEvent.click(screen.getByTestId('plugin-library-build'))
       expect(screen.getByRole('heading', { name: articleTitle })).toBeVisible()
-      expect(screen.getByTestId('plugin-readme')).toHaveTextContent('opencove plugin guide')
+      expect(screen.getByTestId('plugin-readme')).toHaveTextContent('eclipse-code plugin guide')
       fireEvent.click(screen.getByTestId('plugin-library-back'))
       expect(screen.getByTestId('plugin-library-build')).toHaveFocus()
       fireEvent.click(screen.getByTestId('plugin-library-back'))
@@ -169,11 +169,11 @@ describe('PluginsSection', () => {
 
   it('copies the actual offline guide command and reports clipboard failures', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
-    vi.stubGlobal('opencoveApi', { clipboard: { writeText } })
+    vi.stubGlobal('eclipseCodeApi', { clipboard: { writeText } })
     renderSettings()
     fireEvent.click(screen.getByRole('button', { name: 'Copy guide command' }))
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Command copied'))
-    expect(writeText).toHaveBeenCalledWith('opencove plugin guide')
+    expect(writeText).toHaveBeenCalledWith('eclipse-code plugin guide')
     writeText.mockRejectedValueOnce(new Error('unavailable'))
     fireEvent.click(screen.getByRole('button', { name: 'Copy guide command' }))
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Could not copy'))

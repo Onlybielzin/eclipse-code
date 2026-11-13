@@ -24,7 +24,7 @@ describeWithElectronNativeModules('ended-turn archive SQLite', () => {
   const archives: AgentTurnArchive[] = []
   const connections: Database.Database[] = []
   const root = () => {
-    const dir = mkdtempSync(join(tmpdir(), 'opencove-turn-archive-'))
+    const dir = mkdtempSync(join(tmpdir(), 'eclipse-code-turn-archive-'))
     roots.push(dir)
     return dir
   }

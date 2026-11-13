@@ -60,7 +60,7 @@ async function expectPersistedNote(window: Page, value: string) {
   await expect
     .poll(() =>
       window.evaluate(async text => {
-        const raw = await globalThis.window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await globalThis.window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return false
         }
@@ -80,7 +80,7 @@ test.describe('Workspace Canvas - Spatial Pixel Motion', () => {
     browserName,
   }, testInfo) => {
     void browserName
-    const videoDirectory = process.env.OPENCOVE_E2E_PIXEL_VIDEO_DIR
+    const videoDirectory = process.env.ECLIPSE_CODE_E2E_PIXEL_VIDEO_DIR
     const { electronApp, window } = await launchApp({
       ...(videoDirectory
         ? { recordVideo: { dir: videoDirectory, size: { width: 1440, height: 900 } } }

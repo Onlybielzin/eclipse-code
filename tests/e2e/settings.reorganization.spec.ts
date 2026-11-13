@@ -25,7 +25,7 @@ async function attachPanel(page: Page, testInfo: TestInfo, name: string) {
 
 async function readSavedConfiguration(page: Page) {
   return await page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = raw
       ? (JSON.parse(raw) as {
           settings: Record<string, unknown>
@@ -49,7 +49,7 @@ async function readSavedConfiguration(page: Page) {
 
 async function readLiveCanvas(page: Page) {
   return await page.evaluate(() => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     return {
       nodes: [...document.querySelectorAll<HTMLElement>('.react-flow__node')].map(node => ({
         id: node.dataset.id,
@@ -206,7 +206,7 @@ test.describe('Settings organization', () => {
       await expect(page.getByTestId('settings-terminal-font-family')).not.toContainText(
         'Loading fonts',
       )
-      const profiles = await page.evaluate(() => window.opencoveApi.pty.listProfiles())
+      const profiles = await page.evaluate(() => window.eclipseCodeApi.pty.listProfiles())
       if (profiles.profiles.length > 0) {
         await expect(page.getByTestId('settings-terminal-profile-trigger')).toBeVisible()
       } else {

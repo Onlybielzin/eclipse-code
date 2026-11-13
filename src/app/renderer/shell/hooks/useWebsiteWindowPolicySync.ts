@@ -3,7 +3,7 @@ import type { WebsiteWindowPolicy } from '@shared/contracts/dto'
 
 export function useWebsiteWindowPolicySync(policy: WebsiteWindowPolicy): void {
   useEffect(() => {
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.configurePolicy !== 'function') {
       return
     }

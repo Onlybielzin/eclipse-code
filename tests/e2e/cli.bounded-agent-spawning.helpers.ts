@@ -25,7 +25,7 @@ export async function boundedWorkspace(
   }
 }
 async function start() {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-bounded-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-bounded-'))
   const workspace = join(root, 'project'),
     profile = join(root, 'profile')
   let app: ElectronApplication | undefined
@@ -36,14 +36,14 @@ async function start() {
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_STUB_SCRIPT: stub,
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: stub,
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
         CLAUDE_CONFIG_DIR: join(root, 'claude'),
         CODEX_HOME: join(root, 'codex'),
       },
@@ -150,7 +150,7 @@ export function invoke<T = unknown>(
   payload: unknown,
   kind: 'command' | 'query' = 'command',
 ): Promise<T> {
-  return page.evaluate(async request => window.opencoveApi.controlSurface.invoke(request), {
+  return page.evaluate(async request => window.eclipseCodeApi.controlSurface.invoke(request), {
     id,
     payload,
     kind,

@@ -63,12 +63,12 @@ const page = {
     },
   },
 } as unknown as Page
-const originalApi = window.opencoveApi
-const originalProbe = window.__opencoveWorkspaceCanvasTestApi
+const originalApi = window.eclipseCodeApi
+const originalProbe = window.__eclipseCodeWorkspaceCanvasTestApi
 afterEach(() => {
   cleanup()
-  window.opencoveApi = originalApi
-  window.__opencoveWorkspaceCanvasTestApi = originalProbe
+  window.eclipseCodeApi = originalApi
+  window.__eclipseCodeWorkspaceCanvasTestApi = originalProbe
 })
 function Header({ data }: { data: TerminalNodeData }) {
   return (
@@ -102,11 +102,11 @@ function Header({ data }: { data: TerminalNodeData }) {
 it.each(['browser', 'electron'] as const)(
   'reads the %s current conversation through exit and canonical projection without a private probe',
   async runtime => {
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       meta: { runtime, isTest: runtime === 'electron' },
       persistence: {},
-    } as unknown as typeof window.opencoveApi
-    Reflect.deleteProperty(window, '__opencoveWorkspaceCanvasTestApi')
+    } as unknown as typeof window.eclipseCodeApi
+    Reflect.deleteProperty(window, '__eclipseCodeWorkspaceCanvasTestApi')
     const before = fixture(true).workspaces[0]
     let workspace = toShellWorkspaceState(before)
     const view = render(<Header data={workspace.nodes[0].data} />)
@@ -141,7 +141,7 @@ it.each(['browser', 'electron'] as const)(
 )
 
 it('rejects a catalog entry that is not the local current conversation and closes its menu', async () => {
-  Reflect.deleteProperty(window, '__opencoveWorkspaceCanvasTestApi')
+  Reflect.deleteProperty(window, '__eclipseCodeWorkspaceCanvasTestApi')
   const workspace = toShellWorkspaceState(fixture(true).workspaces[0])
   render(<Header data={workspace.nodes[0].data} />)
   await expect(expectConversation(page, 'agent', 'B')).rejects.toThrow()
@@ -149,7 +149,7 @@ it('rejects a catalog entry that is not the local current conversation and close
 })
 
 it('shows a detached exited owned conversation without a PTY session identifier', async () => {
-  Reflect.deleteProperty(window, '__opencoveWorkspaceCanvasTestApi')
+  Reflect.deleteProperty(window, '__eclipseCodeWorkspaceCanvasTestApi')
   const canonical = fixture(true).workspaces[0]
   canonical.nodes[0].sessionId = ''
   canonical.nodes[0].status = 'exited'

@@ -7,7 +7,7 @@ import { createWorkerTopologyStore } from '../../../src/app/main/controlSurface/
 const tempPaths: string[] = []
 
 async function createSubject() {
-  const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-remove-'))
+  const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-remove-'))
   tempPaths.push(userDataPath)
   return createWorkerTopologyStore({ userDataPath })
 }

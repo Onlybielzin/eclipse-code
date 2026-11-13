@@ -51,7 +51,7 @@ export function useProviderModelCatalog({
       }))
 
       try {
-        const result = await window.opencoveApi.agent.listModels({
+        const result = await window.eclipseCodeApi.agent.listModels({
           provider,
           executablePathOverride: resolveAgentExecutablePathOverride(agentSettings, provider),
         })

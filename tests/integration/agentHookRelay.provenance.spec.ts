@@ -9,7 +9,7 @@ import { createAgentHookRelay } from '../../src/contexts/agent/infrastructure/pr
 import { AgentLaunchArtifactScope } from '../../src/contexts/agent/application/services/AgentLaunchArtifactScope'
 
 it('generated relay stamps producer time before reading stdin and sends it as a header', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-relay-provenance-')),
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-relay-provenance-')),
     artifacts = new AgentLaunchArtifactScope()
   const preload = join(root, 'capture.mjs')
   await writeFile(
@@ -29,8 +29,8 @@ globalThis.fetch = async (_url, options) => { process.stdout.write(JSON.stringif
     env: {
       ...process.env,
       NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
-      OPENCOVE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
-      OPENCOVE_CLAUDE_HOOK_TOKEN: 'test',
+      ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
+      ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'test',
     },
     stdio: ['pipe', 'pipe', 'pipe'],
   })
@@ -65,7 +65,7 @@ globalThis.fetch = async (_url, options) => { process.stdout.write(JSON.stringif
       .trim()
       .split('\n')
       .map(line => JSON.parse(line))
-    const emitted = Number(sent.headers['x-opencove-hook-emitted-at'])
+    const emitted = Number(sent.headers['x-eclipse-code-hook-emitted-at'])
     expect(emitted).toBe(1000)
     expect(reading.readingAt).toBe(2000)
     expect(emitted).toBeLessThanOrEqual(reading.readingAt)

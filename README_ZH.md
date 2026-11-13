@@ -1,6 +1,6 @@
 <div align="center">
 
-# OpenCove 🌌
+# Eclipse Code 🌌
 
 **把 Claude Code、Codex、终端、任务和笔记放进同一张空间画布。**
 
@@ -13,19 +13,19 @@
 
 不用在标签页、聊天历史和分裂的窗口之间来回切换。
 
-[下载最新版本](https://github.com/DeadWaveWave/opencove/releases) · [Read the English README](./README.md)
+[下载最新版本](https://github.com/Onlybielzin/eclipse-code/releases) · [Read the English README](./README.md)
 
-<img src="./assets/images/opencove_header_readme.jpg" alt="OpenCove Header" width="100%" />
+<img src="./assets/images/eclipse_code_header_readme.jpg" alt="Eclipse Code Header" width="100%" />
 
 </div>
 
 ## 📣 重要公告
 
-**OpenCove 0.4.0 带来 Pixel 工作区、桌面图标式折叠窗口，以及可独立安装的插件与主题。在设置中探索扩展，或通过 `opencove plugin guide` 开始创造自己的插件。**
+**Eclipse Code 0.4.0 带来 Pixel 工作区、桌面图标式折叠窗口，以及可独立安装的插件与主题。在设置中探索扩展，或通过 `eclipse-code plugin guide` 开始创造自己的插件。**
 
-## 📖 什么是 OpenCove？
+## 📖 什么是 Eclipse Code？
 
-OpenCove 是一款面向 AI Coding 工作流的**空间化开发工作台**。
+Eclipse Code 是一款面向 AI Coding 工作流的**空间化开发工作台**。
 
 它不是把更多面板塞进 IDE，而是把 **AI Agents**、**终端**、**任务** 和 **笔记** 放到同一张无限 2D 画布上，让你在多 Agent 协作时依然能看清全局。
 
@@ -35,7 +35,7 @@ OpenCove 是一款面向 AI Coding 工作流的**空间化开发工作台**。
 - 把任务规划、执行终端和过程笔记放在同一个工作区里
 - 切换项目后仍然保留布局、上下文与执行历史
 
-<img src="./assets/images/opencove_app_preview_readme.jpg" alt="OpenCove App Preview" width="100%" />
+<img src="./assets/images/eclipse_code_app_preview_readme.jpg" alt="Eclipse Code App Preview" width="100%" />
 
 ## ✨ 核心特性
 
@@ -48,11 +48,11 @@ OpenCove 是一款面向 AI Coding 工作流的**空间化开发工作台**。
 - **🔍 全局搜索与控制中心**：快速搜索画布内容和终端输出，统一管理活跃会话。
 - **🗂️ 工作区隔离**：按目录和 Git Worktree 拆分项目，避免上下文串线。
 
-## 💡 为什么选择 OpenCove？
+## 💡 为什么选择 Eclipse Code？
 
-OpenCove 围绕一个核心判断来设计：**多 Agent 工作流更适合用空间来组织，而不是藏在看不见的层级里。**
+Eclipse Code 围绕一个核心判断来设计：**多 Agent 工作流更适合用空间来组织，而不是藏在看不见的层级里。**
 
-| 痛点 (传统模式) | 解决方案 (OpenCove 模式) |
+| 痛点 (传统模式) | 解决方案 (Eclipse Code 模式) |
 | :--- | :--- |
 | **线性对话容易失忆**：上下文会被长聊天历史不断往下冲。 | **空间化上下文**：关键任务、笔记和执行状态长期停留在画布上。 |
 | **单面板来回切换**：标签页和分栏会不断打断思路。 | **并行可视化**：多个 Agent 同时工作时仍然能保持全局视野。 |
@@ -60,54 +60,54 @@ OpenCove 围绕一个核心判断来设计：**多 Agent 工作流更适合用�
 
 ## 🚀 快速上手
 
-*OpenCove 目前处于 Alpha 阶段，更适合希望尽早体验空间化 AI 工作流的早期用户。*
+*Eclipse Code 目前处于 Alpha 阶段，更适合希望尽早体验空间化 AI 工作流的早期用户。*
 
 ### 下载客户端
 
-OpenCove 0.3.0 stable 及后续版本可在 [GitHub Releases](https://github.com/DeadWaveWave/opencove/releases) 页面下载，覆盖 macOS、Windows 和 Linux。Nightly 预发布版仍用于提前体验更新内容，其中可能包含尚未打磨完成的变化。
+Eclipse Code 0.3.0 stable 及后续版本可在 [GitHub Releases](https://github.com/Onlybielzin/eclipse-code/releases) 页面下载，覆盖 macOS、Windows 和 Linux。Nightly 预发布版仍用于提前体验更新内容，其中可能包含尚未打磨完成的变化。
 
 > **⚠️ macOS 用户注意**：
 > 当前发布版本暂未进行 Apple Developer ID 签名与公证。若首次打开时被 Gatekeeper 拦截，请在终端执行以下命令放行：
 > ```bash
-> xattr -dr com.apple.quarantine /Applications/OpenCove.app
+> xattr -dr com.apple.quarantine /Applications/Eclipse Code.app
 > ```
 
 ### CLI / Server 安装
 
-现在 `opencove` CLI 有两条正式安装路径：
+现在 `eclipse-code` CLI 有两条正式安装路径：
 
 - 通过 Desktop 安装：打开 **Settings → Worker → CLI**，点击 **Install CLI**。
-- 不安装 Desktop：使用包含 standalone runtime bundle（`opencove-server-*`）以及
+- 不安装 Desktop：使用包含 standalone runtime bundle（`eclipse-code-server-*`）以及
   release 专属 installer 资产的 GitHub Release，例如
-  `opencove-install-v<tag>.sh` / `opencove-install-v<tag>.ps1`。stable release 还会额外
-  发布通用别名 `opencove-install.sh` / `opencove-install.ps1`，它们始终指向最新的
+  `eclipse-code-install-v<tag>.sh` / `eclipse-code-install-v<tag>.ps1`。stable release 还会额外
+  发布通用别名 `eclipse-code-install.sh` / `eclipse-code-install.ps1`，它们始终指向最新的
   stable release。
 
-如果 `releases/latest/download/opencove-install.sh` 返回 `404`，说明当前 latest stable
+如果 `releases/latest/download/eclipse-code-install.sh` 返回 `404`，说明当前 latest stable
 还没有发布 standalone installer。此时请先使用 Desktop 安装，或等待包含这些资产的
 release。
 
 安装 latest stable 时，macOS / Linux 可使用：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh | sh
 ```
 
 Windows 使用 PowerShell：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.ps1 | Invoke-Expression"
 ```
 
 如果你要安装某个 nightly 或任意指定 tag 的 release，请使用该 release 页面中的
 带版本 installer：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.ps1 | Invoke-Expression"
 ```
 
 Standalone installer 会先使用 release 中的 `SHA256SUMS.txt` 校验下载的 runtime，再进行解压安装。
@@ -115,7 +115,7 @@ Standalone installer 会先使用 release 中的 `SHA256SUMS.txt` 校验下载�
 如果你想在服务器上直接托管 Web UI，安装后可直接启动 worker：
 
 ```bash
-opencove worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
+eclipse-code worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
 ```
 
 启动后 CLI 会打印 Web UI 地址，并启用基于密码的浏览器登录。只要 Web UI 暴露到 localhost 之外，就应始终设置密码。
@@ -132,8 +132,8 @@ opencove worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/DeadWaveWave/opencove.git
-cd opencove
+git clone https://github.com/Onlybielzin/eclipse-code.git
+cd eclipse-code
 
 # 2. 安装依赖
 pnpm install
@@ -146,7 +146,7 @@ pnpm dev
 
 ### Web UI（实验性）
 
-OpenCove 提供一个**实验性的 Worker Web UI**，允许你用浏览器打开画布（包括在同一内网的其他设备，例如平板）。
+Eclipse Code 提供一个**实验性的 Worker Web UI**，允许你用浏览器打开画布（包括在同一内网的其他设备，例如平板）。
 
 - 在 **Settings → Experimental → Worker Web UI** 中手动开启 **Enable Web UI**（可选：设置固定端口），再启动本机 Worker。
 - 默认只监听本机回环地址（`127.0.0.1`）。如需内网访问，开启 **LAN Access** 并设置 Web UI 密码。
@@ -158,7 +158,7 @@ OpenCove 提供一个**实验性的 Worker Web UI**，允许你用浏览器打�
 
 ## 🏗️ 技术架构
 
-OpenCove 致力于探索现代化的技术选型与极致的客户端性能体验：
+Eclipse Code 致力于探索现代化的技术选型与极致的客户端性能体验：
 
 - **核心框架**：Electron + React + TypeScript (`electron-vite` 驱动)
 - **画布引擎**：基于 `@xyflow/react` 打造流畅的无限画布。
@@ -167,7 +167,7 @@ OpenCove 致力于探索现代化的技术选型与极致的客户端性能体�
 
 ## 🤝 参与贡献
 
-OpenCove 是一项长期演进的开源企划，我们需要你的加入，共同定义 AI 时代工具链的全新形态。无论你想探讨架构、提交代码还是报告 Bug，都可以参考以下指南：
+Eclipse Code 是一项长期演进的开源企划，我们需要你的加入，共同定义 AI 时代工具链的全新形态。无论你想探讨架构、提交代码还是报告 Bug，都可以参考以下指南：
 
 - [贡献指南 (CONTRIBUTING.md)](./CONTRIBUTING.md)
 - [行为准则 (CODE_OF_CONDUCT.md)](./CODE_OF_CONDUCT.md)
@@ -176,17 +176,17 @@ OpenCove 是一项长期演进的开源企划，我们需要你的加入，共�
 
 ## 💬 加群交流
 
-扫描下方二维码即可加入 OpenCove 社群，和大家一起交流产品使用、开发进展与想法。
+扫描下方二维码即可加入 Eclipse Code 社群，和大家一起交流产品使用、开发进展与想法。
 
 <div align="center">
-  <img src="./assets/images/opencove_qrcode.png" alt="OpenCove 社群二维码" width="320" />
+  <img src="./assets/images/eclipse_code_qrcode.png" alt="Eclipse Code 社群二维码" width="320" />
 </div>
 
 ---
 
 <div align="center">
 
-<p>基于现代 Web 标准构建，探索下一代人机协同体验。<br>由 OpenCove 团队倾注 ❤️ 设计开发。</p>
+<p>基于现代 Web 标准构建，探索下一代人机协同体验。<br>由 Eclipse Code 团队倾注 ❤️ 设计开发。</p>
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 

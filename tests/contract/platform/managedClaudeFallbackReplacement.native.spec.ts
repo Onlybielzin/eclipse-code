@@ -22,7 +22,7 @@ describeWithElectronNativeModules('managed Claude fallback runtime replacement',
   let root: string
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-fallback-replacement-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-fallback-replacement-'))
     store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
   })
   afterEach(async () => {

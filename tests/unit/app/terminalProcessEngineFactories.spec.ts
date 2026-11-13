@@ -16,7 +16,7 @@ describe('terminal process-engine composition factories', () => {
     const createElectronUtilityPtyHostProcess = vi.fn(() => wrappedChild)
 
     vi.doMock('electron', () => ({
-      app: { getPath: () => '/tmp/opencove-user-data' },
+      app: { getPath: () => '/tmp/eclipse-code-user-data' },
       utilityProcess: { fork },
     }))
     vi.doMock('../../../src/contexts/terminal/infrastructure/PtyHostTerminalProcessEngine', () => ({
@@ -34,11 +34,11 @@ describe('terminal process-engine composition factories', () => {
       await import('../../../src/app/main/terminal/mainTerminalProcessEngineFactory')
     createMainTerminalProcessEngine()
 
-    expect(adapterOptions?.logFilePath).toBe('/tmp/opencove-user-data/logs/pty-host.log')
+    expect(adapterOptions?.logFilePath).toBe('/tmp/eclipse-code-user-data/logs/pty-host.log')
     expect(adapterOptions?.createProcess('/tmp/pty-host.js')).toBe(wrappedChild)
     expect(fork).toHaveBeenCalledWith('/tmp/pty-host.js', [], {
       stdio: 'pipe',
-      serviceName: 'OpenCove PTY Host',
+      serviceName: 'Eclipse Code PTY Host',
     })
     expect(createElectronUtilityPtyHostProcess).toHaveBeenCalledWith(child)
   })
@@ -70,9 +70,9 @@ describe('terminal process-engine composition factories', () => {
 
     const { createWorkerTerminalProcessEngine } =
       await import('../../../src/app/main/controlSurface/terminal/workerTerminalProcessEngineFactory')
-    createWorkerTerminalProcessEngine({ userDataPath: '/tmp/opencove-worker-data' })
+    createWorkerTerminalProcessEngine({ userDataPath: '/tmp/eclipse-code-worker-data' })
 
-    expect(adapterOptions?.logFilePath).toBe('/tmp/opencove-worker-data/logs/pty-host.log')
+    expect(adapterOptions?.logFilePath).toBe('/tmp/eclipse-code-worker-data/logs/pty-host.log')
     expect(adapterOptions?.createProcess('/tmp/pty-host.js')).toBe(wrappedChild)
     expect(fork).toHaveBeenCalledWith('/tmp/pty-host.js', [], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

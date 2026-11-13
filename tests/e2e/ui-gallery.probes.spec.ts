@@ -4,7 +4,9 @@ import { launchApp } from './workspace-canvas.helpers'
 import { auditUiAccessibility } from './ui-accessibility.probe'
 
 const THEMES = ['dark', 'light'] as const
-type GalleryWindow = Window & { __opencoveUiGalleryTestApi?: { setTheme: (theme: string) => void } }
+type GalleryWindow = Window & {
+  __eclipseCodeUiGalleryTestApi?: { setTheme: (theme: string) => void }
+}
 
 async function probe(
   page: Page,
@@ -39,7 +41,7 @@ test('shared components keep text contrast and target size in every built-in the
   browserName: _browserName,
 }, testInfo) => {
   const { electronApp, window: page } = await launchApp({
-    env: { OPENCOVE_TEST_UI_GALLERY: '1' },
+    env: { ECLIPSE_CODE_TEST_UI_GALLERY: '1' },
   })
   try {
     await electronApp.evaluate(({ BrowserWindow }) => {
@@ -48,7 +50,7 @@ test('shared components keep text contrast and target size in every built-in the
     await expect(page.getByTestId('ui-gallery')).toBeVisible()
     for (const theme of THEMES) {
       await page.evaluate(
-        id => (window as GalleryWindow).__opencoveUiGalleryTestApi?.setTheme(id),
+        id => (window as GalleryWindow).__eclipseCodeUiGalleryTestApi?.setTheme(id),
         theme,
       )
       await expect(page.locator('html')).toHaveAttribute('data-cove-theme-id', theme)
@@ -95,7 +97,7 @@ test('shared components keep text contrast and target size in every built-in the
 
 test('acrylic surfaces blur and turn solid when the system reduces transparency', async () => {
   const { electronApp, window: page } = await launchApp({
-    env: { OPENCOVE_TEST_UI_GALLERY: '1' },
+    env: { ECLIPSE_CODE_TEST_UI_GALLERY: '1' },
   })
   try {
     await expect(page.getByTestId('ui-gallery')).toBeVisible()

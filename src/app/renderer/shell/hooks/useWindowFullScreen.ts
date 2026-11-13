@@ -5,7 +5,7 @@ export function useWindowFullScreen(): boolean {
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
-    const windowChrome = window.opencoveApi?.windowChrome
+    const windowChrome = window.eclipseCodeApi?.windowChrome
     if (!windowChrome?.onFullScreenChange || !windowChrome.getFullScreen) {
       return undefined
     }

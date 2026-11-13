@@ -5,10 +5,10 @@
   "publishedAt": "2026-09-04T00:00:00.000Z",
   "provenance": "curated",
   "defaultLocale": "en",
-  "compareUrl": "https://github.com/DeadWaveWave/opencove/releases/tag/v0.3.0",
+  "compareUrl": "https://github.com/Onlybielzin/eclipse-code/releases/tag/v0.3.0",
   "locales": {
     "en": {
-      "summary": "OpenCove 0.3.0 keeps terminal and Agent work available across restarts, Desktop, browsers, and remote machines, while expanding what you can organize and use directly on the canvas.",
+      "summary": "Eclipse Code 0.3.0 keeps terminal and Agent work available across restarts, Desktop, browsers, and remote machines, while expanding what you can organize and use directly on the canvas.",
       "items": [
         {
           "kind": "added",
@@ -27,14 +27,14 @@
         {
           "kind": "added",
           "summary": "Set up and repair managed SSH remote machines, then browse and run work through their Remote Workers.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/227",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/227",
           "prNumber": 227,
           "sha": null
         },
         {
           "kind": "added",
-          "summary": "Install the standalone OpenCove CLI and Worker on macOS, Linux, or Windows servers without installing Desktop.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/209",
+          "summary": "Install the standalone Eclipse Code CLI and Worker on macOS, Linux, or Windows servers without installing Desktop.",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/209",
           "prNumber": 209,
           "sha": null
         },
@@ -48,7 +48,7 @@
         {
           "kind": "added",
           "summary": "Reload or switch resumable Agent sessions from the window header and receive a system notification when work finishes.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/207",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/207",
           "prNumber": 207,
           "sha": null
         },
@@ -69,14 +69,14 @@
         {
           "kind": "fixed",
           "summary": "Resume terminal and Agent work after restarts with output, input, and workspace context intact.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/376",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/376",
           "prNumber": 376,
           "sha": null
         },
         {
           "kind": "fixed",
           "summary": "Keep terminals, history, and canvas position intact when using Desktop and the optional browser UI together.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/377",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/377",
           "prNumber": 377,
           "sha": null
         },
@@ -90,14 +90,14 @@
         {
           "kind": "added",
           "summary": "Capture redacted issue reports and inspect performance snapshots when a session or canvas interaction misbehaves.",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/230",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/230",
           "prNumber": 230,
           "sha": null
         }
       ]
     },
     "zh-CN": {
-      "summary": "OpenCove 0.3.0 让终端与 Agent 工作在重启、Desktop、浏览器和远程机器之间保持连续，同时大幅扩展了画布内可组织、可直接使用的内容。",
+      "summary": "Eclipse Code 0.3.0 让终端与 Agent 工作在重启、Desktop、浏览器和远程机器之间保持连续，同时大幅扩展了画布内可组织、可直接使用的内容。",
       "items": [
         {
           "kind": "added",
@@ -116,14 +116,14 @@
         {
           "kind": "added",
           "summary": "配置和修复通过 SSH 管理的远程机器，并通过 Remote Worker 浏览和运行远程工作。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/227",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/227",
           "prNumber": 227,
           "sha": null
         },
         {
           "kind": "added",
-          "summary": "无需安装 Desktop，即可在 macOS、Linux 或 Windows 服务器上安装独立的 OpenCove CLI 与 Worker。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/209",
+          "summary": "无需安装 Desktop，即可在 macOS、Linux 或 Windows 服务器上安装独立的 Eclipse Code CLI 与 Worker。",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/209",
           "prNumber": 209,
           "sha": null
         },
@@ -137,7 +137,7 @@
         {
           "kind": "added",
           "summary": "从窗口标题栏重新加载或切换可恢复的 Agent 会话，并在任务完成时接收系统通知。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/207",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/207",
           "prNumber": 207,
           "sha": null
         },
@@ -158,14 +158,14 @@
         {
           "kind": "fixed",
           "summary": "应用重启后继续原有终端与 Agent 工作，并保留输出、输入能力和工作区上下文。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/376",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/376",
           "prNumber": 376,
           "sha": null
         },
         {
           "kind": "fixed",
           "summary": "同时使用 Desktop 与可选浏览器界面时，保留终端、历史记录和画布位置。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/377",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/377",
           "prNumber": 377,
           "sha": null
         },
@@ -179,7 +179,7 @@
         {
           "kind": "added",
           "summary": "当会话或画布交互异常时，可生成脱敏问题报告并查看性能快照，便于定位问题。",
-          "url": "https://github.com/DeadWaveWave/opencove/pull/230",
+          "url": "https://github.com/Onlybielzin/eclipse-code/pull/230",
           "prNumber": 230,
           "sha": null
         }

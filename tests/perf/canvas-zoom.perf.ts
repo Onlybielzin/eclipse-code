@@ -46,7 +46,7 @@ async function startOutput(window: Page) {
       window.evaluate(
         count =>
           Array.from({ length: count }, (_, index) =>
-            window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(
+            window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(
               `perf-terminal-${index}`,
             ),
           ).filter(Boolean).length,
@@ -56,12 +56,12 @@ async function startOutput(window: Page) {
     .toBe(TERMINALS)
   await window.evaluate(async count => {
     for (let index = 0; index < count; index += 1) {
-      const sessionId = window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(
+      const sessionId = window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(
         `perf-terminal-${index}`,
       )
       if (sessionId) {
         // eslint-disable-next-line no-await-in-loop -- one PTY write per terminal, in order.
-        await window.opencoveApi.pty.write({
+        await window.eclipseCodeApi.pty.write({
           sessionId,
           data: 'while :; do echo "tick $RANDOM $RANDOM $RANDOM"; sleep 0.066; done\r',
         })
@@ -73,7 +73,7 @@ async function startOutput(window: Page) {
 /** Sweeps the zoom once per display frame and measures the frames the sweep produced. */
 async function sweep(window: Page) {
   return await window.evaluate(async () => {
-    const api = window.__opencoveWorkspaceCanvasTestApi!
+    const api = window.__eclipseCodeWorkspaceCanvasTestApi!
     api.resetWindowCommitCounts()
     const longFrames: number[] = []
     const observer = new PerformanceObserver(list => {

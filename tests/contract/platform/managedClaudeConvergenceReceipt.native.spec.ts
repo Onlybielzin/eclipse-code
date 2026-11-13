@@ -112,7 +112,7 @@ describeWithElectronNativeModules('managed Claude adapter correction provenance'
     async adapter => {
       const { vi } = await import('vitest')
       const { createBrowserPersistenceApi } =
-        await import('@app/renderer/browser/browserOpenCoveApi.persistence')
+        await import('@app/renderer/browser/browserEclipseCodeApi.persistence')
       const { createRemotePersistenceStore } =
         await import('@app/main/controlSurface/remote/remotePersistenceStore')
       const { normalizeAgentSettings } = await import('@contexts/settings/domain/agentSettings')

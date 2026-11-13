@@ -23,7 +23,7 @@ function installApi(
   )
   const getConfig = vi.fn(async () => ({ mode: options.mode ?? 'local' }))
   vi.stubGlobal('window', {
-    opencoveApi: {
+    eclipseCodeApi: {
       meta: { runtime: options.runtime ?? 'electron', platform: 'darwin' },
       workspace: { openPath },
       workerClient: { getConfig },

@@ -2,11 +2,11 @@ import { session } from 'electron'
 import type { Session } from 'electron'
 import type { WebsiteWindowSessionMode } from '../../../shared/contracts/dto'
 
-const WEBSITE_SHARED_PARTITION = 'persist:opencove-website-shared'
-const WEBSITE_INCOGNITO_PARTITION = 'opencove-website-incognito'
+const WEBSITE_SHARED_PARTITION = 'persist:eclipse-code-website-shared'
+const WEBSITE_INCOGNITO_PARTITION = 'eclipse-code-website-incognito'
 
 function resolveProfilePartition(profileId: string): string {
-  return `persist:opencove-website-profile-${profileId}`
+  return `persist:eclipse-code-website-profile-${profileId}`
 }
 
 export function resolveWebsiteSessionPartition({

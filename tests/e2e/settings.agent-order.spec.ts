@@ -22,7 +22,7 @@ async function openAgents(page: Page) {
 
 async function readPreference(page: Page) {
   return await page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const settings = raw ? JSON.parse(raw).settings : null
     return settings
       ? {

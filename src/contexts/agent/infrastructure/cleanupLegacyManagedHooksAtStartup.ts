@@ -5,7 +5,7 @@ import {
   cleanLegacyClaudeSettings,
   cleanLegacyCodexConfigToml,
   cleanLegacyCodexHooksFile,
-  isLegacyOpenCoveCodexHooksFile,
+  isLegacyEclipseCodeCodexHooksFile,
 } from './legacyManagedHookCleanup'
 
 export interface LegacyManagedHookStartupCleanupReport {
@@ -46,7 +46,7 @@ export async function cleanupLegacyManagedHooksAtStartup(
       return 0
     }
     const parsed = JSON.parse(raw) as unknown
-    if (isLegacyOpenCoveCodexHooksFile(parsed)) {
+    if (isLegacyEclipseCodeCodexHooksFile(parsed)) {
       await rm(codexHooksPath, { force: true })
       return 1
     }
@@ -77,7 +77,7 @@ export function reportLegacyManagedHookCleanupFailures(
   for (const failure of report.failures) {
     const detail = failure.error instanceof Error ? failure.error.message : String(failure.error)
     process.stderr.write(
-      `[opencove] legacy Agent hook cleanup failed for ${failure.path}: ${detail}\n`,
+      `[eclipse-code] legacy Agent hook cleanup failed for ${failure.path}: ${detail}\n`,
     )
   }
 }
@@ -97,7 +97,7 @@ async function writeAtomic(path: string, contents: string): Promise<void> {
   const mode = await stat(path).then(value => value.mode & 0o777)
   const temporaryPath = join(
     dirname(path),
-    `.opencove-cleanup-${String(process.pid)}-${randomBytes(6).toString('hex')}.tmp`,
+    `.eclipse-code-cleanup-${String(process.pid)}-${randomBytes(6).toString('hex')}.tmp`,
   )
   try {
     await writeFile(temporaryPath, contents, { encoding: 'utf8', mode })

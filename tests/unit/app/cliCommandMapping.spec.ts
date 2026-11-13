@@ -14,7 +14,11 @@ export function fixture() {
   const fetch = vi.fn(
     async () =>
       new Response(
-        JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value: { result: 'value' } }),
+        JSON.stringify({
+          __eclipseCodeControlEnvelope: true,
+          ok: true,
+          value: { result: 'value' },
+        }),
       ),
   )
   const io: CliIo = {
@@ -29,7 +33,7 @@ export function fixture() {
       },
     },
     fetch,
-    env: { OPENCOVE_CONTROL_URL: 'http://fixture:1', OPENCOVE_CONTROL_TOKEN: 'test' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fixture:1', ECLIPSE_CODE_CONTROL_TOKEN: 'test' },
     now: Date.now,
     readTextFile: vi.fn(async () => '  中文🙂\n'),
     readStdinText: vi.fn(async () => '  中文🙂\n'),
@@ -198,7 +202,11 @@ it.each(cases)('maps %j without leaking transport envelopes', async (args, id, p
     f.fetch.mockImplementation(
       async () =>
         new Response(
-          JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value: { message: 'Done' } }),
+          JSON.stringify({
+            __eclipseCodeControlEnvelope: true,
+            ok: true,
+            value: { message: 'Done' },
+          }),
         ),
     )
   }
@@ -211,7 +219,7 @@ it.each(cases)('maps %j without leaking transport envelopes', async (args, id, p
         ? '{"uri":"file:///a","bytes":13}\n'
         : '{"result":"value"}\n',
   )
-  expect(f.out()).not.toContain('__opencoveControlEnvelope')
+  expect(f.out()).not.toContain('__eclipseCodeControlEnvelope')
 })
 it.each(
   commands.filter(c =>

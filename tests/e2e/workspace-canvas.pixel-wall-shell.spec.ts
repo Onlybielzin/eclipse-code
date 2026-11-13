@@ -68,7 +68,7 @@ async function readShell(window: Page) {
       context.fillRect(0, 0, 1, 1)
       return context.getImageData(0, 0, 1, 1).data[3]
     }
-    const api = window.__opencovePixelWallTestApi
+    const api = window.__eclipseCodePixelWallTestApi
     return {
       wall: rect('[data-testid="workspace-pixel-wall"]'),
       shell: [0, 0, shell.width, shell.height].map(Math.round),

@@ -28,7 +28,7 @@ test('native files and folders outside the project drop as compact references an
   const project = await createFilesystemNodeFixture()
   const external = await createFilesystemNodeFixture()
   const { electronApp, window } = await launchApp({
-    env: { OPENCOVE_TEST_WORKSPACE: project.root },
+    env: { ECLIPSE_CODE_TEST_WORKSPACE: project.root },
   })
   try {
     await window.setViewportSize({ width: 1520, height: 1040 })
@@ -92,7 +92,7 @@ test('native files and folders outside the project drop as compact references an
 
     const readNodes = () =>
       window.evaluate(async () => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         const state = JSON.parse(raw ?? '{}') as {
           workspaces?: Array<{
             id: string

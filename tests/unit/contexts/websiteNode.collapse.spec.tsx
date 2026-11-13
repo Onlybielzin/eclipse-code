@@ -17,7 +17,7 @@ describe('collapsed native Website presentation', () => {
     const close = vi.fn()
     const deactivate = vi.fn()
     const activate = vi.fn().mockResolvedValue(undefined)
-    window.opencoveApi = { websiteWindow: { setBounds, close, deactivate, activate } } as never
+    window.eclipseCodeApi = { websiteWindow: { setBounds, close, deactivate, activate } } as never
     vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(1)
     vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
     const viewport = document.createElement('div')

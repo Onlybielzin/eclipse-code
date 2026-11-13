@@ -59,7 +59,7 @@ for (const variant of ['always', 'desktop-managed-worker', 'managed-runtime', 'd
       }))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     expect(await invoke('system.operations')).toEqual({
-      __opencoveControlEnvelope: true,
+      __eclipseCodeControlEnvelope: true,
       ok: true,
       value: { protocolVersion: CONTROL_SURFACE_PROTOCOL_VERSION, operations: expected },
     })

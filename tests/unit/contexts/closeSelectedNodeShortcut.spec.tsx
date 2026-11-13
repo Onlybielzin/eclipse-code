@@ -14,7 +14,7 @@ function Harness(props: Props) {
 function fixture(selected = ['a'], kind = 'terminal') {
   let listener: (event: ApplicationShortcutEvent) => void = () => undefined
   const unsubscribe = vi.fn()
-  vi.stubGlobal('opencoveApi', {
+  vi.stubGlobal('eclipseCodeApi', {
     lifecycle: {
       onApplicationShortcut: (handler: typeof listener) => {
         listener = handler

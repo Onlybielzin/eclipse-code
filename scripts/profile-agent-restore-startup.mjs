@@ -12,17 +12,17 @@ const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const artifactRoot = path.join(repoPath, 'artifacts', 'agent-restore-startup-profile')
 const agentCount = Math.max(
   1,
-  Number.parseInt(process.env.OPENCOVE_PROFILE_AGENT_COUNT ?? '12', 10),
+  Number.parseInt(process.env.ECLIPSE_CODE_PROFILE_AGENT_COUNT ?? '12', 10),
 )
-const provider = resolveProvider(process.env.OPENCOVE_PROFILE_PROVIDER)
-const keepUserData = process.env.OPENCOVE_PROFILE_KEEP_USER_DATA === '1'
+const provider = resolveProvider(process.env.ECLIPSE_CODE_PROFILE_PROVIDER)
+const keepUserData = process.env.ECLIPSE_CODE_PROFILE_KEEP_USER_DATA === '1'
 const startedAtAgeMs = Math.max(
   0,
-  Number.parseInt(process.env.OPENCOVE_PROFILE_STARTED_AT_AGE_MS ?? '300000', 10),
+  Number.parseInt(process.env.ECLIPSE_CODE_PROFILE_STARTED_AT_AGE_MS ?? '300000', 10),
 )
 const visibleOutputTimeoutMs = Math.max(
   10_000,
-  Number.parseInt(process.env.OPENCOVE_PROFILE_VISIBLE_TIMEOUT_MS ?? '120000', 10),
+  Number.parseInt(process.env.ECLIPSE_CODE_PROFILE_VISIBLE_TIMEOUT_MS ?? '120000', 10),
 )
 
 function resolveProvider(value) {
@@ -40,7 +40,7 @@ async function ensureDir(dirPath) {
 }
 
 async function createUserDataDir() {
-  return await mkdtemp(path.join(tmpdir(), 'opencove-agent-restore-profile-'))
+  return await mkdtemp(path.join(tmpdir(), 'eclipse-code-agent-restore-profile-'))
 }
 
 function createAgent(index, startedAt) {
@@ -77,7 +77,7 @@ function createAgent(index, startedAt) {
 }
 
 async function seedProfileState(userDataDir) {
-  const db = new Database(path.join(userDataDir, 'opencove.db'))
+  const db = new Database(path.join(userDataDir, 'eclipse-code.db'))
   const startedAt = new Date(Date.now() - startedAtAgeMs).toISOString()
   const agents = Array.from({ length: agentCount }, (_, index) => createAgent(index, startedAt))
 
@@ -297,9 +297,9 @@ async function launchProfiledApp(userDataDir, logSink) {
     env: {
       ...env,
       NODE_ENV: 'development',
-      OPENCOVE_DEV_USER_DATA_DIR: userDataDir,
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_TEST_API: '1',
+      ECLIPSE_CODE_DEV_USER_DATA_DIR: userDataDir,
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_TEST_API: '1',
     },
   })
 
@@ -322,7 +322,7 @@ async function launchProfiledApp(userDataDir, logSink) {
 
 async function readRestoreSample(window) {
   return await window.evaluate(() => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const nodeElements = [...document.querySelectorAll('.react-flow__node-terminalNode')]
     const registeredNodeIds =
       typeof api?.getRegisteredNodeIds === 'function' ? api.getRegisteredNodeIds() : []
@@ -337,8 +337,8 @@ async function readRestoreSample(window) {
       }
       const nodeId = node.getAttribute('data-id') ?? node.id.replace(/^react-flow__node-/u, '')
       const transcript =
-        typeof window.__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__ === 'function'
-          ? window.__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__(nodeId)
+        typeof window.__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__ === 'function'
+          ? window.__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__(nodeId)
           : (node.querySelector('.terminal-node__transcript')?.textContent ?? '')
       return transcript.trim().length > 0
     })

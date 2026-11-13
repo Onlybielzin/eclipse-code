@@ -11,7 +11,7 @@ import {
 
 async function readCreatedNode(window: Page) {
   return window.evaluate(async workspaceId => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{
         id: string

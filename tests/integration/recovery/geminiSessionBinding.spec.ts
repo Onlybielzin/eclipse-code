@@ -119,7 +119,7 @@ describe('Gemini session binding', () => {
 
     vi.doMock('electron', () => ({
       app: {
-        getPath: vi.fn(() => '/tmp/opencove-test-userdata'),
+        getPath: vi.fn(() => '/tmp/eclipse-code-test-userdata'),
       },
       utilityProcess: {
         fork: vi.fn(),

@@ -42,7 +42,7 @@ export async function tryHandlePluginAssetRoute(input: {
       res.end()
       return true
     }
-    if (path === '__opencove_bridge.js') {
+    if (path === '__eclipse_code_bridge.js') {
       res.setHeader('content-type', 'text/javascript; charset=utf-8')
       res.end(req.method === 'HEAD' ? undefined : PLUGIN_BRIDGE_SCRIPT)
       return true
@@ -56,7 +56,7 @@ export async function tryHandlePluginAssetRoute(input: {
     res.setHeader('content-type', resource.contentType)
     let body = Buffer.from(resource.body)
     if (resource.contentType.startsWith('text/html')) {
-      const bridge = `<script src="/plugin-assets/${token}/__opencove_bridge.js"></script>`
+      const bridge = `<script src="/plugin-assets/${token}/__eclipse_code_bridge.js"></script>`
       const html = body.toString('utf8')
       body = Buffer.from(
         /<head(?:\s[^>]*)?>/i.test(html)

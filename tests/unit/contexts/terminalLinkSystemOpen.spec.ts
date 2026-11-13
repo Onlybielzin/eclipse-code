@@ -11,7 +11,7 @@ function installApi(runtime: 'electron' | 'browser' = 'electron', mode: unknown 
   const openPath = vi.fn(async () => undefined)
   const getConfig = vi.fn(async () => ({ mode }))
   vi.stubGlobal('window', {
-    opencoveApi: { meta: { runtime }, workspace: { openPath }, workerClient: { getConfig } },
+    eclipseCodeApi: { meta: { runtime }, workspace: { openPath }, workerClient: { getConfig } },
   })
   return { openPath, getConfig }
 }

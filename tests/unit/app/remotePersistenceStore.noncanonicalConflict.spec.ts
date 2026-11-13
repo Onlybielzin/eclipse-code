@@ -77,7 +77,7 @@ describe('remote persistence conflict validation', () => {
     }
     const fetchMock = vi.fn().mockResolvedValue(
       response({
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: true,
         value: { revision: 4, state: legacyState },
       }),
@@ -118,7 +118,7 @@ describe('remote persistence conflict validation', () => {
       .fn()
       .mockResolvedValueOnce(
         response({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { revision: 7, state: initialState },
         }),
@@ -126,7 +126,7 @@ describe('remote persistence conflict validation', () => {
       .mockResolvedValueOnce(
         response(
           {
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: false,
             error: { code: 'persistence.invalid_state', debugMessage: 'revision conflict' },
           },
@@ -135,14 +135,14 @@ describe('remote persistence conflict validation', () => {
       )
       .mockResolvedValueOnce(
         response({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { revision: 8, state: latestState },
         }),
       )
       .mockResolvedValueOnce(
         response({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { revision: 9 },
         }),

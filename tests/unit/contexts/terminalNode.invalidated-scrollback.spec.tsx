@@ -124,7 +124,7 @@ describe('TerminalNode invalidated scrollback cleanup', () => {
 
     const onScrollbackChange = vi.fn()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -169,7 +169,7 @@ describe('TerminalNode invalidated scrollback cleanup', () => {
     )
 
     await vi.waitFor(() => {
-      expect(window.opencoveApi.pty.snapshot).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.pty.snapshot).toHaveBeenCalledTimes(1)
     })
 
     dataListener?.({ sessionId: 'session-1', data: 'stale output' })

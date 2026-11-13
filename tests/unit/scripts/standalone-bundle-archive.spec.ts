@@ -18,9 +18,9 @@ describePosix('standalone bundle archive', () => {
   })
 
   it('keeps macOS framework symlinks relative and resolvable after extraction', async () => {
-    const tempRoot = await mkdtemp(join(tmpdir(), 'opencove-standalone-archive-'))
+    const tempRoot = await mkdtemp(join(tmpdir(), 'eclipse-code-standalone-archive-'))
     tempRoots.push(tempRoot)
-    const sourceApp = join(tempRoot, 'source', 'OpenCove.app')
+    const sourceApp = join(tempRoot, 'source', 'Eclipse Code.app')
     const frameworkRoot = join(sourceApp, 'Contents', 'Frameworks', 'Electron Framework.framework')
     const versionRoot = join(frameworkRoot, 'Versions', 'A')
     await mkdir(versionRoot, { recursive: true })
@@ -29,7 +29,7 @@ describePosix('standalone bundle archive', () => {
     await symlink('Versions/Current/Electron Framework', join(frameworkRoot, 'Electron Framework'))
 
     const archiveRoot = join(tempRoot, 'archive-root')
-    const bundleName = 'opencove-server-macos-arm64'
+    const bundleName = 'eclipse-code-server-macos-arm64'
     const copiedApp = join(archiveRoot, bundleName, 'runtime', basename(sourceApp))
     await mkdir(join(archiveRoot, bundleName, 'runtime'), { recursive: true })
     await copyRuntimePreservingSymlinks(sourceApp, copiedApp)
@@ -48,7 +48,7 @@ describePosix('standalone bundle archive', () => {
       extractedRoot,
       bundleName,
       'runtime',
-      'OpenCove.app',
+      'Eclipse Code.app',
       'Contents',
       'Frameworks',
       'Electron Framework.framework',

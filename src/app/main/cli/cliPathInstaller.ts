@@ -8,15 +8,15 @@ import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import type { CliPathStatusResult } from '../../../shared/contracts/dto'
 import { createAppError } from '../../../shared/errors/appError'
-import { resolvePackagedCliScriptPath } from '../../../shared/runtime/opencoveRuntimePaths'
+import { resolvePackagedCliScriptPath } from '../../../shared/runtime/eclipseCodeRuntimePaths'
 
-const CLI_WRAPPER_MARKER = '__OPENCOVE_CLI_WRAPPER__'
-const CLI_WRAPPER_NAME = 'opencove'
-const CLI_WRAPPER_OWNER_KEY = 'OPENCOVE_INSTALL_OWNER'
+const CLI_WRAPPER_MARKER = '__ECLIPSE_CODE_CLI_WRAPPER__'
+const CLI_WRAPPER_NAME = 'eclipse-code'
+const CLI_WRAPPER_OWNER_KEY = 'ECLIPSE_CODE_INSTALL_OWNER'
 const CLI_WRAPPER_OWNER_DESKTOP = 'desktop'
-const CLI_WRAPPER_KIND_KEY = 'OPENCOVE_WRAPPER_KIND'
-const CLI_WRAPPER_ELECTRON_BIN_KEY = 'OPENCOVE_ELECTRON_BIN'
-const CLI_WRAPPER_CLI_SCRIPT_KEY = 'OPENCOVE_CLI_SCRIPT'
+const CLI_WRAPPER_KIND_KEY = 'ECLIPSE_CODE_WRAPPER_KIND'
+const CLI_WRAPPER_ELECTRON_BIN_KEY = 'ECLIPSE_CODE_ELECTRON_BIN'
+const CLI_WRAPPER_CLI_SCRIPT_KEY = 'ECLIPSE_CODE_CLI_SCRIPT'
 
 const execFileAsync = promisify(execFile)
 
@@ -40,7 +40,7 @@ function resolveWindowsLocalAppDataDir(): string {
 
 function resolveUserBinDir(platform: NodeJS.Platform): string {
   if (platform === 'win32') {
-    return join(resolveWindowsLocalAppDataDir(), 'OpenCove', 'bin')
+    return join(resolveWindowsLocalAppDataDir(), 'Eclipse Code', 'bin')
   }
 
   return join(app.getPath('home'), '.local', 'bin')
@@ -76,22 +76,22 @@ function resolveCliScriptPath(): string {
     return resolvePackagedCliScriptPath(process.resourcesPath)
   }
 
-  return resolve(app.getAppPath(), 'out', 'cli', 'opencove.mjs')
+  return resolve(app.getAppPath(), 'out', 'cli', 'eclipse-code.mjs')
 }
 
 function buildWrapperScript(executablePath: string, cliScriptPath: string): string {
   return `#!/bin/sh
 # ${CLI_WRAPPER_MARKER}
-# OPENCOVE_INSTALL_OWNER=${CLI_WRAPPER_OWNER_DESKTOP}
-# OPENCOVE_WRAPPER_KIND=runtime
-# OPENCOVE_ELECTRON_BIN=${executablePath}
-# OPENCOVE_CLI_SCRIPT=${cliScriptPath}
+# ECLIPSE_CODE_INSTALL_OWNER=${CLI_WRAPPER_OWNER_DESKTOP}
+# ECLIPSE_CODE_WRAPPER_KIND=runtime
+# ECLIPSE_CODE_ELECTRON_BIN=${executablePath}
+# ECLIPSE_CODE_CLI_SCRIPT=${cliScriptPath}
 
 ELECTRON_BIN=${quoteSh(executablePath)}
 CLI_SCRIPT=${quoteSh(cliScriptPath)}
 
 if [ ! -x "$ELECTRON_BIN" ]; then
-  echo "[opencove] OpenCove executable not found: $ELECTRON_BIN" >&2
+  echo "[eclipse-code] Eclipse Code executable not found: $ELECTRON_BIN" >&2
   exit 1
 fi
 
@@ -99,7 +99,7 @@ case "$CLI_SCRIPT" in
   *.asar/*) ;;
   *)
     if [ ! -f "$CLI_SCRIPT" ]; then
-      echo "[opencove] CLI entry not found: $CLI_SCRIPT" >&2
+      echo "[eclipse-code] CLI entry not found: $CLI_SCRIPT" >&2
       exit 1
     fi
     ;;
@@ -115,23 +115,23 @@ function buildWindowsWrapperScript(executablePath: string, cliScriptPath: string
 
   return `@echo off
 rem ${CLI_WRAPPER_MARKER}
-rem OPENCOVE_INSTALL_OWNER=${CLI_WRAPPER_OWNER_DESKTOP}
-rem OPENCOVE_WRAPPER_KIND=runtime
-rem OPENCOVE_ELECTRON_BIN=${escapedExecutablePath}
-rem OPENCOVE_CLI_SCRIPT=${escapedCliScriptPath}
+rem ECLIPSE_CODE_INSTALL_OWNER=${CLI_WRAPPER_OWNER_DESKTOP}
+rem ECLIPSE_CODE_WRAPPER_KIND=runtime
+rem ECLIPSE_CODE_ELECTRON_BIN=${escapedExecutablePath}
+rem ECLIPSE_CODE_CLI_SCRIPT=${escapedCliScriptPath}
 
 set "ELECTRON_BIN=${escapedExecutablePath}"
 set "CLI_SCRIPT=${escapedCliScriptPath}"
 
 if not exist "%ELECTRON_BIN%" (
-  echo [opencove] OpenCove executable not found: %ELECTRON_BIN% 1>&2
+  echo [eclipse-code] Eclipse Code executable not found: %ELECTRON_BIN% 1>&2
   exit /b 1
 )
 
 echo "%CLI_SCRIPT%" | findstr /i /c:".asar\\" /c:".asar/" >nul
 if errorlevel 1 (
   if not exist "%CLI_SCRIPT%" (
-    echo [opencove] CLI entry not found: %CLI_SCRIPT% 1>&2
+    echo [eclipse-code] CLI entry not found: %CLI_SCRIPT% 1>&2
     exit /b 1
   )
 )
@@ -306,7 +306,7 @@ async function removeWindowsUserPathEntry(dirPath: string): Promise<void> {
 /** Best-effort startup migration. Ownership and the exact old target must both match. */
 export async function repairLegacyCliLaunchers(): Promise<void> {
   const cliScriptPath = resolveCliScriptPath()
-  const legacyPath = resolve(dirname(cliScriptPath), '../../src/app/cli/opencove.mjs')
+  const legacyPath = resolve(dirname(cliScriptPath), '../../src/app/cli/eclipse-code.mjs')
   await Promise.all(
     resolveInstallCandidates(process.platform).map(async targetPath => {
       // Most candidates hold no Desktop launcher; never create lock files in their directories.

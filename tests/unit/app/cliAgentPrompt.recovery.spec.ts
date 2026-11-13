@@ -31,7 +31,7 @@ function fixture(tty: boolean, error?: unknown) {
       ),
   )
   const io: CliIo = {
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'test' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'test' },
     signal: controller.signal,
     fetch,
     now: Date.now,
@@ -74,33 +74,33 @@ it.each([false, true])(
         kind: 'envelope',
         code: 'transport.invalid_response',
         exit: 1,
-        message: 'OpenCove returned an invalid delivery response. The outcome is unknown.',
+        message: 'Eclipse Code returned an invalid delivery response. The outcome is unknown.',
       },
       {
         kind: 'value',
         code: 'transport.invalid_response',
         exit: 1,
-        message: 'OpenCove returned an invalid delivery response. The outcome is unknown.',
+        message: 'Eclipse Code returned an invalid delivery response. The outcome is unknown.',
       },
       {
         kind: 'descriptor',
         code: 'transport.invalid_response',
         exit: 1,
-        message: 'OpenCove returned an invalid delivery response. The outcome is unknown.',
+        message: 'Eclipse Code returned an invalid delivery response. The outcome is unknown.',
       },
       {
         kind: 'network',
         code: 'context.unreachable',
         exit: 3,
         message:
-          'Could not obtain a delivery result from OpenCove at http://fake. The outcome is unknown.',
+          'Could not obtain a delivery result from Eclipse Code at http://fake. The outcome is unknown.',
       },
       {
         kind: 'json',
         code: 'context.unreachable',
         exit: 3,
         message:
-          'Could not obtain a delivery result from OpenCove at http://fake. The outcome is unknown.',
+          'Could not obtain a delivery result from Eclipse Code at http://fake. The outcome is unknown.',
       },
     ]
     for (const item of cases) {

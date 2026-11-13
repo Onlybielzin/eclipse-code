@@ -8,9 +8,9 @@ test('reveals a new Claude Code Agent when its first output arrives late', async
 }, testInfo) => {
   const { electronApp, window } = await launchApp({
     env: {
-      OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'raw-late-first-output',
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'raw-late-first-output',
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
     },
   })
   try {
@@ -37,7 +37,7 @@ test('reveals a new Claude Code Agent when its first output arrives late', async
       .poll(
         () =>
           window.evaluate(id => {
-            const buffer = window.__opencoveTerminalSelectionTestApi?.getBufferText(
+            const buffer = window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(
               id,
               'late plain',
             )
@@ -63,7 +63,7 @@ test('reveals a new Claude Code Agent when its first output arrives late', async
     await testInfo.attach('late-output-state', {
       body: JSON.stringify(
         await window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           const state = JSON.parse(raw ?? '{}') as {
             workspaces?: Array<{ nodes?: Array<{ sessionId?: string }> }>
           }
@@ -71,7 +71,7 @@ test('reveals a new Claude Code Agent when its first output arrives late', async
           return {
             node,
             snapshot: node?.sessionId
-              ? await window.opencoveApi.pty.presentationSnapshot({ sessionId: node.sessionId })
+              ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: node.sessionId })
               : null,
             recovering: document.querySelector('.terminal-node__recovering')?.textContent,
           }

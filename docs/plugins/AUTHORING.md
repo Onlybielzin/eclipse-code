@@ -1,21 +1,21 @@
 # Authoring and verification
 
-Read the README returned by `opencove plugin guide` and this guide before building.
+Read the README returned by `eclipse-code plugin guide` and this guide before building.
 The runnable example and [API reference](./API.md) are in the same documentation
-directory, including in packaged builds. No OpenCove source checkout is required.
+directory, including in packaged builds. No Eclipse Code source checkout is required.
 
-Before writing UI, read [OpenCove plugin design system](./VISUAL_DESIGN.md). Start from its
+Before writing UI, read [Eclipse Code plugin design system](./VISUAL_DESIGN.md). Start from its
 compact layout and theme-aware control baseline, then adapt the content to the
 plugin's task. A reference product supplies ideas, not an extra app shell inside
-OpenCove's window.
+Eclipse Code's window.
 
 ## Starting a matching development runtime
 
-Choose the intended development runtime/profile first, then run `opencove plugin
+Choose the intended development runtime/profile first, then run `eclipse-code plugin
 list --pretty` against it. If it succeeds, use that runtime and its existing UI.
 If it reports `no valid connection info found`, the offline guide
 is available but no target runtime was discovered. Start the Worker bundled with
-this same `opencove` CLI; an older installed Desktop may not have this plugin API.
+this same `eclipse-code` CLI; an older installed Desktop may not have this plugin API.
 
 The separate profile example below is for creating a chosen development
 environment. A Skill operating a user's existing installation must retain that
@@ -26,15 +26,15 @@ substitute this development profile or any other reachable runtime. See the
 For a separate development profile on macOS or Linux, open a terminal and run:
 
 ```sh
-export OPENCOVE_USER_DATA_DIR="$HOME/.opencove/plugin-dev"
-opencove worker start --user-data "$OPENCOVE_USER_DATA_DIR" --web-ui-password '<choose-a-local-password>'
+export ECLIPSE_CODE_USER_DATA_DIR="$HOME/.eclipse-code/plugin-dev"
+eclipse-code worker start --user-data "$ECLIPSE_CODE_USER_DATA_DIR" --web-ui-password '<choose-a-local-password>'
 ```
 
 On Windows PowerShell:
 
 ```powershell
-$env:OPENCOVE_USER_DATA_DIR = Join-Path $env:LOCALAPPDATA 'OpenCove/plugin-dev'
-opencove worker start --user-data $env:OPENCOVE_USER_DATA_DIR --web-ui-password '<choose-a-local-password>'
+$env:ECLIPSE_CODE_USER_DATA_DIR = Join-Path $env:LOCALAPPDATA 'Eclipse Code/plugin-dev'
+eclipse-code worker start --user-data $env:ECLIPSE_CODE_USER_DATA_DIR --web-ui-password '<choose-a-local-password>'
 ```
 
 Replace the password placeholder with a password for this local development UI.
@@ -43,13 +43,13 @@ such as `http://127.0.0.1:<allocated-port>/`; open that URL in a browser and sig
 with the password you supplied. Do not guess a port. The Worker defaults to
 loopback; a LAN listener is unnecessary for local plugin development.
 
-In a second terminal, set the **same** `OPENCOVE_USER_DATA_DIR` before every group
+In a second terminal, set the **same** `ECLIPSE_CODE_USER_DATA_DIR` before every group
 of CLI commands (shell environment settings do not transfer between terminals):
 
 ```sh
-export OPENCOVE_USER_DATA_DIR="$HOME/.opencove/plugin-dev"
-opencove worker status --user-data "$OPENCOVE_USER_DATA_DIR" --pretty
-opencove plugin list --pretty
+export ECLIPSE_CODE_USER_DATA_DIR="$HOME/.eclipse-code/plugin-dev"
+eclipse-code worker status --user-data "$ECLIPSE_CODE_USER_DATA_DIR" --pretty
+eclipse-code plugin list --pretty
 ```
 
 Use the PowerShell environment assignment above on Windows. `worker status`
@@ -63,15 +63,15 @@ create its window through a declared action-bar or canvas-menu entry, or use
 can work without a window when the plugin declares them that way. Use Settings →
 Plugins for the detail page, optional preview and enablement controls.
 
-Without `--user-data` or `OPENCOVE_USER_DATA_DIR`, Worker startup selects the
-platform app-data `opencove-dev` directory if it exists, otherwise `opencove`.
+Without `--user-data` or `ECLIPSE_CODE_USER_DATA_DIR`, Worker startup selects the
+platform app-data `eclipse-code-dev` directory if it exists, otherwise `eclipse-code`.
 The CLI searches those same two locations and picks the newest live connection.
 Their parent is `~/Library/Application Support` on macOS, `%APPDATA%` on Windows,
 and `$XDG_CONFIG_HOME` or `~/.config` on Linux. An explicit separate profile avoids
 ambiguity when several versions are running. Keep runtime data outside your plugin
 source directory.
 
-Stop only a development runtime you started, using `opencove worker stop
+Stop only a development runtime you started, using `eclipse-code worker stop
 --user-data <that-directory>`. Do not stop or replace another Desktop/Worker to
 make an experiment work. If the launcher reports that a source Worker is not
 built, have the runtime maintainer prepare the current build; this is not a plugin
@@ -81,38 +81,38 @@ authoring failure and does not require changing the plugin.
 
 1. Copy `examples/hello-clock` from the guide directory into a writable directory
    of your choice. Keep source outside the guide cache and application bundle.
-2. Read its `opencove.plugin.json`, `main.mjs`, `index.html` and `view.js`. The
+2. Read its `eclipse-code.plugin.json`, `main.mjs`, `index.html` and `view.js`. The
    example has no dependencies or build step and is ready to install as copied.
-3. Ensure the target OpenCove app or Worker is running. Run:
+3. Ensure the target Eclipse Code app or Worker is running. Run:
 
    ```sh
-   opencove plugin install /absolute/path/to/hello-clock --pretty
-   opencove plugin list --pretty
-   opencove plugin details hello-clock --pretty
+   eclipse-code plugin install /absolute/path/to/hello-clock --pretty
+   eclipse-code plugin list --pretty
+   eclipse-code plugin details hello-clock --pretty
    ```
 
 4. In Settings → Plugins, open **Hello Clock**. Read its README and interact with
    the preview. Create a real node through the action bar or canvas context menu.
    Click the clock's update button; the returned timestamp comes from its actual
    Node backend. Save a label, then close and reopen a node to verify persistence.
-5. Edit the source label or style and run `opencove plugin reload hello-clock`.
+5. Edit the source label or style and run `eclipse-code plugin reload hello-clock`.
    Source changes are applied only after an explicit reload, without rebuilding
-   OpenCove. Existing views use the new snapshot after reload.
+   Eclipse Code. Existing views use the new snapshot after reload.
 6. Test `disable`, `enable` and, when finished, `uninstall`. These commands accept
    the plugin ID, not a directory. Source and private data survive uninstall.
 
 If the example does not install or run, report the exact command, returned error,
 `plugin details` output and the failing interaction. Do not conceal an installation
-failure by replacing it with a website node or editing OpenCove's source.
+failure by replacing it with a website node or editing Eclipse Code's source.
 
 ## Building your own plugin
 
 Choose a unique lowercase slug and change the example's manifest ID, name,
 description and version. If the plugin contributes a node window, provide an HTML
 view with external JavaScript and CSS files. The host injects
-`window.opencovePlugin` before your scripts. Await its
+`window.eclipseCodePlugin` before your scripts. Await its
 `ready` promise before reading context or calling the backend. Do not ship your own
-bridge, reach into the host DOM, or depend on internal OpenCove imports.
+bridge, reach into the host DOM, or depend on internal Eclipse Code imports.
 
 The optional backend is an ESM file exporting `activate(context)`. It returns an
 object with `invoke(method, params, viewContext)` for view calls and/or
@@ -135,21 +135,21 @@ images; preview uses an optional HTML entry and isolated sample data.
 An included Skill must cover more than the happy-path command syntax. Follow the
 [required operational instructions](./COMMANDS.md#required-operational-instructions-for-skill-authors):
 recover the same intended instance through public CLI help when it is stopped,
-discover explicit project IDs with `opencove project list`, resolve node/view
+discover explicit project IDs with `eclipse-code project list`, resolve node/view
 ambiguity, and read back the actual result after executing. Include the plugin's
 real verification commands and expected fields. Do not ask an agent to infer an
 active project, start a replacement instance, choose an arbitrary ready view, or
 retry an uncertain mutation automatically.
 
 Test the finished Skill with an agent that has only the installed Skill and public
-OpenCove documentation. Start with the intended runtime stopped and include more
+Eclipse Code documentation. Start with the intended runtime stopped and include more
 than one project and client where supported. Its recovery must preserve the same
 runtime, installed plugin, saved nodes and user data. An unavailable instance or
 ambiguous target is a recovery/selection step, not permission to create another.
 
 ## State and execution ownership
 
-- Node placement, expanded size and collapse are owned and saved by OpenCove.
+- Node placement, expanded size and collapse are owned and saved by Eclipse Code.
 - Persistent preferences, favorites and queues belong in SDK storage. Its scope is
   the plugin on this runtime, shared across real views; namespace per-node values
   with the supplied `nodeId` when needed. Store JSON data, not active objects.
@@ -181,7 +181,7 @@ prohibit retaining audio or metadata. Refresh expiring stream URLs as needed.
 
 ## Debug and iterate
 
-`opencove plugin details <id> --pretty` returns the installed manifest, revision,
+`eclipse-code plugin details <id> --pretty` returns the installed manifest, revision,
 source location, documentation and recent backend logs. Log useful operation names
 with `context.log(...)`; omit credentials, signed media URLs and private content.
 A backend exception is returned to the invoking view and should be caught there.
@@ -196,7 +196,7 @@ so a working CLI does not prove the browser session is valid. Open `/auth/login`
 on that same runtime's Web UI URL, sign in again, then reload the original page.
 Keep any unsaved text before reloading; already confirmed SDK writes remain stored.
 Never copy the CLI token into the plugin. A failure limited to one view, such as
-`OpenCove plugin view closed.`, instead points to its lifecycle: inspect plugin
+`Eclipse Code plugin view closed.`, instead points to its lifecycle: inspect plugin
 status and logs, and recreate or reload that view through the host.
 
 When validating a change, first reload the plugin, then inspect its new revision.
@@ -216,7 +216,7 @@ working copy; do not patch it directly.
 Report each layer separately with its actual result:
 
 - **Installation:** installs from an independent directory, appears in `plugin
-  list` and Settings, and requires no OpenCove source edits or rebuild.
+  list` and Settings, and requires no Eclipse Code source edits or rebuild.
 - **Real work:** a real node performs the requested operation with real services
   or explicit local fixtures. Demonstrate progress, error and empty states.
 - **Presentation:** header/resize/collapse work; both themes and narrow sizes are
@@ -233,5 +233,5 @@ Report each layer separately with its actual result:
   real workflow and verify its result without substituting another instance.
 
 Keep experiment screenshots and logs in the plugin's own work directory, not in
-OpenCove source. If a contract is missing, report it; do not invent host APIs or
+Eclipse Code source. If a contract is missing, report it; do not invent host APIs or
 claim a standalone page is an installed plugin.

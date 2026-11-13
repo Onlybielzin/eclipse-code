@@ -85,7 +85,7 @@ it.each(['status', 'stop'])('executes worker %s through lifecycle owner', async 
     expect.objectContaining({ userData: '/isolated' }),
   )
   expect(f.io.fetch).not.toHaveBeenCalled()
-  expect(f.out()).not.toContain('__opencoveControlEnvelope')
+  expect(f.out()).not.toContain('__eclipseCodeControlEnvelope')
   expect(JSON.parse(f.out()).status).toBe('stopped')
 })
 it('inspects build identity without spawning', async () => {
@@ -236,7 +236,7 @@ it.each(['close', 'escalate'])('Windows requests IPC shutdown before %s', async 
   try {
     f.controller.abort()
     expect(child.send).toHaveBeenCalledWith(
-      { type: 'opencove.worker.shutdown' },
+      { type: 'eclipse-code.worker.shutdown' },
       expect.any(Function),
     )
     expect(child.kill).not.toHaveBeenCalled()

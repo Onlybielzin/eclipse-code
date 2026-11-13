@@ -39,7 +39,7 @@ const HOST_GUIDE_DOCUMENTS = [
 let root: string
 
 beforeEach(async () => {
-  root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-plugin-guide-')))
+  root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-guide-')))
 })
 
 afterEach(async () => {
@@ -123,7 +123,7 @@ describe('packaged plugin guide export', () => {
     )
     expect(
       await readFile(join(guide.directory, 'examples', 'hello-clock', 'view.js'), 'utf8'),
-    ).toContain('window.opencovePlugin')
+    ).toContain('window.eclipseCodePlugin')
     const second = await runGuide(archive)
     expect(second.exitCode, second.stderr).toBe(0)
     expect(JSON.parse(second.stdout)).toEqual(guide)

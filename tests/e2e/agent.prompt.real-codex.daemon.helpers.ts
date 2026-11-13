@@ -49,7 +49,7 @@ export async function startSlowTool(page: Page, nodeId: string): Promise<void> {
 
 async function resolveAgentRootPid(sessionId: string): Promise<number> {
   // PTY metadata currently exposes only sessionId, not node-pty's rootPid. The hosting
-  // runtime injects OPENCOVE_SESSION_ID into the PTY root and descendants (entry.ts).
+  // runtime injects ECLIPSE_CODE_SESSION_ID into the PTY root and descendants (entry.ts).
   // Read that exact identity, never guess from a Codex name, cwd, or daemon ancestry.
   const { stdout } = await exec('ps', ['axeww', '-o', 'pid=,ppid=,pgid=,command='], {
     timeout: 1_000,
@@ -58,7 +58,7 @@ async function resolveAgentRootPid(sessionId: string): Promise<number> {
     // Child-process errors may carry captured stdout containing environment credentials.
     throw new Error('Unable to resolve the PTY root from runtime session identity')
   })
-  const identity = `OPENCOVE_SESSION_ID=${sessionId}`
+  const identity = `ECLIPSE_CODE_SESSION_ID=${sessionId}`
   const rows = parseProcessRows(stdout, false)
   const matching = rows.filter(row => row.command.split(/\s+/u).includes(identity))
   const byPid = new Map(rows.map(row => [row.pid, row]))

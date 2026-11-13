@@ -111,7 +111,7 @@ describe('useHydrateAppState durable scrollback ownership', () => {
     })
     const spawn = vi.fn(() => spawnDeferred.promise)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -209,7 +209,7 @@ describe('useHydrateAppState durable scrollback ownership', () => {
     })
     const spawn = vi.fn(async () => ({ sessionId: 'terminal-session-1' }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -315,7 +315,7 @@ describe('useHydrateAppState durable scrollback ownership', () => {
     )
     const spawn = vi.fn(async () => ({ sessionId: 'spawned-session' }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

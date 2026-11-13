@@ -3,7 +3,7 @@ import { describeAgentLaunchCommand } from '../../../src/app/main/diagnostics/ag
 
 vi.mock('electron', () => ({
   app: {
-    getPath: vi.fn(() => '/tmp/opencove-test-user-data'),
+    getPath: vi.fn(() => '/tmp/eclipse-code-test-user-data'),
   },
 }))
 

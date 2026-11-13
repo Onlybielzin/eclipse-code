@@ -19,8 +19,8 @@ test.describe('Recovery - Worker client input after restart', () => {
         userDataDir,
         env: {
           NODE_ENV: 'test',
-          OPENCOVE_TEST_AGENT_STUB_SCRIPT: resolveTestAgentStubScriptPath(),
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
+          ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: resolveTestAgentStubScriptPath(),
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
         },
       })
       workerChild = worker.child
@@ -30,7 +30,7 @@ test.describe('Recovery - Worker client input after restart', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_WORKER_CLIENT: '1',
+          ECLIPSE_CODE_WORKER_CLIENT: '1',
         },
       })
 
@@ -116,7 +116,7 @@ test.describe('Recovery - Worker client input after restart', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_WORKER_CLIENT: '1',
+          ECLIPSE_CODE_WORKER_CLIENT: '1',
         },
       })
 
@@ -146,7 +146,7 @@ test.describe('Recovery - Worker client input after restart', () => {
           'false',
         )
 
-        const terminalToken = `OPENCOVE_WORKER_TERMINAL_INPUT_${Date.now()}`
+        const terminalToken = `ECLIPSE_CODE_WORKER_TERMINAL_INPUT_${Date.now()}`
         await terminalNode.locator('.xterm').click()
         await expect(terminalNode.locator('.xterm-helper-textarea')).toBeFocused()
         await restartedWindow.waitForTimeout(250)

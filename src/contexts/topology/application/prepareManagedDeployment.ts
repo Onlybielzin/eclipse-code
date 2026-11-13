@@ -6,7 +6,7 @@ import type {
 } from './ports/ManagedDeploymentPort'
 
 function failure(code: string): Error {
-  return new Error(`[opencove-bootstrap:${code}] ${code}`)
+  return new Error(`[eclipse-code-bootstrap:${code}] ${code}`)
 }
 
 /** Candidate verification happens before acquiring the deployment activation lock. */

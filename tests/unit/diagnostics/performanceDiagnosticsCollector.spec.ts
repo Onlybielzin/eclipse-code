@@ -21,7 +21,7 @@ describe('performance diagnostics collector helpers', () => {
     vi.doMock('electron', () => ({
       app: {
         getAppMetrics: vi.fn(() => []),
-        getPath: vi.fn(() => '/tmp/opencove'),
+        getPath: vi.fn(() => '/tmp/eclipse-code'),
       },
     }))
 
@@ -32,21 +32,21 @@ describe('performance diagnostics collector helpers', () => {
       {
         ProcessId: 100,
         ParentProcessId: 1,
-        Name: 'OpenCove.exe',
-        CommandLine: 'OpenCove.exe',
+        Name: 'Eclipse Code.exe',
+        CommandLine: 'Eclipse Code.exe',
       },
       {
         ProcessId: 200,
         ParentProcessId: 1,
-        Name: 'OpenCove.exe',
+        Name: 'Eclipse Code.exe',
         CommandLine:
-          'OpenCove.exe C:/OpenCove/resources/app.asar/out/main/worker.js --started-by desktop --parent-pid 100',
+          'Eclipse Code.exe C:/Eclipse Code/resources/app.asar/out/main/worker.js --started-by desktop --parent-pid 100',
       },
       {
         ProcessId: 201,
         ParentProcessId: 200,
-        Name: 'OpenCove.exe',
-        CommandLine: 'OpenCove.exe C:/OpenCove/resources/app.asar/out/main/ptyHost.js',
+        Name: 'Eclipse Code.exe',
+        CommandLine: 'Eclipse Code.exe C:/Eclipse Code/resources/app.asar/out/main/ptyHost.js',
       },
     ]
 
@@ -57,7 +57,7 @@ describe('performance diagnostics collector helpers', () => {
     vi.doMock('electron', () => ({
       app: {
         getAppMetrics: vi.fn(() => []),
-        getPath: vi.fn(() => '/tmp/opencove'),
+        getPath: vi.fn(() => '/tmp/eclipse-code'),
       },
     }))
 
@@ -84,7 +84,7 @@ describe('performance diagnostics collector helpers', () => {
     vi.doMock('electron', () => ({
       app: {
         getAppMetrics: vi.fn(() => []),
-        getPath: vi.fn(() => '/tmp/opencove'),
+        getPath: vi.fn(() => '/tmp/eclipse-code'),
       },
     }))
     vi.doMock(
@@ -102,14 +102,14 @@ describe('performance diagnostics collector helpers', () => {
     expect(snapshot.processSummary).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          kind: 'opencove-main',
-          scope: 'opencove',
+          kind: 'eclipse-code-main',
+          scope: 'eclipse-code',
           count: 1,
         }),
       ]),
     )
     expect(snapshot.notes).toContain(
-      'Process-tree rows were unavailable; showing the current OpenCove main process as a fallback.',
+      'Process-tree rows were unavailable; showing the current Eclipse Code main process as a fallback.',
     )
   })
 
@@ -125,7 +125,7 @@ describe('performance diagnostics collector helpers', () => {
       if (args[0] === '-ww') {
         return {
           stdout: [
-            `${mainPid} 1 120000 OpenCove OpenCove`,
+            `${mainPid} 1 120000 Eclipse Code Eclipse Code`,
             `200 1 80000 node node out/main/worker.js --started-by desktop --parent-pid ${mainPid}`,
             '201 200 32000 node node out/main/ptyHost.js',
             `202 ${mainPid} 40000 codex codex exec`,
@@ -138,7 +138,7 @@ describe('performance diagnostics collector helpers', () => {
         return {
           stdout: [
             'USER   PID   TT   %CPU STAT PRI     STIME     UTIME COMMAND',
-            `deadwave ${mainPid}   ??    0.0 S    31T   0:00.00   0:00.00 OpenCove`,
+            `deadwave ${mainPid}   ??    0.0 S    31T   0:00.00   0:00.00 Eclipse Code`,
             `         ${mainPid}         0.0 S    31T   0:00.00   0:00.00`,
             'deadwave 200   ??    0.0 S    31T   0:00.00   0:00.00 node',
             '         200         0.0 S    31T   0:00.00   0:00.00',
@@ -164,7 +164,7 @@ describe('performance diagnostics collector helpers', () => {
     vi.doMock('electron', () => ({
       app: {
         getAppMetrics: vi.fn(() => []),
-        getPath: vi.fn(() => '/tmp/opencove'),
+        getPath: vi.fn(() => '/tmp/eclipse-code'),
       },
     }))
     vi.doMock(
@@ -187,9 +187,9 @@ describe('performance diagnostics collector helpers', () => {
     })
     expect(snapshot.processSummary).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'opencove-main', count: 1, threadCount: 2 }),
-        expect.objectContaining({ kind: 'opencove-worker', count: 1, threadCount: 3 }),
-        expect.objectContaining({ kind: 'opencove-pty-host', count: 1, threadCount: 1 }),
+        expect.objectContaining({ kind: 'eclipse-code-main', count: 1, threadCount: 2 }),
+        expect.objectContaining({ kind: 'eclipse-code-worker', count: 1, threadCount: 3 }),
+        expect.objectContaining({ kind: 'eclipse-code-pty-host', count: 1, threadCount: 1 }),
         expect.objectContaining({ kind: 'external-agent-codex', count: 1, threadCount: 4 }),
       ]),
     )
@@ -211,8 +211,8 @@ describe('performance diagnostics collector helpers', () => {
       }
     )[promisify.custom] = vi.fn(async () => ({
       stdout: [
-        `${mainPid} 1 64000 8 OpenCove OpenCove --type=browser`,
-        `210 ${mainPid} 48000 5 OpenCove OpenCove --type=renderer`,
+        `${mainPid} 1 64000 8 Eclipse Code Eclipse Code --type=browser`,
+        `210 ${mainPid} 48000 5 Eclipse Code Eclipse Code --type=renderer`,
         `211 ${mainPid} 16000 2 bash bash -lc pwd`,
         `212 ${mainPid} 5000 1 ps ps -ww -axo pid=,ppid=,rss=,nlwp=,comm=,args=`,
       ].join('\n'),
@@ -228,7 +228,7 @@ describe('performance diagnostics collector helpers', () => {
     vi.doMock('electron', () => ({
       app: {
         getAppMetrics: vi.fn(() => []),
-        getPath: vi.fn(() => '/tmp/opencove'),
+        getPath: vi.fn(() => '/tmp/eclipse-code'),
       },
     }))
     vi.doMock(
@@ -251,8 +251,8 @@ describe('performance diagnostics collector helpers', () => {
     })
     expect(snapshot.processSummary).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'opencove-main', count: 1, threadCount: 8 }),
-        expect.objectContaining({ kind: 'opencove-renderer', count: 1, threadCount: 5 }),
+        expect.objectContaining({ kind: 'eclipse-code-main', count: 1, threadCount: 8 }),
+        expect.objectContaining({ kind: 'eclipse-code-renderer', count: 1, threadCount: 5 }),
         expect.objectContaining({ kind: 'external-shell', count: 1, threadCount: 2 }),
       ]),
     )

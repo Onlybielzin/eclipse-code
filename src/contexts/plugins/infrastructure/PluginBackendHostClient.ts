@@ -22,7 +22,7 @@ export class PluginBackendHostClient {
 
   private async request(operation: string, payload: unknown): Promise<unknown> {
     if (this.closed) {
-      throw new Error('OpenCove plugin host connection closed.')
+      throw new Error('Eclipse Code plugin host connection closed.')
     }
     if (this.pending.size >= 128) {
       throw new Error('Too many pending plugin host requests.')
@@ -43,7 +43,7 @@ export class PluginBackendHostClient {
         request.reject(error)
       }
       const timer = setTimeout(
-        () => fail(new Error(`OpenCove plugin host request timed out: ${operation}`)),
+        () => fail(new Error(`Eclipse Code plugin host request timed out: ${operation}`)),
         this.timeoutMs,
       )
       this.pending.set(requestId, { resolve, reject, timer })
@@ -88,7 +88,7 @@ export class PluginBackendHostClient {
     this.closed = true
     for (const request of this.pending.values()) {
       clearTimeout(request.timer)
-      request.reject(new Error('OpenCove plugin host connection closed.'))
+      request.reject(new Error('Eclipse Code plugin host connection closed.'))
     }
     this.pending.clear()
   }

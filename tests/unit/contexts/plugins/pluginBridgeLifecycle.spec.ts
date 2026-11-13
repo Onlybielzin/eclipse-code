@@ -32,7 +32,7 @@ function setup(constructionFails = false) {
       listeners.set(type, handler)
     },
   } as unknown as {
-    opencovePlugin: {
+    eclipseCodePlugin: {
       invoke: (method: string) => Promise<unknown>
       host: { filesystem: { readText: (input: unknown) => Promise<unknown> } }
       onCommand: (handler: (command: string, params: unknown) => unknown) => () => void
@@ -46,7 +46,7 @@ function setup(constructionFails = false) {
     WebSocket: Socket,
     navigator: { sendBeacon: beacon },
     document: {
-      currentScript: { src: 'http://127.0.0.1:8000/plugin-assets/lease/__opencove_bridge.js' },
+      currentScript: { src: 'http://127.0.0.1:8000/plugin-assets/lease/__eclipse_code_bridge.js' },
       documentElement: { dataset: {}, style: { setProperty: vi.fn() } },
       querySelectorAll: () => [{ pause }],
     },
@@ -56,7 +56,7 @@ function setup(constructionFails = false) {
   listeners.get('message')?.({
     source: parent,
     origin: 'http://127.0.0.1:8000',
-    data: { channel: 'opencove-plugin-v1', type: 'init', context: { theme: 'dark' } },
+    data: { channel: 'eclipse-code-plugin-v1', type: 'init', context: { theme: 'dark' } },
   })
   return { window, sockets, listeners, beacon, pause, schedule, post, parent }
 }
@@ -64,9 +64,9 @@ function setup(constructionFails = false) {
 describe('injected plugin SDK lifecycle', () => {
   it('registers its API even when native connection construction throws, without retry loops', async () => {
     const { window, schedule, post } = setup(true)
-    await expect(window.opencovePlugin.invoke('play')).rejects.toThrow('view closed')
+    await expect(window.eclipseCodePlugin.invoke('play')).rejects.toThrow('view closed')
     expect(schedule).not.toHaveBeenCalled()
-    expect(post).toHaveBeenCalledWith({ channel: 'opencove-plugin-v1', type: 'ready' }, '*')
+    expect(post).toHaveBeenCalledWith({ channel: 'eclipse-code-plugin-v1', type: 'ready' }, '*')
   })
 
   it('releases the capability on page departure and requests one replacement after a back-forward cache restore', async () => {
@@ -76,12 +76,12 @@ describe('injected plugin SDK lifecycle', () => {
     expect(pause).toHaveBeenCalledOnce()
     expect(sockets[0].close).toHaveBeenCalledOnce()
     expect(beacon).toHaveBeenCalledWith('http://127.0.0.1:8000/plugin-assets/lease/__close')
-    await expect(window.opencovePlugin.invoke('play')).rejects.toThrow('view closed')
+    await expect(window.eclipseCodePlugin.invoke('play')).rejects.toThrow('view closed')
     listeners.get('pageshow')?.({ persisted: false })
     listeners.get('pageshow')?.({ persisted: true })
     listeners.get('pageshow')?.({ persisted: true })
     expect(post.mock.calls.filter(([message]) => message.type === 'restore')).toEqual([
-      [{ channel: 'opencove-plugin-v1', type: 'restore' }, 'http://127.0.0.1:8000'],
+      [{ channel: 'eclipse-code-plugin-v1', type: 'restore' }, 'http://127.0.0.1:8000'],
     ])
   })
 
@@ -92,7 +92,7 @@ describe('injected plugin SDK lifecycle', () => {
     expect(pause).not.toHaveBeenCalled()
     sockets[0].handlers.get('close')?.({ code: 4001 })
     expect(pause).toHaveBeenCalledOnce()
-    await expect(window.opencovePlugin.invoke('play')).rejects.toThrow('view closed')
+    await expect(window.eclipseCodePlugin.invoke('play')).rejects.toThrow('view closed')
     expect(schedule).toHaveBeenCalledOnce()
   })
 
@@ -111,7 +111,7 @@ describe('injected plugin SDK lifecycle', () => {
       params,
       applied: true,
     }))
-    const unsubscribe = window.opencovePlugin.onCommand(handler)
+    const unsubscribe = window.eclipseCodePlugin.onCommand(handler)
     expect(JSON.parse(socket.send.mock.calls[1][0])).toEqual({
       type: 'ready',
       protocol: 2,
@@ -147,9 +147,9 @@ describe('injected plugin SDK lifecycle', () => {
     const { window, sockets } = setup()
     const socket = sockets[0]
     socket.readyState = 1
-    const obsolete = window.opencovePlugin.onCommand(() => 'obsolete')
+    const obsolete = window.eclipseCodePlugin.onCommand(() => 'obsolete')
     const current = vi.fn(() => ({ invalid: undefined }))
-    window.opencovePlugin.onCommand(current)
+    window.eclipseCodePlugin.onCommand(current)
     obsolete()
     socket.handlers.get('message')?.({
       data: JSON.stringify({
@@ -176,7 +176,7 @@ describe('injected plugin SDK lifecycle', () => {
     const socket = sockets[0]
     socket.readyState = 1
     const handler = vi.fn(() => 'done')
-    window.opencovePlugin.onCommand(handler)
+    window.eclipseCodePlugin.onCommand(handler)
     socket.handlers.get('message')?.({
       data: JSON.stringify({
         type: 'command',
@@ -192,7 +192,7 @@ describe('injected plugin SDK lifecycle', () => {
     await Promise.resolve()
     expect(handler).not.toHaveBeenCalled()
     expect(socket.send.mock.calls.every(([raw]) => JSON.parse(raw).type === 'ready')).toBe(true)
-    expect(() => window.opencovePlugin.onCommand(handler)).toThrow('view closed')
+    expect(() => window.eclipseCodePlugin.onCommand(handler)).toThrow('view closed')
   })
 
   it('closes invalid command traffic and does not reconnect a policy-rejected channel', () => {
@@ -217,7 +217,7 @@ describe('injected plugin SDK lifecycle', () => {
           finish = resolve
         }),
     )
-    window.opencovePlugin.onCommand(handler)
+    window.eclipseCodePlugin.onCommand(handler)
     original.handlers.get('message')?.({
       data: JSON.stringify({
         type: 'command',
@@ -253,7 +253,7 @@ describe('injected plugin SDK lifecycle', () => {
     const { window, sockets } = setup()
     const socket = sockets[0]
     socket.readyState = 1
-    window.opencovePlugin.onCommand(() => {
+    window.eclipseCodePlugin.onCommand(() => {
       if (kind === 'failure') {
         throw new Error('Action failed')
       }
@@ -278,7 +278,7 @@ describe('injected plugin SDK lifecycle', () => {
     const { window, sockets } = setup()
     const socket = sockets[0]
     socket.readyState = 1
-    window.opencovePlugin.onCommand(() => undefined)
+    window.eclipseCodePlugin.onCommand(() => undefined)
     socket.handlers.get('message')?.({
       data: JSON.stringify({
         type: 'command',
@@ -301,7 +301,7 @@ describe('injected plugin SDK lifecycle', () => {
 
 it('rejects a host SDK call with the structured filesystem reason supplied by its parent', async () => {
   const { window, listeners, parent, post } = setup()
-  const pending = window.opencovePlugin.host.filesystem.readText({
+  const pending = window.eclipseCodePlugin.host.filesystem.readText({
     target: { projectId: 'p' },
     path: 'missing',
   })
@@ -313,7 +313,7 @@ it('rejects a host SDK call with the structured filesystem reason supplied by it
     source: parent,
     origin: 'http://127.0.0.1:8000',
     data: {
-      channel: 'opencove-plugin-v1',
+      channel: 'eclipse-code-plugin-v1',
       type: 'result',
       id: request.id,
       error: 'Unable to read file details. The file or folder does not exist.',

@@ -10,8 +10,8 @@ type ExpectedPresentationGeometry = {
 export function requestPresentationSnapshot(
   sessionId: string,
 ): Promise<PresentationSnapshotTerminalResult | null> {
-  return typeof window.opencoveApi.pty.presentationSnapshot === 'function'
-    ? window.opencoveApi.pty
+  return typeof window.eclipseCodeApi.pty.presentationSnapshot === 'function'
+    ? window.eclipseCodeApi.pty
         .presentationSnapshot({ sessionId })
         .then(snapshot => snapshot ?? null)
         .catch(() => null)

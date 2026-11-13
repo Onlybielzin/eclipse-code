@@ -55,7 +55,7 @@ describe('Remote PTY overflow loopback recovery', () => {
         response.setHeader('content-type', 'application/json')
         response.end(
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: {
               sessionId: 'remote-session',
@@ -78,7 +78,7 @@ describe('Remote PTY overflow loopback recovery', () => {
     })
     const wss = new WebSocketServer({
       noServer: true,
-      handleProtocols: () => 'opencove-pty.v1',
+      handleProtocols: () => 'eclipse-code-pty.v1',
     })
     server.on('upgrade', (request, socket, head) => {
       wss.handleUpgrade(request, socket, head, ws => wss.emit('connection', ws, request))

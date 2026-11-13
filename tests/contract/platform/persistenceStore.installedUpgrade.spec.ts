@@ -228,8 +228,8 @@ describe('PersistenceStore installed upgrade', () => {
   it.each(SUPPORTED_INSTALLED_UPGRADE_SOURCE_VERSIONS)(
     'reads an installed v%s project after upgrading to the current schema',
     async sourceVersion => {
-      tempDir = await mkdtemp(join(tmpdir(), 'opencove-installed-upgrade-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      tempDir = await mkdtemp(join(tmpdir(), 'eclipse-code-installed-upgrade-'))
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [dbPath, createInstalledUpgradeState(sourceVersion)],
       ])

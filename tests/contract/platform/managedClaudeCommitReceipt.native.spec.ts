@@ -15,7 +15,7 @@ describeWithElectronNativeModules('managed Claude exact commit receipts', () => 
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   let owner: ManagedClaudeLaunchOwner
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-commit-receipt-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-commit-receipt-'))
     store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
   })
   afterEach(async () => {

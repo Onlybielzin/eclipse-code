@@ -82,7 +82,7 @@ function renderDevWebUiHtml(devOrigin: string): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OpenCove Web</title>
+    <title>Eclipse Code Web</title>
     <link rel="icon" href="data:," />
     <script type="module">
       import RefreshRuntime from '${devOrigin}/@react-refresh'
@@ -149,7 +149,7 @@ export function tryResolveWebUiResponse(
       return {
         statusCode: 503,
         contentType: 'text/plain; charset=utf-8',
-        body: 'OpenCove Web bundle not found. Build the renderer bundle first.',
+        body: 'Eclipse Code Web bundle not found. Build the renderer bundle first.',
       }
     }
     return null

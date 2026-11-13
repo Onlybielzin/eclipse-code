@@ -22,7 +22,7 @@ vi.mock('../../../src/contexts/settings/presentation/renderer/terminalDisplayEnv
 vi.mock('../../../src/contexts/settings/presentation/renderer/terminalDisplayMeasurement', () => ({
   calibrateTerminalDisplayReferenceAutomatically: mocks.calibrate,
   TERMINAL_DISPLAY_MEASUREMENT_HANDLES_CHANGED:
-    'opencove:terminal-display-measurement-handles-changed',
+    'eclipse-code:terminal-display-measurement-handles-changed',
 }))
 
 import { useTerminalClientDisplayAutoCalibration } from '../../../src/contexts/settings/presentation/renderer/useTerminalClientDisplayAutoCalibration'
@@ -261,7 +261,7 @@ describe('useTerminalClientDisplayAutoCalibration', () => {
     const measurementsBefore = mocks.resolveEnvironment.mock.calls.length
     try {
       act(() => {
-        window.dispatchEvent(new Event('opencove:terminal-display-measurement-handles-changed'))
+        window.dispatchEvent(new Event('eclipse-code:terminal-display-measurement-handles-changed'))
         window.dispatchEvent(new Event('resize'))
         window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated-preference' }))
       })
@@ -290,7 +290,7 @@ describe('useTerminalClientDisplayAutoCalibration', () => {
     const observation = mocks.observeEnvironment()
     mocks.observeEnvironment.mockReturnValue({ ...observation, rendererKind: 'mixed' })
     act(() =>
-      window.dispatchEvent(new Event('opencove:terminal-display-measurement-handles-changed')),
+      window.dispatchEvent(new Event('eclipse-code:terminal-display-measurement-handles-changed')),
     )
     expect(terminalDisplayCalibrationOwner.getSnapshot()).toMatchObject({
       appliedCalibration: null,
@@ -299,7 +299,7 @@ describe('useTerminalClientDisplayAutoCalibration', () => {
     expect(window.localStorage.getItem(TERMINAL_DISPLAY_CALIBRATION_STORAGE_KEY)).toBe(saved)
     mocks.observeEnvironment.mockReturnValue(observation)
     act(() =>
-      window.dispatchEvent(new Event('opencove:terminal-display-measurement-handles-changed')),
+      window.dispatchEvent(new Event('eclipse-code:terminal-display-measurement-handles-changed')),
     )
     await act(() => terminalDisplayCalibrationOwner.whenIdle())
     expect(terminalDisplayCalibrationOwner.getSnapshot()).toMatchObject({

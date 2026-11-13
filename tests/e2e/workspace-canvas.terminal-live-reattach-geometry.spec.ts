@@ -66,7 +66,7 @@ test('a live Desktop terminal reattach commits its measured frame without replac
       .poll(
         async () =>
           await window.evaluate(
-            id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+            id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
             nodeId,
           ),
       )
@@ -75,7 +75,7 @@ test('a live Desktop terminal reattach commits its measured frame without replac
       .poll(
         async () =>
           await window.evaluate(id => {
-            const api = window.__opencoveTerminalSelectionTestApi
+            const api = window.__eclipseCodeTerminalSelectionTestApi
             const size = api?.getSize(id) ?? null
             const proposed = api?.getProposedGeometry(id) ?? null
             return Boolean(
@@ -96,7 +96,7 @@ test('a live Desktop terminal reattach commits its measured frame without replac
     await expect(window.locator('.terminal-node')).toContainText(historyMarker)
 
     const writeResult = await window.evaluate(async id => {
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       if (!raw) {
         throw new Error('Missing persisted state')
       }
@@ -111,7 +111,7 @@ test('a live Desktop terminal reattach commits its measured frame without replac
       }
       node.width = 820
       node.height = 520
-      return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+      return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
         raw: JSON.stringify(state),
       })
     }, nodeId)
@@ -123,7 +123,7 @@ test('a live Desktop terminal reattach commits its measured frame without replac
       .poll(
         async () =>
           await window.evaluate(
-            id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
+            id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null,
             nodeId,
           ),
       )
@@ -149,12 +149,12 @@ test('a live Desktop terminal reattach commits its measured frame without replac
 
     const snapshot = await window.evaluate(
       async sessionId =>
-        sessionId ? await window.opencoveApi.pty.presentationSnapshot({ sessionId }) : null,
+        sessionId ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }) : null,
       after.sessionId,
     )
     expect(snapshot).toMatchObject({ cols: after.size?.cols, rows: after.size?.rows })
 
-    if (await window.evaluate(() => window.opencoveApi.meta.platform !== 'win32')) {
+    if (await window.evaluate(() => window.eclipseCodeApi.meta.platform !== 'win32')) {
       const marker = `STTY_${Date.now()}`
       const terminal = window.locator('.terminal-node').first()
       await terminal.locator('.xterm').click()

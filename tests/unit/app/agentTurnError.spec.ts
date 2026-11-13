@@ -23,13 +23,21 @@ it.skipIf(process.platform === 'win32').each(['t1', `turn O'Brian "two words"`])
       },
     }
     printError(io, error, false)
-    const commands = displayed.split('\n').filter(line => line.startsWith('  opencove '))
+    const commands = displayed.split('\n').filter(line => line.startsWith('  eclipse-code '))
     expect(commands).toHaveLength(1)
     const argv = execFileSync('sh', ['-c', `set -- ${commands[0].trim()}\nprintf '%s\\0' "$@"`])
       .toString()
       .split('\0')
       .slice(0, -1)
-    expect(argv).toEqual(['opencove', 'agent', 'wait', '--node', 'node-123456', '--turn', turnId])
+    expect(argv).toEqual([
+      'eclipse-code',
+      'agent',
+      'wait',
+      '--node',
+      'node-123456',
+      '--turn',
+      turnId,
+    ])
   },
 )
 
@@ -47,16 +55,16 @@ it
     new CliError('agent.final_message_unavailable', 1, 'Unavailable', undefined, { reason }),
     { nodeId, sessionId, turnId: 't1' },
   ).hint!
-  const commands = hint.split('\n').filter(line => line.startsWith('  opencove '))
+  const commands = hint.split('\n').filter(line => line.startsWith('  eclipse-code '))
   const actual = commands.map(command =>
     execFileSync('sh', ['-c', `set -- ${command.trim()}\nprintf '%s\\0' "$@"`])
       .toString()
       .split('\0')
       .slice(0, -1),
   )
-  const get = ['opencove', 'agent', 'get', '--node', nodeId]
-  const screen = ['opencove', 'agent', 'read', '--node', nodeId, '--screen']
-  const final = ['opencove', 'session', 'final', '--session', sessionId]
+  const get = ['eclipse-code', 'agent', 'get', '--node', nodeId]
+  const screen = ['eclipse-code', 'agent', 'read', '--node', nodeId, '--screen']
+  const final = ['eclipse-code', 'session', 'final', '--session', sessionId]
   expect(actual).toEqual(
     reason === 'turn_not_found'
       ? [get]

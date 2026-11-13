@@ -83,7 +83,7 @@ export function useTerminalAgentSessionActions(options: {
       const expectedActivity = resolveActivityFence(node)
       reexecInFlight.current.add(nodeId)
       try {
-        const result = await window.opencoveApi.pty.reexecAgent({
+        const result = await window.eclipseCodeApi.pty.reexecAgent({
           sessionId,
           provider: context.provider,
           resumeSessionId,
@@ -163,7 +163,7 @@ export function useTerminalAgentSessionActions(options: {
         return null
       }
 
-      const result = await window.opencoveApi.agent.listSessions({
+      const result = await window.eclipseCodeApi.agent.listSessions({
         provider: context.provider,
         cwd: context.cwd,
         limit,

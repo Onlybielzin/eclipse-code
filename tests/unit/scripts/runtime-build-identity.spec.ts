@@ -19,7 +19,7 @@ describe('runtime source identity', () => {
         value &&
         typeof value === 'object' &&
         'name' in value &&
-        value.name === 'opencove:runtime-build',
+        value.name === 'eclipse-code:runtime-build',
     ) as Plugin
     const changed = { id: 'changed-source' }
     const embedded = { id: 'embedded-runtime-identity' }

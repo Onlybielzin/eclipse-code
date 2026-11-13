@@ -15,7 +15,7 @@ test('plain terminal reads distinguish visible rows from retained history and ho
     // prompt rendering cannot race later comparisons of this terminal's tail.
     const accepted = await page.evaluate(
       async ({ binding, command }) => {
-        return window.opencoveApi.controlSurface.invoke<{ accepted: boolean }>({
+        return window.eclipseCodeApi.controlSurface.invoke<{ accepted: boolean }>({
           kind: 'command',
           id: 'session.writeNode',
           payload: { ...binding, data: command + '\r' },
@@ -32,7 +32,7 @@ test('plain terminal reads distinguish visible rows from retained history and ho
     await expect
       .poll(async () => {
         const snapshot = await page.evaluate(
-          async sessionId => window.opencoveApi.pty.snapshot({ sessionId }),
+          async sessionId => window.eclipseCodeApi.pty.snapshot({ sessionId }),
           output.sessionId,
         )
         return snapshot.data.includes('HISTORY_249')
@@ -43,7 +43,7 @@ test('plain terminal reads distinguish visible rows from retained history and ho
         await terminalCommand(
           page,
           shell,
-          `opencove agent read --node ${output.nodeId} ${flags} -o json`,
+          `eclipse-code agent read --node ${output.nodeId} ${flags} -o json`,
           label,
         ),
       )
@@ -61,7 +61,7 @@ test('plain terminal reads distinguish visible rows from retained history and ho
     const plain = await terminalCommand(
       page,
       shell,
-      `opencove agent read --node ${output.nodeId} --scrollback --lines 8`,
+      `eclipse-code agent read --node ${output.nodeId} --scrollback --lines 8`,
       'HISTORY_TEXT',
     )
     expect(plain).toContain('exit=0')
@@ -79,7 +79,7 @@ test('agent session snapshots retain scrollback and return bounded ANSI-free tex
     const snapshotText = async () =>
       (
         await page.evaluate(
-          async sessionId => window.opencoveApi.pty.snapshot({ sessionId }),
+          async sessionId => window.eclipseCodeApi.pty.snapshot({ sessionId }),
           agent.sessionId,
         )
       ).data
@@ -91,7 +91,7 @@ test('agent session snapshots retain scrollback and return bounded ANSI-free tex
       )
       const accepted = await page.evaluate(
         async ({ binding, data }) => {
-          return window.opencoveApi.controlSurface.invoke<{ accepted: boolean }>({
+          return window.eclipseCodeApi.controlSurface.invoke<{ accepted: boolean }>({
             kind: 'command',
             id: 'session.writeNode',
             payload: { ...binding, data },
@@ -107,7 +107,7 @@ test('agent session snapshots retain scrollback and return bounded ANSI-free tex
       terminalCommand(
         page,
         shell,
-        `opencove agent read --node ${agent.nodeId} ${flags} -o json`,
+        `eclipse-code agent read --node ${agent.nodeId} ${flags} -o json`,
         label,
       )
     const history = lines(jsonOutput(await command('--scrollback --lines 5000', 'AGENT_HISTORY')))

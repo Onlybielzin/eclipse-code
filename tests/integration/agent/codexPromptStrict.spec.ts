@@ -38,7 +38,7 @@ function output(child: ChildProcessWithoutNullStreams) {
 it.skipIf(process.platform === 'win32')(
   'strict Codex sends valid raw hook inputs through the generated stdin relay; notify argv stays notify',
   async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-codex-prompt-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-codex-prompt-'))
     const artifacts = new AgentLaunchArtifactScope()
     const captured = join(root, 'hooks.jsonl'),
       record = join(root, 'records.jsonl'),
@@ -52,7 +52,7 @@ it.skipIf(process.platform === 'win32')(
         preload,
         `import { appendFile } from 'node:fs/promises';
       globalThis.fetch = async (url, init) => {
-        await appendFile(process.env.OPENCOVE_TEST_HOOK_CAPTURE, JSON.stringify({url, headers: init.headers, body: JSON.parse(init.body), receivedAt: Date.now()}) + '\\n');
+        await appendFile(process.env.ECLIPSE_CODE_TEST_HOOK_CAPTURE, JSON.stringify({url, headers: init.headers, body: JSON.parse(init.body), receivedAt: Date.now()}) + '\\n');
         return { ok: true };
       };`,
       )
@@ -61,9 +61,9 @@ it.skipIf(process.platform === 'win32')(
         CODEX_HOME: join(root, 'codex'),
         CLAUDE_CONFIG_DIR: join(root, 'claude'),
         NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
-        OPENCOVE_TEST_HOOK_CAPTURE: captured,
-        OPENCOVE_TEST_PROMPT_RECORD: record,
-        OPENCOVE_TEST_PROMPT_DIALOG: dialog,
+        ECLIPSE_CODE_TEST_HOOK_CAPTURE: captured,
+        ECLIPSE_CODE_TEST_PROMPT_RECORD: record,
+        ECLIPSE_CODE_TEST_PROMPT_DIALOG: dialog,
       }
       const provider = new CodexAgentProviderContribution({
         runtimePlatform: 'linux',
@@ -76,8 +76,8 @@ it.skipIf(process.platform === 'win32')(
             usesHook: true,
             installState: 'installed',
             env: {
-              OPENCOVE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/codex',
-              OPENCOVE_CODEX_HOOK_TOKEN: 'fixture-token',
+              ECLIPSE_CODE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/codex',
+              ECLIPSE_CODE_CODEX_HOOK_TOKEN: 'fixture-token',
             },
             commit() {},
             async dispose() {},
@@ -137,13 +137,13 @@ it.skipIf(process.platform === 'win32')(
                 ? 'waiting'
                 : 'working',
         })
-        expect(hook.headers['x-opencove-hook-token']).toBe('fixture-token')
-        expect(Number(hook.headers['x-opencove-hook-emitted-at'])).toBeLessThanOrEqual(
+        expect(hook.headers['x-eclipse-code-hook-token']).toBe('fixture-token')
+        expect(Number(hook.headers['x-eclipse-code-hook-emitted-at'])).toBeLessThanOrEqual(
           hook.receivedAt,
         )
-        expect(Number.isFinite(Number(hook.headers['x-opencove-hook-emitted-at']))).toBe(true)
+        expect(Number.isFinite(Number(hook.headers['x-eclipse-code-hook-emitted-at']))).toBe(true)
       }
-      expect(Number(hooks[2].headers['x-opencove-hook-emitted-at'])).toBeGreaterThanOrEqual(
+      expect(Number(hooks[2].headers['x-eclipse-code-hook-emitted-at'])).toBeGreaterThanOrEqual(
         beforeEnter,
       )
       expect((await records(record)).filter(e => e.kind === 'submit')).toEqual([
@@ -173,7 +173,7 @@ it.skipIf(process.platform === 'win32')(
         providerTurnId: 'T1',
       })
       expect(normalizeCodexHookEnvelope(last.body)).toBeNull()
-      expect(Number.isFinite(Number(last.headers['x-opencove-hook-emitted-at']))).toBe(true)
+      expect(Number.isFinite(Number(last.headers['x-eclipse-code-hook-emitted-at']))).toBe(true)
     } finally {
       if (child) {
         const closed = new Promise(resolveExit => child!.once('close', resolveExit))

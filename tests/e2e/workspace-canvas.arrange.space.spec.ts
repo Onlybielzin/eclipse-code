@@ -282,7 +282,7 @@ test.describe('Workspace Canvas - Arrange', () => {
       const arranged = await window.evaluate(
         payload => {
           return (
-            window.__opencoveWorkspaceCanvasTestApi?.arrangeInSpace?.(
+            window.__eclipseCodeWorkspaceCanvasTestApi?.arrangeInSpace?.(
               payload.spaceId,
               payload.style,
             ) ?? false

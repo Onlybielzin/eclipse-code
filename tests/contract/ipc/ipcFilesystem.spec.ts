@@ -55,7 +55,7 @@ describe('IPC filesystem handlers', () => {
     const { registerFilesystemIpcHandlers } =
       await import('../../../src/contexts/filesystem/presentation/main-ipc/register')
     const disposable = registerFilesystemIpcHandlers(guardedStore, nativeStore)
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-native-drop-ipc-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-native-drop-ipc-'))
     const filePath = join(baseDir, 'selected.md')
     await writeFile(filePath, 'Selected file')
     try {
@@ -88,7 +88,7 @@ describe('IPC filesystem handlers', () => {
     const readHandler = handlers.get(IPC_CHANNELS.filesystemReadFileText)
     expect(readHandler).toBeTypeOf('function')
 
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-fs-ipc-unapproved-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-fs-ipc-unapproved-'))
     const filePath = join(baseDir, 'blocked.txt')
 
     await expect(invokeHandledIpc(readHandler, null, { uri: toFileUri(filePath) })).rejects.toThrow(
@@ -107,7 +107,7 @@ describe('IPC filesystem handlers', () => {
     const { handlers, ipcMain, shell } = createIpcHarness()
     vi.doMock('electron', () => ({ ipcMain, shell }))
 
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-fs-ipc-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-fs-ipc-'))
     const filePath = join(baseDir, 'hello.txt')
     await writeFile(filePath, 'hello', 'utf8')
 
@@ -159,7 +159,7 @@ describe('IPC filesystem handlers', () => {
     const { handlers, ipcMain, shell } = createIpcHarness()
     vi.doMock('electron', () => ({ ipcMain, shell }))
 
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-fs-ipc-ops-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-fs-ipc-ops-'))
     const sourcePath = join(baseDir, 'hello.txt')
     const copyPath = join(baseDir, 'hello-copy.txt')
     const movedPath = join(baseDir, 'hello-moved.txt')
@@ -232,7 +232,7 @@ describe('IPC filesystem handlers', () => {
     shell.trashItem.mockRejectedValueOnce(new Error('trash unavailable'))
     vi.doMock('electron', () => ({ ipcMain, shell }))
 
-    const baseDir = await mkdtemp(join(tmpdir(), 'opencove-test-fs-ipc-delete-fallback-'))
+    const baseDir = await mkdtemp(join(tmpdir(), 'eclipse-code-test-fs-ipc-delete-fallback-'))
     const targetPath = join(baseDir, 'hello.txt')
     await writeFile(targetPath, 'hello', 'utf8')
 

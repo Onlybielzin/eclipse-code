@@ -311,7 +311,7 @@ export async function fallbackFaultHarness(config: ShellCase) {
     })
     const deps = {
       ...admission,
-      userDataPath: '/tmp/opencove-fallback-model',
+      userDataPath: '/tmp/eclipse-code-fallback-model',
       getPersistenceStore: async () => store,
       approvedWorkspaces: {
         isPathApproved: async () => {

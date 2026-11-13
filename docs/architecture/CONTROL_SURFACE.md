@@ -1,6 +1,6 @@
 # Control Surface
 
-Control Surface 是 OpenCove 对外能力入口。Desktop、CLI、Web UI 和 remote worker 都通过同一套 command / query / event contracts 调用业务能力。
+Control Surface 是 Eclipse Code 对外能力入口。Desktop、CLI、Web UI 和 remote worker 都通过同一套 command / query / event contracts 调用业务能力。
 
 ## Contract Shape
 
@@ -24,7 +24,7 @@ Transport 只做鉴权、校验、mapping 和连接生命周期；业务 owner �
 
 ### Protocol Header And Operation Introspection
 
-Authenticated HTTP `/invoke` callers may send `x-opencove-protocol` equal to the decimal
+Authenticated HTTP `/invoke` callers may send `x-eclipse-code-protocol` equal to the decimal
 `CONTROL_SURFACE_PROTOCOL_VERSION`. A present, unequal value returns the normal HTTP 200
 error envelope with `common.protocol_incompatible` and params `{ client, server }` (the
 received header string and server version number), before operation dispatch or persistence
@@ -289,7 +289,7 @@ The read/interact tier remains a ceiling, not an authorization heuristic.
 
 Grants allow the listed canvas, filesystem, worktree and session operations, including Space
 creation and node updates. Launches and prompts are constrained. Use `api ops` and `api schema`
-inside OpenCove to inspect current access; schema fields do not grant permission.
+inside Eclipse Code to inspect current access; schema fields do not grant permission.
 The table below is a selective index, not the exhaustive policy. Endpoint/mount administration,
 project addition/root approval and plugin distribution or execution require a human decision.
 
@@ -298,11 +298,11 @@ project addition/root approval and plugin distribution or execution require a hu
 | `endpoint.prepare/register/registerManagedSsh/remove/repair/updateManagedSsh/readDirectory`, `mount.create/promote/remove` | Endpoint and mount administration belongs to the user |
 | `project.add`, `workspace.approveRoot` | Project addition and root approval require a human decision |
 | Plugin install/update/apply/rollback/discover/reload/enable/remove and repository operations | Plugin distribution belongs to the user; consult the policy for exact IDs |
-| `session.writeNode` | Send messages with `agent.prompt`; only the user answers permission prompts and dialogs in OpenCove |
+| `session.writeNode` | Send messages with `agent.prompt`; only the user answers permission prompts and dialogs in Eclipse Code |
 | `sync.state`, `sync.readWorkspaceStateRaw` | Application settings can contain private credentials |
 | `sync.writeState`, `sync.writeWorkspaceStateRaw` | Settings, permission policy and persisted roots belong to the user |
-| `sync.writeNodeScrollback`, `sync.writeAgentNodePlaceholderScrollback` | OpenCove owns saved terminal history |
-| `session.attachAgentStateWatcher`, `session.detachAgentStateWatcher`, `session.prepareOrRevive` | OpenCove owns observation and recovery |
+| `sync.writeNodeScrollback`, `sync.writeAgentNodePlaceholderScrollback` | Eclipse Code owns saved terminal history |
+| `session.attachAgentStateWatcher`, `session.detachAgentStateWatcher`, `session.prepareOrRevive` | Eclipse Code owns observation and recovery |
 | `workspace.allocateProjectPlaceholder`, `workspace.ensureDirectory` | Project setup and root approval belong to the user; use filesystem operations within approved roots |
 | `plugin.command.run`, `plugin.invoke`, `plugin.host.request`, `plugin.sidebar.items`, `plugin.view.open`, `plugin.window.open` | These paths can execute code with plugin authority |
 | `plugin.storage.set`, `plugin.preferences.set`, `plugin.view.preferences.set` | Installation-wide plugin state belongs to the user |
@@ -349,13 +349,13 @@ revoked credentials return 401; policy refusals return `common.forbidden` (HTTP 
 `system.operations` adds `policyVersion` and per-operation `access` (`allowed`, `denied`,
 `constrained`), with denial reasons and `rejectedFields` reasons for constrained launches.
 Grant calls to `system.operation.describe` include the same access information and `policyVersion`
-beside the full input schema. Inside OpenCove, CLI schema output keeps the schema and adds these
+beside the full input schema. Inside Eclipse Code, CLI schema output keeps the schema and adds these
 access annotations; schema fields alone do not authorize their use. Older Workers show unknown
-access. Outside OpenCove, schema export stays offline without asserting caller permissions.
+access. Outside Eclipse Code, schema export stays offline without asserting caller permissions.
 The CLI operation catalog reports `access: unknown` offline or with older Workers and omits
 `allowed`; constrained operations also omit `allowed`.
 
-CLI environment credentials are paired with `OPENCOVE_CONTROL_URL`. An explicit `--endpoint`
+CLI environment credentials are paired with `ECLIPSE_CODE_CONTROL_URL`. An explicit `--endpoint`
 requires `--token`; profile discovery never borrows an environment token. `pty attach` sends
 Authorization in a header and requests viewer access, keeping tokens out of URLs.
 These changes stay within the existing process and dependency boundaries: no executable-rule impact.
@@ -397,7 +397,7 @@ Project scoping remains a follow-up; a scope tier is not a project isolation bou
 
 `agent.prompt` is a schema-backed **interact** command composed once per executing Worker.
 Its application service depends on SessionInputPort, RunStateFencePort and provider prompting
-capabilities. Local Claude Code and lifecycle-hook Codex agent windows OpenCove launched
+capabilities. Local Claude Code and lifecycle-hook Codex agent windows Eclipse Code launched
 contribute supported prompting with a 300 ms submit delay. Explicit managed PTY provenance
 is required; terminal shim invocations and other providers refuse. Read-tier credentials cannot invoke it. The Hub reserves its existing session
 operation queue once and exposes a scoped raw writer, live input generation, ingress mode and

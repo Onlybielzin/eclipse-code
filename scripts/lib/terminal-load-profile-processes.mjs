@@ -80,10 +80,10 @@ function classifyProcess(row) {
     return 'external-shell'
   }
   if (commandLine.includes('ptyhost') || commandLine.includes('ptyhost.js')) {
-    return 'opencove-pty-host'
+    return 'eclipse-code-pty-host'
   }
   if (commandLine.includes('worker.js')) {
-    return 'opencove-worker'
+    return 'eclipse-code-worker'
   }
   if (commandLine.includes('--type=renderer')) {
     return 'electron-renderer'

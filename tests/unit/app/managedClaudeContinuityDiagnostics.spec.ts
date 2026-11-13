@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import * as diagnostics from '../../e2e/managedClaudeContinuityDiagnostics'
 import type { ContinuityWrite } from '../../e2e/managedClaudeContinuityDiagnostics'
 
-const originalApi = Object.getOwnPropertyDescriptor(window, 'opencoveApi')
+const originalApi = Object.getOwnPropertyDescriptor(window, 'eclipseCodeApi')
 const originalPosition = { x: 0, y: 0 }
 const submittedPosition = { x: 120, y: 80 }
 const expectedTuple = { resumeSessionId: 'B', resumeSessionIdVerified: true }
@@ -14,9 +14,9 @@ const page = {
 
 afterEach(() => {
   if (originalApi) {
-    Object.defineProperty(window, 'opencoveApi', originalApi)
+    Object.defineProperty(window, 'eclipseCodeApi', originalApi)
   } else {
-    Reflect.deleteProperty(window, 'opencoveApi')
+    Reflect.deleteProperty(window, 'eclipseCodeApi')
   }
   Reflect.deleteProperty(window, '__managedContinuity')
 })
@@ -57,9 +57,9 @@ function setup(overrides: Partial<ContinuityWrite> = {}) {
     },
   }
   const read = vi.fn(async () => structuredClone(canonical))
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     persistence: { readAppState: read },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   return {
     write,
     read,

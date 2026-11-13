@@ -13,7 +13,7 @@ export function resolveSessionStateWatcherRetryDelay(attempt: number): number {
 }
 
 function isSessionStateWatcherDiagnosticsEnabled(): boolean {
-  return process.env['OPENCOVE_TERMINAL_DIAGNOSTICS'] === '1'
+  return process.env['ECLIPSE_CODE_TERMINAL_DIAGNOSTICS'] === '1'
 }
 
 export function logSessionStateWatcherDiagnostics(
@@ -30,7 +30,7 @@ export function logSessionStateWatcherDiagnostics(
     event,
     details,
   })
-  process.stdout.write(`[opencove-terminal-diagnostics] ${line}\n`)
+  process.stdout.write(`[eclipse-code-terminal-diagnostics] ${line}\n`)
 }
 
 export function isJsonlProvider(provider: AgentProviderId): boolean {

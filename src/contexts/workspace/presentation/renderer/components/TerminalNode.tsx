@@ -84,9 +84,10 @@ export function TerminalNode({
   ...linkOptions
 }: TerminalNodeProps): JSX.Element {
   const isTestEnvironment =
-    window.opencoveApi.meta.isTest || window.opencoveApi.meta.enableTerminalTestApi === true
-  const diagnosticsEnabled = window.opencoveApi.meta?.enableTerminalDiagnostics === true
-  const transcriptMirrorDisabled = window.opencoveApi.meta?.disableTerminalTranscriptMirror === true
+    window.eclipseCodeApi.meta.isTest || window.eclipseCodeApi.meta.enableTerminalTestApi === true
+  const diagnosticsEnabled = window.eclipseCodeApi.meta?.enableTerminalDiagnostics === true
+  const transcriptMirrorDisabled =
+    window.eclipseCodeApi.meta?.disableTerminalTranscriptMirror === true
   const outputSchedulerRef = useRef<TerminalOutputScheduler | null>(null)
   const terminalRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)

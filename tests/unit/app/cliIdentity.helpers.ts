@@ -73,14 +73,14 @@ export function identityFixture(inside = true) {
     readStdinText: vi.fn(),
     readTextFile: vi.fn(),
     env: {
-      OPENCOVE_CONTROL_URL: 'http://fixture',
-      OPENCOVE_CONTROL_TOKEN: 'secret',
+      ECLIPSE_CODE_CONTROL_URL: 'http://fixture',
+      ECLIPSE_CODE_CONTROL_TOKEN: 'secret',
       ...(inside
         ? {
-            OPENCOVE_ENV: '1',
-            OPENCOVE_NODE_ID: who.nodeId,
-            OPENCOVE_SPACE_ID: who.spaceId,
-            OPENCOVE_PROJECT_ID: who.projectId,
+            ECLIPSE_CODE_ENV: '1',
+            ECLIPSE_CODE_NODE_ID: who.nodeId,
+            ECLIPSE_CODE_SPACE_ID: who.spaceId,
+            ECLIPSE_CODE_PROJECT_ID: who.projectId,
           }
         : {}),
     },

@@ -4,6 +4,8 @@ export const enWorkspaceCanvas = {
     newNote: 'New Note',
     newWebsite: 'New Website',
     newTask: 'New Task',
+    createDefaultTeam: 'Create default team (Lead, Devs, Tests, Reviewer)',
+    configureTeam: 'Configure team',
     newRole: 'New Role',
     runAgent: 'Run Agent',
     chooseAgent: 'Choose Agent',

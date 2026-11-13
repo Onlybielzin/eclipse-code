@@ -40,7 +40,7 @@ const allCases: FaultCase[] = faults.flatMap(fault =>
   ),
 )
 const cases =
-  process.env.OPENCOVE_FAULT_CASES === 'smoke'
+  process.env.ECLIPSE_CODE_FAULT_CASES === 'smoke'
     ? allCases.filter(
         value =>
           value.initial === 'owned' &&
@@ -48,7 +48,7 @@ const cases =
           value.edge === 'identity:before' &&
           ['validation', 'admissionKill', 'registration'].includes(value.fault),
       )
-    : process.env.OPENCOVE_FAULT_CASES === 'eventless'
+    : process.env.ECLIPSE_CODE_FAULT_CASES === 'eventless'
       ? allCases.filter(value => value.event === 'none' && value.edge === 'identity:before')
       : allCases.filter(value => value.event !== 'none' || value.edge === 'identity:before')
 const coverage: {
@@ -59,10 +59,10 @@ const coverage: {
   edge: string
 }[] = []
 afterAll(() => {
-  if (process.env.OPENCOVE_FAULT_COVERAGE_PATH) {
-    writeFileSync(process.env.OPENCOVE_FAULT_COVERAGE_PATH, JSON.stringify(coverage, null, 2))
+  if (process.env.ECLIPSE_CODE_FAULT_COVERAGE_PATH) {
+    writeFileSync(process.env.ECLIPSE_CODE_FAULT_COVERAGE_PATH, JSON.stringify(coverage, null, 2))
   }
-  if (coverage.length === cases.length && !process.env.OPENCOVE_FAULT_CASES) {
+  if (coverage.length === cases.length && !process.env.ECLIPSE_CODE_FAULT_CASES) {
     for (const fault of faults.filter(value => value !== 'none')) {
       expect(
         coverage.some(value => value.fault === fault && value.faultReached),

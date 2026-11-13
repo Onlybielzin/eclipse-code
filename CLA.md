@@ -1,6 +1,6 @@
-# OpenCove Contributor License Agreement (CLA)
+# Eclipse Code Contributor License Agreement (CLA)
 
-Thank you for contributing to **OpenCove** (the "**Project**").
+Thank you for contributing to **Eclipse Code** (the "**Project**").
 
 This Contributor License Agreement ("**Agreement**") is a **license grant** (not a copyright assignment).
 You keep ownership of Your Contributions.

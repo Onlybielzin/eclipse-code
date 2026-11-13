@@ -4,7 +4,7 @@ import { app, ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../../shared/contracts/ipc'
 import type { ControlSurfaceInvokeRequest } from '../../../shared/contracts/controlSurface'
 import type { ControlSurfaceRemoteEndpointResolver } from '../controlSurface/remote/controlSurfaceHttpClient'
-import { createAppError, OpenCoveAppError } from '../../../shared/errors/appError'
+import { createAppError, EclipseCodeAppError } from '../../../shared/errors/appError'
 import { invokeControlSurface } from '../controlSurface/remote/controlSurfaceHttpClient'
 import { resolveControlSurfaceConnectionInfoFromUserData } from '../controlSurface/remote/resolveControlSurfaceConnectionInfo'
 import {
@@ -197,7 +197,7 @@ export function registerControlSurfaceIpcHandlers(
             ...describeAgentLaunchError(error),
           },
         )
-        if (error instanceof OpenCoveAppError) {
+        if (error instanceof EclipseCodeAppError) {
           throw error
         }
 

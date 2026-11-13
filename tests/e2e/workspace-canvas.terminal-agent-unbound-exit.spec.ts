@@ -25,8 +25,8 @@ test.describe('Workspace Canvas - unbound terminal Agent exit', () => {
         windowMode: 'offscreen',
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
         },
       })
       const workspaceId = `workspace-unbound-${command}`
@@ -66,7 +66,7 @@ test.describe('Workspace Canvas - unbound terminal Agent exit', () => {
         await terminal.locator('.xterm-helper-textarea').click()
         await window.keyboard.type(command)
         await window.keyboard.press('Enter')
-        await expect.poll(transcript).toContain(`[opencove-test-2c] ${provider} ready`)
+        await expect.poll(transcript).toContain(`[eclipse-code-test-2c] ${provider} ready`)
         await expect(status).toHaveText('Working')
         await expect(sidebar).toContainText('Working')
         await expect(terminal.getByTestId('terminal-node-reload-session')).toBeVisible()

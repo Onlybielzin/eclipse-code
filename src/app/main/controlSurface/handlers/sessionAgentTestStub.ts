@@ -14,14 +14,14 @@ export function resolveWorkerAgentTestStub(options: {
   }
 
   const wantsRealAgents =
-    process.env['OPENCOVE_TEST_USE_REAL_AGENTS'] === '1' ||
-    process.env['OPENCOVE_TEST_USE_REAL_AGENTS']?.toLowerCase() === 'true'
+    process.env['ECLIPSE_CODE_TEST_USE_REAL_AGENTS'] === '1' ||
+    process.env['ECLIPSE_CODE_TEST_USE_REAL_AGENTS']?.toLowerCase() === 'true'
   if (wantsRealAgents) {
     return null
   }
 
-  const sessionScenario = process.env['OPENCOVE_TEST_AGENT_SESSION_SCENARIO']?.trim() ?? ''
-  const stubScriptPath = process.env['OPENCOVE_TEST_AGENT_STUB_SCRIPT']?.trim() ?? ''
+  const sessionScenario = process.env['ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO']?.trim() ?? ''
+  const stubScriptPath = process.env['ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT']?.trim() ?? ''
 
   if (sessionScenario.length > 0 && stubScriptPath.length > 0) {
     return resolveNodeScriptLaunch(stubScriptPath, [
@@ -42,13 +42,13 @@ export function resolveWorkerAgentTestStub(options: {
             '-NoLogo',
             '-NoProfile',
             '-Command',
-            `Start-Sleep -Milliseconds 250; Write-Output "[opencove-test-agent] ${options.provider} ${
+            `Start-Sleep -Milliseconds 250; Write-Output "[eclipse-code-test-agent] ${options.provider} ${
               options.mode
             } ${options.model ?? 'default-model'}"; Start-Sleep -Seconds 120`,
           ]
         : [
             '-lc',
-            `sleep 0.25; printf '%s\\n' "[opencove-test-agent] ${options.provider} ${
+            `sleep 0.25; printf '%s\\n' "[eclipse-code-test-agent] ${options.provider} ${
               options.mode
             } ${options.model ?? 'default-model'}"; sleep 120`,
           ],

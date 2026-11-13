@@ -48,9 +48,9 @@ export function buildOverview(
           tunnel_failed: 'SSH tunnel failed.',
           installer_unavailable: 'Remote runtime installer is unavailable.',
           runtime_corrupt: 'Remote runtime is corrupt.',
-          runtime_unmanaged: 'Remote runtime is not managed by OpenCove.',
+          runtime_unmanaged: 'Remote runtime is not managed by Eclipse Code.',
           needs_setup: 'Remote runtime needs setup.',
-          version_mismatch: 'Remote runtime is incompatible with this OpenCove version.',
+          version_mismatch: 'Remote runtime is incompatible with this Eclipse Code version.',
           persistence_failed: 'A topology change was not saved.',
           error: 'Endpoint error.',
         } satisfies Record<WorkerEndpointHealthStatusDto, string>

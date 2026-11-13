@@ -14,7 +14,7 @@ import { clickPluginControl } from './plugins.local.helpers'
 
 test('uses explicit project host capabilities from a real CLI plugin backend and window SDK', async () => {
   test.setTimeout(90_000)
-  const source = await mkdtemp(join(tmpdir(), 'opencove-target-plugin-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-target-plugin-'))
   const userDataDir = await createTestUserDataDir()
   const id = 'target-workflow'
   const command = process.platform === 'win32' ? 'cmd.exe' : '/bin/sh'
@@ -23,7 +23,7 @@ test('uses explicit project host capabilities from a real CLI plugin backend and
       ? ['/d', '/c', 'echo target-workflow-complete']
       : ['-c', 'printf target-workflow-complete']
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id,
@@ -69,7 +69,7 @@ test('uses explicit project host capabilities from a real CLI plugin backend and
   await writeFile(
     join(source, 'app.js'),
     `${shared}\n(async () => {
-    const api = window.opencovePlugin; const context = await api.ready;
+    const api = window.eclipseCodePlugin; const context = await api.ready;
     document.querySelector('#run').disabled = false;
     document.querySelector('#run').onclick = async () => {
       try { document.querySelector('#result').textContent = JSON.stringify(await workflow(api.host, { projectId: context.workspaceId || '${seededWorkspaceId}' })); }
@@ -95,7 +95,7 @@ test('uses explicit project host capabilities from a real CLI plugin backend and
       catalog: {
         projects: expect.arrayContaining([expect.objectContaining({ id: seededWorkspaceId })]),
       },
-      packageName: 'opencove',
+      packageName: 'eclipse-code',
       target: { projectId: seededWorkspaceId, endpointId: 'local' },
       job: {
         status: 'completed',

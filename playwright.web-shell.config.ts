@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
-const baseURL = process.env['OPENCOVE_WEB_SHELL_BASE_URL']
+const baseURL = process.env['ECLIPSE_CODE_WEB_SHELL_BASE_URL']
 
 export default defineConfig({
   testDir: './tests/e2e-web-shell',

@@ -18,11 +18,11 @@ const projectId = 'grant-project',
   worktreeSpace = 'grant-worktree'
 const quote = (value: string) =>
   `'${value.replaceAll("'", process.platform === 'win32' ? "''" : `'"'"'`)}'`
-const cli = (...args: string[]) => ['opencove', ...args.map(quote)].join(' ')
+const cli = (...args: string[]) => ['eclipse-code', ...args.map(quote)].join(' ')
 
 test('session grants preserve agent workflows and refuse human decisions', async () => {
   test.setTimeout(180_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-grants-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-grants-'))
   const workspace = join(root, 'project'),
     profile = join(root, 'profile')
   const record = join(root, 'prompt-record.jsonl'),
@@ -50,15 +50,15 @@ test('session grants preserve agent workflows and refuse human decisions', async
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-prompt-strict',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
         CLAUDE_CONFIG_DIR: join(root, 'claude'),
         CODEX_HOME: join(root, 'codex'),
-        OPENCOVE_TEST_PROMPT_RECORD: record,
-        OPENCOVE_TEST_PROMPT_DIALOG: dialog,
+        ECLIPSE_CODE_TEST_PROMPT_RECORD: record,
+        ECLIPSE_CODE_TEST_PROMPT_DIALOG: dialog,
       },
     })
     app = launched.electronApp
@@ -94,7 +94,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     })
     const created = await page.evaluate(
       async ({ spaceId: targetSpaceId, shell }) =>
-        window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -198,14 +198,14 @@ test('session grants preserve agent workflows and refuse human decisions', async
     await expect
       .poll(async () =>
         page.evaluate(
-          async id => (await window.opencoveApi.pty.snapshot({ sessionId: id })).data,
+          async id => (await window.eclipseCodeApi.pty.snapshot({ sessionId: id })).data,
           binding.sessionId,
         ),
       )
       .toContain('VIEWER_STREAM_READY')
     await page.evaluate(
       async id =>
-        window.opencoveApi.controlSurface.invoke({
+        window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'session.kill',
           payload: { sessionId: id },
@@ -231,7 +231,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     const agentSnapshot = () =>
       page.evaluate(
         async id =>
-          window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+          window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
             kind: 'query',
             id: 'agent.get',
             payload: { sessionId: id },
@@ -241,7 +241,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     await expect
       .poll(async () =>
         page.evaluate(
-          async id => (await window.opencoveApi.pty.snapshot({ sessionId: id })).data,
+          async id => (await window.eclipseCodeApi.pty.snapshot({ sessionId: id })).data,
           agentNode.sessionId,
         ),
       )
@@ -249,7 +249,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     // A trusted UI turn establishes readiness; startup idle alone is insufficient.
     await page.evaluate(
       async targetBinding =>
-        window.opencoveApi.controlSurface.invoke({
+        window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'session.writeNode',
           payload: { ...targetBinding, data: 'manual baseline\r' },
@@ -259,7 +259,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     await expect
       .poll(async () =>
         page.evaluate(
-          async id => (await window.opencoveApi.pty.snapshot({ sessionId: id })).data,
+          async id => (await window.eclipseCodeApi.pty.snapshot({ sessionId: id })).data,
           agentNode.sessionId,
         ),
       )
@@ -395,7 +395,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     pluginDirectory = plugin.directory
     await page.evaluate(
       async directory =>
-        window.opencoveApi.controlSurface.invoke({
+        window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'plugin.install',
           payload: { directory },
@@ -410,7 +410,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     await expect
       .poll(async () =>
         page.evaluate(async id => {
-          const sessions = await window.opencoveApi.controlSurface.invoke<{
+          const sessions = await window.eclipseCodeApi.controlSurface.invoke<{
             sessions: { sessionId: string; status: string }[]
           }>({ kind: 'query', id: 'session.list', payload: null })
           return sessions.sessions.find(session => session.sessionId === id)?.status
@@ -430,7 +430,7 @@ test('session grants preserve agent workflows and refuse human decisions', async
     expect(refusedStandalone.replaceAll('\n', '')).toContain('node create')
     const session = await page.evaluate(
       async targetSpaceId =>
-        window.opencoveApi.controlSurface.invoke<{
+        window.eclipseCodeApi.controlSurface.invoke<{
           sessionId: string
           resumeSessionId: string | null
         }>({

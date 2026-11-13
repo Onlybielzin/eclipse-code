@@ -66,7 +66,7 @@ describe('Desktop-managed Control Surface shutdown', () => {
     })
     const server = createDesktopManagedControlSurface({
       server: {
-        userDataPath: '/tmp/opencove-desktop-managed-shutdown',
+        userDataPath: '/tmp/eclipse-code-desktop-managed-shutdown',
         approvedWorkspaces: {} as never,
         ptyRuntime: {} as never,
       },

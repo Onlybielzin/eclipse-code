@@ -9,7 +9,7 @@ import { removeElectronRunAsNode } from './ElectronControlEnvironment'
 import { mergeCommandPath, splitPathSegments } from './CommandPathSegments'
 import { resolveHomeDirectory } from './HomeDirectory'
 
-const TRUST_PROCESS_ENV_MARKER = 'OPENCOVE_TRUST_PROCESS_ENV'
+const TRUST_PROCESS_ENV_MARKER = 'ECLIPSE_CODE_TRUST_PROCESS_ENV'
 
 export type CommandEnvironmentSource = 'process_env' | 'shell_env'
 

@@ -45,7 +45,7 @@ export const agentListOperation = defineOperation({
     state: agentRunStateSchema.optional(),
   }),
 })
-const turnId = id.describe('OpenCove turn identifier returned by agent.prompt')
+const turnId = id.describe('Eclipse Code turn identifier returned by agent.prompt')
 const promptId = id.describe('Provider prompt identifier reported by Claude hooks')
 const nodeId = id.describe(
   'Canvas node owning the turn; exact turn lookup also includes archived incarnations',
@@ -74,7 +74,7 @@ export const agentHistoryClearOperation = defineOperation({
   kind: 'command',
   scope: 'interact',
   availability: 'always',
-  summary: 'Delete stored OpenCove replies for a node from archive and memory',
+  summary: 'Delete stored Eclipse Code replies for a node from archive and memory',
   errors: ['common.unavailable'],
   input: z.strictObject({
     nodeId: id.describe(
@@ -87,7 +87,7 @@ export const agentPromptOperation = defineOperation({
   kind: 'command',
   scope: 'interact',
   availability: 'always',
-  summary: 'Prompt an agent window OpenCove launched (Claude Code or Codex)',
+  summary: 'Prompt an agent window Eclipse Code launched (Claude Code or Codex)',
   errors: [
     'agent.blocked',
     'agent.busy',
@@ -109,7 +109,7 @@ export const agentPromptOperation = defineOperation({
       .min(1)
       .optional()
       .describe(
-        'Steer only into this exact active OpenCove turn; idle or a different turn refuses before input',
+        'Steer only into this exact active Eclipse Code turn; idle or a different turn refuses before input',
       ),
     deliveryId: z.uuid().optional(),
     text: z

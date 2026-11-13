@@ -8,10 +8,10 @@ hooks = true
 schema = 1
 
 [hooks.state."/Users/redacted/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:opencove-pre-tool"
+trusted_hash = "sha256:eclipse-code-pre-tool"
 
 [hooks.state."C:\\Users\\redacted\\.codex\\hooks.json:stop:0:0"]
-trusted_hash = "sha256:opencove-stop"
+trusted_hash = "sha256:eclipse-code-stop"
 
 [hooks.state."/Applications/Orca.app/Contents/Resources/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:orca-must-stay-byte-for-byte"

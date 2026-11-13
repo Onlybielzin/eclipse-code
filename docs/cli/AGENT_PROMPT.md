@@ -19,7 +19,7 @@ Progress on stderr preserves IDs before long operations. Before sending, includi
 `--wait`, it prints `Sending prompt (delivery <id>).`. With `--wait`, it then prints:
 
 ```text
-Waiting for turn turn-123 of node node-123. If interrupted, continue with: opencove agent wait --node node-123 --turn turn-123 (do not resend).
+Waiting for turn turn-123 of node node-123. If interrupted, continue with: eclipse-code agent wait --node node-123 --turn turn-123 (do not resend).
 ```
 
 Use that continuation if interrupted; the final JSON and exit status report the result.
@@ -28,7 +28,7 @@ Use that continuation if interrupted; the final JSON and exit status report the 
 For a simple hand-off:
 
 ```sh
-opencove agent prompt --node node-123 --wait --read --timeout 2m "Review the changes"
+eclipse-code agent prompt --node node-123 --wait --read --timeout 2m "Review the changes"
 ```
 
 The command sends once, confirms delivery (including Codex steering), then waits for its exact
@@ -59,18 +59,18 @@ coordinators can run the exact-turn wait in the background as described later.
 ## Send to a running agent
 
 ```sh
-opencove agent prompt --node node-123 --text 'Review the changes'
-opencove agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s
-cat prompt.txt | opencove agent prompt --node node-123 --text-file -
+eclipse-code agent prompt --node node-123 --text 'Review the changes'
+eclipse-code agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s
+cat prompt.txt | eclipse-code agent prompt --node node-123 --text-file -
 ```
 
 Choose exactly one of positional text, --text or --text-file. Without --wait, `--timeout` accepts milliseconds or durations (`15s`,
 `15000ms`, `1m`); default 15s, maximum 60s. HTTP timeout includes a five-second response margin.
-The target must be an agent window OpenCove launched: local Claude Code or Codex
+The target must be an agent window Eclipse Code launched: local Claude Code or Codex
 with lifecycle hooks for this invocation,
 at authoritative working state or after a hook-observed settled turn (Claude Stop/StopFailure; Codex Stop). Codex notify-only,
 opt-in daemon reuse (`codexReuseRunningAppServer`), file-only telemetry and Windows are unsupported.
-OpenCove launches Codex with hooks by default even when a shared daemon is running. `@self` resolves through the
+Eclipse Code launches Codex with hooks by default even when a shared daemon is running. `@self` resolves through the
 calling session grant; prompting an observed agent inside a canvas terminal is refused by the server.
 
 Success is JSON with `deliveryId`, `nodeId`, `sessionId`, `phase` and `turnId`.
@@ -83,7 +83,7 @@ It also returns `textComparison` (`matched`, `different`, `unavailable`), Claude
 tab and LF; leading/interior whitespace remain significant. Codex comparison is
 `unavailable` until a profile is verified. Equality proves neither causation nor
 model processing. `different` still exits 0, with a notice on stderr: stop automatic
-orchestration, retain identifiers, inspect with `opencove agent read --node <id> --screen`,
+orchestration, retain identifiers, inspect with `eclipse-code agent read --node <id> --screen`,
 and never resend or press Enter again because of the comparison. State and delivery refusals exit 1 with the AppError code and typed
 `error.details` dispatch-attempt flags; a server deadline exits 124 and preserves those flags.
 Usage errors exit 2; authentication or grant-policy refusals exit 4. Local HTTP timeout exits 124; transport loss is outcome unknown.
@@ -94,9 +94,9 @@ These grant refusals exit 4 with `field_denied` before input or a delivery recor
 `!` or `/` later in a message remains ordinary text. Only the user runs provider commands and answers permission dialogs.
 
 
-Inspect drafts and dialogs with `opencove agent read --node <selector> --screen`
-before sending. Save `deliveryId` and `turnId`, confirm with `agent delivery <deliveryId> --wait`, and use `opencove agent wait --node <selector> --turn <turnId>`,
-then `opencove agent read --node <selector> --turn <turnId>` using the saved
+Inspect drafts and dialogs with `eclipse-code agent read --node <selector> --screen`
+before sending. Save `deliveryId` and `turnId`, confirm with `agent delivery <deliveryId> --wait`, and use `eclipse-code agent wait --node <selector> --turn <turnId>`,
+then `eclipse-code agent read --node <selector> --turn <turnId>` using the saved
 `turnId` from prompt. This exact read never falls back to a different turn or transcript. A human editor draft is submitted with the text; unobserved dialogs cannot be excluded.
 Submission observation means a token-authenticated UserPromptSubmit passed matching checks
 with a range-checked, caller-supplied relay timestamp at or after the pre-Enter boundary. It assumes
@@ -107,9 +107,9 @@ See [Prompt delivery](../agent/PROMPT_DELIVERY.md) for admission, errors and rec
 Agents typed into terminal shells (including terminal shim/launcher invocations) refuse
 with `agent.prompt_unsupported` / `terminal_agent_unsupported`, even after an observed Stop.
 Agents typed into a terminal cannot receive prompts because the shell would receive the input after the agent stops.
-Start an agent meant to receive prompts, such as a lead agent other agents report to, as an agent window using Run Agent on a task, the agent launcher, or `opencove node create agent --space <space> --prompt <text>`; it can still use the opencove CLI from there.
+Start an agent meant to receive prompts, such as a lead agent other agents report to, as an agent window using Run Agent on a task, the agent launcher, or `eclipse-code node create agent --space <space> --prompt <text>`; it can still use the eclipse-code CLI from there.
 Executable-path overrides and option-like model/session values have no verified lifecycle
-coverage for prompting. See the repository [prompt skill source](skills/opencove-agent-prompt/SKILL.md)
+coverage for prompting. See the repository [prompt skill source](skills/eclipse-code-agent-prompt/SKILL.md)
 for reusable agent instructions; this source does not install or modify a user skill.
 
 A custom executable path refuses with `executable_override_unverified` for both providers.
@@ -119,11 +119,11 @@ the required lifecycle hooks; the running invocation's observation behavior is u
 ## Read the submitted turn
 
 ```sh
-opencove agent prompt --node node-123 --text-file ./prompt.txt
-opencove agent delivery delivery-123 --wait --timeout 2m
-opencove agent wait --node node-123 --turn turn-123 --timeout 2m
-opencove agent read --node node-123 --turn turn-123
-opencove agent read --node node-123 --turn turn-123 -o json
+eclipse-code agent prompt --node node-123 --text-file ./prompt.txt
+eclipse-code agent delivery delivery-123 --wait --timeout 2m
+eclipse-code agent wait --node node-123 --turn turn-123 --timeout 2m
+eclipse-code agent read --node node-123 --turn turn-123
+eclipse-code agent read --node node-123 --turn turn-123 -o json
 ```
 
 Replace `delivery-123` and `turn-123` with prompt's returned IDs; confirm delivery before waiting. Exact waiting survives a newer
@@ -165,14 +165,14 @@ node's current session and ignores displaced-session state.
 ## Steering an existing turn
 
 `agent prompt` defaults to steering an authoritative working Claude Code or Codex
-agent; the message belongs to the current OpenCove turn. Use `--if-busy refuse` for
+agent; the message belongs to the current Eclipse Code turn. Use `--if-busy refuse` for
 busy refusal. The CLI checks `system.operation.describe` first; an older Worker
 without `whenBusy` receives no new fields, and busy refusal stays visible. No retry
 is made after an error. Waiting/dialogs and unknown/degraded states refuse.
 
 The CLI prints `Sending prompt (delivery <id>).` before sending; retain the ID even if the
 response is lost. Codex steering returns `dispatched`, exit 0, while awaiting
-consumption. Check `opencove agent delivery <id> --wait --timeout 2m` before treating
+consumption. Check `eclipse-code agent delivery <id> --wait --timeout 2m` before treating
 it as submitted. Confirmation is in order only while no other PTY input intervenes;
 other input makes it ambiguous, and interruption/end can leave it unknown.
 Claude same-ID receipts confirm submission independently of run-state acceptance.
@@ -202,27 +202,27 @@ Scripts should read replies with `-o json`.
 
 ## Coordinator waiting strategy
 
-Claude Code coordinators can run `opencove agent wait --node <selector> --turn <id> --timeout 10m`
+Claude Code coordinators can run `eclipse-code agent wait --node <selector> --turn <id> --timeout 10m`
 with Bash `run_in_background: true`, keep working and resume on completion. The notification
 can mean success, timeout or error; always check exit code and outcome. Codex coordinators
 wait in the foreground with a CLI timeout below their tool timeout, repeating the same
-turn wait after exit 124. Never resend the prompt. See `opencove skill coordinate`.
+turn wait after exit 124. Never resend the prompt. See `eclipse-code skill coordinate`.
 
 ## Prompt command reference
 
-Prompting works only for agent windows OpenCove launched from tasks, the agent launcher, or node create agent. Agents typed into terminal shells (including shim/launcher invocations) are unsupported for both Claude Code and Codex. Option-like model/session values have no verified lifecycle coverage.
+Prompting works only for agent windows Eclipse Code launched from tasks, the agent launcher, or node create agent. Agents typed into terminal shells (including shim/launcher invocations) are unsupported for both Claude Code and Codex. Option-like model/session values have no verified lifecycle coverage.
 
 Supported providers: local Claude Code with installed lifecycle hooks (Stop or StopFailure); local Codex with trusted lifecycle hooks for this invocation (Stop). Both require the default executable path (no override in Settings → agent executable), authoritative hook state and bracketed paste. Custom executable paths refuse with executable_override_unverified; remove the override and launch a new agent window. Codex notify-only, daemon reuse, file-only telemetry and Windows are unsupported.
 
-Idle agents need a hook-observed completed turn. Working agents receive steering in the current OpenCove turn by default; --if-busy refuse preserves busy refusal. Use --expect-turn <turnId> to require steering into that exact active turn: idle or a changed turn refuses before paste, and the same condition is rechecked before Enter. A Worker without expectTurnId support refuses this option without input. Waiting, unknown or degraded agents refuse. The CLI negotiates whenBusy through system.operation.describe before sending; older Workers retain busy refusal. Use exactly one text source; --text-file - reads stdin. Text must be valid Unicode, nonblank and at most 32 KiB in UTF-8 before newline normalization; trailing newlines are removed.
+Idle agents need a hook-observed completed turn. Working agents receive steering in the current Eclipse Code turn by default; --if-busy refuse preserves busy refusal. Use --expect-turn <turnId> to require steering into that exact active turn: idle or a changed turn refuses before paste, and the same condition is rechecked before Enter. A Worker without expectTurnId support refuses this option without input. Waiting, unknown or degraded agents refuse. The CLI negotiates whenBusy through system.operation.describe before sending; older Workers retain busy refusal. Use exactly one text source; --text-file - reads stdin. Text must be valid Unicode, nonblank and at most 32 KiB in UTF-8 before newline normalization; trailing newlines are removed.
 
-This attempts to paste into the current editor; any existing draft may be submitted with it. Run "opencove agent read --node <selector> --screen" to check for drafts and dialogs first: unseen dialogs, including one-time settings notices, may consume the input.
+This attempts to paste into the current editor; any existing draft may be submitted with it. Run "eclipse-code agent read --node <selector> --screen" to check for drafts and dialogs first: unseen dialogs, including one-time settings notices, may consume the input.
 
-Success (submission_observed) means the provider reported a qualifying submission after this Enter. Codex steering returns dispatched (exit 0) until consumption is confirmed; check opencove agent delivery <deliveryId> --wait. The CLI generates and prints the deliveryId before sending so a lost response remains queryable. It does not prove the model read exactly this text, and the turn may still be running: wait for it with "opencove agent wait --node <selector> --turn <turnId>". Confirm delivery with agent delivery <deliveryId> --wait, save the returned turnId, check its outcome, then read the correlated reply with "opencove agent read --node <selector> --turn <turnId>". The exact checks and their trust limits are in docs/agent/PROMPT_DELIVERY.md.
+Success (submission_observed) means the provider reported a qualifying submission after this Enter. Codex steering returns dispatched (exit 0) until consumption is confirmed; check eclipse-code agent delivery <deliveryId> --wait. The CLI generates and prints the deliveryId before sending so a lost response remains queryable. It does not prove the model read exactly this text, and the turn may still be running: wait for it with "eclipse-code agent wait --node <selector> --turn <turnId>". Confirm delivery with agent delivery <deliveryId> --wait, save the returned turnId, check its outcome, then read the correlated reply with "eclipse-code agent read --node <selector> --turn <turnId>". The exact checks and their trust limits are in docs/agent/PROMPT_DELIVERY.md.
 
-textComparison is matched, different, or unavailable. claude-code-v1 compares equality modulo newline representation and trailing ASCII whitespace (space, tab, LF), verified for Claude Code 2.1.319; leading and interior whitespace remain significant. Codex comparison is unavailable until a profile is verified. Optional promptId is diagnostic. When textComparison is different, the submitted text differs from what you sent; an existing draft may have been included. Do not resend; inspect the screen. Different still exits 0: stop automatic orchestration, inspect with opencove agent read --node <id> --screen, and never resend or press Enter again because of the comparison.
+textComparison is matched, different, or unavailable. claude-code-v1 compares equality modulo newline representation and trailing ASCII whitespace (space, tab, LF), verified for Claude Code 2.1.319; leading and interior whitespace remain significant. Codex comparison is unavailable until a profile is verified. Optional promptId is diagnostic. When textComparison is different, the submitted text differs from what you sent; an existing draft may have been included. Do not resend; inspect the screen. Different still exits 0: stop automatic orchestration, inspect with eclipse-code agent read --node <id> --screen, and never resend or press Enter again because of the comparison.
 
-The loop is prompt → delivery status → wait --turn (the containing turn ended; check outcome) → read --turn (Claude and Codex lifecycle replies are correlated). This command never retries automatically. After an interrupted or uncertain delivery, inspect the terminal with "opencove agent read --node <selector> --screen" and read the conversation. Do not resend a prompt that may already have been submitted.
+The loop is prompt → delivery status → wait --turn (the containing turn ended; check outcome) → read --turn (Claude and Codex lifecycle replies are correlated). This command never retries automatically. After an interrupted or uncertain delivery, inspect the terminal with "eclipse-code agent read --node <selector> --screen" and read the conversation. Do not resend a prompt that may already have been submitted.
 
 Exit codes: 0 submission observed or Codex steer dispatched; 1 refused or delivery unconfirmed; 2 invalid input; 4 authentication or grant-policy refusal; 124 overall deadline; 130 interrupted. A timeout or interruption does not prove that nothing was sent.
 
@@ -238,7 +238,7 @@ State waits follow the current session; exact archived turn waits return the ori
 
 --until turn-end waits for a turn to finish after this command starts; use it only when you start waiting while the turn is still running. A finished turn is not necessarily a successful one: check turnOutcome (or endedTurnOutcome for turn-end).
 
-With several --node options, --all (default) remembers each fulfilled node/session binding; session changes or unbinding reset progress. State turn-end results include completion with its own sessionId/turnId/outcome; --any stops on the first success OR waiting/exited observation of an unfulfilled target. Waiting observed: the agent may need the user — inspect before acting. Success wins over attention; 11 wins over 10. Ask the user to resolve it in OpenCove (Desktop or this Worker's Web UI), inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Event waits cannot resume an already observed completion: prefer --turn. The result lists the latest state of every selected agent. Budgets below 250ms are rejected with usage exit 2 before connecting. On timeout (default 20s) it exits 124, prints the last known states on stderr and nothing on stdout; Ctrl-C exits 130. The agents keep running either way.
+With several --node options, --all (default) remembers each fulfilled node/session binding; session changes or unbinding reset progress. State turn-end results include completion with its own sessionId/turnId/outcome; --any stops on the first success OR waiting/exited observation of an unfulfilled target. Waiting observed: the agent may need the user — inspect before acting. Success wins over attention; 11 wins over 10. Ask the user to resolve it in Eclipse Code (Desktop or this Worker's Web UI), inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Event waits cannot resume an already observed completion: prefer --turn. The result lists the latest state of every selected agent. Budgets below 250ms are rejected with usage exit 2 before connecting. On timeout (default 20s) it exits 124, prints the last known states on stderr and nothing on stdout; Ctrl-C exits 130. The agents keep running either way.
 
 ## Read command reference
 
@@ -248,9 +248,9 @@ Only an unqualified hook read reporting no_ended_turn or provider_sent_no_messag
 
 Plain message text goes to stdout even when piped. -o json or --fields returns structured data: hook results have nodeId, sessionId, turnId, optional promptId, outcome, persisted, optional memoryOnlyReason, message, truncated and source: hook; transcript results have sessionId, provider, startedAt, cwd, resumeSessionId, message, truncated: false and source: transcript. A cut hook message prints one stderr notice with transcript/screen recovery commands; it never automatically replaces the retained prefix.
 
-Claude messages queued mid-turn continue the same OpenCove turn, including provider follow-ups. Exact reads return its final reply after all continuations. An unknown continuation outcome marks the last provider reply with messageKind: intermediate and prints a notice. After wait --until idle, read returns only the latest ended turn reply.
+Claude messages queued mid-turn continue the same Eclipse Code turn, including provider follow-ups. Exact reads return its final reply after all continuations. An unknown continuation outcome marks the last provider reply with messageKind: intermediate and prints a notice. After wait --until idle, read returns only the latest ended turn reply.
 
-After agent prompt, retain its turnId, run "opencove agent wait --node <selector> --turn <turnId>", then "opencove agent read --node <selector> --turn <turnId>". Exact --turn reads survive Worker restarts for archived local turns. The private archive stores final replies up to 64 KiB, outcome and IDs: at most 60 turns per node, 30 days, 20,000 global records and 128 MiB of message text. JSON reports persisted and a memoryOnlyReason when false. Deleting the node removes OpenCove history, not provider transcripts or existing backups. Unqualified reads remain current-incarnation reads. Remote wait --turn uses mirrored snapshots/events; older remote turns can only be checked on the Worker that runs them (remote_history_unavailable). Hook replies require matching local Claude session/prompt IDs or Codex lifecycle session/turn IDs; Codex keeps the first matching Stop reply that ends the local turn.
+After agent prompt, retain its turnId, run "eclipse-code agent wait --node <selector> --turn <turnId>", then "eclipse-code agent read --node <selector> --turn <turnId>". Exact --turn reads survive Worker restarts for archived local turns. The private archive stores final replies up to 64 KiB, outcome and IDs: at most 60 turns per node, 30 days, 20,000 global records and 128 MiB of message text. JSON reports persisted and a memoryOnlyReason when false. Deleting the node removes Eclipse Code history, not provider transcripts or existing backups. Unqualified reads remain current-incarnation reads. Remote wait --turn uses mirrored snapshots/events; older remote turns can only be checked on the Worker that runs them (remote_history_unavailable). Hook replies require matching local Claude session/prompt IDs or Codex lifecycle session/turn IDs; Codex keeps the first matching Stop reply that ends the local turn.
 
 Use --screen before prompting to inspect drafts and dialogs. It resolves the current session, replays its presentation snapshot at its columns/rows, preserving cursor-created spaces, overwrites and wide CJK/emoji cells. It selects the normal or alternate buffer, ignores styling/mode sequences, trims row-end spaces and trailing blank rows, then returns the last --lines rendered rows (default: 40). -o json returns {nodeId, sessionId, lines: [...]}. Screen-mode projectable fields are nodeId, sessionId, lines; the field list below applies to final-message mode. --lines requires --screen; --screen conflicts with --last and --turn. This is a read only snapshot, not permission to answer another agent's dialog.
 
@@ -262,7 +262,7 @@ JSON `agent read --turn` and exact `agent wait --turn` expose `deliveryIds` and
 `promptIds`, with no submitted text, digests, tokens or hook payloads. Existing
 promptId remains the final provider prompt ID. promptIds lists unique retained
 provider prompt IDs in encounter order, including the final ID; Claude steering
-and queued follow-ups can span several IDs inside one OpenCove turn.
+and queued follow-ups can span several IDs inside one Eclipse Code turn.
 
 Delivery IDs come from the existing volatile delivery ledger, joined by exact
 sessionId and turnId. They include all retained attempts assigned to that turn,

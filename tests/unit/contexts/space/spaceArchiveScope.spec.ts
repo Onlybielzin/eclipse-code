@@ -55,7 +55,7 @@ describe('spaceArchiveScope', () => {
     })
     const worktreeChild = createSpace({
       id: 'worktree-child',
-      directoryPath: '/repo/.opencove/worktrees/api',
+      directoryPath: '/repo/.eclipse-code/worktrees/api',
       parentSpaceId: 'parent',
       nodeIds: ['node-c'],
     })
@@ -63,7 +63,7 @@ describe('spaceArchiveScope', () => {
     const scope = resolveSpaceArchiveScope({
       targetSpace: parent,
       spaces: [parent, ordinaryChild, worktreeChild],
-      worktrees: [worktree('/repo'), worktree('/repo/.opencove/worktrees/api', 'space/api')],
+      worktrees: [worktree('/repo'), worktree('/repo/.eclipse-code/worktrees/api', 'space/api')],
       repoRootPath: '/repo',
     })
 

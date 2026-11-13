@@ -1,6 +1,7 @@
 import { spaceUpdateCommand } from './spaceUpdate'
 import { spaceCreateCommand } from './spaces'
 import { projectAddCommand } from './projects'
+import { roleCommands } from './roles'
 import { agentStopCommand } from './agentStop'
 import { operationAccessCatalog, operationAccessInfo } from './operationAccessCatalog'
 import { agentHistoryClearCommand } from './agentHistory'
@@ -31,6 +32,7 @@ export const commands: Command[] = [
   spaceCreateCommand,
   spaceUpdateCommand,
   projectAddCommand,
+  ...roleCommands,
   ...identityCommands,
   agentPromptCommand,
   agentStopCommand,
@@ -60,7 +62,7 @@ export const commands: Command[] = [
       operation,
       render: {
         examples: [
-          `opencove ${name} --fields ${name === 'ping' ? 'ok' : 'protocolVersion'}`,
+          `eclipse-code ${name} --fields ${name === 'ping' ? 'ok' : 'protocolVersion'}`,
           name === 'ping' ? '{"ok":true}' : '{"protocolVersion":2}',
         ],
         fields:
@@ -145,7 +147,7 @@ export const commands: Command[] = [
     path: ['api', 'ops'],
     summary: 'List Control Surface operations with their kind, contract and CLI command',
     get description() {
-      return `The full JSON catalog is large (about ${Math.round(Buffer.byteLength(JSON.stringify(operationCatalog())) / 1024)} KB). Start with --domains, then narrow with --prefix or --search and --fields. Each operation includes scope (read, interact or admin); inside OpenCove, access comes from the Worker policy (allowed, denied or constrained). Offline or with an older Worker, access is unknown. The allowed flag is omitted for unknown or constrained access.\n\nWith --domains, output is an array of summaries with these projectable fields:\n  domain: Operation ID prefix before the first dot\n  operations: Total operations in the domain after filtering\n  schema: Operations with a schema input contract\n  commandOperations: Command-kind operations, not dedicated CLI commands`
+      return `The full JSON catalog is large (about ${Math.round(Buffer.byteLength(JSON.stringify(operationCatalog())) / 1024)} KB). Start with --domains, then narrow with --prefix or --search and --fields. Each operation includes scope (read, interact or admin); inside Eclipse Code, access comes from the Worker policy (allowed, denied or constrained). Offline or with an older Worker, access is unknown. The allowed flag is omitted for unknown or constrained access.\n\nWith --domains, output is an array of summaries with these projectable fields:\n  domain: Operation ID prefix before the first dot\n  operations: Total operations in the domain after filtering\n  schema: Operations with a schema input contract\n  commandOperations: Command-kind operations, not dedicated CLI commands`
     },
     connect: false,
     options: {
@@ -219,8 +221,8 @@ export const commands: Command[] = [
     render: {
       list: true,
       examples: [
-        'opencove api ops --prefix node --fields id,cliCommand',
-        '[{"id":"node.create","cliCommand":"opencove node create"}, ...]',
+        'eclipse-code api ops --prefix node --fields id,cliCommand',
+        '[{"id":"node.create","cliCommand":"eclipse-code node create"}, ...]',
       ],
       fields: [
         'id',
@@ -267,7 +269,7 @@ export const commands: Command[] = [
     ),
     summary: 'Show the input JSON Schema for an operation',
     description:
-      'Inside OpenCove, access, reason, policyVersion and rejectedFields describe your Worker permissions; a field in the schema may still be refused. Outside OpenCove this command works offline.',
+      'Inside Eclipse Code, access, reason, policyVersion and rejectedFields describe your Worker permissions; a field in the schema may still be refused. Outside Eclipse Code this command works offline.',
     connect: false,
     positionals: [{ name: 'operation-id', required: true }],
     options: {
@@ -296,7 +298,7 @@ export const commands: Command[] = [
       })
       return {
         ...schema,
-        ...(io.env.OPENCOVE_ENV === '1'
+        ...(io.env.ECLIPSE_CODE_ENV === '1'
           ? (operationAccessInfo(policy) ?? { access: 'unknown' })
           : {}),
       }
@@ -308,7 +310,7 @@ export const commands: Command[] = [
     serverValidation: true,
     summary: 'Invoke a registered operation',
     description:
-      'The input is sent as-is: IDs must be full IDs. Selectors such as @self, names and ID prefixes work only in the dedicated commands; resolve one first, for example: opencove node get --node "@self" --fields id',
+      'The input is sent as-is: IDs must be full IDs. Selectors such as @self, names and ID prefixes work only in the dedicated commands; resolve one first, for example: eclipse-code node get --node "@self" --fields id',
     connect: true,
     positionals: [{ name: 'operation-id', required: true }],
     options: {
@@ -328,7 +330,7 @@ async function readWorkerPolicy(
   id: Parameters<CommandContext['invoke']>[0],
   payload: unknown,
 ): Promise<unknown> {
-  if (ctx.io.env.OPENCOVE_ENV !== '1') {
+  if (ctx.io.env.ECLIPSE_CODE_ENV !== '1') {
     return
   }
   try {
@@ -380,7 +382,7 @@ for (const command of [...remoteCommands, ...pluginCommands, ...lifecycleCommand
       )[name] ?? `${name}-123`,
     )
   }
-  command.examples = [`opencove ${args.join(' ')}`]
+  command.examples = [`eclipse-code ${args.join(' ')}`]
 }
 
 // The generic API command uses these same command declarations for known operations.
@@ -391,7 +393,9 @@ function dedicatedCommand(id: string): string | undefined {
   const command = commands.find(
     c => c.operation === id || c.operationAliases?.some(alias => alias === id),
   )
-  return command ? (command.operationCommand ?? `opencove ${command.path.join(' ')}`) : undefined
+  return command
+    ? (command.operationCommand ?? `eclipse-code ${command.path.join(' ')}`)
+    : undefined
 }
 
 function operationCatalog(policy?: unknown) {

@@ -31,7 +31,7 @@ describeWithElectronNativeModules('managed Claude resume persistence boundaries'
   let root: string
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-resume-sync-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-resume-sync-'))
     store = await createPersistenceStore({ dbPath: join(root, 'state.db'), strictRecovery: true })
   })
   afterEach(async () => {

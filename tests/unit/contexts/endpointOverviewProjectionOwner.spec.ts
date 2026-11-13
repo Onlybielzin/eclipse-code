@@ -73,7 +73,7 @@ function harness() {
 
 describe('EndpointOverviewProjectionOwner', () => {
   it('sends the requesting renderer build through the intermediate worker boundary', async () => {
-    vi.stubGlobal('__OPENCOVE_RUNTIME_BUILD__', runtimeBuildFixture)
+    vi.stubGlobal('__ECLIPSE_CODE_RUNTIME_BUILD__', runtimeBuildFixture)
     const h = harness()
     try {
       await h.owner.prepareEndpoint({ endpointId: 'managed-1' })

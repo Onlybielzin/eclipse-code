@@ -10,20 +10,20 @@
 - 生成“明确不签名”的安装包：`pnpm build:mac:unsigned`
 
 产物默认在 `dist/`：
-- `OpenCove-<version>-mac-arm64.dmg` / `OpenCove-<version>-mac-arm64.zip`
-- `OpenCove-<version>-mac-x64.dmg` / `OpenCove-<version>-mac-x64.zip`
+- `Eclipse Code-<version>-mac-arm64.dmg` / `Eclipse Code-<version>-mac-arm64.zip`
+- `Eclipse Code-<version>-mac-x64.dmg` / `Eclipse Code-<version>-mac-x64.zip`
 - `*.exe`
 - `*.AppImage` / `*.deb`
-- `opencove-server-<platform>-<arch>.tar.gz`（macOS / Linux standalone CLI / Worker runtime）
-- `opencove-server-windows-<arch>.zip`（Windows standalone CLI / Worker runtime）
+- `eclipse-code-server-<platform>-<arch>.tar.gz`（macOS / Linux standalone CLI / Worker runtime）
+- `eclipse-code-server-windows-<arch>.zip`（Windows standalone CLI / Worker runtime）
 
 额外的 Release asset：
 - 所有包含 standalone installer 的 release 都会发布 tag-pinned 脚本：
-  `opencove-install-v<tag>.sh`、`opencove-install-v<tag>.ps1`、
-  `opencove-uninstall-v<tag>.sh`、`opencove-uninstall-v<tag>.ps1`
+  `eclipse-code-install-v<tag>.sh`、`eclipse-code-install-v<tag>.ps1`、
+  `eclipse-code-uninstall-v<tag>.sh`、`eclipse-code-uninstall-v<tag>.ps1`
 - 只有 stable release 额外发布 latest stable 别名：
-  `opencove-install.sh`、`opencove-install.ps1`、
-  `opencove-uninstall.sh`、`opencove-uninstall.ps1`
+  `eclipse-code-install.sh`、`eclipse-code-install.ps1`、
+  `eclipse-code-uninstall.sh`、`eclipse-code-uninstall.ps1`
 
 ## 发布渠道
 
@@ -45,14 +45,14 @@
 ## GitHub：打 Tag 自动打包（unsigned）
 
 本仓库已配置 GitHub Actions：当你 push 形如 `v*` 的 tag 时，会自动构建 `macOS / Windows / Linux` 三端产物，并自动创建对应的 GitHub Release。无需手动打包或手动上传产物。上传内容包括：
-- macOS Apple Silicon 产物（`OpenCove-<version>-mac-arm64.dmg` / `.zip`）
-- macOS Intel 产物（`OpenCove-<version>-mac-x64.dmg` / `.zip`）
+- macOS Apple Silicon 产物（`Eclipse Code-<version>-mac-arm64.dmg` / `.zip`）
+- macOS Intel 产物（`Eclipse Code-<version>-mac-x64.dmg` / `.zip`）
 - Windows 产物（如 `*.exe`）
 - Linux 产物（`*.AppImage` / `*.deb`）
-- macOS / Linux standalone server bundle（`opencove-server-<platform>-<arch>.tar.gz`）
-- Windows standalone server bundle（`opencove-server-windows-<arch>.zip`）
-- tag-pinned 一键安装 / 卸载脚本（`opencove-install-v<tag>.*`、`opencove-uninstall-v<tag>.*`）
-- stable release 额外包含 latest stable 别名（`opencove-install.*`、`opencove-uninstall.*`）
+- macOS / Linux standalone server bundle（`eclipse-code-server-<platform>-<arch>.tar.gz`）
+- Windows standalone server bundle（`eclipse-code-server-windows-<arch>.zip`）
+- tag-pinned 一键安装 / 卸载脚本（`eclipse-code-install-v<tag>.*`、`eclipse-code-uninstall-v<tag>.*`）
+- stable release 额外包含 latest stable 别名（`eclipse-code-install.*`、`eclipse-code-uninstall.*`）
 - 汇总校验文件 `SHA256SUMS.txt`
 
 注意：macOS 的应用内自动更新依赖稳定的代码签名（Developer ID）。当前 unsigned/ad-hoc 构建在 macOS 上会禁用更新检查；请通过 GitHub Releases 手动下载新版本。macOS release 现在使用拆分的 `arm64` / `x64` 单架构安装包，release workflow 不上传单一 `latest-mac.yml`，避免更新 metadata 指向错误架构；恢复 macOS 自动更新前必须先补齐 universal 或按架构分流的更新策略。
@@ -65,24 +65,24 @@
 ### Standalone CLI / Worker 资产
 
 只有当 release 实际包含以下资产时，才能对外宣称“可直接通过 GitHub Release 安装
-OpenCove CLI / Worker”：
+Eclipse Code CLI / Worker”：
 
-- `opencove-server-<platform>-<arch>.tar.gz`
-- `opencove-server-windows-<arch>.zip`
-- `opencove-install-v<tag>.sh`
-- `opencove-install-v<tag>.ps1`
-- `opencove-uninstall-v<tag>.sh`
-- `opencove-uninstall-v<tag>.ps1`
+- `eclipse-code-server-<platform>-<arch>.tar.gz`
+- `eclipse-code-server-windows-<arch>.zip`
+- `eclipse-code-install-v<tag>.sh`
+- `eclipse-code-install-v<tag>.ps1`
+- `eclipse-code-uninstall-v<tag>.sh`
+- `eclipse-code-uninstall-v<tag>.ps1`
 
 stable release 额外再提供以下 latest stable 别名：
 
-- `opencove-install.sh`
-- `opencove-install.ps1`
-- `opencove-uninstall.sh`
-- `opencove-uninstall.ps1`
+- `eclipse-code-install.sh`
+- `eclipse-code-install.ps1`
+- `eclipse-code-uninstall.sh`
+- `eclipse-code-uninstall.ps1`
 
 对外文档必须与已发布资产保持一致。如果
-`releases/latest/download/opencove-install.sh` 返回 `404`，说明 latest stable 尚未
+`releases/latest/download/eclipse-code-install.sh` 返回 `404`，说明 latest stable 尚未
 发布 standalone installer，README / docs 不应写成“latest stable 可直接安装”。
 
 当 latest stable 已包含这些资产时，没有 Desktop 的机器可使用以下安装脚本：
@@ -90,59 +90,59 @@ stable release 额外再提供以下 latest stable 别名：
 macOS / Linux：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.sh | sh
 ```
 
 Windows PowerShell：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-install.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-install.ps1 | Invoke-Expression"
 ```
 
 对于 nightly 或任意指定 tag 的 release，请改用对应 release 页面里的 tag-pinned
 installer：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-install-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-install-v<version>.ps1 | Invoke-Expression"
 ```
 
 安装脚本会：
 
-- 按平台/架构下载 `opencove-server-<platform>-<arch>.tar.gz` 或 `opencove-server-windows-<arch>.zip`
+- 按平台/架构下载 `eclipse-code-server-<platform>-<arch>.tar.gz` 或 `eclipse-code-server-windows-<arch>.zip`
 - 同时下载同一路径的 `SHA256SUMS.txt` 并验证 bundle；找不到 checksum、本机没有 SHA256 工具或 hash 不一致时 fail closed，不解压也不安装
-- macOS / Linux 默认安装到 `~/.local/share/opencove`（可由 `OPENCOVE_INSTALL_ROOT` 覆盖）
-- Windows 默认安装到 `%LOCALAPPDATA%\OpenCove\standalone`（可由 `OPENCOVE_INSTALL_ROOT` 覆盖）
-- macOS / Linux 在 `~/.local/bin/opencove` 写入 launcher（可由 `OPENCOVE_BIN_DIR` 覆盖）
-- Windows 在 `%LOCALAPPDATA%\OpenCove\bin\opencove.cmd` 写入 launcher，并把该目录加入用户级 PATH（可由 `OPENCOVE_BIN_DIR` 覆盖）
+- macOS / Linux 默认安装到 `~/.local/share/eclipse-code`（可由 `ECLIPSE_CODE_INSTALL_ROOT` 覆盖）
+- Windows 默认安装到 `%LOCALAPPDATA%\Eclipse Code\standalone`（可由 `ECLIPSE_CODE_INSTALL_ROOT` 覆盖）
+- macOS / Linux 在 `~/.local/bin/eclipse-code` 写入 launcher（可由 `ECLIPSE_CODE_BIN_DIR` 覆盖）
+- Windows 在 `%LOCALAPPDATA%\Eclipse Code\bin\eclipse-code.cmd` 写入 launcher，并把该目录加入用户级 PATH（可由 `ECLIPSE_CODE_BIN_DIR` 覆盖）
 
 服务器上的典型启动方式：
 
 ```bash
-opencove worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
+eclipse-code worker start --hostname 0.0.0.0 --web-ui-password 'change-me'
 ```
 
 卸载 standalone runtime：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-uninstall.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-uninstall.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/latest/download/opencove-uninstall.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/latest/download/eclipse-code-uninstall.ps1 | Invoke-Expression"
 ```
 
 对于 nightly 或任意指定 tag 的 release，请使用对应的 tag-pinned uninstall 脚本：
 
 ```bash
-curl -fsSL https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-uninstall-v<version>.sh | sh
+curl -fsSL https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-uninstall-v<version>.sh | sh
 ```
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/DeadWaveWave/opencove/releases/download/v<version>/opencove-uninstall-v<version>.ps1 | Invoke-Expression"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod https://github.com/Onlybielzin/eclipse-code/releases/download/v<version>/eclipse-code-uninstall-v<version>.ps1 | Invoke-Expression"
 ```
 
 发布约束：
@@ -182,7 +182,7 @@ VS Code 公开的 Linux server 要求，说明这条基线是业界通行值而�
 不会悄悄溜过去。
 
 因此 Linux 的原生模块**必须在老 glibc 容器内编译**，由 release workflow 的
-`OPENCOVE_NATIVE_BUILD_IMAGE` 指定（`quay.io/pypa/manylinux_2_28_x86_64`：glibc 2.28 基底 +
+`ECLIPSE_CODE_NATIVE_BUILD_IMAGE` 指定（`quay.io/pypa/manylinux_2_28_x86_64`：glibc 2.28 基底 +
 满足 `better-sqlite3` `-std=c++20` 所需的新 gcc）。在 runner 上直接编译会得到
 `GLIBC_2.38` 之类的依赖，只能在与 runner 同代或更新的发行版上加载。
 
@@ -229,7 +229,7 @@ pnpm release:version 0.2.0
 8) 创建并 push annotated tag
 
 ```bash
-git tag -a v0.2.0 -m "OpenCove v0.2.0"
+git tag -a v0.2.0 -m "Eclipse Code v0.2.0"
 git push origin v0.2.0
 ```
 
@@ -291,7 +291,7 @@ git push origin v0.2.0-nightly.20260312.1
 
 可选处理方式：
 - Finder：右键 App → 打开 → 再次确认
-- 或终端（拷贝到 Applications 后）：`xattr -dr com.apple.quarantine /Applications/OpenCove.app`
+- 或终端（拷贝到 Applications 后）：`xattr -dr com.apple.quarantine /Applications/Eclipse Code.app`
 
 ## 本地构建 Standalone 资产
 
@@ -305,7 +305,7 @@ pnpm build:standalone
 
 - 先构建 app 与 release manifest
 - 生成 unpacked Electron runtime
-- 再封装出 `dist/opencove-server-<platform>-<arch>.tar.gz`
+- 再封装出 `dist/eclipse-code-server-<platform>-<arch>.tar.gz`
 
 ## 签名 + 公证（可选）
 

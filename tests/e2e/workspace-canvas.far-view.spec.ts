@@ -29,9 +29,11 @@ const NOTE = 'far-view-note'
 /** The terminal's runtime identity and both ends of its size: xterm in the renderer, PTY in main. */
 async function readTerminal(window: Page) {
   return await window.evaluate(async id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const sessionId = api?.getRuntimeSessionId(id) ?? null
-    const pty = sessionId ? await window.opencoveApi.pty.presentationSnapshot({ sessionId }) : null
+    const pty = sessionId
+      ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
+      : null
     return {
       sessionId,
       instanceId: api?.getRenderMetrics(id)?.instanceId ?? null,
@@ -190,9 +192,9 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
   }
   const { electronApp, window } = await launchApp()
   const counts = () =>
-    window.evaluate(() => window.__opencoveWorkspaceCanvasTestApi!.getWindowCommitCounts())
+    window.evaluate(() => window.__eclipseCodeWorkspaceCanvasTestApi!.getWindowCommitCounts())
   const reset = () =>
-    window.evaluate(() => window.__opencoveWorkspaceCanvasTestApi!.resetWindowCommitCounts())
+    window.evaluate(() => window.__eclipseCodeWorkspaceCanvasTestApi!.resetWindowCommitCounts())
   // Allow effects, viewport persistence and interaction-settle timers to finish before reading.
   const settle = () => window.waitForTimeout(600)
   try {
@@ -276,7 +278,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
     ).toHaveAttribute('aria-busy', 'false')
     const readOwnState = () =>
       window.evaluate(async id => {
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         const state = JSON.parse(raw ?? '{}') as {
           workspaces?: Array<{ nodes?: Array<{ id: string; scrollback?: string }> }>
         }
@@ -288,7 +290,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
     if (!sessionId) {
       throw new Error('Missing terminal session')
     }
-    await window.evaluate(payload => window.opencoveApi.pty.write(payload), {
+    await window.evaluate(payload => window.eclipseCodeApi.pty.write(payload), {
       sessionId,
       data: `${buildNodeEvalCommand("process.stdout.write('ZOOM_FIXTURE_IDLE\\n');setInterval(()=>{},1000)")}\r`,
     })
@@ -297,7 +299,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
       .poll(() =>
         window.evaluate(
           id =>
-            window.__opencoveTerminalSelectionTestApi?.getBufferText(id, 'ZOOM_FIXTURE_IDLE')
+            window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, 'ZOOM_FIXTURE_IDLE')
               ?.markerAbsoluteLine ?? null,
           TERMINAL,
         ),
@@ -364,7 +366,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
       .poll(() =>
         electronApp.evaluate(
           ({ BrowserWindow }) =>
-            BrowserWindow.getAllWindows()[0].__opencoveWebsiteWindowManager?.runtimeByNodeId.get(
+            BrowserWindow.getAllWindows()[0].__eclipseCodeWebsiteWindowManager?.runtimeByNodeId.get(
               'zoom-website',
             )?.snapshotDocumentReady,
         ),
@@ -374,7 +376,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
       .poll(() =>
         electronApp.evaluate(({ BrowserWindow }) => {
           const runtime =
-            BrowserWindow.getAllWindows()[0].__opencoveWebsiteWindowManager?.runtimeByNodeId.get(
+            BrowserWindow.getAllWindows()[0].__eclipseCodeWebsiteWindowManager?.runtimeByNodeId.get(
               'zoom-website',
             )
           return runtime?.lifecycle === 'active' && Boolean(runtime.snapshotDataUrl)
@@ -422,7 +424,7 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
       .poll(() =>
         electronApp.evaluate(({ BrowserWindow }) => {
           const runtime =
-            BrowserWindow.getAllWindows()[0].__opencoveWebsiteWindowManager?.runtimeByNodeId.get(
+            BrowserWindow.getAllWindows()[0].__eclipseCodeWebsiteWindowManager?.runtimeByNodeId.get(
               'zoom-website',
             )
           return runtime?.bounds
@@ -443,8 +445,8 @@ async function checkZoomWindowCommits(reducedTransparency: boolean) {
       await testInfo.attach('window-commit-reasons', {
         body: JSON.stringify(
           await window.evaluate(() => ({
-            counts: window.__opencoveWorkspaceCanvasTestApi?.getWindowCommitCounts(),
-            records: window.__opencoveWorkspaceCanvasTestApi?.getWindowCommitRecords(),
+            counts: window.__eclipseCodeWorkspaceCanvasTestApi?.getWindowCommitCounts(),
+            records: window.__eclipseCodeWorkspaceCanvasTestApi?.getWindowCommitRecords(),
           })),
           null,
           2,

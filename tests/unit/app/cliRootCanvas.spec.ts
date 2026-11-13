@@ -28,11 +28,11 @@ it('allows an explicit root project to override the caller project', async () =>
   })
 })
 
-it('rejects root creation outside OpenCove without a project before requests', async () => {
+it('rejects root creation outside Eclipse Code without a project before requests', async () => {
   const f = identityFixture(false)
   expect(await run(['node', 'create', 'note', '--root-canvas'], f.io)).toBe(2)
   expect(f.error().message).toBe(
-    '--root-canvas needs a project outside OpenCove: add --project <id>',
+    '--root-canvas needs a project outside Eclipse Code: add --project <id>',
   )
   expect(f.fetch).not.toHaveBeenCalled()
 })
@@ -65,7 +65,7 @@ it.each([
   [null, null],
 ])('uses current container %s rather than spawn container %s', async (current, spawned) => {
   const f = identityFixture()
-  f.io.env.OPENCOVE_SPACE_ID = spawned ?? ''
+  f.io.env.ECLIPSE_CODE_SPACE_ID = spawned ?? ''
   f.values['node.get'] = { node: { ...node, spaceId: current } }
   expect(await run(['node', 'create', 'note'], f.io)).toBe(0)
   expect(f.requests[0]).toMatchObject({ id: 'node.get', payload: { nodeId: who.nodeId } })
@@ -141,7 +141,7 @@ it('never treats a mismatched caller node response as root', async () => {
 
 it('reads the current container when identity must fall back to the session grant', async () => {
   const f = identityFixture()
-  delete f.io.env.OPENCOVE_NODE_ID
+  delete f.io.env.ECLIPSE_CODE_NODE_ID
   f.values['node.get'] = { node: { ...node, spaceId: null } }
   expect(await run(['node', 'create', 'note'], f.io)).toBe(0)
   expect(f.requests.map(r => r.id)).toEqual(['system.whoami', 'node.get', 'node.create'])
@@ -169,12 +169,12 @@ it('canvas skill topic explains root creation and project-wide lists outside Spa
   const f = identityFixture(false)
   expect(await run(['skill', 'canvas'], f.io)).toBe(0)
   expect(f.out().replace(/\s+/g, ' ')).toContain(
-    'To put a node on the canvas outside any Space: `opencove node create note --root-canvas --text …`',
+    'To put a node on the canvas outside any Space: `eclipse-code node create note --root-canvas --text …`',
   )
   expect(f.out().replace(/\s+/g, ' ')).toContain('`node list` lists the whole project')
 })
 
-it('lists root nodes in an explicitly selected project outside OpenCove', async () => {
+it('lists root nodes in an explicitly selected project outside Eclipse Code', async () => {
   const f = identityFixture(false)
   f.values['node.list'] = {
     projectId: project.id,
@@ -202,7 +202,9 @@ it('explains project-wide list defaults outside Spaces in offline help', async (
 
 it('documents supported ways to reveal root nodes without a root Space focus flag', () => {
   const guide = readFileSync('docs/cli/CANVAS_NODE_CONTROL.md', 'utf8')
-  const focusSpace = guide.split('\n').find(line => line.startsWith('opencove canvas focus space'))!
+  const focusSpace = guide
+    .split('\n')
+    .find(line => line.startsWith('eclipse-code canvas focus space'))!
   expect(focusSpace).not.toContain('--root-canvas')
   expect(guide).toContain('canvas focus node --node <id>')
   expect(guide).toContain('`--focus`')

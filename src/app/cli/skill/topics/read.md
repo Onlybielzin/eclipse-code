@@ -1,7 +1,7 @@
 # Read replies and inspect screens
 
 Read tries the latest ended turn's agent.finalMessage first. `--turn <turnId>` selects exactly the
-OpenCove turn ID returned by prompt: no prefixes, another turn or transcript fallback. Confirm
+Eclipse Code turn ID returned by prompt: no prefixes, another turn or transcript fallback. Confirm
 delivery, wait for the saved turn and check outcome before reading. All ended outcomes exit 0 when
 waiting; ended does not mean successful. `--last` makes the latest-turn default explicit and may
 accompany --turn.
@@ -18,15 +18,15 @@ Hook replies (≤64 KiB UTF-8), outcome and IDs are private. Exact archived loca
 survive restarts without a live agent and return the original session ID. Archive caps: 60
 turns/node, 30 days, 20,000 global records and 128 MiB of message text. JSON includes persisted and
 memoryOnlyReason when false; archive_unavailable differs from a miss. Deleting the node removes
-OpenCove history, not provider transcripts or existing backups. No prompt text or delivery records
-are archived. `opencove agent history clear --node <selector>` deletes a node's stored replies
+Eclipse Code history, not provider transcripts or existing backups. No prompt text or delivery records
+are archived. `eclipse-code agent history clear --node <selector>` deletes a node's stored replies
 (archive and memory) and keeps the node, transcripts, run state and deliveries; archive
 unavailability clears memory but exits 1. Remote waits use mirrored snapshots/events; older history
 requires the executing Worker. Local Claude hooks match session/prompt IDs; Codex lifecycle hooks
 match session/turn IDs. Codex stores the first matching Stop reply that ends the local turn. Later
 continuation cannot replace it; same-pair steering keeps that turn and does not clear waiting.
 Missing IDs or hook coverage provide no exact reply. Archived replies remain readable regardless of
-current hook coverage. Claude queued messages/provider follow-ups stay in one OpenCove turn; exact
+current hook coverage. Claude queued messages/provider follow-ups stay in one Eclipse Code turn; exact
 reads return its final reply after continuations. An unknown continuation marks the last provider
 reply messageKind: intermediate and prints a notice. An unqualified read selects only the latest
 ended reply, including after a node-level idle wait. Check outcome; ended does not mean successful.
@@ -38,7 +38,7 @@ Only a read without `--turn` falls back to the transcript when the hook reports 
 or whitespace-only hook reply succeeds and wins. Unqualified reads never search older hook messages
 and remain current-incarnation reads. --last makes the default explicit and may accompany --turn.
 Exact-turn reads preserve `agent.final_message_unavailable` and `details.reason`: `turn_not_ended`
-includes current state and blockedReason; waiting asks the user to resolve it in OpenCove, working
+includes current state and blockedReason; waiting asks the user to resolve it in Eclipse Code, working
 suggests an exact-turn wait; `turn_not_found` means unknown/evicted, `provider_sent_no_message`
 means no correlated content, and `no_ended_turn` means no observed end. Exact errors include known
 nodeId/sessionId/turnId and recovery commands: wait for turn_not_ended; agent get for
@@ -62,9 +62,9 @@ output. Transcript reads may cache a discovered transcript identity.
 
 ## Retained turn identifiers
 
-deliveryIds are retained correlations of OpenCove deliveries with this turn, including refused or
+deliveryIds are retained correlations of Eclipse Code deliveries with this turn, including refused or
 uncertain attempts. Membership proves neither submission nor consumption; inspect each deliveryId
-with opencove agent delivery <id>. promptIds are the provider's own prompt IDs (Claude continuations
+with eclipse-code agent delivery <id>. promptIds are the provider's own prompt IDs (Claude continuations
 included); agent delivery does not accept them. Best-effort wait lookup failures omit IDs without
 changing completion/outcome/durability. Resolved delivery records expire after 30 minutes and
 existing capacity limits apply; restart clears them. Live history keeps up to 64 previous provider
@@ -74,11 +74,11 @@ resending.
 ## Screen inspection
 
 ```sh
-opencove agent read --node agent-123 --screen
-opencove agent read --node agent-123 --screen --lines 20 -o json
-opencove agent read --node agent-123 --scrollback --lines 500
-opencove agent read --node agent-123 --turn turn-123 -o json
-opencove agent history clear --node agent-123
+eclipse-code agent read --node agent-123 --screen
+eclipse-code agent read --node agent-123 --screen --lines 20 -o json
+eclipse-code agent read --node agent-123 --scrollback --lines 500
+eclipse-code agent read --node agent-123 --turn turn-123 -o json
+eclipse-code agent history clear --node agent-123
 ```
 
 Screen reads replay the snapshot at its columns/rows, preserving cursor-created spaces, overwrites

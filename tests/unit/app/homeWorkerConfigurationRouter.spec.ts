@@ -53,7 +53,7 @@ const connection = {
 
 function createRouter() {
   return createHomeWorkerConfigurationRouter({
-    userDataPath: '/tmp/opencove-router-test',
+    userDataPath: '/tmp/eclipse-code-router-test',
     configOptions: {},
     ensureMissingConfig: false,
   })

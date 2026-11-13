@@ -70,7 +70,7 @@ function node(id: string, kind = 'agent'): NodeControlNode {
   }
 }
 async function fixture(creatorId = callerId) {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-lineage-queries-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-lineage-queries-'))
   roots.push(root)
   const state = createMinimalState(root, projectA, 'space-a') as unknown as NodeControlAppState
   state.workspaces[0].nodes = [
@@ -170,12 +170,15 @@ async function fixture(creatorId = callerId) {
   const cli = async (args: string[], injected = true) => {
     const f = identityFixture()
     Object.assign(f.io.env, {
-      OPENCOVE_PROJECT_ID: projectA,
-      OPENCOVE_SPACE_ID: 'space-a',
-      OPENCOVE_NODE_ID: callerId,
+      ECLIPSE_CODE_PROJECT_ID: projectA,
+      ECLIPSE_CODE_SPACE_ID: 'space-a',
+      ECLIPSE_CODE_NODE_ID: callerId,
     })
     if (!injected) {
-      f.io.env = { OPENCOVE_CONTROL_URL: 'http://fixture', OPENCOVE_CONTROL_TOKEN: 'secret' }
+      f.io.env = {
+        ECLIPSE_CODE_CONTROL_URL: 'http://fixture',
+        ECLIPSE_CODE_CONTROL_TOKEN: 'secret',
+      }
     }
     f.io.fetch = async (_url, init) => {
       const request = JSON.parse(String(init?.body)) as ControlSurfaceInvokeRequest

@@ -2,7 +2,7 @@ export const zhCNSettingsPanelNotifications = {
   title: '通知',
   systemNotifications: {
     enabledLabel: '系统通知',
-    enabledHelp: '只在 OpenCove 不在前台时发送。',
+    enabledHelp: '只在 Eclipse Code 不在前台时发送。',
   },
   agentStandbyBanner: {
     enabledLabel: '应用内通知',

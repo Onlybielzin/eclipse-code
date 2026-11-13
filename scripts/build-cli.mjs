@@ -28,7 +28,11 @@ await build({
     outDir,
     emptyOutDir: true,
     minify: false,
-    lib: { entry: resolve('src/app/cli/main.ts'), formats: ['es'], fileName: () => 'opencove.mjs' },
+    lib: {
+      entry: resolve('src/app/cli/main.ts'),
+      formats: ['es'],
+      fileName: () => 'eclipse-code.mjs',
+    },
     rollupOptions: {
       external: id =>
         !id.startsWith('.') && !isAbsolute(id) && !id.startsWith('\0') && !isAlias(id),
@@ -36,4 +40,4 @@ await build({
     },
   },
 })
-await chmod(join(outDir, 'opencove.mjs'), 0o755)
+await chmod(join(outDir, 'eclipse-code.mjs'), 0o755)

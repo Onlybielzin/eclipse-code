@@ -181,9 +181,9 @@ export async function cli(userDataDir: string, args: string[]) {
   return await new Promise<{ exitCode: number; stdout: string; stderr: string }>(done => {
     execFile(
       process.execPath,
-      [resolvePath('out/cli/opencove.mjs'), ...args],
+      [resolvePath('out/cli/eclipse-code.mjs'), ...args],
       {
-        env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir },
+        env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir },
         timeout: 60_000,
         maxBuffer: 8 * 1024 * 1024,
       },
@@ -203,7 +203,7 @@ export async function prompt(userDataDir: string, nodeId: string, text: string) 
     const child = execFile(
       process.execPath,
       [
-        resolvePath('out/cli/opencove.mjs'),
+        resolvePath('out/cli/eclipse-code.mjs'),
         'agent',
         'prompt',
         '--node',
@@ -211,7 +211,7 @@ export async function prompt(userDataDir: string, nodeId: string, text: string) 
         '--text-file',
         '-',
       ],
-      { env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
+      { env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir }, timeout: 60_000 },
       (error, stdout, stderr) =>
         done({
           exitCode: error ? Number((error as { code?: unknown }).code ?? 1) : 0,
@@ -232,13 +232,13 @@ export async function launchRealClaude(
     body: Buffer.from(version),
     contentType: 'text/plain',
   })
-  const root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-real-prompt-')))
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-real-prompt-')))
   const workspace = join(root, 'workspace')
   const config = join(root, 'claude-config')
   const userDataDir = join(root, 'user-data')
   await mkdir(workspace, { recursive: true })
   await mkdir(config, { recursive: true })
-  const apiKey = 'opencove-local-diagnostic-not-a-real-key'
+  const apiKey = 'eclipse-code-local-diagnostic-not-a-real-key'
   await writeFile(
     join(config, '.claude.json'),
     JSON.stringify({
@@ -256,8 +256,8 @@ export async function launchRealClaude(
     userDataDir,
     cleanupUserDataDir: false,
     env: {
-      OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
       ANTHROPIC_API_KEY: apiKey,
       ANTHROPIC_AUTH_TOKEN: '',
       ANTHROPIC_BASE_URL: api.url,
@@ -316,7 +316,7 @@ export async function launchRealClaude(
   const snapshot = () =>
     window.evaluate(
       id =>
-        window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+        window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
           kind: 'query',
           id: 'agent.get',
           payload: { sessionId: id },

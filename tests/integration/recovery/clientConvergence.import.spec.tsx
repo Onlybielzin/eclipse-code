@@ -50,7 +50,7 @@ it('allows a valid save after SQLite rejects a malformed raw submission', async 
   c = new Client(false, 'local', 'committed')
   const invalid = invalidStateResult('Workspace state payload must be a JSON object.')
   const raw = vi
-    .spyOn(window.opencoveApi.persistence, 'writeWorkspaceStateRaw')
+    .spyOn(window.eclipseCodeApi.persistence, 'writeWorkspaceStateRaw')
     .mockResolvedValueOnce(invalid)
   expect(await writeRawPersistedState('{')).toMatchObject({
     ok: false,

@@ -54,8 +54,8 @@ function disconnectRuntimeClients(): void | Promise<void> {
 let workerEndpointResolverForContextMenu: ReturnType<
   typeof createHomeWorkerEndpointResolver
 > | null = null
-const OPENCOVE_APP_USER_MODEL_ID = 'dev.deadwave.opencove'
-const OPENCOVE_DEV_APP_USER_MODEL_ID = 'dev.deadwave.opencove.dev'
+const ECLIPSE_CODE_APP_USER_MODEL_ID = 'dev.vings.eclipsecode'
+const ECLIPSE_CODE_DEV_APP_USER_MODEL_ID = 'dev.vings.eclipsecode.dev'
 const WINDOW_CLOSE_PERSIST_FLUSH_TIMEOUT_MS = 1_500
 let isAppQuitInProgress = false
 
@@ -93,7 +93,7 @@ function createWindow(): void {
   const keepRendererActiveWhenHidden = e2eWindowMode === 'hidden'
   const placeWindowOffscreen = e2eWindowMode === 'offscreen'
   const disableRendererSandboxForTests =
-    isTestEnv && !isTruthyEnv(process.env['OPENCOVE_E2E_FORCE_RENDERER_SANDBOX'])
+    isTestEnv && !isTruthyEnv(process.env['ECLIPSE_CODE_E2E_FORCE_RENDERER_SANDBOX'])
   const runtimeIconPath = resolveRuntimeIconPath()
   if (isTestEnv) {
     setRuntimeIconTestState(runtimeIconPath)
@@ -130,7 +130,7 @@ function createWindow(): void {
     ...(runtimeIconPath ? { icon: runtimeIconPath } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      additionalArguments: [`--opencove-main-process-pid=${process.pid}`],
+      additionalArguments: [`--eclipse-code-main-process-pid=${process.pid}`],
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: !disableRendererSandboxForTests,
@@ -266,7 +266,9 @@ function createWindow(): void {
 }
 
 function resolveAppUserModelId(): string {
-  return app.isPackaged === false ? OPENCOVE_DEV_APP_USER_MODEL_ID : OPENCOVE_APP_USER_MODEL_ID
+  return app.isPackaged === false
+    ? ECLIPSE_CODE_DEV_APP_USER_MODEL_ID
+    : ECLIPSE_CODE_APP_USER_MODEL_ID
 }
 
 // Electron ready: create browser windows & IPC.
@@ -338,7 +340,7 @@ app.whenReady().then(async () => {
     app.dock?.setIcon(nativeImage.createFromPath(runtimeIconPath))
   }
 
-  if (isTruthyEnv(process.env['OPENCOVE_PTY_HOST_POC'])) {
+  if (isTruthyEnv(process.env['ECLIPSE_CODE_PTY_HOST_POC'])) {
     void (async () => {
       try {
         const { runPtyHostUtilityProcessPoc } = await import('../../platform/process/ptyHost/poc')
@@ -346,14 +348,14 @@ app.whenReady().then(async () => {
         app.exit(0)
       } catch (error) {
         const detail = error instanceof Error ? `${error.name}: ${error.message}` : 'unknown error'
-        process.stderr.write(`[opencove] pty-host PoC failed: ${detail}\n`)
+        process.stderr.write(`[eclipse-code] pty-host PoC failed: ${detail}\n`)
         app.exit(1)
       }
     })()
     return
   }
 
-  if (isTruthyEnv(process.env['OPENCOVE_PTY_HOST_STRESS'])) {
+  if (isTruthyEnv(process.env['ECLIPSE_CODE_PTY_HOST_STRESS'])) {
     void (async () => {
       try {
         const { runPtyHostStressTest } = await import('../../platform/process/ptyHost/stress')
@@ -361,7 +363,7 @@ app.whenReady().then(async () => {
         app.exit(0)
       } catch (error) {
         const detail = error instanceof Error ? `${error.name}: ${error.message}` : 'unknown error'
-        process.stderr.write(`[opencove] pty-host stress failed: ${detail}\n`)
+        process.stderr.write(`[eclipse-code] pty-host stress failed: ${detail}\n`)
         app.exit(1)
       }
     })()
@@ -376,7 +378,7 @@ app.whenReady().then(async () => {
     allowRemoteMode: app.isPackaged === false,
   })
   for (const message of homeWorker.diagnostics) {
-    process.stderr.write(`[opencove] ${message}\n`)
+    process.stderr.write(`[eclipse-code] ${message}\n`)
   }
 
   const workerEndpointResolver =
@@ -417,7 +419,7 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   const shouldKeepTestAppAliveAfterWindowClose =
     process.env.NODE_ENV === 'test' &&
-    isTruthyEnv(process.env['OPENCOVE_TEST_KEEP_APP_ALIVE_ON_WINDOW_ALL_CLOSED'])
+    isTruthyEnv(process.env['ECLIPSE_CODE_TEST_KEEP_APP_ALIVE_ON_WINDOW_ALL_CLOSED'])
 
   if (
     !shouldKeepTestAppAliveAfterWindowClose &&

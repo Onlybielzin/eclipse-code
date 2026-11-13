@@ -394,9 +394,9 @@ describe('hydrateFromSnapshot', () => {
       kind: 'agent',
       useLivePtySnapshotDuringHydration: true,
       cachedScreenState: null,
-      persistedSnapshot: '[opencove-test-click] ready',
+      persistedSnapshot: '[eclipse-code-test-click] ready',
       takePtySnapshot: vi.fn(async () => ({
-        data: '[opencove-test-click] ready\u001b[2J\u001b[H      ',
+        data: '[eclipse-code-test-click] ready\u001b[2J\u001b[H      ',
       })),
       isDisposed: () => false,
       onHydratedWriteCommitted,
@@ -405,12 +405,12 @@ describe('hydrateFromSnapshot', () => {
     })
 
     expect(terminal.write).toHaveBeenCalledWith(
-      '[opencove-test-click] ready\u001b[2J\u001b[H      ',
+      '[eclipse-code-test-click] ready\u001b[2J\u001b[H      ',
       expect.any(Function),
     )
     expect(onHydrationBaselineResolved).toHaveBeenCalledWith('live_pty_snapshot')
     expect(finalizeHydration).toHaveBeenCalledWith(
-      '[opencove-test-click] ready\u001b[2J\u001b[H      ',
+      '[eclipse-code-test-click] ready\u001b[2J\u001b[H      ',
     )
   })
 

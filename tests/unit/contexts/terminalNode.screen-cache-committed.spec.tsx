@@ -122,7 +122,7 @@ describe('TerminalNode committed screen cache', () => {
   it('reuses the latest committed screen cache when unmount-time serialize is stale', async () => {
     let dataListener: ((event: DataEvent) => void) | null = null
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -166,7 +166,7 @@ describe('TerminalNode committed screen cache', () => {
     )
 
     await waitFor(() => {
-      expect(window.opencoveApi.pty.snapshot).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.pty.snapshot).toHaveBeenCalledTimes(1)
     })
 
     serializeSpy.mockReturnValue('SCREEN_AFTER_LIVE_WRITE')

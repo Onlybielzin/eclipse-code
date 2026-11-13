@@ -164,7 +164,7 @@ test.describe('Workspace Canvas - Spatial Pixel Close', () => {
     browserName,
   }, testInfo) => {
     void browserName
-    const videoDirectory = process.env.OPENCOVE_E2E_PIXEL_CLOSE_VIDEO_DIR
+    const videoDirectory = process.env.ECLIPSE_CODE_E2E_PIXEL_CLOSE_VIDEO_DIR
     const { electronApp, window: page } = await launchApp({
       ...(videoDirectory
         ? { recordVideo: { dir: videoDirectory, size: { width: 1440, height: 900 } } }

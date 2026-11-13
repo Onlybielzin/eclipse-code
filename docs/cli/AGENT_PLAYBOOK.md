@@ -5,15 +5,15 @@
 ## 建立上下文
 
 ```sh
-export OPENCOVE_USER_DATA_DIR="$PWD/.codex-out/tmp/cli-profile"
-opencove worker status --all
-opencove ping
-opencove project list
-opencove space list --project project-123
+export ECLIPSE_CODE_USER_DATA_DIR="$PWD/.codex-out/tmp/cli-profile"
+eclipse-code worker status --all
+eclipse-code ping
+eclipse-code project list
+eclipse-code space list --project project-123
 ```
 
 `worker status` exit 0 表示查询成功；还需检查返回 `status` 是否为 `running`。
-没有 Worker 时，按任务授权启动 `opencove worker start --user-data "$OPENCOVE_USER_DATA_DIR"`；该命令前台运行。
+没有 Worker 时，按任务授权启动 `eclipse-code worker start --user-data "$ECLIPSE_CODE_USER_DATA_DIR"`；该命令前台运行。
 远端连接显式传 `--endpoint <url> --token <token>`。`worker status/stop` 只管理本地 Worker。
 出现歧义时指定 profile 或 endpoint，不猜测连接目标。
 
@@ -23,11 +23,11 @@ opencove space list --project project-123
 ## 读取目标
 
 ```sh
-opencove space get --space space-123
-opencove worktree list --project project-123
-opencove node list --space space-123
-opencove mount resolve --mount mount-123
-opencove fs ls --mount mount-123 --uri file:///workspace
+eclipse-code space get --space space-123
+eclipse-code worktree list --project project-123
+eclipse-code node list --space space-123
+eclipse-code mount resolve --mount mount-123
+eclipse-code fs ls --mount mount-123 --uri file:///workspace
 ```
 
 用实际查询结果替换示例 ID 和 URI。Space locator 支持 `--space`、`--space-name`，或 `--worker` 配合 `--branch`/`--path`；可用 `--project` 收窄。
@@ -35,11 +35,11 @@ opencove fs ls --mount mount-123 --uri file:///workspace
 ## 最小 CRUD 验证
 
 ```sh
-opencove node create note --space space-123 --title cli-smoke-note --text-file ./notes.txt
-opencove node update note --node node-123 --text 'updated'
-opencove node get --node node-123
-opencove canvas focus node --node node-123
-opencove node delete --node node-123
+eclipse-code node create note --space space-123 --title cli-smoke-note --text-file ./notes.txt
+eclipse-code node update note --node node-123 --text 'updated'
+eclipse-code node get --node node-123
+eclipse-code canvas focus node --node node-123
+eclipse-code node delete --node node-123
 ```
 
 记录创建结果中的真实 `node.id`，只修改本次创建的节点，结束时逆序清理。

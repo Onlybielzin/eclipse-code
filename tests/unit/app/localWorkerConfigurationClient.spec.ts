@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 import {
   invokeLocalWorkerConfiguration,
   normalizeHomeWorkerConfigurationFailureDetails,
@@ -95,13 +95,13 @@ describe('local Worker configuration response validation', () => {
   ])('rejects malformed $path values', ({ mutate }) => {
     const value = validSnapshot()
     mutate(value)
-    expect(() => normalizeHomeWorkerConfigurationSnapshot(value)).toThrow(OpenCoveAppError)
+    expect(() => normalizeHomeWorkerConfigurationSnapshot(value)).toThrow(EclipseCodeAppError)
   })
 
   it('rejects remote mode without a complete remote endpoint', () => {
     const value = validSnapshot()
     value.config.mode = 'remote'
-    expect(() => normalizeHomeWorkerConfigurationSnapshot(value)).toThrow(OpenCoveAppError)
+    expect(() => normalizeHomeWorkerConfigurationSnapshot(value)).toThrow(EclipseCodeAppError)
   })
 
   it('normalizes typed configuration failure details', () => {
@@ -124,7 +124,9 @@ describe('local Worker configuration response validation', () => {
       },
     },
   ])('rejects malformed configuration failure details %#', details => {
-    expect(() => normalizeHomeWorkerConfigurationFailureDetails(details)).toThrow(OpenCoveAppError)
+    expect(() => normalizeHomeWorkerConfigurationFailureDetails(details)).toThrow(
+      EclipseCodeAppError,
+    )
   })
 
   it('preserves a normalized degraded snapshot on a Worker mutation error', async () => {
@@ -134,7 +136,7 @@ describe('local Worker configuration response validation', () => {
         status: 200,
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: false,
             error: {
               code: 'worker.unavailable',
@@ -150,7 +152,7 @@ describe('local Worker configuration response validation', () => {
       payload: null,
     }).catch((caught: unknown) => caught)
 
-    expect(error).toBeInstanceOf(OpenCoveAppError)
+    expect(error).toBeInstanceOf(EclipseCodeAppError)
     expect(error).toMatchObject({
       code: 'worker.unavailable',
       details: { configurationSnapshot: validSnapshot() },
@@ -164,7 +166,7 @@ describe('local Worker configuration response validation', () => {
         status: 200,
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: false,
             error: {
               code: 'worker.unavailable',
@@ -180,7 +182,7 @@ describe('local Worker configuration response validation', () => {
       payload: null,
     }).catch((caught: unknown) => caught)
 
-    expect(error).toBeInstanceOf(OpenCoveAppError)
+    expect(error).toBeInstanceOf(EclipseCodeAppError)
     expect(error).toMatchObject({
       code: 'worker.unavailable',
       details: undefined,

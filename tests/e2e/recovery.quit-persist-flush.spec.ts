@@ -22,7 +22,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
         cleanupUserDataDir: false,
         env: {
           // Artificially slow persistence writes to deterministically reproduce "quit before write completes".
-          OPENCOVE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS: '650',
+          ECLIPSE_CODE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS: '650',
         },
       })
 
@@ -52,7 +52,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS: '650',
+          ECLIPSE_CODE_TEST_PERSIST_APP_STATE_WRITE_DELAY_MS: '650',
         },
       })
 
@@ -69,14 +69,14 @@ test.describe('Recovery - Quit Persist Flush', () => {
   test('drains the final terminal output exactly once when quitting the app (Cmd+Q)', async () => {
     const userDataDir = await createTestUserDataDir()
     const nodeId = 'terminal-quit-tail'
-    const tailToken = `OPENCOVE_QUIT_TERMINAL_TAIL_${Date.now()}`
+    const tailToken = `ECLIPSE_CODE_QUIT_TERMINAL_TAIL_${Date.now()}`
 
     try {
       const { electronApp, window } = await launchApp({
         windowMode: 'offscreen',
         userDataDir,
         cleanupUserDataDir: false,
-        env: { OPENCOVE_TEST_DEFER_TERMINAL_CHECKPOINTS: '1' },
+        env: { ECLIPSE_CODE_TEST_DEFER_TERMINAL_CHECKPOINTS: '1' },
       })
 
       try {
@@ -99,7 +99,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
 
         const readRuntimeSessionId = async () =>
           await window.evaluate(id => {
-            return window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
+            return window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
           }, nodeId)
         await expect.poll(readRuntimeSessionId).toBeTruthy()
         const sessionId = await readRuntimeSessionId()
@@ -110,7 +110,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
         await expect
           .poll(() =>
             window.evaluate(
-              id => window.opencoveApi.persistence.readNodeScrollback({ nodeId: id }),
+              id => window.eclipseCodeApi.persistence.readNodeScrollback({ nodeId: id }),
               nodeId,
             ),
           )
@@ -121,10 +121,10 @@ test.describe('Recovery - Quit Persist Flush', () => {
         )
         const baselineAppliedSeq = await window.evaluate(
           async payload => {
-            const baseline = await window.opencoveApi.pty.presentationSnapshot({
+            const baseline = await window.eclipseCodeApi.pty.presentationSnapshot({
               sessionId: payload.sessionId,
             })
-            await window.opencoveApi.pty.write({
+            await window.eclipseCodeApi.pty.write({
               sessionId: payload.sessionId,
               data: `${payload.command}\r`,
             })
@@ -138,7 +138,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
             async () => {
               return await window.evaluate(
                 async payload => {
-                  const snapshot = await window.opencoveApi.pty.presentationSnapshot({
+                  const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({
                     sessionId: payload.sessionId,
                   })
                   return {
@@ -157,7 +157,7 @@ test.describe('Recovery - Quit Persist Flush', () => {
         // the test runner is slow, rather than winning a race against automatic persistence.
         await window.waitForTimeout(2_100)
         const durableBeforeQuit = await window.evaluate(async id => {
-          return (await window.opencoveApi.persistence.readNodeScrollback({ nodeId: id })) ?? ''
+          return (await window.eclipseCodeApi.persistence.readNodeScrollback({ nodeId: id })) ?? ''
         }, nodeId)
         expect(countOccurrences(durableBeforeQuit, tailToken)).toBe(0)
 
@@ -185,7 +185,9 @@ test.describe('Recovery - Quit Persist Flush', () => {
         await expect
           .poll(async () => {
             const recovered = await restartedWindow.evaluate(async id => {
-              return (await window.opencoveApi.persistence.readNodeScrollback({ nodeId: id })) ?? ''
+              return (
+                (await window.eclipseCodeApi.persistence.readNodeScrollback({ nodeId: id })) ?? ''
+              )
             }, nodeId)
             return countOccurrences(recovered, tailToken)
           })

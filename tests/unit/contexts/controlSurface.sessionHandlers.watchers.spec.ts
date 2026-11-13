@@ -46,8 +46,8 @@ function createStubStore(state: unknown) {
 
 describe('control surface session handler watchers', () => {
   it('starts the session state watcher for session.launchAgent when test watcher mode is enabled', async () => {
-    const previousFlag = process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
-    process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
+    const previousFlag = process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
+    process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
 
     try {
       const appState = {
@@ -80,7 +80,7 @@ describe('control surface session handler watchers', () => {
       registerSessionHandlers(controlSurface, {
         ...createReadyTerminalAdmissionDeps(),
         agentProviderRegistry: createTestAgentProviderRegistry(),
-        userDataPath: '/tmp/opencove-test-user-data',
+        userDataPath: '/tmp/eclipse-code-test-user-data',
         approvedWorkspaces: {
           registerRoot: async () => undefined,
           isPathApproved: async () => true,
@@ -124,16 +124,16 @@ describe('control surface session handler watchers', () => {
       )
     } finally {
       if (previousFlag === undefined) {
-        delete process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
+        delete process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
       } else {
-        process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
+        process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
       }
     }
   })
 
   it('falls back before starting a new session for a compatibility-only provider', async () => {
-    const previousFlag = process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
-    process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
+    const previousFlag = process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
+    process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
 
     try {
       captureGeminiSessionDiscoveryCursorMock.mockResolvedValue({
@@ -154,7 +154,7 @@ describe('control surface session handler watchers', () => {
       registerSessionHandlers(controlSurface, {
         ...createReadyTerminalAdmissionDeps(),
         agentProviderRegistry: createTestAgentProviderRegistry(),
-        userDataPath: '/tmp/opencove-test-user-data',
+        userDataPath: '/tmp/eclipse-code-test-user-data',
         approvedWorkspaces: {
           registerRoot: async () => undefined,
           isPathApproved: async () => true,
@@ -200,9 +200,9 @@ describe('control surface session handler watchers', () => {
       )
     } finally {
       if (previousFlag === undefined) {
-        delete process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
+        delete process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
       } else {
-        process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
+        process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
       }
     }
   })

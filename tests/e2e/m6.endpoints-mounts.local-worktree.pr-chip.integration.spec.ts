@@ -24,7 +24,7 @@ async function createRepo(repoDir: string): Promise<string> {
   await mkdir(repoDir, { recursive: true })
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'test@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Test'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Test'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
@@ -37,7 +37,7 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
   test.setTimeout(180_000)
 
   test('shows branch badge + PR chip after creating worktree', async () => {
-    const repoBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-m6-local-worktree-'))
+    const repoBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-m6-local-worktree-'))
     const repoSeedDir = path.join(repoBaseDir, 'repo')
     const repoDir = await createRepo(repoSeedDir)
     const repoDirCanonical = await realpath(repoDir).catch(() => repoDir)
@@ -47,14 +47,14 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
 
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_GITHUB_INTEGRATION: '1',
-        OPENCOVE_TEST_WORKSPACE: repoDir,
+        ECLIPSE_CODE_TEST_GITHUB_INTEGRATION: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: repoDir,
       },
     })
 
     try {
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -104,7 +104,7 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
       const workspaceId = await pollFor(
         async () =>
           await window.evaluate(async projectName => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -142,7 +142,7 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
           await window.evaluate(
             async ({ projectId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -219,7 +219,7 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
           await window.evaluate(
             async ({ projectId, spaceId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -251,7 +251,7 @@ test.describe('M6 - Local mount worktree PR chip integration', () => {
                   return null
                 }
 
-                if (!/[\\/][.]opencove[\\/]worktrees[\\/]/.test(directoryPath)) {
+                if (!/[\\/][.]eclipse-code[\\/]worktrees[\\/]/.test(directoryPath)) {
                   return null
                 }
 

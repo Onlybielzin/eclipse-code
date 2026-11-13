@@ -17,7 +17,7 @@ export interface ShowSystemNotificationInput {
   replacesId?: string | null
 }
 
-/** `shown` is false while an OpenCove window is focused: the app tells you in place. */
+/** `shown` is false while an Eclipse Code window is focused: the app tells you in place. */
 export interface ShowSystemNotificationResult {
   shown: boolean
 }

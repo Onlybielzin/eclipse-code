@@ -45,7 +45,7 @@ describe('Window dialogs', () => {
           <button onClick={() => setOpen(true)}>Remove project</button>
           {open ? (
             <DeleteProjectDialog
-              workspaceName="OpenCove"
+              workspaceName="Eclipse Code"
               isRemoving={false}
               onCancel={() => setOpen(false)}
               onConfirm={onConfirm}
@@ -75,7 +75,7 @@ describe('Window dialogs', () => {
     const onCancel = vi.fn()
     render(
       <DeleteProjectDialog
-        workspaceName="OpenCove"
+        workspaceName="Eclipse Code"
         isRemoving
         onCancel={onCancel}
         onConfirm={vi.fn()}

@@ -18,7 +18,7 @@ function declareIcon(icon: PluginIconDeclaration | undefined): void {
 function setTheme(theme: 'dark' | 'light'): void {
   act(() => {
     document.documentElement.dataset.coveTheme = theme
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
   })
 }
 
@@ -95,7 +95,7 @@ describe('PluginIcon declarations', () => {
     setTheme('light')
     expect(container.querySelector('img')).toHaveAttribute('src', '/bundled/light.svg')
     unmount()
-    expect(removeListener).toHaveBeenCalledWith('opencove-theme-changed', expect.any(Function))
+    expect(removeListener).toHaveBeenCalledWith('eclipse-code-theme-changed', expect.any(Function))
   })
 
   it('uses the base image for an absent variant and falls back when image loading fails', () => {

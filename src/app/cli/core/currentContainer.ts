@@ -17,7 +17,7 @@ export async function resolveCurrentContainer(
   if (
     !command.currentContainer ||
     args.options['spawned-by'] !== undefined ||
-    io.env.OPENCOVE_ENV !== '1' ||
+    io.env.ECLIPSE_CODE_ENV !== '1' ||
     args.options['root-canvas'] ||
     ['project', ...spaceLocatorKeys].some(key => args.explicitOptions?.has(key))
   ) {
@@ -26,7 +26,7 @@ export async function resolveCurrentContainer(
   const nodeId = await self('node')
   const { node } = (await invoke('node.get', { nodeId })) as GetNodeResult
   if (!node || node.id !== nodeId) {
-    throw new CliError('node.not_found', 1, 'Your OpenCove terminal node could not be found.')
+    throw new CliError('node.not_found', 1, 'Your Eclipse Code terminal node could not be found.')
   }
   args.options.project = node.projectId
   if (node.spaceId === null) {

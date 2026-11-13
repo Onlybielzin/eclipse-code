@@ -67,7 +67,7 @@ export function recordUiGeometryBreadcrumb(
         latestCanvasViewport = { x, y, zoom }
       }
     }
-    window.opencoveApi.debug?.recordUiDiagnosticBreadcrumb({
+    window.eclipseCodeApi.debug?.recordUiDiagnosticBreadcrumb({
       source: 'renderer-ui',
       event,
       details,

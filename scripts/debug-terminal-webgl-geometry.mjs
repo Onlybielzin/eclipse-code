@@ -1,7 +1,7 @@
 export async function readTerminalGeometry(page, nodeId, sessionId) {
   return await page.evaluate(
     async ({ currentNodeId, currentSessionId }) => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       const flowNode = [...document.querySelectorAll('.react-flow__node')].find(node => {
         return node instanceof HTMLElement && node.getAttribute('data-id') === currentNodeId
       })
@@ -38,7 +38,7 @@ export async function readTerminalGeometry(page, nodeId, sessionId) {
         /translate\([^)]*\)\s+scale\((-?\d+(?:\.\d+)?)\)/,
       )
       const viewportZoom = viewportZoomMatch ? Number.parseFloat(viewportZoomMatch[1]) : null
-      const snapshot = await window.opencoveApi.pty
+      const snapshot = await window.eclipseCodeApi.pty
         .presentationSnapshot({ sessionId: currentSessionId })
         .catch(() => null)
       const screenRect = rect(screen)

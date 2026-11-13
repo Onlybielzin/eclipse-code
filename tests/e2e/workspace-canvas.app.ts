@@ -51,7 +51,7 @@ function isTruthyEnv(rawValue: string | undefined): boolean {
 }
 
 function shouldPipeElectronLogs(): boolean {
-  return isTruthyEnv(process.env['OPENCOVE_E2E_PIPE_ELECTRON_LOGS'])
+  return isTruthyEnv(process.env['ECLIPSE_CODE_E2E_PIPE_ELECTRON_LOGS'])
 }
 
 function isRetryableLaunchError(error: unknown): boolean {
@@ -74,7 +74,7 @@ function parseWindowMode(rawValue: string | undefined): E2EWindowMode | null {
   const normalized = rawValue.trim().toLowerCase()
   if (normalized === 'normal') {
     throw new Error(
-      '[e2e] OPENCOVE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
+      '[e2e] ECLIPSE_CODE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
     )
   }
 
@@ -87,9 +87,9 @@ function parseWindowMode(rawValue: string | undefined): E2EWindowMode | null {
 
 function resolveLaunchModes(windowMode?: E2EWindowMode): E2EWindowMode[] {
   const requestedMode =
-    windowMode ?? parseWindowMode(process.env['OPENCOVE_E2E_WINDOW_MODE']) ?? 'offscreen'
+    windowMode ?? parseWindowMode(process.env['ECLIPSE_CODE_E2E_WINDOW_MODE']) ?? 'offscreen'
 
-  if (isTruthyEnv(process.env['OPENCOVE_E2E_DISABLE_CRASH_FALLBACK'])) {
+  if (isTruthyEnv(process.env['ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK'])) {
     return [requestedMode]
   }
 
@@ -287,12 +287,12 @@ async function launchAppInMode(
         XDG_CONFIG_HOME: testConfigDir,
         XDG_CACHE_HOME: testCacheDir,
         XDG_RUNTIME_DIR: testRuntimeDir,
-        OPENCOVE_TEST_WORKSPACE: testWorkspacePath,
-        OPENCOVE_TEST_USER_DATA_DIR: userDataDir,
-        OPENCOVE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
-        OPENCOVE_TEST_NODE_EXECUTABLE: process.execPath,
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '1',
-        OPENCOVE_E2E_WINDOW_MODE: launchMode,
+        ECLIPSE_CODE_TEST_WORKSPACE: testWorkspacePath,
+        ECLIPSE_CODE_TEST_USER_DATA_DIR: userDataDir,
+        ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: testAgentStubScriptPath,
+        ECLIPSE_CODE_TEST_NODE_EXECUTABLE: process.execPath,
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '1',
+        ECLIPSE_CODE_E2E_WINDOW_MODE: launchMode,
         ...(shouldDisableElectronSandboxForLinuxCi() ? { ELECTRON_DISABLE_SANDBOX: '1' } : {}),
         ...envOverrides,
       },

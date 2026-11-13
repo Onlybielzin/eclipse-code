@@ -20,7 +20,7 @@ const { values } = parseArgs({
 const platform =
   values.platform ?? { win32: 'windows', darwin: 'macos', linux: 'linux' }[process.platform]
 const arch = values.arch ?? process.arch
-const env = { ...process.env, OPENCOVE_BUILD_CHANNEL: 'dev' }
+const env = { ...process.env, ECLIPSE_CODE_BUILD_CHANNEL: 'dev' }
 const build = spawnSync(process.execPath, [join(root, 'scripts/run-electron-vite-build.mjs')], {
   cwd: root,
   env,
@@ -57,17 +57,17 @@ if (values['base-directory']) {
   }
 }
 const identity = JSON.parse(await readFile(join(root, 'out/main/runtime-build.json'), 'utf8'))
-const name = `opencove-server-${platform}-${arch}.${platform === 'windows' ? 'zip' : 'tar.gz'}`
+const name = `eclipse-code-server-${platform}-${arch}.${platform === 'windows' ? 'zip' : 'tar.gz'}`
 const destination = resolve(
-  process.env.OPENCOVE_MANAGED_SSH_ARTIFACT_DIR ??
+  process.env.ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR ??
     join(root, 'release/managed-ssh', identity.buildId),
 )
 await mkdir(destination, { recursive: true })
 await copyFile(join(root, 'dist', name), join(destination, name))
 for (const ext of ['sh', 'ps1']) {
   await copyFile(
-    join(root, `scripts/release-assets/opencove-install.${ext}`),
-    join(destination, `opencove-install.${ext}`),
+    join(root, `scripts/release-assets/eclipse-code-install.${ext}`),
+    join(destination, `eclipse-code-install.${ext}`),
   )
 }
 const hash = createHash('sha256')

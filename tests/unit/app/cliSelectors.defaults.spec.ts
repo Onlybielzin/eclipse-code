@@ -102,7 +102,7 @@ it('uses the explicitly selected project active space rather than the caller spa
 
 it.each(['', undefined])('orients an ungrouped terminal with space env=%s', async spaceEnv => {
   const f = twoProjects()
-  f.io.env.OPENCOVE_SPACE_ID = spaceEnv
+  f.io.env.ECLIPSE_CODE_SPACE_ID = spaceEnv
   f.values['system.whoami'] = { ...who, spaceId: '' }
   expect(await run(['context'], f.io)).toBe(0)
   const result = JSON.parse(f.out())
@@ -129,7 +129,7 @@ it.each(['', undefined])('orients an ungrouped terminal with space env=%s', asyn
 
 it('reports absent space membership rather than absent session identity for explicit @self', async () => {
   const f = identityFixture()
-  f.io.env.OPENCOVE_SPACE_ID = ''
+  f.io.env.ECLIPSE_CODE_SPACE_ID = ''
   f.values['system.whoami'] = { ...who, spaceId: '' }
   expect(await run(['space', 'get', '--space', '@self'], f.io)).toBe(2)
   expect(f.error().message).toContain('does not belong to a space')
@@ -145,7 +145,7 @@ it('requires an explicit space when creating in an explicitly selected project',
 
 it('lets an ungrouped terminal explicitly orient in a selected space', async () => {
   const f = twoProjects()
-  f.io.env.OPENCOVE_SPACE_ID = ''
+  f.io.env.ECLIPSE_CODE_SPACE_ID = ''
   f.values['system.whoami'] = { ...who, spaceId: '' }
   expect(await run(['context', '--project', 'Beta', '--space', 'Beta space'], f.io)).toBe(0)
   expect(JSON.parse(f.out())).toMatchObject({

@@ -55,7 +55,7 @@ new UUID allocation is not a cross-node lock for previously saved sessions.
 
 Claude documents [explicit session IDs and resume flags](https://code.claude.com/docs/en/cli-reference)
 and the session ID in [SessionStart hook input](https://code.claude.com/docs/en/hooks#sessionstart).
-OpenCove uses the launch assignment and authenticated event rather than inferring
+Eclipse Code uses the launch assignment and authenticated event rather than inferring
 ownership from the transcript directory. Exact-ID recovery can remain valid
 after a directory or worktree changes.
 

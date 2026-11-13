@@ -1,14 +1,14 @@
 import { defineConfig } from '@playwright/test'
 
 // E2E 默认使用后台窗口模式，避免抢占焦点/干扰本地开发。
-// 可通过 OPENCOVE_E2E_WINDOW_MODE 覆盖：inactive / offscreen / hidden。
+// 可通过 ECLIPSE_CODE_E2E_WINDOW_MODE 覆盖：inactive / offscreen / hidden。
 type E2EWindowMode = 'inactive' | 'offscreen' | 'hidden'
 
 function resolveE2EWindowMode(rawValue: string | undefined): E2EWindowMode {
   const normalized = rawValue?.trim().toLowerCase()
   if (normalized === 'normal') {
     throw new Error(
-      '[e2e] OPENCOVE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
+      '[e2e] ECLIPSE_CODE_E2E_WINDOW_MODE=normal is not allowed because it steals OS focus. Use offscreen/inactive/hidden instead.',
     )
   }
 
@@ -19,12 +19,12 @@ function resolveE2EWindowMode(rawValue: string | undefined): E2EWindowMode {
   return 'offscreen'
 }
 
-process.env['OPENCOVE_E2E_WINDOW_MODE'] = resolveE2EWindowMode(
-  process.env['OPENCOVE_E2E_WINDOW_MODE'],
+process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'] = resolveE2EWindowMode(
+  process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'],
 )
 
 function resolveConfiguredTestMatch(): string | string[] | undefined {
-  const rawValue = process.env['OPENCOVE_E2E_TEST_MATCH']?.trim()
+  const rawValue = process.env['ECLIPSE_CODE_E2E_TEST_MATCH']?.trim()
   if (!rawValue) {
     return undefined
   }
@@ -81,7 +81,7 @@ export default defineConfig({
     timeout: 15_000,
   },
 
-  retries: resolveE2ERetries(process.env.OPENCOVE_E2E_RETRIES),
+  retries: resolveE2ERetries(process.env.ECLIPSE_CODE_E2E_RETRIES),
 
   // 并行 worker 数量
   workers: 1, // Electron 测试建议串行运行

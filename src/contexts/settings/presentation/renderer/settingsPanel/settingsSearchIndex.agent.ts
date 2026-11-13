@@ -55,7 +55,7 @@ export const AGENT_SETTINGS_SEARCH_ENTRY_DEFINITIONS: AgentSettingsSearchEntryDe
     titleKey: 'settingsPanel.agent.residentContextLabel',
     descriptionKey: 'settingsPanel.agent.residentContextHelp',
     anchorId: 'settings-agent-resident-context',
-    keywords: ['context', 'hook', 'skill', 'opencove', 'canvas', '上下文', '画布'],
+    keywords: ['context', 'hook', 'skill', 'eclipse-code', 'canvas', '上下文', '画布'],
   },
   {
     id: 'agent.full-access',

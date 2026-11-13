@@ -7,7 +7,7 @@ import {
   toolRecords,
 } from './claudeTurnContinuation.helpers'
 
-it('queued follow-up keeps the current OpenCove turn working at the first provider Stop', () => {
+it('queued follow-up keeps the current Eclipse Code turn working at the first provider Stop', () => {
   const f = fixture()
   f.hook('UserPromptSubmit', 'A')
   const turn = f.snapshot().turn
@@ -103,7 +103,7 @@ it('two queued items preserve multiplicity even when their text is identical', (
   f.runtime.dispose()
 })
 
-it('new messages queued during a continuation stay in the same OpenCove turn', () => {
+it('new messages queued during a continuation stay in the same Eclipse Code turn', () => {
   const f = fixture()
   f.hook('UserPromptSubmit', 'A')
   f.record(enqueue)

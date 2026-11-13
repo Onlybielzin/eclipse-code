@@ -64,7 +64,7 @@ function renderHeader(overrides: Partial<React.ComponentProps<typeof AppHeader>>
 
 describe('AppHeader performance monitor', () => {
   afterEach(() => {
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
   })
 
   it('toggles the performance monitor from the header status button', () => {
@@ -128,7 +128,7 @@ describe('AppHeader performance monitor', () => {
     }))
     const writeText = vi.fn(async () => undefined)
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot,
       },
@@ -136,7 +136,7 @@ describe('AppHeader performance monitor', () => {
         readText: vi.fn(async () => ''),
         writeText,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     renderHeader({ isPerformanceMonitorOpen: true })
 
@@ -154,7 +154,7 @@ describe('AppHeader performance monitor', () => {
   })
 
   it('shows automatically recorded jank incidents in the live panel', async () => {
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot: vi.fn(async () => ({
           capturedAt: '2026-05-08T00:00:00.000Z',
@@ -177,7 +177,7 @@ describe('AppHeader performance monitor', () => {
         readText: vi.fn(async () => ''),
         writeText: vi.fn(async () => undefined),
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     renderHeader({
       isPerformanceMonitorOpen: true,

@@ -109,8 +109,8 @@ function createAgentNodeState(options: {
 
 describe('Control Surface HTTP server (session.prepareOrRevive)', () => {
   it('reuses live worker sessions without spawning a replacement session', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-workspace-'))
     const connectionFileName = 'control-surface.pty.prepare-or-revive.live.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -221,8 +221,8 @@ describe('Control Surface HTTP server (session.prepareOrRevive)', () => {
   })
 
   it('revives agent nodes through the worker path and preserves workspace env', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-workspace-'))
     const connectionFileName = 'control-surface.pty.prepare-or-revive.agent.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -315,8 +315,8 @@ describe('Control Surface HTTP server (session.prepareOrRevive)', () => {
   })
 
   it('does not return durable agent placeholder scrollback as a renderer restore baseline', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-workspace-'))
     const connectionFileName = 'control-surface.pty.prepare-or-revive.agent-scrollback.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 

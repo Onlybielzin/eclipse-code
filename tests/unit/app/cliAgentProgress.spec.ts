@@ -4,7 +4,7 @@ import { run } from '../../../src/app/cli/core/run'
 import { completedPromptFixture } from './cliAgentPromptWait.helpers'
 import { node } from './cliIdentity.helpers'
 
-const waiting = `Waiting for turn t of node ${node.id}. If interrupted, continue with: opencove agent wait --node ${node.id} --turn t (do not resend).\n`
+const waiting = `Waiting for turn t of node ${node.id}. If interrupted, continue with: eclipse-code agent wait --node ${node.id} --turn t (do not resend).\n`
 function fixture() {
   const f = completedPromptFixture()
   const messages: string[] = []
@@ -48,7 +48,7 @@ it.each([false, true])('prints neutral delivery progress before sending (wait=%s
   ).toBe(0)
   expect(f.messages).toEqual(wait ? [sending, waiting] : [sending])
   expect(f.messages.join('')).not.toMatch(
-    /Never resend|Do not repeat|Check opencove agent delivery/,
+    /Never resend|Do not repeat|Check eclipse-code agent delivery/,
   )
   expect(JSON.parse(f.out())).toMatchObject(
     wait ? { outcome: 'completed', reply: { message: 'Fast reply' } } : { deliveryId: 'd' },
@@ -114,7 +114,9 @@ it('retains the existing error recovery warning after unconfirmed delivery', asy
   )
   expect(f.error()).toMatchObject({
     message: 'Prompt submission is unconfirmed. Never resend.',
-    hint: expect.stringContaining('Never resend. Check opencove agent delivery d; once confirmed,'),
+    hint: expect.stringContaining(
+      'Never resend. Check eclipse-code agent delivery d; once confirmed,',
+    ),
     details: { deliveryId: 'd', sessionId: 's', turnId: 't' },
     retryable: false,
   })

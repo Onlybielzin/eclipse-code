@@ -28,7 +28,7 @@ function fixture(value: unknown = {}, error?: unknown) {
         err += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     fetch,
     now: Date.now,
     readTextFile: vi.fn(),
@@ -360,7 +360,7 @@ it.each([
     { kind: 'banana' },
     'kind',
     'banana',
-    'note, task, website, agent, terminal, plugin, document, folder, image, role',
+    'note, task, website, agent, terminal, plugin, document, folder, image, role, question, todos',
   ],
   [
     'session.launchAgent',
@@ -423,7 +423,7 @@ it.each(['data.text', 'nodes.data.text', 'data.prompt'])(
     const f = fixture()
     expect(await run(['node', 'list', '--fields', field], f.io)).toBe(2)
     expect(f.error().hint).toContain(
-      `opencove node get --node <id> --fields ${field.replace(/^nodes\./, '')}`,
+      `eclipse-code node get --node <id> --fields ${field.replace(/^nodes\./, '')}`,
     )
     expect(f.fetch).not.toHaveBeenCalled()
     expect(f.out()).toBe('')
@@ -444,8 +444,8 @@ it.each(['', 'api', 'api ops', 'api ops --domains', 'api call', 'node list'])(
 it.each([[], ['api']])('leads with filtered discovery: %j', async (...path) => {
   const f = fixture()
   expect(await run([...path, '--help'], f.io)).toBe(0)
-  expect(f.out()).toContain('opencove api ops --domains')
-  expect(f.out()).toContain('opencove api ops --prefix node --fields id,cliCommand')
+  expect(f.out()).toContain('eclipse-code api ops --domains')
+  expect(f.out()).toContain('eclipse-code api ops --prefix node --fields id,cliCommand')
 })
 
 it('reports the approximate full JSON catalog size without changing its output', async () => {

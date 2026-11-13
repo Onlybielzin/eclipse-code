@@ -39,10 +39,10 @@ export function resolveCliRuntime(options = {}) {
 
   if (!packagedAppRoot) {
     const repoRoot = resolveCliAppRoot(cliDirectory)
-    const manifestPath = resolve(repoRoot, '..', 'opencove-runtime.env')
+    const manifestPath = resolve(repoRoot, '..', 'eclipse-code-runtime.env')
     if (existsSyncImpl(manifestPath)) {
       const manifest = readFileSyncImpl(manifestPath, 'utf8')
-      const nodeRelativePath = readManifestValue(manifest, 'OPENCOVE_NODE_RELATIVE_PATH')
+      const nodeRelativePath = readManifestValue(manifest, 'ECLIPSE_CODE_NODE_RELATIVE_PATH')
       return {
         kind: 'standalone',
         appRoot: repoRoot,
@@ -155,7 +155,7 @@ export async function resolveWorkerRuntimeForStart(options = {}) {
 export function createWorkerSpawnEnvironment(runtimeKind, sourceEnv = process.env, options = {}) {
   const env = {
     ...sourceEnv,
-    OPENCOVE_TRUST_PROCESS_ENV: '1',
+    ECLIPSE_CODE_TRUST_PROCESS_ENV: '1',
   }
 
   if (runtimeKind === 'node') {

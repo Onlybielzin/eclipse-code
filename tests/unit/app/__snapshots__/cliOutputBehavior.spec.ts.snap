@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`help golden api ops 1`] = `
-"Usage: opencove api ops [options]
+"Usage: eclipse-code api ops [options]
 
 List Control Surface operations with their kind, contract and CLI command
 
-The full JSON catalog is large (about 29 KB). Start with --domains, then narrow with --prefix or --search and --fields. Each operation includes scope (read, interact or admin); inside OpenCove, access comes from the Worker policy (allowed, denied or constrained). Offline or with an older Worker, access is unknown. The allowed flag is omitted for unknown or constrained access.
+The full JSON catalog is large (about 31 KB). Start with --domains, then narrow with --prefix or --search and --fields. Each operation includes scope (read, interact or admin); inside Eclipse Code, access comes from the Worker policy (allowed, denied or constrained). Offline or with an older Worker, access is unknown. The allowed flag is omitted for unknown or constrained access.
 
 With --domains, output is an array of summaries with these projectable fields:
   domain: Operation ID prefix before the first dot
@@ -26,25 +26,25 @@ Table output (-o table): supported.
 Projectable fields: id, kind, contract, summary, cliCommand, scope, access, allowed, reason, policyVersion, rejectedFields
 
 Projection example:
-  opencove api ops --prefix node --fields id,cliCommand
-  [{"id":"node.create","cliCommand":"opencove node create"}, ...]
+  eclipse-code api ops --prefix node --fields id,cliCommand
+  [{"id":"node.create","cliCommand":"eclipse-code node create"}, ...]
 
 Examples:
-  opencove api ops --domains
-  opencove api ops --search create
-  opencove api ops --prefix node --fields id,cliCommand
-  opencove api ops --kind query --contract schema
+  eclipse-code api ops --domains
+  eclipse-code api ops --search create
+  eclipse-code api ops --prefix node --fields id,cliCommand
+  eclipse-code api ops --kind query --contract schema
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`help golden api schema 1`] = `
-"Usage: opencove api schema <operation-id> [options]
+"Usage: eclipse-code api schema <operation-id> [options]
 
 Show the input JSON Schema for an operation
 
-Inside OpenCove, access, reason, policyVersion and rejectedFields describe your Worker permissions; a field in the schema may still be refused. Outside OpenCove this command works offline.
+Inside Eclipse Code, access, reason, policyVersion and rejectedFields describe your Worker permissions; a field in the schema may still be refused. Outside Eclipse Code this command works offline.
 
 Options:
   --variant <kind>  Select one input kind from a discriminated union
@@ -53,20 +53,20 @@ Table output (-o table): not supported.
 Projectable fields: $schema, type, properties, required, oneOf, anyOf, allOf, additionalProperties, items, $defs, $ref, description, enum, const, not, access, allowed, reason, policyVersion, rejectedFields
 
 Projection example:
-  opencove api schema node.create --fields '$schema'
+  eclipse-code api schema node.create --fields '$schema'
   {"$schema":"https://json-schema.org/draft/2020-12/schema"}
 
 Examples:
-  opencove api schema node.create
-  opencove api schema node.create --variant note
-  opencove api schema system.operation.describe --pretty
+  eclipse-code api schema node.create
+  eclipse-code api schema node.create --variant note
+  eclipse-code api schema system.operation.describe --pretty
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`help golden node get 1`] = `
-"Usage: opencove node get --node <id> [options]
+"Usage: eclipse-code node get --node <id> [options]
 
 Get a canvas node
 
@@ -86,29 +86,29 @@ Field descriptions:
   lineageStatus  recorded when creation is recorded, root when no parent is recorded, unavailable when lineage cannot be read
 
 Projection example:
-  opencove node get --node '<id>' --fields id,title
+  eclipse-code node get --node '<id>' --fields id,title
   {"node":{"id":"n","title":"Note"}}
 
 Examples:
-  opencove node get --node node-123
-  opencove node get --node node-123 --fields node.id,node.title
+  eclipse-code node get --node node-123
+  eclipse-code node get --node node-123 --fields node.id,node.title
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`help golden node list 1`] = `
-"Usage: opencove node list [options]
+"Usage: eclipse-code node list [options]
 
 List canvas nodes
 
 Content by kind: note → data.text; task → data.requirement, data.status, data.priority, data.tags; website → data.url; agent/terminal → status, sessionId. node list returns summaries: use node get for full note text and other content. A requested field absent on a returned kind produces one stderr notice; stdout remains projected JSON.
 
-Lists per-kind summaries: data carries kind plus requirement, status, priority and tags for tasks, or url for websites; data carries only kind for notes, agents and terminals. Read full content, such as note text, with "opencove node get --node <id>".
+Lists per-kind summaries: data carries kind plus requirement, status, priority and tags for tasks, or url for websites; data carries only kind for notes, agents and terminals. Read full content, such as note text, with "eclipse-code node get --node <id>".
 
 data.status is task status. Top-level status is session lifecycle (for example running or exited) for agents and terminals, not whether an agent is idle or working. STATE shows task status or session lifecycle; agentState is the separate work-state field. sessionStatus aliases lifecycle status. agentState {state, quality, turnId} reports work for agents and observed agents in terminals; state working means the agent is working. Missing observations are unknown/degraded. context keeps its legacy state field.
 
-Default target inside OpenCove: your current Space. Outside every Space, list all nodes in your project; use --root-canvas to list only root nodes. An explicit --project lists that project.
+Default target inside Eclipse Code: your current Space. Outside every Space, list all nodes in your project; use --root-canvas to list only root nodes. An explicit --project lists that project.
 
 Target container (choose one):
   --root-canvas                                 List only nodes on the project's root canvas, outside every Space
@@ -136,19 +136,19 @@ Field descriptions:
   lineageStatus  recorded when creation is recorded, root when no parent is recorded, unavailable when lineage cannot be read
 
 Projection example:
-  opencove node list --fields id,data.status
+  eclipse-code node list --fields id,data.status
   {"projectId":"p","spaceId":null,"nodes":[{"id":"n","data":{"status":"doing"}}]}
 
 Examples:
-  opencove node list --space space-123
-  opencove node list --space space-123 --fields nodes.id,nodes.title
+  eclipse-code node list --space space-123
+  eclipse-code node list --space space-123 --fields nodes.id,nodes.title
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`help golden node update task 1`] = `
-"Usage: opencove node update task --node <id> [options]
+"Usage: eclipse-code node update task --node <id> [options]
 
 Update a task node
 
@@ -168,25 +168,25 @@ Table output (-o table): not supported.
 Projectable fields: id, kind, title, projectId, spaceId, frame, frame.x, frame.y, frame.width, frame.height, status, sessionId, data, data.kind, data.requirement, data.status, data.priority, data.tags, data.linkedAgentNodeId
 
 Projection example:
-  opencove node update task --node '<id>' --fields id,title
+  eclipse-code node update task --node '<id>' --fields id,title
   {"revision":1,"node":{"id":"n","title":"Task"}}
 
 Examples:
-  opencove node update task --node node-123 --requirement "Review release notes"
-  opencove node update task --node node-123 --requirement "Review release notes" --title "Release review" --pretty
+  eclipse-code node update task --node node-123 --requirement "Review release notes"
+  eclipse-code node update task --node node-123 --requirement "Review release notes" --title "Release review" --pretty
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`help golden space list 1`] = `
-"Usage: opencove space list [options]
+"Usage: eclipse-code space list [options]
 
 List spaces
 
 Lists space IDs, names, directories, nodeIds and nodeCount without full nodes. rect is {x,y,width,height} in canvas coordinates, or null when no geometry is saved. boundary describes the Space’s access scope. Use --fields nodes to include node objects.
 
-When no project is given, inside OpenCove defaults to your own project.
+When no project is given, inside Eclipse Code defaults to your own project.
 
 Options:
   --project <id>  Filter by project ID; also accepts @self, an exact name or a unique ID prefix (6+ characters)
@@ -197,13 +197,13 @@ Table output (-o table): supported.
 Projectable fields: id, name, directoryPath, targetMountId, parentSpaceId, boundary, rect, rect.x, rect.y, rect.width, rect.height, sortOrder, nodeIds, nodes, nodeCount, projectId, nodes.id, nodes.kind, nodes.title, nodes.projectId, nodes.spaceId, nodes.frame, nodes.frame.x, nodes.frame.y, nodes.frame.width, nodes.frame.height, nodes.status, nodes.sessionId, nodes.sessionStatus, nodes.agentState, nodes.agentState.state, nodes.agentState.quality, nodes.agentState.turnId, nodes.taskNodeId, nodes.data, nodes.data.kind, nodes.data.status, nodes.data.priority, nodes.data.requirement, nodes.data.tags, nodes.data.url, nodes.data.linkedAgentNodeId
 
 Projection example:
-  opencove space list --fields id,name
+  eclipse-code space list --fields id,name
   {"projectId":"p","activeSpaceId":"s","spaces":[{"id":"s","name":"Main"}]}
 
 Examples:
-  opencove space list
-  opencove space list --project project-123
+  eclipse-code space list
+  eclipse-code space list --project project-123
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;

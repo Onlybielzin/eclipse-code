@@ -5,7 +5,7 @@ const increment = document.querySelector('#increment')
 const save = document.querySelector('#save')
 const label = document.querySelector('#label')
 const status = document.querySelector('#status')
-const api = window.opencovePlugin
+const api = window.eclipseCodePlugin
 let context
 let count = 0
 
@@ -20,7 +20,7 @@ function showTheme(theme) {
 
 async function initialize() {
   if (!api) {
-    throw new Error('Open this plugin through OpenCove, not as a standalone HTML file.')
+    throw new Error('Open this plugin through Eclipse Code, not as a standalone HTML file.')
   }
   context = await api.ready
   document.querySelector('#mode').textContent = context.preview

@@ -42,7 +42,10 @@ function fixture(tty = false) {
       throw Error('ENOENT')
     }),
     readStdinText: vi.fn(async () => ''),
-    profileCandidates: () => ['/tmp/opencove-test/profile-a', '/tmp/opencove-test/profile-b'],
+    profileCandidates: () => [
+      '/tmp/eclipse-code-test/profile-a',
+      '/tmp/eclipse-code-test/profile-b',
+    ],
   }
   return { io, out: () => stdout, err: () => stderr }
 }
@@ -58,7 +61,7 @@ it.each(groups)('lists real %s subcommands offline', async group => {
   expect(f.out()).toMatchSnapshot()
   expect(f.out()).not.toContain('(legacy)')
   expect(f.out()).not.toContain('--timeout')
-  expect(f.out()).toContain('Global options: see "opencove --help".')
+  expect(f.out()).toContain('Global options: see "eclipse-code --help".')
   expect(f.io.fetch).not.toHaveBeenCalled()
   expect(f.io.readTextFile).not.toHaveBeenCalled()
 })
@@ -95,25 +98,29 @@ it.each([
   } else {
     expect(error.hint).not.toContain('Did you mean')
   }
-  expect(error.hint).toContain('Run "opencove node list --help" to see its options.')
+  expect(error.hint).toContain('Run "eclipse-code node list --help" to see its options.')
 })
 it('does not suggest unrelated commands', async () => {
   const f = fixture()
   expect(await run(['frobnicate'], f.io)).toBe(2)
   expect(f.err()).not.toContain('Did you mean')
-  expect(f.err()).toContain('opencove --help')
+  expect(f.err()).toContain('eclipse-code --help')
 })
 it('reports a missing scalar option in command context', async () => {
   const f = fixture()
   expect(await run(['space', 'get'], f.io)).toBe(2)
   expect(JSON.parse(f.err()).error.message).toBe(
-    'Missing required option --space for "opencove space get".',
+    'Missing required option --space for "eclipse-code space get".',
   )
 })
 it('reports only the explicitly searched profile', async () => {
   const f = fixture()
-  expect(await run(['project', 'list', '--user-data', '/tmp/opencove-test/selected'], f.io)).toBe(3)
-  expect(JSON.parse(f.err()).error.details).toEqual({ profiles: ['/tmp/opencove-test/selected'] })
+  expect(
+    await run(['project', 'list', '--user-data', '/tmp/eclipse-code-test/selected'], f.io),
+  ).toBe(3)
+  expect(JSON.parse(f.err()).error.details).toEqual({
+    profiles: ['/tmp/eclipse-code-test/selected'],
+  })
 })
 it('distinguishes an unreachable explicit endpoint', async () => {
   const f = fixture()
@@ -122,7 +129,7 @@ it('distinguishes an unreachable explicit endpoint', async () => {
     await run(['ping', '--endpoint', 'http://localhost:1234', '--token', 'secret'], f.io),
   ).toBe(3)
   expect(JSON.parse(f.err()).error.message).toBe(
-    'OpenCove endpoint http://localhost:1234 is unreachable.',
+    'Eclipse Code endpoint http://localhost:1234 is unreachable.',
   )
   expect(f.err()).not.toContain('secret')
   expect(f.io.readTextFile).not.toHaveBeenCalled()
@@ -130,31 +137,31 @@ it('distinguishes an unreachable explicit endpoint', async () => {
 it('shows required options and positional arguments in command usage', async () => {
   const f = fixture()
   expect(await run(['api', 'schema', '--help'], f.io)).toBe(0)
-  expect(f.out()).toContain('Usage: opencove api schema <operation-id> [options]')
+  expect(f.out()).toContain('Usage: eclipse-code api schema <operation-id> [options]')
   const g = fixture()
   expect(await run(['space', 'get', '--help'], g.io)).toBe(0)
-  expect(g.out()).toContain('Usage: opencove space get [--space <id>] [options]')
-  expect(g.out()).toContain('(required outside OpenCove)')
+  expect(g.out()).toContain('Usage: eclipse-code space get [--space <id>] [options]')
+  expect(g.out()).toContain('(required outside Eclipse Code)')
   expect(g.out()).not.toContain('(required)')
   expect(g.out()).toMatchSnapshot()
 })
 it('keeps required options without a self default mandatory in help', async () => {
   const f = fixture()
   expect(await run(['node', 'get', '--help'], f.io)).toBe(0)
-  expect(f.out()).toContain('Usage: opencove node get --node <id> [options]')
+  expect(f.out()).toContain('Usage: eclipse-code node get --node <id> [options]')
   expect(f.out()).toContain('(required)')
-  expect(f.out()).not.toContain('(required outside OpenCove)')
+  expect(f.out()).not.toContain('(required outside Eclipse Code)')
 })
 it('renders defaultable target space groups as optional and preserves mandatory groups', async () => {
   const f = fixture()
   expect(await run(['node', 'create', 'note', '--help'], f.io)).toBe(0)
   expect(f.out()).toContain(
-    'Usage: opencove node create note [--root-canvas | --space <id> | <other-target-space-options>] [options]',
+    'Usage: eclipse-code node create note [--root-canvas | --space <id> | <other-target-space-options>] [options]',
   )
   expect(f.out()).toContain('Target container (choose one):')
   expect(f.out()).toContain("Create on the project's root canvas, outside every Space")
   expect(f.out()).toContain(
-    'inside OpenCove: your current Space, or the root canvas when you are outside any Space',
+    'inside Eclipse Code: your current Space, or the root canvas when you are outside any Space',
   )
   const command = commands.find(candidate => candidate.path.join(' ') === 'canvas focus space')!
   const withoutDefault = {
@@ -163,7 +170,7 @@ it('renders defaultable target space groups as optional and preserves mandatory 
   }
   const text = help([withoutDefault], command.path)
   expect(text).toContain(
-    'Usage: opencove canvas focus space (--space <id> | <other-target-space-options>) [options]',
+    'Usage: eclipse-code canvas focus space (--space <id> | <other-target-space-options>) [options]',
   )
   expect(text).toContain('Target space (choose exactly one):')
 })

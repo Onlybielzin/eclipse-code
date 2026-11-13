@@ -40,7 +40,7 @@ async function fixture() {
   const post = async (name: string, id = 'A', extra: Record<string, unknown> = {}) => {
     vi.setSystemTime(Date.now() + 10)
     expect(
-      await socket.post(reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!, name, String(Date.now()), {
+      await socket.post(reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!, name, String(Date.now()), {
         session_id: 'provider',
         cwd: '/tmp',
         hook_event_name: name,

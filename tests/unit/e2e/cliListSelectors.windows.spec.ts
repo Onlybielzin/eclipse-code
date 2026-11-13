@@ -14,7 +14,7 @@ it.skipIf(process.platform !== 'win32')(
         '-Command',
         [
           '$self = @("WRONG-TARGET")',
-          'function opencove { ConvertTo-Json -Compress -InputObject @($args) }',
+          'function eclipse-code { ConvertTo-Json -Compress -InputObject @($args) }',
           spaceComparisonCommand,
         ].join('\n'),
       ],

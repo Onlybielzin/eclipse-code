@@ -22,7 +22,10 @@ import { resolveFirstAgentSessionId } from './workspace-canvas.agent-status-watc
 const exec = promisify(execFile)
 
 test.describe('Codex orchestration beside a shared app-server daemon', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Codex CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Codex CLI',
+  )
   test.skip(process.platform === 'win32', 'Codex lifecycle hooks are not used on Windows')
 
   for (const reuse of [false, true]) {
@@ -41,7 +44,7 @@ test.describe('Codex orchestration beside a shared app-server daemon', () => {
         const environment = {
           ...process.env,
           CODEX_HOME: codexHome,
-          OPENCOVE_TEST_MOCK_API_KEY: 'opencove-local-diagnostic-not-a-real-key',
+          ECLIPSE_CODE_TEST_MOCK_API_KEY: 'eclipse-code-local-diagnostic-not-a-real-key',
         }
         const daemon = async (operation: 'start' | 'stop' | 'version') => {
           const result = await exec('codex', ['app-server', 'daemon', operation], {
@@ -98,9 +101,9 @@ test.describe('Codex orchestration beside a shared app-server daemon', () => {
             cleanupUserDataDir: false,
             env: {
               CODEX_HOME: codexHome,
-              OPENCOVE_TEST_MOCK_API_KEY: environment.OPENCOVE_TEST_MOCK_API_KEY,
-              OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-              OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+              ECLIPSE_CODE_TEST_MOCK_API_KEY: environment.ECLIPSE_CODE_TEST_MOCK_API_KEY,
+              ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+              ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
             },
           })
           app = electronApp
@@ -150,7 +153,7 @@ test.describe('Codex orchestration beside a shared app-server daemon', () => {
           const snapshot = () =>
             page.evaluate(
               id =>
-                window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+                window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
                   kind: 'query',
                   id: 'agent.get',
                   payload: { sessionId: id },
@@ -299,7 +302,7 @@ test.describe('Codex orchestration beside a shared app-server daemon', () => {
         await failures.capture(
           'temporary directory removal',
           // A stopped daemon's plugin-sync git child can keep writing into the disposable
-          // CODEX_HOME for a few seconds after `daemon stop` (Codex behavior, not OpenCove's).
+          // CODEX_HOME for a few seconds after `daemon stop` (Codex behavior, not Eclipse Code's).
           async () =>
             await rm(root, { recursive: true, force: true, maxRetries: 20, retryDelay: 250 }),
         )

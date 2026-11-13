@@ -8,7 +8,7 @@ import { expect, it } from 'vitest'
 it.each([[], ['--preserve-symlinks-main']])(
   'runs publication through an aliased parent with flags %j',
   async (...flags: string[]) => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-publisher-entry-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-publisher-entry-'))
     try {
       const canonical = join(root, 'real')
       const alias = join(root, 'alias')

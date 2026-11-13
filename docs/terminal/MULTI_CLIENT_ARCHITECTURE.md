@@ -1,6 +1,6 @@
 # Multi-Client Terminal Architecture
 
-OpenCove terminal sessions use worker-owned runtime and presentation state. Desktop and Web UI render locally as clients; correctness comes from Worker snapshot + stream replay, not from renderer cache. Web listener replacement is only a transport lifecycle and never replaces the Worker terminal owners.
+Eclipse Code terminal sessions use worker-owned runtime and presentation state. Desktop and Web UI render locally as clients; correctness comes from Worker snapshot + stream replay, not from renderer cache. Web listener replacement is only a transport lifecycle and never replaces the Worker terminal owners.
 
 ## Current Runtime Shape
 
@@ -149,7 +149,7 @@ serialized as detach-before-attach, and re-entry never reuses an old watcher. Pr
 hydration may update terminal input modes, but replayed alternate-screen exits must not emit live
 drop-back effects.
 
-On Windows, Codex launches use session files without OpenCove hook/notify configuration or a
+On Windows, Codex launches use session files without Eclipse Code hook/notify configuration or a
 `hooks/list` preflight. User CLI configuration remains in force. The authenticated command shim still
 opens and completes the invocation, so Agent presentation does not wait for a file or change the
 terminal's durable kind. `CodexSessionFileDiscovery` owns file discovery for both dedicated launches
@@ -387,7 +387,7 @@ revision while preserving query, result state, selection and viewport.
 
 ## Display Alignment
 
-OpenCove exposes terminal display alignment through Settings:
+Eclipse Code exposes terminal display alignment through Settings:
 
 - shared reference cell metrics are persisted user preference
 - local device adjustment is client-local storage
@@ -477,7 +477,7 @@ The goal is stable visual parity without letting multiple renderers fight for te
 - `tests/e2e/workspace-canvas.terminal-agent-two-stage-ctrl-c.spec.ts`
 - `tests/e2e/workspace-canvas.agent-provider-exit.spec.ts`
 - `tests/e2e/workspace-canvas.claude-real-terminal-lifecycle.spec.ts` (opt-in real installed CLI;
-  `OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e <file>`, isolated config and no model calls)
+  `ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e <file>`, isolated config and no model calls)
 - `tests/unit/contexts/terminalNode.output-scheduler.spec.ts`
 - `tests/unit/terminalNode/terminalGeometrySync.domOverhang.spec.ts` (content-independent fit and
   canonical-only live resize)

@@ -83,7 +83,7 @@ describe('native filesystem drops', () => {
     resolveDroppedFile
       .mockReset()
       .mockImplementation((file: File) => stat({ uri: `file://${nativePaths.get(file)}` }))
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { filesystem: { getPathForFile, resolveDroppedFile, stat } },
     })
@@ -184,7 +184,7 @@ describe('native filesystem drops', () => {
   )
 
   it('does not fabricate native paths from browser File names and preserves image fallback', async () => {
-    delete window.opencoveApi.filesystem.resolveDroppedFile
+    delete window.eclipseCodeApi.filesystem.resolveDroppedFile
     const file = new File(['text'], '/remote/readme.md')
     const view = setup()
     const unsupported = nativeDrop([file])

@@ -64,7 +64,7 @@ test.describe('Worker web canvas agent resume', () => {
     const agentTerminal = page.locator('.terminal-node').first()
     await expect(agentTerminal).toBeVisible()
     await expect(agentTerminal.locator('.xterm')).toBeVisible()
-    await expect(agentTerminal).toContainText('[opencove-test-agent] codex new')
+    await expect(agentTerminal).toContainText('[eclipse-code-test-agent] codex new')
 
     await expect
       .poll(
@@ -149,6 +149,6 @@ test.describe('Worker web canvas agent resume', () => {
     const resumedTerminal = page.locator('.terminal-node').first()
     await expect(resumedTerminal).toBeVisible()
     await expect(resumedTerminal.locator('.xterm')).toBeVisible()
-    await expect(resumedTerminal).toContainText('[opencove-test-agent] codex resume')
+    await expect(resumedTerminal).toContainText('[eclipse-code-test-agent] codex resume')
   })
 })

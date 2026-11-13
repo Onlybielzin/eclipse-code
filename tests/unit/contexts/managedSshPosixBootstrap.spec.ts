@@ -28,8 +28,8 @@ const endpoint = {
 
 posix('managed SSH POSIX deployment bootstrap', () => {
   it('uses the fixed managed CLI without invoking a legacy global wrapper', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-posix-bootstrap-'))
-    const legacy = join(root, '.local/bin/opencove')
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-posix-bootstrap-'))
+    const legacy = join(root, '.local/bin/eclipse-code')
     await mkdir(join(root, '.local/bin'), { recursive: true })
     await writeFile(legacy, '#!/bin/sh\ntouch "$HOME/legacy-was-invoked"\nexit 1\n')
     await chmod(legacy, 0o755)
@@ -40,12 +40,12 @@ posix('managed SSH POSIX deployment bootstrap', () => {
 if (process.argv[3] === 'inspect') console.log(JSON.stringify(${JSON.stringify(runtimeBuildFixture)}));
 else fs.writeFileSync(process.env.HOME + '/request.json', fs.readFileSync(0));`,
     )
-    const launcher = `#!/bin/sh\n# __OPENCOVE_CLI_WRAPPER__\nexec ${shellQuote(process.execPath)} ${shellQuote(helper)} "$@"\n`
+    const launcher = `#!/bin/sh\n# __ECLIPSE_CODE_CLI_WRAPPER__\nexec ${shellQuote(process.execPath)} ${shellQuote(helper)} "$@"\n`
     let downloads = 0
     const server = createServer((_request, response) => {
       downloads += 1
       response.end(
-        `#!/bin/sh\nset -eu\nmkdir -p "$OPENCOVE_BIN_DIR"\ncat > "$OPENCOVE_BIN_DIR/opencove" <<'FIXTURE'\n${launcher}FIXTURE\nchmod +x "$OPENCOVE_BIN_DIR/opencove"\n`,
+        `#!/bin/sh\nset -eu\nmkdir -p "$ECLIPSE_CODE_BIN_DIR"\ncat > "$ECLIPSE_CODE_BIN_DIR/eclipse-code" <<'FIXTURE'\n${launcher}FIXTURE\nchmod +x "$ECLIPSE_CODE_BIN_DIR/eclipse-code"\n`,
       )
     })
     await new Promise<void>(done => server.listen(0, '127.0.0.1', done))
@@ -87,13 +87,13 @@ else fs.writeFileSync(process.env.HOME + '/request.json', fs.readFileSync(0));`,
   })
 
   it('reports a missing development artifact without running the historical worker', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-posix-development-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-posix-development-'))
     try {
       const script = buildPosixBootstrapScript(endpoint, {
         runtimeBuild: { ...runtimeBuildFixture, channel: 'dev' },
         installerUrl: 'https://invalid.test/installer.sh',
         reinstallRuntime: false,
-        devRepoRoot: '/root/opencove-wsl-deploy',
+        devRepoRoot: '/root/eclipse-code-wsl-deploy',
       })
       const result = await runCommand('sh', [], root, {
         stdin: script,
@@ -101,7 +101,7 @@ else fs.writeFileSync(process.env.HOME + '/request.json', fs.readFileSync(0));`,
         env: { ...process.env, HOME: root, XDG_STATE_HOME: join(root, 'state') },
       })
       expect(result.exitCode).not.toBe(0)
-      expect(result.stderr).toContain('OPENCOVE_MANAGED_SSH_ARTIFACT_DIR')
+      expect(result.stderr).toContain('ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR')
       expect(result.stderr).not.toContain('did not become ready')
     } finally {
       await rm(root, { recursive: true, force: true })

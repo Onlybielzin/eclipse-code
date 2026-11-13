@@ -64,7 +64,7 @@ describe('existing unowned Claude renderer launches', () => {
             resumeSessionIdVerified: true,
           },
         })
-        expect(window.opencoveApi.pty.kill).toHaveBeenCalledExactlyOnceWith({ sessionId: 'old' })
+        expect(window.eclipseCodeApi.pty.kill).toHaveBeenCalledExactlyOnceWith({ sessionId: 'old' })
         expect(worker.spawn).toHaveBeenCalledTimes(1)
         expect(worker.store.activateManagedClaudeRuntime).not.toHaveBeenCalled()
       } finally {

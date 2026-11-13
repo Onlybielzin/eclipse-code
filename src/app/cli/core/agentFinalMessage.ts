@@ -70,7 +70,7 @@ export async function readAgentFinalMessage(
   }
   if (result.truncated) {
     ctx.io.stderr.write(
-      `The hook message was cut (truncated). To look for the rest, read the provider transcript with "opencove session final --session ${shellWord(result.sessionId)}" or inspect the screen with "opencove agent read --node ${shellWord(String(ctx.options.node))} --screen".\n`,
+      `The hook message was cut (truncated). To look for the rest, read the provider transcript with "eclipse-code session final --session ${shellWord(result.sessionId)}" or inspect the screen with "eclipse-code agent read --node ${shellWord(String(ctx.options.node))} --screen".\n`,
     )
   }
   return result

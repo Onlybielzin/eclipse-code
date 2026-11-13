@@ -7,7 +7,7 @@ export function useQuitShortcutHint(): FloatingMessageState {
   const { t } = useTranslation()
   useEffect(
     () =>
-      window.opencoveApi?.lifecycle?.onApplicationShortcut?.(event => {
+      window.eclipseCodeApi?.lifecycle?.onApplicationShortcut?.(event => {
         if (event === 'quit-armed') {
           setArmed(true)
         }
@@ -22,7 +22,7 @@ export function useQuitShortcutHint(): FloatingMessageState {
         id: 0,
         tone: 'warning',
         text: t('common.quitShortcutHint', {
-          shortcut: window.opencoveApi?.meta?.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+          shortcut: window.eclipseCodeApi?.meta?.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
         }),
       }
     : null

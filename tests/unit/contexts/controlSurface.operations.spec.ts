@@ -19,7 +19,7 @@ it('has unique, complete metadata and strictly exportable wire schemas', () => {
   expect(new Set(CONTROL_SURFACE_OPERATIONS.map(op => op.id)).size).toBe(
     CONTROL_SURFACE_OPERATIONS.length,
   )
-  expect(CONTROL_SURFACE_OPERATIONS.filter(op => op.contract === 'schema')).toHaveLength(154)
+  expect(CONTROL_SURFACE_OPERATIONS.filter(op => op.contract === 'schema')).toHaveLength(162) // 162 = 154 + space.delete + question.create/answer/history + todos.sync + role.list/set/delete (Eclipse Code)
   expect(getControlSurfaceOperation('node.resolveCallerSelector')).toMatchObject({
     kind: 'query',
     contract: 'schema',
@@ -118,7 +118,7 @@ it('preserves invalid_input envelopes and never reports received values', async 
   )
   for (const result of results) {
     expect(result).toMatchObject({
-      __opencoveControlEnvelope: true,
+      __eclipseCodeControlEnvelope: true,
       ok: false,
       error: { code: 'common.invalid_input' },
     })

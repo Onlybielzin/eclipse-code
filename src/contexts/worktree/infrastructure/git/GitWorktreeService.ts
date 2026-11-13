@@ -13,6 +13,7 @@ import {
   runGitWorktreeRemoveWithRetry,
 } from './GitWorktreeRemoveCleanup'
 import { ensureGitWorktreeRemovable } from './GitWorktreeRemovePreflight'
+import { excludeWorktreesRootFromGit } from './GitWorktreeLocalExclude'
 import { ensureGitRepoHasCommits } from './GitWorktreeRepoGuards'
 import { buildCandidateWorktreeDirectoryName } from './GitWorktreeDirectoryName'
 
@@ -319,6 +320,7 @@ export async function createGitWorktree(input: CreateGitWorktreeInput): Promise<
   }
 
   await mkdir(normalizedWorktreesRoot, { recursive: true })
+  await excludeWorktreesRootFromGit(normalizedRepoPath, normalizedWorktreesRoot)
 
   const comparableWorktreePath = await allocateWorktreePath({
     worktreesRoot: normalizedWorktreesRoot,

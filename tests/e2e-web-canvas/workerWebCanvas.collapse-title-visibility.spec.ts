@@ -82,7 +82,7 @@ test('restores window titles after persisted, interrupted, and push-away expansi
   )
   await page.addInitScript(() => {
     localStorage.setItem(
-      'opencove:canvas-collapse:v1',
+      'eclipse-code:canvas-collapse:v1',
       JSON.stringify({
         'title-visibility-workspace': {
           collapsedNodeIds: { 'title-document': true, 'left-peer': true },

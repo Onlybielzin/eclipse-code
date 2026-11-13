@@ -32,7 +32,7 @@ describe('createTerminalNodeAtFlowPosition', () => {
     )
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -121,7 +121,7 @@ describe('createTerminalNodeAtFlowPosition', () => {
     )
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -199,7 +199,7 @@ describe('createTerminalNodeAtFlowPosition', () => {
     )
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -210,7 +210,7 @@ describe('createTerminalNodeAtFlowPosition', () => {
               workspaces: [
                 {
                   id: 'workspace-remote',
-                  path: '/tmp/opencove/projects/workspace-remote',
+                  path: '/tmp/eclipse-code/projects/workspace-remote',
                   activeSpaceId: null,
                   spaces: [],
                 },
@@ -285,7 +285,7 @@ describe('createTerminalNodeAtFlowPosition', () => {
     )
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },

@@ -7,7 +7,7 @@ describe('useAddProjectWizardCreateProject', () => {
 
   beforeEach(() => {
     invoke.mockReset()
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { controlSurface: { invoke } },
     })

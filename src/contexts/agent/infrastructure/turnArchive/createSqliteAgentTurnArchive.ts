@@ -63,7 +63,7 @@ export function createSqliteAgentTurnArchive(options: {
     } catch {
       /* Best-effort handle cleanup; preserve the file. */
     }
-    process.stderr.write('[opencove] ended-turn archive unavailable for this Worker run.\n')
+    process.stderr.write('[eclipse-code] ended-turn archive unavailable for this Worker run.\n')
     return createAgentTurnArchive(null, options.now, options.membership)
   }
 }

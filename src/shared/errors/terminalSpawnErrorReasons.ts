@@ -8,7 +8,7 @@ const APPLICATION_REASONS = {
   wsl_input_file_unavailable: {
     code: 'common.unavailable',
     message:
-      'OpenCove cannot open an input file in this WSL profile. Choose a profile that can access the file.',
+      'Eclipse Code cannot open an input file in this WSL profile. Choose a profile that can access the file.',
   },
 } as const satisfies Record<string, { code: AppErrorCode; message: string }>
 export type TerminalSpawnApplicationReason = keyof typeof APPLICATION_REASONS

@@ -58,7 +58,7 @@ async function runGit(args: string[], cwd: string): Promise<void> {
 async function initRepo(repoPath: string): Promise<void> {
   await runGit(['init'], repoPath)
   await runGit(['config', 'user.email', 'test@example.com'], repoPath)
-  await runGit(['config', 'user.name', 'OpenCove Web E2E'], repoPath)
+  await runGit(['config', 'user.name', 'Eclipse Code Web E2E'], repoPath)
   await runGit(['config', 'core.autocrlf', 'false'], repoPath)
   await runGit(['config', 'core.safecrlf', 'false'], repoPath)
   await writeFile(path.join(repoPath, 'README.md'), '# web worktree\n', 'utf8')
@@ -151,7 +151,7 @@ async function waitForWorktreeDirectory(
 
         const canonicalDirectoryPath = await realpath(directoryPath).catch(() => directoryPath)
         const expectedWorktreesRoot = normalizePath(
-          path.join(options.canonicalRepoPath, '.opencove', 'worktrees'),
+          path.join(options.canonicalRepoPath, '.eclipse-code', 'worktrees'),
         )
         const normalized = normalizePath(canonicalDirectoryPath)
 
@@ -213,7 +213,7 @@ test.describe('Worker web canvas - Worktree', () => {
     await page.locator('[data-testid="space-worktree-create"]').click()
 
     const expectedWorktreesRoot = normalizePath(
-      path.join(canonicalRepoPath, '.opencove', 'worktrees'),
+      path.join(canonicalRepoPath, '.eclipse-code', 'worktrees'),
     )
 
     await expect(page.locator('[data-testid="workspace-space-switch-space-1"]')).toContainText(
@@ -316,7 +316,7 @@ test.describe('Worker web canvas - Worktree', () => {
     await terminal.locator('.xterm').click()
     await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
 
-    const cwdToken = `OPENCOVE_WEB_WORKTREE_TERMINAL_CWD_${Date.now()}:`
+    const cwdToken = `ECLIPSE_CODE_WEB_WORKTREE_TERMINAL_CWD_${Date.now()}:`
     await page.keyboard.type(
       buildNodeEvalCommand(
         `const crypto = require('crypto');` +
@@ -362,7 +362,7 @@ test.describe('Worker web canvas - Worktree', () => {
     await page.locator('[data-testid="workspace-context-run-default-agent"]').click()
 
     const agentTerminal = page.locator('.terminal-node', {
-      hasText: '[opencove-test-agent] codex new',
+      hasText: '[eclipse-code-test-agent] codex new',
     })
     await expect(agentTerminal).toBeVisible()
 

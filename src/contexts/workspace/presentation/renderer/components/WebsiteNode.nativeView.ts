@@ -122,7 +122,7 @@ export function useWebsiteNodeNativeView({
 
   const activate = useCallback(
     (nextUrl: string) => {
-      const api = window.opencoveApi?.websiteWindow
+      const api = window.eclipseCodeApi?.websiteWindow
       if (presentationHidden || !enabled || !api || typeof api.activate !== 'function') {
         return
       }
@@ -161,7 +161,7 @@ export function useWebsiteNodeNativeView({
       return
     }
 
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.setBounds !== 'function') {
       return
     }
@@ -188,7 +188,7 @@ export function useWebsiteNodeNativeView({
           ratio !== null &&
           ratio >= VIEWPORT_FOCUS_SNAPSHOT_ENTER_RATIO
         ) {
-          const websiteApi = window.opencoveApi?.websiteWindow
+          const websiteApi = window.eclipseCodeApi?.websiteWindow
           if (websiteApi && typeof websiteApi.deactivate === 'function') {
             isViewportFocusSnapshotRef.current = true
             void websiteApi.deactivate({ nodeId }).catch(() => {
@@ -289,7 +289,7 @@ export function useWebsiteNodeNativeView({
       return
     }
 
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.setBounds !== 'function') {
       return
     }
@@ -319,7 +319,7 @@ export function useWebsiteNodeNativeView({
       return
     }
 
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.setBounds !== 'function') {
       return
     }

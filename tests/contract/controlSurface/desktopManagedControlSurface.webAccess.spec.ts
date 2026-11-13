@@ -53,7 +53,7 @@ describe('Desktop-managed Control Surface Web access', () => {
   })
 
   it('rotates Web password sessions without closing the private PTY transport', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-desktop-control-auth-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-desktop-control-auth-'))
     cleanupPaths.push(userDataPath)
     const config = initialConfig()
     config.webUi = {
@@ -106,7 +106,7 @@ describe('Desktop-managed Control Surface Web access', () => {
       })
       expect(loginResponse.status).toBe(302)
       const cookie = loginResponse.headers.get('set-cookie')?.split(';')[0] ?? ''
-      expect(cookie).toMatch(/opencove_session_[a-f0-9]{16}=/)
+      expect(cookie).toMatch(/eclipse_code_session_[a-f0-9]{16}=/)
       const forbiddenConfig = await fetch(`http://127.0.0.1:${webPort}/invoke`, {
         method: 'POST',
         headers: {
@@ -118,12 +118,12 @@ describe('Desktop-managed Control Surface Web access', () => {
       })
       expect(forbiddenConfig.status).toBe(403)
 
-      const webSocket = new WebSocket(`ws://127.0.0.1:${webPort}/pty`, 'opencove-pty.v1', {
+      const webSocket = new WebSocket(`ws://127.0.0.1:${webPort}/pty`, 'eclipse-code-pty.v1', {
         headers: { cookie, origin: `http://127.0.0.1:${webPort}` },
       })
       const privateSocket = new WebSocket(
         `ws://${privateInfo.hostname}:${privateInfo.port}/pty?token=${privateInfo.token}`,
-        'opencove-pty.v1',
+        'eclipse-code-pty.v1',
       )
       await Promise.all(
         [webSocket, privateSocket].map(
@@ -189,7 +189,7 @@ describe('Desktop-managed Control Surface Web access', () => {
   })
 
   it('keeps the previous listener and durable config when a candidate port is occupied', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-desktop-control-rollback-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-desktop-control-rollback-'))
     cleanupPaths.push(userDataPath)
     const config = initialConfig()
     config.webUi.enabled = true
@@ -257,7 +257,7 @@ describe('Desktop-managed Control Surface Web access', () => {
   })
 
   it('applies Web enable and disable through the stable private endpoint', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-desktop-control-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-desktop-control-'))
     cleanupPaths.push(userDataPath)
     const config = initialConfig()
     await writeHomeWorkerConfigFile(userDataPath, config)

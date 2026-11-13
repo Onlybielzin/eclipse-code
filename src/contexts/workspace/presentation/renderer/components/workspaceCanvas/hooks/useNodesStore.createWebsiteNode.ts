@@ -93,7 +93,7 @@ export function useWorkspaceCanvasWebsiteNodeCreation({
 
       const normalizedUrl = websiteData.url.trim()
       if (websiteData.browserMode === 'native' && normalizedUrl.length > 0) {
-        void window.opencoveApi?.websiteWindow
+        void window.eclipseCodeApi?.websiteWindow
           ?.activate?.({
             nodeId: nextNode.id,
             url: normalizedUrl,

@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import { sqliteWireState } from './sqliteWire'
 import { normalizePersistedAppState } from '@platform/persistence/sqlite/normalize'
 import { invalidStateResult } from '@platform/persistence/sqlite/appStateWriteResult'
-import { createBrowserPersistenceApi } from '@app/renderer/browser/browserOpenCoveApi.persistence'
+import { createBrowserPersistenceApi } from '@app/renderer/browser/browserEclipseCodeApi.persistence'
 import { createRemotePersistenceStore } from '@app/main/controlSurface/remote/remotePersistenceStore'
 import type { PersistedAppState } from '@contexts/workspace/presentation/renderer/types'
 import { ServerModel, type Response } from './model'
@@ -202,7 +202,7 @@ export class Server {
       return { ok: false, reason: 'unknown', error }
     }
   }
-  api(adapter: Adapter): Window['opencoveApi']['persistence'] {
+  api(adapter: Adapter): Window['eclipseCodeApi']['persistence'] {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_url, options) => {
@@ -212,7 +212,7 @@ export class Server {
           return {
             status: 200,
             text: async () =>
-              JSON.stringify({ __opencoveControlEnvelope: true, ok: true, value: result }),
+              JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: true, value: result }),
           }
         } catch (error) {
           if (error instanceof Error) {
@@ -220,7 +220,8 @@ export class Server {
           }
           return {
             status: 200,
-            text: async () => JSON.stringify({ __opencoveControlEnvelope: true, ok: false, error }),
+            text: async () =>
+              JSON.stringify({ __eclipseCodeControlEnvelope: true, ok: false, error }),
           }
         }
       }),
@@ -286,6 +287,6 @@ export class Server {
       readNodeScrollback: async p => this.scrollbacks.get(p.nodeId) ?? null,
       writeAgentNodePlaceholderScrollback: async () => ({ ok: true, level: 'full', bytes: 0 }),
       readAgentNodePlaceholderScrollback: async () => null,
-    } as Window['opencoveApi']['persistence']
+    } as Window['eclipseCodeApi']['persistence']
   }
 }

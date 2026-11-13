@@ -38,7 +38,7 @@ async function dragResizerBy(
 
 async function readRuntimeSessionId(window: Page, nodeId: string): Promise<string | null> {
   return await window.evaluate(id => {
-    return window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
+    return window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id) ?? null
   }, nodeId)
 }
 
@@ -59,10 +59,10 @@ async function assertAuthoritativeTerminalGeometry(options: {
   )
   const baselineAppliedSeq = await options.window.evaluate(
     async payload => {
-      const baseline = await window.opencoveApi.pty.presentationSnapshot({
+      const baseline = await window.eclipseCodeApi.pty.presentationSnapshot({
         sessionId: payload.sessionId,
       })
-      await window.opencoveApi.pty.write({
+      await window.eclipseCodeApi.pty.write({
         sessionId: payload.sessionId,
         data: `${payload.command}\r`,
       })
@@ -78,8 +78,8 @@ async function assertAuthoritativeTerminalGeometry(options: {
         observed = await options.window.evaluate(
           async payload => {
             const renderer =
-              window.__opencoveTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
-            const worker = await window.opencoveApi.pty
+              window.__eclipseCodeTerminalSelectionTestApi?.getSize(payload.nodeId) ?? null
+            const worker = await window.eclipseCodeApi.pty
               .presentationSnapshot({ sessionId: payload.sessionId })
               .catch(() => null)
             if (!renderer || !worker || worker.appliedSeq <= payload.baselineAppliedSeq) {
@@ -127,7 +127,7 @@ async function readPersistedNodeFrame(
   nodeId: string,
 ): Promise<{ width: number; height: number } | null> {
   return await window.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -221,12 +221,12 @@ test.describe('Workspace Canvas - Terminal resize shrink', () => {
 
       const readSize = async () => {
         return await window.evaluate(id => {
-          return window.__opencoveTerminalSelectionTestApi?.getSize?.(id) ?? null
+          return window.__eclipseCodeTerminalSelectionTestApi?.getSize?.(id) ?? null
         }, nodeId)
       }
       const hasCommittedMeasuredSize = async () => {
         return await window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize?.(id) ?? null
           const proposed = api?.getProposedGeometry?.(id) ?? null
           return !!size && !!proposed && size.cols === proposed.cols && size.rows === proposed.rows

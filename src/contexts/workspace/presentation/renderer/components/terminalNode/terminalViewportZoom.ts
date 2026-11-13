@@ -32,7 +32,7 @@ function isTerminalAtBottom(terminal: Terminal): boolean {
 export function applyTerminalViewportZoom(target: Terminal | null, viewportZoom: number): void {
   const terminal = target as
     | (Terminal & {
-        __opencoveDprDebug?: {
+        __eclipseCodeDprDebug?: {
           hookLastZoom?: number | null
           hookAtBottom?: boolean | null
           hookViewportY?: number | null
@@ -45,8 +45,8 @@ export function applyTerminalViewportZoom(target: Terminal | null, viewportZoom:
   }
 
   const currentBuffer = terminal.buffer?.active
-  terminal.__opencoveDprDebug = {
-    ...(terminal.__opencoveDprDebug ?? {}),
+  terminal.__eclipseCodeDprDebug = {
+    ...(terminal.__eclipseCodeDprDebug ?? {}),
     hookLastZoom: viewportZoom,
     hookAtBottom: isTerminalAtBottom(terminal),
     hookViewportY:

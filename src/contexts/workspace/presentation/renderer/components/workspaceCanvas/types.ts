@@ -1,3 +1,4 @@
+import type { AgentProvider } from '@contexts/settings/domain/agentSettings'
 import type { Node } from '@xyflow/react'
 import type {
   AgentNodeData,
@@ -194,6 +195,9 @@ export interface RoleCreatorState {
   promptTemplate: string
   inputHint: string
   outputFormat: string
+  provider: AgentProvider | null
+  model: string
+  isLead: boolean
   isCreating: boolean
   error: string | null
 }

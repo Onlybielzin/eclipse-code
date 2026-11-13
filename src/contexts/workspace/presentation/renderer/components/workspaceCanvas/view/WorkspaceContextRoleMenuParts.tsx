@@ -10,6 +10,9 @@ import {
   TrashIcon,
 } from '@app/renderer/components/ui/pixelIcons'
 import { useTranslation } from '@app/renderer/i18n'
+import { useAppStore } from '@app/renderer/shell/store/useAppStore'
+import { requestOpenSettingsPage } from '@app/renderer/shell/settingsNavigationEvents'
+import { getWorkspacePageId } from '@contexts/settings/presentation/renderer/SettingsPanel.shared'
 import type { ProjectRoleDefinition } from '@contexts/settings/domain/agentSettings'
 
 export function WorkspaceContextRoleMenuItems({
@@ -45,6 +48,7 @@ export function WorkspaceContextProjectRolesSubmenu({
   scheduleSubmenuClose,
   runProjectRoleFromContextMenu,
   openRoleCreator,
+  createDefaultTeam,
   openRoleEditor,
   deleteProjectRole,
   onBack,
@@ -57,6 +61,7 @@ export function WorkspaceContextProjectRolesSubmenu({
   scheduleSubmenuClose: () => void
   runProjectRoleFromContextMenu: (roleId: string) => void
   openRoleCreator: () => void
+  createDefaultTeam: () => void
   openRoleEditor: (roleId: string) => void
   deleteProjectRole: (roleId: string) => void
   onBack: () => void
@@ -65,6 +70,7 @@ export function WorkspaceContextProjectRolesSubmenu({
   const { t } = useTranslation()
   const [activeActionsRoleId, setActiveActionsRoleId] = React.useState<string | null>(null)
   const [pendingDeleteRoleId, setPendingDeleteRoleId] = React.useState<string | null>(null)
+  const activeWorkspaceId = useAppStore(state => state.activeWorkspaceId)
 
   return (
     <ViewportMenuSurface
@@ -164,6 +170,32 @@ export function WorkspaceContextProjectRolesSubmenu({
         </button>
       )}
       <div className="workspace-context-menu__separator" />
+      {projectRoles.some(role => role.isLead) ? null : (
+        <MenuItem
+          icon={<RobotIcon />}
+          data-testid="workspace-context-create-default-team"
+          onClick={() => {
+            createDefaultTeam()
+          }}
+        >
+          {t('workspaceContextMenu.createDefaultTeam')}
+        </MenuItem>
+      )}
+      {activeWorkspaceId ? (
+        <MenuItem
+          icon={<EditIcon />}
+          data-testid="workspace-context-configure-team"
+          onClick={() => {
+            onDismiss()
+            requestOpenSettingsPage(
+              getWorkspacePageId(activeWorkspaceId),
+              `settings-section-team-${activeWorkspaceId}`,
+            )
+          }}
+        >
+          {t('workspaceContextMenu.configureTeam')}
+        </MenuItem>
+      ) : null}
       <button
         type="button"
         data-testid="workspace-context-new-role"

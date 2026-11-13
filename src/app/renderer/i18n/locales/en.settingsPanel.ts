@@ -1,3 +1,4 @@
+import { enSettingsPanelTeam } from './en.settingsPanel.team'
 import { enSettingsPanelNotifications } from './en.settingsPanel.notifications'
 import { enSettingsPanelAgent } from './en.settingsPanel.agent'
 import { enSettingsPanelPlugins } from './en.settingsPanel.plugins'
@@ -29,9 +30,9 @@ export const enSettingsPanel = {
   general: {
     title: 'General',
     languageLabel: 'Display Language',
-    languageHelp: 'Language used for the OpenCove interface.',
+    languageHelp: 'Language used for the Eclipse Code interface.',
     uiThemeLabel: 'Appearance',
-    uiThemeHelp: 'Choose how OpenCove looks.',
+    uiThemeHelp: 'Choose how Eclipse Code looks.',
     uiTheme: {
       dark: 'Cove',
       light: 'Cove Light',
@@ -48,12 +49,12 @@ export const enSettingsPanel = {
     terminalDisplayCalibration: enTerminalDisplayCalibration,
     updates: {
       title: 'Updates',
-      help: 'Follow GitHub Releases and choose how OpenCove applies app updates.',
+      help: 'Follow GitHub Releases and choose how Eclipse Code applies app updates.',
       currentVersionLabel: 'Current Version',
       policyLabel: 'Update Behavior',
       policyHelp: 'Ignore updates, prompt before downloading, or install automatically.',
       channelLabel: 'Release Channel',
-      channelHelp: 'Choose which release stream OpenCove follows.',
+      channelHelp: 'Choose which release stream Eclipse Code follows.',
       statusLabel: 'Status',
       actionsLabel: 'Actions',
       checkNow: 'Check for Updates',
@@ -85,6 +86,7 @@ export const enSettingsPanel = {
   appearance: enSettingsPanelLayout.appearance,
   terminal: enSettingsPanelLayout.terminal,
   agent: enSettingsPanelAgent,
+  team: enSettingsPanelTeam,
   agentEnv: {
     title: 'Agent Environment Variables',
     help: 'Add or override environment variables when starting an agent.',
@@ -206,7 +208,7 @@ export const enSettingsPanel = {
       'Opt-in support for remote machines and remote project locations. Keep this off until the workflow is stable.',
     remoteWorkersEnabledLabel: 'Enable remote machines',
     remoteWorkersEnabledHelp:
-      'Shows remote machine and remote location UI. When disabled, OpenCove keeps the local-only workflow by default.',
+      'Shows remote machine and remote location UI. When disabled, Eclipse Code keeps the local-only workflow by default.',
     workerWebUi: {
       title: 'Worker Web UI',
       securityTitle: 'Access Security',
@@ -288,7 +290,7 @@ export const enSettingsPanel = {
     title: 'Shortcuts',
     disableWhenTerminalFocusedLabel: 'Disable shortcuts when terminal is focused',
     disableWhenTerminalFocusedHelp:
-      'When enabled, OpenCove won’t capture app shortcuts while the {{terminal}} is focused.',
+      'When enabled, Eclipse Code won’t capture app shortcuts while the {{terminal}} is focused.',
     bindings: 'Keybindings',
     bindingsHelp:
       'Set shortcuts for common actions. Conflicts are resolved by unassigning the other action.',
@@ -377,7 +379,7 @@ export const enSettingsPanel = {
   tasks: {
     title: 'Task Configuration',
     titleProviderLabel: 'Title Provider',
-    titleProviderHelp: 'Provider used when OpenCove generates a title for a new task.',
+    titleProviderHelp: 'Provider used when Eclipse Code generates a title for a new task.',
     followDefaultAgent: 'Follow Default Agent ({{provider}})',
     titleModelLabel: 'Title Model',
     titleModelHelp: 'Optional override for task title generation.',
@@ -411,9 +413,9 @@ export const enSettingsPanel = {
     },
     home: {
       title: 'Worker Mode',
-      help: 'Choose whether OpenCove runs without a worker, uses the Local Worker, or connects to a remote machine.',
+      help: 'Choose whether Eclipse Code runs without a worker, uses the Local Worker, or connects to a remote machine.',
       packagedHelp:
-        'OpenCove uses the Local Worker on this device. Most of the time, you only need to start or restart it below.',
+        'Eclipse Code uses the Local Worker on this device. Most of the time, you only need to start or restart it below.',
       packagedModeLabel: 'Current Mode',
       packagedModeValue: 'Local Worker',
       modeLabel: 'Current Mode',
@@ -435,7 +437,7 @@ export const enSettingsPanel = {
     },
     cli: {
       title: 'CLI',
-      help: 'Install the `opencove` command in your PATH.',
+      help: 'Install the `eclipse-code` command in your PATH.',
       statusLabel: 'CLI Status',
       status: {
         installed: 'Installed ({{path}})',

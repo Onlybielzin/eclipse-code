@@ -1,6 +1,6 @@
-const WORKSPACE_NODE_CREATED_EVENT = 'opencove-workspace-node-created'
-const WORKSPACE_NODE_CREATION_PREPARED_EVENT = 'opencove-workspace-node-creation-prepared'
-const WORKSPACE_NODE_CREATION_CANCELLED_EVENT = 'opencove-workspace-node-creation-cancelled'
+const WORKSPACE_NODE_CREATED_EVENT = 'eclipse-code-workspace-node-created'
+const WORKSPACE_NODE_CREATION_PREPARED_EVENT = 'eclipse-code-workspace-node-creation-prepared'
+const WORKSPACE_NODE_CREATION_CANCELLED_EVENT = 'eclipse-code-workspace-node-creation-cancelled'
 
 function readNodeIds(detail: unknown): string[] {
   if (

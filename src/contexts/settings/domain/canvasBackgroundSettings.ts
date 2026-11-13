@@ -1,8 +1,9 @@
 /**
- * What the canvas draws behind windows (Tide): the pixel wall, the quiet neutral dot grid with
- * event ripples (「简约」), or the plain dot grid with no canvas effects (「关闭」).
+ * What the canvas draws behind windows (Tide): the Eclipse wallpaper photo, the pixel wall, the
+ * quiet neutral dot grid with event ripples (「简约」), or the plain dot grid with no canvas
+ * effects (「关闭」).
  */
-export const CANVAS_BACKGROUND_STYLES = ['pixel', 'minimal', 'off'] as const
+export const CANVAS_BACKGROUND_STYLES = ['wallpaper', 'pixel', 'minimal', 'off'] as const
 export type CanvasBackgroundStyle = (typeof CANVAS_BACKGROUND_STYLES)[number]
 
 export function isCanvasBackgroundStyle(value: unknown): value is CanvasBackgroundStyle {

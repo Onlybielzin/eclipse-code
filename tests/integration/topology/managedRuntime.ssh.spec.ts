@@ -12,8 +12,8 @@ import {
 import { runCommand } from '../../../src/platform/process/runCommand'
 import type { ManagedSshEndpointRuntimeAccess } from '../../../src/app/main/controlSurface/topology/topologyEndpointAccess'
 
-const host = process.env.OPENCOVE_TEST_MANAGED_SSH_HOST
-const directory = process.env.OPENCOVE_MANAGED_SSH_ARTIFACT_DIR
+const host = process.env.ECLIPSE_CODE_TEST_MANAGED_SSH_HOST
+const directory = process.env.ECLIPSE_CODE_MANAGED_SSH_ARTIFACT_DIR
 
 describe.skipIf(!host || !directory)('standalone managed runtime over real SSH', () => {
   it('installs the target bundle, authenticates, and reconnects to the same instance', async () => {
@@ -96,14 +96,14 @@ describe.skipIf(!host || !directory)('standalone managed runtime over real SSH',
       const terminal = await invoke('pty.spawn', {
         cwd,
         command: '/bin/sh',
-        args: ['-c', 'printf OPENCOVE_SSH_PTY_READY; exec /bin/sh'],
+        args: ['-c', 'printf ECLIPSE_CODE_SSH_PTY_READY; exec /bin/sh'],
         cols: 80,
         rows: 24,
       })
       sessionId = terminal.sessionId
       await expect
         .poll(async () => JSON.stringify(await invoke('session.snapshot', { sessionId })))
-        .toContain('OPENCOVE_SSH_PTY_READY')
+        .toContain('ECLIPSE_CODE_SSH_PTY_READY')
       expect(
         (await invoke('worker.maintenance.acquire', { instanceId, lease: randomUUID() })).acquired,
       ).toBe(false)

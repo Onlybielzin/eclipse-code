@@ -49,7 +49,7 @@ async function postObservation(endpoint, token, body, sessionStart) {
       (async () => {
         const response = await fetch(endpoint, {
           method: 'POST', redirect: 'error',
-          headers: { 'content-type': 'application/json', 'x-opencove-hook-token': token, 'x-opencove-hook-emitted-at': String(emittedAtMs) },
+          headers: { 'content-type': 'application/json', 'x-eclipse-code-hook-token': token, 'x-eclipse-code-hook-emitted-at': String(emittedAtMs) },
           body, signal: controller.signal,
         });
         if (sessionStart) return await readContextReply(response, controller.signal);

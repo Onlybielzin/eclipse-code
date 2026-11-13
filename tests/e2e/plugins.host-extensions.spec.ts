@@ -17,12 +17,12 @@ test('uses host commands, preferences and themes without creating windows, and r
   browserName: _browserName,
 }, info) => {
   test.setTimeout(120_000)
-  const source = await mkdtemp(join(tmpdir(), 'opencove-host-extension-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-host-extension-'))
   const userDataDir = await createTestUserDataDir()
   const pluginId = 'host-extension-fixture'
   const themeId = `plugin:${pluginId}:dusk`
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id: pluginId,
@@ -157,11 +157,11 @@ test('uses host commands, preferences and themes without creating windows, and r
 
 test('dispatches a window menu command only to the explicitly chosen live view', async () => {
   test.setTimeout(90_000)
-  const source = await mkdtemp(join(tmpdir(), 'opencove-menu-window-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-menu-window-'))
   const userDataDir = await createTestUserDataDir()
   const pluginId = 'menu-window-fixture'
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id: pluginId,
@@ -188,7 +188,7 @@ test('dispatches a window menu command only to the explicitly chosen live view',
   )
   await writeFile(
     join(source, 'view.js'),
-    `window.opencovePlugin.ready.then(() => { let count = 0; window.opencovePlugin.onCommand((_id, _params, context) => { document.querySelector('#count').textContent = String(++count); document.querySelector('#surface').textContent = context?.surface ?? 'missing'; return count; }); });`,
+    `window.eclipseCodePlugin.ready.then(() => { let count = 0; window.eclipseCodePlugin.onCommand((_id, _params, context) => { document.querySelector('#count').textContent = String(++count); document.querySelector('#surface').textContent = context?.surface ?? 'missing'; return count; }); });`,
   )
   const { electronApp, window: page } = await launchApp({ userDataDir, cleanupUserDataDir: false })
   try {

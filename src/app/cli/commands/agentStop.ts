@@ -31,7 +31,7 @@ export const agentStopCommand = defineCommand({
     'Returns {nodeId, sessionId, stopped: true} when the stop is requested. An already-exited session returns stopped: false and reason: not_running (exit 0). A changed node/session binding refuses the stop (exit 2); inspect the node again before deciding what to stop. Stopping never sends terminal input.',
   ].join('\n\n'),
   options: { node: stringOption('Node ID', true) },
-  examples: ['opencove agent stop --node "Lead"'],
+  examples: ['eclipse-code agent stop --node "Lead"'],
   render: declaredOutput(['nodeId', 'sessionId', 'stopped', 'reason'], {
     nodeId: 'node-123',
     sessionId: 'session-123',
@@ -51,7 +51,7 @@ export const agentStopCommand = defineCommand({
           'common.invalid_input',
           2,
           'This window’s agent session changed before it could be stopped.',
-          'Inspect the current session with "opencove node get --node <selector>" before deciding what to stop.',
+          'Inspect the current session with "eclipse-code node get --node <selector>" before deciding what to stop.',
         )
       }
       if (!agent) {
@@ -59,7 +59,7 @@ export const agentStopCommand = defineCommand({
           'agent.not_found',
           1,
           `${JSON.stringify(node.title)} has no observed agent in its current terminal session.`,
-          'Use "opencove session kill --session <id>" to stop a plain terminal session.',
+          'Use "eclipse-code session kill --session <id>" to stop a plain terminal session.',
         )
       }
       if (agent.state === 'exited') {
@@ -70,7 +70,7 @@ export const agentStopCommand = defineCommand({
         'agent.not_found',
         1,
         `${JSON.stringify(node.title)} is not an agent or terminal window.`,
-        'Use "opencove agent list" to find an agent to stop.',
+        'Use "eclipse-code agent list" to find an agent to stop.',
       )
     }
     if (!node.sessionId) {
@@ -78,7 +78,7 @@ export const agentStopCommand = defineCommand({
         'session.not_found',
         1,
         `${JSON.stringify(node.title)} has no bound session.`,
-        'Inspect the node with "opencove node get --node <selector>" before starting or resuming it.',
+        'Inspect the node with "eclipse-code node get --node <selector>" before starting or resuming it.',
       )
     }
     const description = (await ctx.invoke('system.operation.describe', {

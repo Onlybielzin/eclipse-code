@@ -11,7 +11,7 @@ const execute = promisify(execFile)
 for (const shell of ['cmd', 'powershell'] as const) {
   test(`${shell} shim preserves Unicode profile, runtime executable and argument paths`, async () => {
     test.skip(process.platform !== 'win32', 'Native Windows script decoding and path expansion')
-    const root = await mkdtemp(join(tmpdir(), "opencove-shim 用户's 路径 🌊 "))
+    const root = await mkdtemp(join(tmpdir(), "eclipse-code-shim 用户's 路径 🌊 "))
     const runtimeDirectory = join(root, "应用's runtime")
     const runtime = join(runtimeDirectory, 'node.exe')
     const providerDirectory = join(root, 'provider bin')
@@ -41,10 +41,10 @@ for (const shell of ['cmd', 'powershell'] as const) {
         }
       }
       env.PATH = [assets.shimDirectory, providerDirectory, process.env.PATH ?? ''].join(delimiter)
-      env.OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY = assets.shimDirectory
+      env.ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY = assets.shimDirectory
       delete env.ELECTRON_RUN_AS_NODE
-      delete env.OPENCOVE_TERMINAL_AGENT_ENDPOINT
-      delete env.OPENCOVE_TERMINAL_AGENT_TOKEN
+      delete env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT
+      delete env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN
       const userArgs = ['argument with spaces', '参数-🌊', "single'quote"]
       const invocation =
         shell === 'cmd'

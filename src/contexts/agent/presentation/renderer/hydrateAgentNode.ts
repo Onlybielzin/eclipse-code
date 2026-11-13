@@ -42,7 +42,7 @@ async function fallbackToFailedAgentTerminal({
   const now = new Date().toISOString()
 
   try {
-    const fallback = await window.opencoveApi.pty.spawn({
+    const fallback = await window.eclipseCodeApi.pty.spawn({
       canvasNodeId: node.id,
       cwd,
       ...(profileId ? { profileId } : {}),
@@ -92,7 +92,7 @@ async function resolvePendingResumeSessionId(node: Node<TerminalNodeData>): Prom
     return null
   }
 
-  const resolveResumeSessionId = window.opencoveApi.agent.resolveResumeSessionId
+  const resolveResumeSessionId = window.eclipseCodeApi.agent.resolveResumeSessionId
   if (typeof resolveResumeSessionId !== 'function') {
     return null
   }
@@ -181,7 +181,7 @@ export async function hydrateAgentNode({
 
   if (shouldAutoResumeAgent) {
     try {
-      const restoredAgent = await window.opencoveApi.agent.launch({
+      const restoredAgent = await window.eclipseCodeApi.agent.launch({
         canvasNodeId: node.id,
         provider: sanitizedAgent.provider,
         cwd: sanitizedAgent.executionDirectory,
@@ -237,7 +237,7 @@ export async function hydrateAgentNode({
 
   if (shouldRelaunchBlankAgent) {
     try {
-      const relaunchedAgent = await window.opencoveApi.agent.launch({
+      const relaunchedAgent = await window.eclipseCodeApi.agent.launch({
         canvasNodeId: node.id,
         provider: sanitizedAgent.provider,
         cwd: sanitizedAgent.executionDirectory,
@@ -291,7 +291,7 @@ export async function hydrateAgentNode({
   }
 
   try {
-    const spawned = await window.opencoveApi.pty.spawn({
+    const spawned = await window.eclipseCodeApi.pty.spawn({
       canvasNodeId: node.id,
       cwd: sanitizedAgent.executionDirectory,
       profileId: terminalProfileId ?? undefined,

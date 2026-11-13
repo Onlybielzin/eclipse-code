@@ -41,7 +41,7 @@ export const globals: Record<string, OptionSpec> = {
   version: { type: 'boolean', description: 'Print the CLI version' },
 }
 export function commandHelpHint(path: string[]) {
-  return `Run "opencove${path.length ? ' ' + path.join(' ') : ''} --help" to see its options.`
+  return `Run "eclipse-code${path.length ? ' ' + path.join(' ') : ''} --help" to see its options.`
 }
 export function suggest(value: string, choices: string[]): string {
   const prefixes = choices.filter(c => c.startsWith(value))
@@ -114,7 +114,7 @@ export function parse(argv: string[], specs: Record<string, OptionSpec>, path: s
     const message = error instanceof Error ? error.message : String(error)
     const flag = /(--[\w-]+|-[a-zA-Z])/.exec(message)?.[1] ?? '--option'
     const hint = commandHelpHint(path)
-    const context = `"opencove${path.length ? ' ' + path.join(' ') : ''}"`
+    const context = `"eclipse-code${path.length ? ' ' + path.join(' ') : ''}"`
     const code = (error as NodeJS.ErrnoException).code
     if (code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION') {
       usage(
@@ -201,7 +201,7 @@ export async function parseCommand(argv: string[], command: Command, io: CliIo) 
     if (values[key] === undefined) {
       if (spec.required && !values.help) {
         usage(
-          `Missing required option --${key} for "opencove ${command.path.join(' ')}".`,
+          `Missing required option --${key} for "eclipse-code ${command.path.join(' ')}".`,
           commandHelpHint(command.path),
         )
       }
@@ -289,9 +289,9 @@ export async function parseCommand(argv: string[], command: Command, io: CliIo) 
     command.operation === 'node.create' &&
     values['root-canvas'] &&
     values.project === undefined &&
-    io.env.OPENCOVE_ENV !== '1'
+    io.env.ECLIPSE_CODE_ENV !== '1'
   ) {
-    usage('--root-canvas needs a project outside OpenCove: add --project <id>')
+    usage('--root-canvas needs a project outside Eclipse Code: add --project <id>')
   }
   if (
     !values.help &&
@@ -300,7 +300,7 @@ export async function parseCommand(argv: string[], command: Command, io: CliIo) 
     !['space', 'space-name', 'worker', 'branch', 'path'].some(key => values[key] !== undefined)
   ) {
     usage(
-      `Missing required option --space (or another target space option) for "opencove ${command.path.join(' ')}".`,
+      `Missing required option --space (or another target space option) for "eclipse-code ${command.path.join(' ')}".`,
       command.operation === 'node.create'
         ? 'Choose a Space, or add --root-canvas to create outside every Space.'
         : commandHelpHint(command.path),
@@ -313,7 +313,7 @@ export async function parseCommand(argv: string[], command: Command, io: CliIo) 
       command.positionals?.some((p, i) => p.required && positionals[i] === undefined))
   ) {
     usage(
-      `Invalid positional arguments for "opencove ${command.path.join(' ')}".`,
+      `Invalid positional arguments for "eclipse-code ${command.path.join(' ')}".`,
       commandHelpHint(command.path),
     )
   }

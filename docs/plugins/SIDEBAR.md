@@ -60,5 +60,5 @@ do not leave executable stale sections behind.
 
 The approach uses declarative, host-rendered trees, also seen in
 [VS Code's Tree View API](https://code.visualstudio.com/api/extension-guides/tree-view).
-OpenCove uses explicit project context, bounded snapshots and declared backend
+Eclipse Code uses explicit project context, bounded snapshots and declared backend
 actions instead of an unrestricted custom Sidebar document.

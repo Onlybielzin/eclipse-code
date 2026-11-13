@@ -24,8 +24,8 @@ import {
 
 describe('Control Surface HTTP server (session streaming integration)', () => {
   it('supports presentation snapshots, attach catch-up, controller enforcement, and overflow recovery', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-workspace-'))
     const connectionFileName = 'control-surface.pty.streaming.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -164,7 +164,7 @@ describe('Control Surface HTTP server (session streaming integration)', () => {
       const sessionId = spawnRes.data.value?.sessionId as string
       expect(sessionId).toContain('test-session-')
 
-      const controller = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const controller = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         controller.once('open', resolvePromise)
         controller.once('error', rejectPromise)
@@ -189,7 +189,7 @@ describe('Control Surface HTTP server (session streaming integration)', () => {
       )
       expect(controllerAttached.role).toBe('controller')
 
-      const viewer = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const viewer = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         viewer.once('open', resolvePromise)
         viewer.once('error', rejectPromise)
@@ -366,7 +366,7 @@ describe('Control Surface HTTP server (session streaming integration)', () => {
       expect(viewerMetadata.resumeSessionId).toBe('resume-session-1')
 
       ptyRuntime.emitData(sessionId, 'attach-delta\r\n')
-      const catchupViewer = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const catchupViewer = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         catchupViewer.once('open', resolvePromise)
         catchupViewer.once('error', rejectPromise)
@@ -398,7 +398,7 @@ describe('Control Surface HTTP server (session streaming integration)', () => {
       expect(catchupChunk.data).toContain('attach-delta')
       catchupViewer.close()
 
-      const lateJoiner = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const lateJoiner = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         lateJoiner.once('open', resolvePromise)
         lateJoiner.once('error', rejectPromise)
@@ -435,7 +435,7 @@ describe('Control Surface HTTP server (session streaming integration)', () => {
       ptyRuntime.emitData(sessionId, bigChunk)
       ptyRuntime.emitData(sessionId, 'y'.repeat(410_000))
 
-      const reconnect = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const reconnect = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         reconnect.once('open', resolvePromise)
         reconnect.once('error', rejectPromise)

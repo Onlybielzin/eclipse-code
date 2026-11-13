@@ -31,20 +31,23 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string)
 }
 
 export async function runPtyHostUtilityProcessPoc(): Promise<void> {
-  if (process.env.NODE_ENV === 'production' && !isTruthyEnv(process.env['OPENCOVE_PTY_HOST_POC'])) {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !isTruthyEnv(process.env['ECLIPSE_CODE_PTY_HOST_POC'])
+  ) {
     return
   }
 
   const modulePathCandidates = [join(__dirname, 'ptyHost.js'), join(__dirname, '..', 'ptyHost.js')]
   const modulePath = modulePathCandidates.find(candidate => existsSync(candidate))
   if (!modulePath) {
-    throw new Error(`[opencove] pty-host PoC missing entry: ${modulePathCandidates.join(', ')}`)
+    throw new Error(`[eclipse-code] pty-host PoC missing entry: ${modulePathCandidates.join(', ')}`)
   }
-  process.stderr.write(`[opencove] pty-host PoC launching: ${modulePath}\n`)
+  process.stderr.write(`[eclipse-code] pty-host PoC launching: ${modulePath}\n`)
 
   const child = utilityProcess.fork(modulePath, [], {
     stdio: 'pipe',
-    serviceName: 'OpenCove PTY Host (PoC)',
+    serviceName: 'Eclipse Code PTY Host (PoC)',
   })
 
   child.stdout?.on('data', chunk => {
@@ -101,15 +104,15 @@ export async function runPtyHostUtilityProcessPoc(): Promise<void> {
 
     if (message.type === 'exit') {
       process.stderr.write(
-        `[opencove] pty-host PoC session exited: ${message.sessionId} code=${message.exitCode}\n`,
+        `[eclipse-code] pty-host PoC session exited: ${message.sessionId} code=${message.exitCode}\n`,
       )
       return
     }
   })
 
-  await withTimeout(readyPromise, 5_000, '[opencove] pty-host PoC timed out waiting for ready')
+  await withTimeout(readyPromise, 5_000, '[eclipse-code] pty-host PoC timed out waiting for ready')
   if (!hostInstanceId) {
-    throw new Error('[opencove] pty-host PoC ready handshake omitted host identity')
+    throw new Error('[eclipse-code] pty-host PoC ready handshake omitted host identity')
   }
 
   const requestId = crypto.randomUUID()
@@ -138,20 +141,20 @@ export async function runPtyHostUtilityProcessPoc(): Promise<void> {
   const spawnResponse = await withTimeout(
     spawnResponsePromise,
     10_000,
-    '[opencove] pty-host PoC timed out waiting for spawn response',
+    '[eclipse-code] pty-host PoC timed out waiting for spawn response',
   )
 
   if (!spawnResponse.ok || spawnResponse.requestType !== 'spawn') {
     if (spawnResponse.ok) {
-      throw new Error('[opencove] pty-host PoC received a mismatched spawn response')
+      throw new Error('[eclipse-code] pty-host PoC received a mismatched spawn response')
     }
     throw new Error(
-      `[opencove] pty-host PoC spawn failed: ${spawnResponse.error.name ?? 'Error'}: ${spawnResponse.error.message}`,
+      `[eclipse-code] pty-host PoC spawn failed: ${spawnResponse.error.name ?? 'Error'}: ${spawnResponse.error.message}`,
     )
   }
 
   spawnedSessionId = spawnResponse.result.sessionId
-  process.stderr.write(`[opencove] pty-host PoC spawned session: ${spawnedSessionId}\n`)
+  process.stderr.write(`[eclipse-code] pty-host PoC spawned session: ${spawnedSessionId}\n`)
 
   await withTimeout(
     new Promise<void>(resolve => {
@@ -163,10 +166,10 @@ export async function runPtyHostUtilityProcessPoc(): Promise<void> {
       }, 25)
     }),
     10_000,
-    '[opencove] pty-host PoC timed out waiting for output',
+    '[eclipse-code] pty-host PoC timed out waiting for output',
   )
 
-  process.stderr.write('[opencove] pty-host PoC observed output OK\n')
+  process.stderr.write('[eclipse-code] pty-host PoC observed output OK\n')
 
   const exitPromise = new Promise<number>(resolve => {
     child.once('exit', code => {
@@ -174,14 +177,16 @@ export async function runPtyHostUtilityProcessPoc(): Promise<void> {
     })
   })
 
-  process.stderr.write('[opencove] pty-host PoC triggering crash\n')
+  process.stderr.write('[eclipse-code] pty-host PoC triggering crash\n')
   child.postMessage({ type: 'crash', hostInstanceId })
 
   const exitCode = await withTimeout(
     exitPromise,
     10_000,
-    '[opencove] pty-host PoC timed out waiting for host exit',
+    '[eclipse-code] pty-host PoC timed out waiting for host exit',
   )
 
-  process.stderr.write(`[opencove] pty-host PoC host exited (main still alive): code=${exitCode}\n`)
+  process.stderr.write(
+    `[eclipse-code] pty-host PoC host exited (main still alive): code=${exitCode}\n`,
+  )
 }

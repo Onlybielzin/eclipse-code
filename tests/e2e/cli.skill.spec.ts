@@ -11,7 +11,7 @@ import { jsonOutput, terminalCommand } from './cli.terminal.helpers'
 const topics = ['canvas', 'coordinate', 'wait', 'read', 'access']
 
 test('a canvas terminal reads the bundled core and every skill topic through its CLI shim', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-skill-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-skill-'))
   const workspace = join(root, 'project')
   let app: ElectronApplication | undefined
   try {
@@ -20,9 +20,9 @@ test('a canvas terminal reads the bundled core and every skill topic through its
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -51,7 +51,7 @@ test('a canvas terminal reads the bundled core and every skill topic through its
     // Create a real granted PTY; never seed a session or inject identity credentials.
     const created = await page.evaluate(
       async shell => {
-        return await window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        return await window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -88,7 +88,7 @@ test('a canvas terminal reads the bundled core and every skill topic through its
         await terminalCommand(
           page,
           binding,
-          `opencove ${args} -o json`,
+          `eclipse-code ${args} -o json`,
           `SKILL_${topic || 'CORE'}`,
         ),
       )
@@ -102,13 +102,13 @@ test('a canvas terminal reads the bundled core and every skill topic through its
       await terminalCommand(
         page,
         binding,
-        'opencove skill read --fields version,topic',
+        'eclipse-code skill read --fields version,topic',
         'SKILL_FIELDS',
       ),
     )
     expect(projected).toEqual({ version, topic: 'read' })
     const unknown = (
-      await terminalCommand(page, binding, 'opencove skill missing -o json', 'SKILL_UNKNOWN')
+      await terminalCommand(page, binding, 'eclipse-code skill missing -o json', 'SKILL_UNKNOWN')
     ).replaceAll('\n', '')
     expect(unknown).toMatch(/\bexit=2\b/)
     // jsonOutput intentionally rejects nonzero exits; parse this error separately.
@@ -120,9 +120,9 @@ test('a canvas terminal reads the bundled core and every skill topic through its
       expect(error.message).toContain(topic)
     }
     const help = (
-      await terminalCommand(page, binding, 'opencove --help', 'SKILL_DISCOVERY')
+      await terminalCommand(page, binding, 'eclipse-code --help', 'SKILL_DISCOVERY')
     ).replace(/\s+/g, ' ')
-    expect(help).toContain('opencove skill')
+    expect(help).toContain('eclipse-code skill')
     expect(help).toMatch(/\bexit=0\b/)
   } finally {
     try {

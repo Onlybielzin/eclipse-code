@@ -6,9 +6,9 @@ describe('resolveNodeScriptLaunch', () => {
     expect(
       resolveNodeScriptLaunch('/tmp/test-agent-session-stub.mjs', ['codex', '/tmp/workspace'], {
         env: {
-          OPENCOVE_TEST_NODE_EXECUTABLE: '/custom/bin/node-wrapper',
+          ECLIPSE_CODE_TEST_NODE_EXECUTABLE: '/custom/bin/node-wrapper',
         },
-        execPath: '/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+        execPath: '/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
       }),
     ).toEqual({
       command: '/custom/bin/node-wrapper',
@@ -32,10 +32,10 @@ describe('resolveNodeScriptLaunch', () => {
     expect(
       resolveNodeScriptLaunch('/tmp/test-agent-session-stub.mjs', ['opencode', '/tmp/workspace'], {
         env: {},
-        execPath: '/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+        execPath: '/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
       }),
     ).toEqual({
-      command: '/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+      command: '/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
       args: ['/tmp/test-agent-session-stub.mjs', 'opencode', '/tmp/workspace'],
       env: { ELECTRON_RUN_AS_NODE: '1' },
     })

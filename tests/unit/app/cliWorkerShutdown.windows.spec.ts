@@ -18,7 +18,7 @@ const electronPath = requireFromHere('electron') as unknown as string
 const betterSqliteUrl = pathToFileURL(requireFromHere.resolve('better-sqlite3')).href
 
 it('Windows IPC shutdown drains accepted work and releases the Worker lock before exit', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-shutdown-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-shutdown-'))
   let child: ReturnType<typeof spawn> | undefined
   let exited: Promise<unknown> | undefined
   let deadline: ReturnType<typeof setTimeout> | undefined

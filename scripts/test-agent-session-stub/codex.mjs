@@ -90,7 +90,7 @@ export async function runCodexStandbyNoNewlineScenario(cwd) {
     type: 'event_msg',
     payload: {
       type: 'task_started',
-      turn_id: 'opencove-test-turn-1',
+      turn_id: 'eclipse-code-test-turn-1',
       model_context_window: 128_000,
       collaboration_mode_kind: 'default',
     },
@@ -103,7 +103,7 @@ export async function runCodexStandbyNoNewlineScenario(cwd) {
       type: 'event_msg',
       payload: {
         type: 'task_complete',
-        turn_id: 'opencove-test-turn-1',
+        turn_id: 'eclipse-code-test-turn-1',
         last_agent_message: 'All set.',
       },
     },
@@ -123,7 +123,7 @@ export async function runCodexStandbyOnlyScenario(cwd) {
       type: 'event_msg',
       payload: {
         type: 'task_complete',
-        turn_id: 'opencove-test-turn-1',
+        turn_id: 'eclipse-code-test-turn-1',
         last_agent_message: 'All set.',
       },
     },
@@ -135,13 +135,13 @@ export async function runCodexStandbyOnlyScenario(cwd) {
 
 export async function runCodexOverlayLifecycleScenario(cwd) {
   const sessionFilePath = await createCodexSessionFile(cwd)
-  process.stdout.write('\u001b[?1049h[opencove-test-overlay] ready\n')
+  process.stdout.write('\u001b[?1049h[eclipse-code-test-overlay] ready\n')
 
   await appendCodexRecord(sessionFilePath, {
     type: 'event_msg',
     payload: {
       type: 'task_started',
-      turn_id: 'opencove-test-overlay-turn-1',
+      turn_id: 'eclipse-code-test-overlay-turn-1',
       model_context_window: 128_000,
       collaboration_mode_kind: 'default',
     },
@@ -152,7 +152,7 @@ export async function runCodexOverlayLifecycleScenario(cwd) {
     type: 'event_msg',
     payload: {
       type: 'task_complete',
-      turn_id: 'opencove-test-overlay-turn-1',
+      turn_id: 'eclipse-code-test-overlay-turn-1',
       last_agent_message: 'Overlay ready.',
     },
   })
@@ -170,7 +170,7 @@ export async function runCodexOverlayLifecycleScenario(cwd) {
         process.stdin.setRawMode(false)
       }
       process.stdin.pause()
-      process.stdout.write('\u001b[?1049l[opencove-test-overlay] exited\n')
+      process.stdout.write('\u001b[?1049l[eclipse-code-test-overlay] exited\n')
       resolve()
     }
     const handleData = chunk => {
@@ -222,7 +222,7 @@ export async function runJsonlOverlayLifecycleScenario(
           type: 'event_msg',
           payload: {
             type: 'task_complete',
-            turn_id: 'opencove-test-overlay-turn-1',
+            turn_id: 'eclipse-code-test-overlay-turn-1',
             last_agent_message: 'Overlay ready.',
           },
         })
@@ -230,7 +230,7 @@ export async function runJsonlOverlayLifecycleScenario(
       await onTurnCompleted(sessionFilePath)
     },
     onExit: () => {
-      process.stdout.write(`\u001b[?1049l[opencove-test-overlay] ${provider} exited\n`)
+      process.stdout.write(`\u001b[?1049l[eclipse-code-test-overlay] ${provider} exited\n`)
     },
   })
 
@@ -248,14 +248,14 @@ export async function runJsonlOverlayLifecycleScenario(
       type: 'event_msg',
       payload: {
         type: 'task_started',
-        turn_id: 'opencove-test-overlay-turn-1',
+        turn_id: 'eclipse-code-test-overlay-turn-1',
         model_context_window: 128_000,
         collaboration_mode_kind: 'default',
       },
     })
   }
 
-  process.stdout.write(`\u001b[?1049h[opencove-test-overlay] ${provider} ready\n`)
+  process.stdout.write(`\u001b[?1049h[eclipse-code-test-overlay] ${provider} ready\n`)
   await lifecyclePromise
 }
 
@@ -285,7 +285,7 @@ export async function runJsonlTwoStageCtrlCScenario(
       type: 'event_msg',
       payload: {
         type: 'task_started',
-        turn_id: 'opencove-test-two-stage-turn-1',
+        turn_id: 'eclipse-code-test-two-stage-turn-1',
         model_context_window: 128_000,
         collaboration_mode_kind: 'default',
       },
@@ -303,7 +303,7 @@ export async function runCodexCommentaryThenFinalScenario(cwd) {
     type: 'event_msg',
     payload: {
       type: 'task_started',
-      turn_id: 'opencove-test-turn-1',
+      turn_id: 'eclipse-code-test-turn-1',
       model_context_window: 128_000,
       collaboration_mode_kind: 'default',
     },
@@ -323,7 +323,7 @@ export async function runCodexCommentaryThenFinalScenario(cwd) {
     type: 'response_item',
     payload: {
       type: 'function_call',
-      call_id: 'call-opencove-test-1',
+      call_id: 'call-eclipse-code-test-1',
       name: 'exec_command',
       arguments: '{"cmd":"pwd"}',
     },
@@ -338,7 +338,7 @@ export async function runCodexCommentaryThenFinalScenario(cwd) {
       type: 'event_msg',
       payload: {
         type: 'task_complete',
-        turn_id: 'opencove-test-turn-1',
+        turn_id: 'eclipse-code-test-turn-1',
         last_agent_message: 'Done.',
       },
     },
@@ -416,7 +416,7 @@ export async function runCodexTitleFromFirstInputScenario(cwd) {
         type: 'event_msg',
         payload: {
           type: 'task_started',
-          turn_id: 'opencove-test-title-turn-1',
+          turn_id: 'eclipse-code-test-title-turn-1',
           model_context_window: 128_000,
           collaboration_mode_kind: 'default',
         },
@@ -426,7 +426,7 @@ export async function runCodexTitleFromFirstInputScenario(cwd) {
         type: 'event_msg',
         payload: {
           type: 'task_complete',
-          turn_id: 'opencove-test-title-turn-1',
+          turn_id: 'eclipse-code-test-title-turn-1',
           last_agent_message: 'Done.',
         },
       })

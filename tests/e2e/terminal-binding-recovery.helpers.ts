@@ -7,8 +7,8 @@ export async function recoveredTerminalHasFreshOutput({
   sessionId: string
   marker: string
 }): Promise<boolean> {
-  const api = window.__opencoveTerminalSelectionTestApi!
-  const snapshot = await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+  const api = window.__eclipseCodeTerminalSelectionTestApi!
+  const snapshot = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
   const grid = api.getSize(nodeId)
   const proposed = api.getProposedGeometry(nodeId)
   const output = `${marker}_INPUT_OK`

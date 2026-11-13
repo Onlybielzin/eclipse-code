@@ -13,8 +13,8 @@ export const zhCNIssueReport = {
   },
   defaultSummary: {
     runAgentFailed: '运行 Agent 失败',
-    appError: 'OpenCove 应用问题',
-    other: 'OpenCove 问题',
+    appError: 'Eclipse Code 应用问题',
+    other: 'Eclipse Code 问题',
   },
   includedDetails: '包含的信息',
   includedDetailsSummary: '版本、系统、Worker、Agent 设置、进程快照、脱敏日志',

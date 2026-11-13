@@ -95,9 +95,9 @@ describe('notification sounds', () => {
   })
 
   it('records instead of playing in test runs, and stays quiet at volume 0', () => {
-    vi.stubGlobal('window', { opencoveApi: { meta: { isTest: true } } })
+    vi.stubGlobal('window', { eclipseCodeApi: { meta: { isTest: true } } })
     playNotificationSound('bit', 0)
     playNotificationSound('tide', 40)
-    expect(window.__opencoveNotificationSoundTestLog).toEqual([{ sound: 'tide', volume: 40 }])
+    expect(window.__eclipseCodeNotificationSoundTestLog).toEqual([{ sound: 'tide', volume: 40 }])
   })
 })

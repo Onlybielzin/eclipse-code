@@ -11,9 +11,12 @@ import {
 } from './workspace-canvas.terminal-agent-overlay.helpers'
 
 // Opt-in local acceptance: actual installed Claude, isolated config, no model credentials/calls.
-// Run with OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e <this file>.
+// Run with ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e <this file>.
 test.describe('Workspace Canvas - real Claude terminal lifecycle', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX interactive-shell acceptance')
 
   for (const exitMethod of ['ctrl-c', 'slash-exit'] as const) {
@@ -29,7 +32,7 @@ test.describe('Workspace Canvas - real Claude terminal lifecycle', () => {
       const home = path.join(userDataDir, 'home')
       const config = path.join(home, '.claude')
       const cwd = await mkdtemp(path.join(testWorkspacePath, 'real-claude-lifecycle-'))
-      const diagnosticKey = 'opencove-local-diagnostic-not-a-real-key'
+      const diagnosticKey = 'eclipse-code-local-diagnostic-not-a-real-key'
       await mkdir(config, { recursive: true })
       await writeFile(
         path.join(config, '.claude.json'),
@@ -42,9 +45,9 @@ test.describe('Workspace Canvas - real Claude terminal lifecycle', () => {
       const { electronApp, window } = await launchApp({
         userDataDir,
         env: {
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
           ANTHROPIC_API_KEY: diagnosticKey,
           ANTHROPIC_AUTH_TOKEN: '',
           ANTHROPIC_BASE_URL: 'http://127.0.0.1:9',
@@ -88,7 +91,7 @@ test.describe('Workspace Canvas - real Claude terminal lifecycle', () => {
         const activity = async () =>
           (
             await window.evaluate(() =>
-              window.opencoveApi.controlSurface.invoke<ListTerminalAgentActivityMetadataResult>({
+              window.eclipseCodeApi.controlSurface.invoke<ListTerminalAgentActivityMetadataResult>({
                 kind: 'query',
                 id: 'session.terminalAgentActivity.list',
                 payload: null,

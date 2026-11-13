@@ -26,7 +26,7 @@ let root: string
 let chats: string
 let record: SessionRecord
 beforeEach(async () => {
-  root = await fs.mkdtemp(join(tmpdir(), 'opencove-transcript-identity-'))
+  root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-transcript-identity-'))
   homes.paths = [root]
   const project = join(root, '.gemini/tmp/project')
   chats = join(project, 'chats')

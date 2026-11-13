@@ -75,14 +75,14 @@ export async function run(argv: string[], io: CliIo): Promise<number> {
         return parsed.options.help ? 0 : 2
       }
       usage(
-        `Unknown command "${words.join(' ')}" for opencove.`,
+        `Unknown command "${words.join(' ')}" for eclipse-code.`,
         [
           suggest(words.join(' '), [
             ...new Set(
               commands.flatMap(c => c.path.map((_, i) => c.path.slice(0, i + 1).join(' '))),
             ),
           ]),
-          `Run "opencove${commands.some(c => c.path[0] === words[0]) ? ' ' + words[0] : ''} --help" to see its commands.`,
+          `Run "eclipse-code${commands.some(c => c.path[0] === words[0]) ? ' ' + words[0] : ''} --help" to see its commands.`,
         ]
           .filter(Boolean)
           .join(' '),
@@ -190,16 +190,17 @@ export async function run(argv: string[], io: CliIo): Promise<number> {
       if (
         spec.selector &&
         [args.options[key]].flat().includes('@self') &&
-        io.env.OPENCOVE_ENV !== '1' &&
+        io.env.ECLIPSE_CODE_ENV !== '1' &&
         !args.options.token &&
-        !io.env.OPENCOVE_CONTROL_TOKEN
+        !io.env.ECLIPSE_CODE_CONTROL_TOKEN
       ) {
         selfUnavailable(spec.selector)
       }
     }
     const needsConnection =
       command.connect ||
-      (['api ops', 'api schema'].includes(command.path.join(' ')) && io.env.OPENCOVE_ENV === '1')
+      (['api ops', 'api schema'].includes(command.path.join(' ')) &&
+        io.env.ECLIPSE_CODE_ENV === '1')
     const connection = needsConnection ? await resolveConnection(args.options, io) : undefined
     // Selector reads and the final query share a per-run snapshot. A write ends
     // that snapshot so a later read cannot reuse data from before its effects.

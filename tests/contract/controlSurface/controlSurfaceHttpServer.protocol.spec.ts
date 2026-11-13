@@ -57,7 +57,7 @@ for (const header of [
         headers: {
           authorization: 'Bearer test-token',
           'content-type': 'application/json',
-          ...(header === undefined ? {} : { 'x-opencove-protocol': header }),
+          ...(header === undefined ? {} : { 'x-eclipse-code-protocol': header }),
         },
         body: JSON.stringify({ kind: 'query', id: 'system.ping', payload: null }),
       })
@@ -65,14 +65,14 @@ for (const header of [
       const result = await response.json()
       if (header === undefined || header === String(CONTROL_SURFACE_PROTOCOL_VERSION)) {
         expect(result).toMatchObject({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { ok: true },
         })
         expect(invoke).toHaveBeenCalledTimes(1)
       } else {
         expect(result).toMatchObject({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: {
             code: 'common.protocol_incompatible',

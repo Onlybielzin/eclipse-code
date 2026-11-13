@@ -25,9 +25,9 @@ async function setupIpc() {
     prepare: vi.fn(async payload => ({
       reportId: 'report-1',
       createdAt: '2026-05-07T00:00:00.000Z',
-      reportPath: '/tmp/opencove/issue-reports/report.md',
+      reportPath: '/tmp/eclipse-code/issue-reports/report.md',
       markdown: '# report',
-      githubIssueUrl: 'https://github.com/DeadWaveWave/opencove/issues/new?title=report',
+      githubIssueUrl: 'https://github.com/Onlybielzin/eclipse-code/issues/new?title=report',
       includedDiagnostics: {
         system: true,
         worker: true,
@@ -63,7 +63,7 @@ describe('issue report IPC', () => {
           description: '  cannot launch  ',
           includeLocalPaths: true,
           context: {
-            activeWorkspaceName: '  OpenCove  ',
+            activeWorkspaceName: '  Eclipse Code  ',
           },
         },
       ),
@@ -76,7 +76,7 @@ describe('issue report IPC', () => {
       includeLocalPaths: true,
       uiGeometry: null,
       context: {
-        activeWorkspaceName: 'OpenCove',
+        activeWorkspaceName: 'Eclipse Code',
         activeWorkspacePath: null,
         activeSpaceName: null,
         activeSpacePath: null,

@@ -150,7 +150,7 @@ export function useDocumentNodeExternalRefresh({
       void runCheck()
     }, intervalMs)
 
-    const unsubscribe = window.opencoveApi.sync.onStateUpdated(() => {
+    const unsubscribe = window.eclipseCodeApi.sync.onStateUpdated(() => {
       void runCheck()
     })
 

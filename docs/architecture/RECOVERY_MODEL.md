@@ -1,6 +1,6 @@
 # Recovery Model
 
-本文档定义 OpenCove 当前恢复语义：哪些状态是 durable truth，哪些只是 runtime observation 或 UI projection，以及启动、关闭、恢复时谁有写权。
+本文档定义 Eclipse Code 当前恢复语义：哪些状态是 durable truth，哪些只是 runtime observation 或 UI projection，以及启动、关闭、恢复时谁有写权。
 
 ## State Classes
 
@@ -305,9 +305,9 @@ runs the native gate separately.
 ## Local Worker persistence ownership
 
 - I1：一个 userData 最多只有一个 Worker 持有 persistence 写入权。Worker 在任何
-  userData 状态写入前获取 `opencove-worker-owner.lock.db` 的 SQLite EXCLUSIVE 锁；
+  userData 状态写入前获取 `eclipse-code-worker-owner.lock.db` 的 SQLite EXCLUSIVE 锁；
   连接保持打开直到 persistence 关闭，进程死亡由内核释放锁。
-- I2：只有 owner 释放自己的锁。永久锁数据库不得删除；`opencove-worker.lock`
+- I2：只有 owner 释放自己的锁。永久锁数据库不得删除；`eclipse-code-worker.lock`
   仅是 discovery/upgrade metadata，包含 PID 和每次启动的 `instanceId`。
   release 仅在两者仍匹配时删除 metadata，且在删除完成后才关闭内核锁。
 - I3：Desktop 不杀死、遗弃或替换不归自己持有的 Worker。外部 owner 不可达或不兼容时
@@ -377,7 +377,7 @@ app revision。预存 settlement、row-only 写入和 `alreadyApplied` 只提供
 unknown outcome 保留 runtime 与 reconciliation obligation，未到 clean transaction boundary 时
 不能确认成功、重启或补偿。Worker 重启不重建旧 token。
 
-新 adoption 默认关闭，仅 `OPENCOVE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS=1` 用于开发验收；
+新 adoption 默认关闭，仅 `ECLIPSE_CODE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS=1` 用于开发验收；
 `managedClaudeResumeBindingV1` capability 保持 false。已有 row 的保护不受开关影响。
 同步投影、缓存修正与正式启用仍由后续同步接入完成。
 
@@ -459,7 +459,7 @@ These are existing ownership and process-boundary contracts: no executable-rule 
 ### Managed Claude 混合版本与冻结
 
 PR3b 保持 adoption 默认关闭，`managedClaudeResumeBindingV1` 仍为 false。
-测试采用 `OPENCOVE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS=1`；Worker 的独立
+测试采用 `ECLIPSE_CODE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS=1`；Worker 的独立
 `managedClaudeResumeBindingDeliveryV1` 表示具备 ledger lookup、投影、纠正回执与安全通知协议。
 Desktop/Web 的 open、save 和 refresh 不以 ownership lookup 或 delivery capability 为门槛，
 包括 flag-off、CLI 启动的旧 Worker 与 lookup unsupported 的 profile。unsupported 始终是 unknown，
@@ -477,7 +477,7 @@ rows 的 profile 属于不支持的 database downgrade。PR1+ 的 writer gate �
 当前客户端的显式 Stop 在冻结期间仍可使用；内部 exact-runtime cleanup 不走 public admission。
 不承诺旧 tab 无缝收敛，也不支持让任意旧 binary 直接打开已有 owned rows 的 profile。
 
-紧急停止方式：以 `OPENCOVE_MANAGED_CLAUDE_BINDINGS=0` 重启 Worker。
+紧急停止方式：以 `ECLIPSE_CODE_MANAGED_CLAUDE_BINDINGS=0` 重启 Worker。
 它禁止 adoption 和 managed restart/rebind，但保留 ledger enforcement、retirement、
 canonical convergence、live attach、显式 Stop 和 committed deletion；绝不删除 ledger。
 `managedClaudeResumeBindingWritesEnabled` 独立表示冻结状态，恢复时移除该 override 并重启。

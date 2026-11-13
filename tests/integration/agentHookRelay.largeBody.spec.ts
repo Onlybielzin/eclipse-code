@@ -14,7 +14,7 @@ import {
 } from '../support/inMemoryClaudeHookChannel'
 
 async function relay(input: string, provider: 'claude' | 'codex' = 'claude') {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-large-relay-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-large-relay-'))
   const artifacts = new AgentLaunchArtifactScope()
   const capture = join(root, 'body'),
     preload = join(root, 'fetch.mjs')
@@ -36,8 +36,8 @@ async function relay(input: string, provider: 'claude' | 'codex' = 'claude') {
         env: {
           ...process.env,
           NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
-          [`OPENCOVE_${provider.toUpperCase()}_HOOK_ENDPOINT`]: `http://127.0.0.1:1234/hooks/${provider}`,
-          [`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]: 'token',
+          [`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_ENDPOINT`]: `http://127.0.0.1:1234/hooks/${provider}`,
+          [`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]: 'token',
         },
       })
       let stderr = ''
@@ -101,7 +101,7 @@ it.each(['claude', 'codex'] as const)(
       })
       expect(
         await post(
-          reservation.env![`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]!,
+          reservation.env![`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]!,
           'Stop',
           undefined,
           posted,
@@ -185,7 +185,7 @@ it('delivers converted Codex notify at exactly the POST limit to the real receiv
     const states: unknown[] = []
     channel.onState(event => states.push(event.state))
     expect(
-      await post(reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!, 'notify', undefined, posted),
+      await post(reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!, 'notify', undefined, posted),
     ).toBe(204)
     expect(states).toEqual(['standby'])
   } finally {

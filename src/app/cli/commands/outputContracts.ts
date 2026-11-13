@@ -81,13 +81,13 @@ export const nodeListOutput: RenderSpec = {
       .filter(field => !summaryDataFields.includes(field))
       .map(field => [
         `data.${field}`,
-        `Read full node content with "opencove node get --node <id> --fields data.${field}".`,
+        `Read full node content with "eclipse-code node get --node <id> --fields data.${field}".`,
       ]),
   ),
   columns: ['id', 'kind', 'title', 'state'],
   tableFields: { state: ['data.status', 'status'] },
   examples: [
-    'opencove node list --fields id,data.status',
+    'eclipse-code node list --fields id,data.status',
     '{"projectId":"p","spaceId":null,"nodes":[{"id":"n","data":{"status":"doing"}}]}',
   ],
 }
@@ -137,7 +137,7 @@ export function nodeKindOutput(kind: string, create: boolean): RenderSpec {
 export const projectListOutput: RenderSpec = {
   listKey: 'projects',
   examples: [
-    'opencove project list --fields id,name',
+    'eclipse-code project list --fields id,name',
     '{"activeProjectId":"p","projects":[{"id":"p","name":"Project"}]}',
   ],
   fields: ['id', 'name', 'path', 'worktreesRoot', 'activeSpaceId'],
@@ -146,7 +146,7 @@ export const projectListOutput: RenderSpec = {
 export const spaceListOutput: RenderSpec = {
   listKey: 'spaces',
   examples: [
-    'opencove space list --fields id,name',
+    'eclipse-code space list --fields id,name',
     '{"projectId":"p","activeSpaceId":"s","spaces":[{"id":"s","name":"Main"}]}',
   ],
   fields: [...spaceFields, 'nodeCount', 'projectId', ...spaceNodeFields],
@@ -157,7 +157,7 @@ export const spaceGetOutput: RenderSpec = {
   itemKey: 'space',
   fields: [...spaceFields, 'projectId', 'nodeCount', ...spaceNodeFields],
   examples: [
-    'opencove space get --space s --fields id,nodes',
+    'eclipse-code space get --space s --fields id,nodes',
     '{"projectId":"p","activeSpaceId":"s","space":{"id":"s","nodes":[]}}',
   ],
 }
@@ -244,7 +244,7 @@ export const remoteOutputs: Record<string, RenderSpec> = {
     listKey: 'endpoints',
     fields: endpointFields,
     examples: [
-      'opencove endpoint list --fields endpointId',
+      'eclipse-code endpoint list --fields endpointId',
       '{"endpoints":[{"endpointId":"local"}]}',
     ],
   },
@@ -252,7 +252,7 @@ export const remoteOutputs: Record<string, RenderSpec> = {
     listKey: 'mounts',
     fields: mountFields,
     examples: [
-      'opencove mount list --project p --fields mountId,rootUri',
+      'eclipse-code mount list --project p --fields mountId,rootUri',
       '{"projectId":"p","mounts":[{"mountId":"m","rootUri":"file:///repo"}]}',
     ],
   },
@@ -260,7 +260,7 @@ export const remoteOutputs: Record<string, RenderSpec> = {
     listKey: 'worktrees',
     fields: ['path', 'head', 'branch'],
     examples: [
-      'opencove worktree list --fields path',
+      'eclipse-code worktree list --fields path',
       '{"projectId":"p","repoPath":"/repo","worktreesRoot":"/trees","worktrees":[{"path":"/repo"}]}',
     ],
   },
@@ -278,11 +278,11 @@ export const remoteOutputs: Record<string, RenderSpec> = {
       'command',
       'args',
     ],
-    examples: ['opencove session get --session s --fields sessionId', '{"sessionId":"s"}'],
+    examples: ['eclipse-code session get --session s --fields sessionId', '{"sessionId":"s"}'],
   },
   'session.finalMessage': {
     fields: ['sessionId', 'provider', 'startedAt', 'cwd', 'resumeSessionId', 'message'],
-    examples: ['opencove session final --session s --fields message', '{"message":"Done"}'],
+    examples: ['eclipse-code session final --session s --fields message', '{"message":"Done"}'],
   },
 }
 

@@ -110,15 +110,15 @@ pnpm test:e2e
 
 ### 默认窗口模式与自动降级
 
-- 默认窗口模式：`OPENCOVE_E2E_WINDOW_MODE=offscreen`
+- 默认窗口模式：`ECLIPSE_CODE_E2E_WINDOW_MODE=offscreen`
 - 这是后台运行模式，通常比 `hidden` 更稳定。
 - 若日志命中 Electron/Chromium 崩溃特征（如 `SIGSEGV`、`Target page, context or browser has been closed`），脚本会按更稳模式自动重试失败用例。
 
 常用控制项：
 
 ```bash
-OPENCOVE_E2E_WINDOW_MODE=inactive|offscreen|hidden pnpm test:e2e
-OPENCOVE_E2E_DISABLE_CRASH_FALLBACK=1 pnpm test:e2e
+ECLIPSE_CODE_E2E_WINDOW_MODE=inactive|offscreen|hidden pnpm test:e2e
+ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK=1 pnpm test:e2e
 ```
 
 ### 单独跑 Playwright 时必须先构建
@@ -162,10 +162,10 @@ pnpm verify:quick
 
 ## 真实 Agent / 外部 CLI 复现
 
-默认 `NODE_ENV=test` 下，OpenCove 会用测试 stub 避免真的启动外部 Agent CLI。调试 OpenCode 这类“真实 TUI 行为”（例如主题切换、alternate screen、颜色查询）时，需要禁用 stub：
+默认 `NODE_ENV=test` 下，Eclipse Code 会用测试 stub 避免真的启动外部 Agent CLI。调试 OpenCode 这类“真实 TUI 行为”（例如主题切换、alternate screen、颜色查询）时，需要禁用 stub：
 
 ```bash
-OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencode-embedded-theme.spec.ts --project electron --reporter=line
+ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencode-embedded-theme.spec.ts --project electron --reporter=line
 ```
 
 补充：
@@ -178,8 +178,8 @@ OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm test:e2e tests/e2e/workspace-canvas.opencod
 恢复后首屏、首次输入、真实 Agent TUI 尺寸/渲染问题优先使用仓库脚本：
 
 ```bash
-ELECTRON_RUN_AS_NODE=1 OPENCOVE_REPRO_PROVIDER=codex OPENCOVE_REPRO_ITERATIONS=3 OPENCOVE_REPRO_CLOSE_MODE=cold-restart ./node_modules/.bin/electron scripts/debug-repro-restored-agent-input.mjs
-ELECTRON_RUN_AS_NODE=1 OPENCOVE_REPRO_PROVIDER=opencode OPENCOVE_REPRO_ITERATIONS=2 OPENCOVE_REPRO_CLOSE_MODE=cold-restart ./node_modules/.bin/electron scripts/debug-repro-restored-agent-input.mjs
+ELECTRON_RUN_AS_NODE=1 ECLIPSE_CODE_REPRO_PROVIDER=codex ECLIPSE_CODE_REPRO_ITERATIONS=3 ECLIPSE_CODE_REPRO_CLOSE_MODE=cold-restart ./node_modules/.bin/electron scripts/debug-repro-restored-agent-input.mjs
+ELECTRON_RUN_AS_NODE=1 ECLIPSE_CODE_REPRO_PROVIDER=opencode ECLIPSE_CODE_REPRO_ITERATIONS=2 ECLIPSE_CODE_REPRO_CLOSE_MODE=cold-restart ./node_modules/.bin/electron scripts/debug-repro-restored-agent-input.mjs
 ```
 
 用 Electron 作为 Node runner 可以避免本机 Node ABI 与 Electron 原生依赖（例如 `better-sqlite3`）不一致导致的假失败。
@@ -294,7 +294,7 @@ Ubuntu CI 在 `xvfb-run -s "-screen 0 1600x1200x24"` 下运行。`launchApp({ de
 
 重点确认：
 
-- `opencove:m0:workspace-state`（旧版本可能是 `cove:m0:workspace-state`）是否已清理或重建
+- `eclipse-code:m0:workspace-state`（旧版本可能是 `cove:m0:workspace-state`）是否已清理或重建
 - `reload` 后是否真的读到了当前种入的数据
 - workspace / nodes / spaces 数量是否与预期一致
 
@@ -324,16 +324,16 @@ Ubuntu CI 在 `xvfb-run -s "-screen 0 1600x1200x24"` 下运行。`launchApp({ de
 开启输入链路追踪（会打印较多日志）：
 
 ```bash
-OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS=1 pnpm dev
+ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS=1 pnpm dev
 ```
 
 在日志中你会看到两类关键输出：
 
-- `[opencove-terminal-diagnostics]`（来自 renderer 的 xterm 侧）
+- `[eclipse-code-terminal-diagnostics]`（来自 renderer 的 xterm 侧）
   - `event=xterm-onData` 表示 xterm 确实捕获到了输入
   - `event=xterm-onData-dropped` 表示输入被丢弃（通常是 hydration 阶段的 `ESC...` 序列）
   - `event=pty-write` 表示 renderer 正在把输入写入指定 `sessionId`
-- `[opencove-pty-write]`（来自 main 的 PTY runtime）
+- `[eclipse-code-pty-write]`（来自 main 的 PTY runtime）
   - `event=write-to-inactive-session` 表示输入写到了一个 `unknown/terminated` 的 session 上
     - 这通常意味着恢复后节点仍在用旧 `sessionId`，但 PTY 进程已经不存在，表现就是“怎么点都打不进去”
 
@@ -358,7 +358,7 @@ OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS=1 pnpm dev
 
 适用场景：
 
-- OpenCove UI theme 已切换（黑↔白），但只有 OpenCode TUI 没完全更新（残留深色块/不变/闪一下又回去）
+- Eclipse Code UI theme 已切换（黑↔白），但只有 OpenCode TUI 没完全更新（残留深色块/不变/闪一下又回去）
 
 排查顺序：
 

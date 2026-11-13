@@ -15,7 +15,7 @@ import {
 export async function assertManagedProfileStopped(profile: string): Promise<void> {
   let raw: string
   try {
-    raw = await readFile(join(profile, 'opencove-worker.lock'), 'utf8')
+    raw = await readFile(join(profile, 'eclipse-code-worker.lock'), 'utf8')
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return
@@ -26,10 +26,10 @@ export async function assertManagedProfileStopped(profile: string): Promise<void
   try {
     pid = JSON.parse(raw).pid
   } catch {
-    throw new Error('[opencove-bootstrap:runtime_busy] Worker ownership file is incomplete.')
+    throw new Error('[eclipse-code-bootstrap:runtime_busy] Worker ownership file is incomplete.')
   }
   if (typeof pid !== 'number' || !Number.isSafeInteger(pid) || pid <= 0) {
-    throw new Error('[opencove-bootstrap:runtime_busy] Worker ownership is unknown.')
+    throw new Error('[eclipse-code-bootstrap:runtime_busy] Worker ownership is unknown.')
   }
   try {
     process.kill(pid, 0)
@@ -39,7 +39,9 @@ export async function assertManagedProfileStopped(profile: string): Promise<void
     }
     throw error
   }
-  throw new Error('[opencove-bootstrap:runtime_busy] The profile still belongs to a live Worker.')
+  throw new Error(
+    '[eclipse-code-bootstrap:runtime_busy] The profile still belongs to a live Worker.',
+  )
 }
 
 export async function createManagedDeploymentPort(options: {
@@ -82,7 +84,7 @@ export async function createManagedDeploymentPort(options: {
       })
       if (!value) {
         throw new Error(
-          '[opencove-bootstrap:runtime_start_failed] Worker disconnected during maintenance.',
+          '[eclipse-code-bootstrap:runtime_start_failed] Worker disconnected during maintenance.',
         )
       }
       return action === 'acquire' ? value.acquired === true : value.ok === true
@@ -120,7 +122,7 @@ export async function createManagedDeploymentPort(options: {
             stdio: ['ignore', log.fd, log.fd],
             detached: true,
             windowsHide: true,
-            env: { ...process.env, OPENCOVE_TRUST_PROCESS_ENV: '1' },
+            env: { ...process.env, ECLIPSE_CODE_TRUST_PROCESS_ENV: '1' },
           },
         )
         child.once('error', error => {
@@ -137,7 +139,7 @@ export async function createManagedDeploymentPort(options: {
         }
         if (child.exitCode !== null) {
           throw new Error(
-            `[opencove-bootstrap:runtime_start_failed] Worker exited (${child.exitCode}); inspect the managed-worker log.`,
+            `[eclipse-code-bootstrap:runtime_start_failed] Worker exited (${child.exitCode}); inspect the managed-worker log.`,
           )
         }
         const observed = await probeManagedRuntime(options.connection)
@@ -146,7 +148,7 @@ export async function createManagedDeploymentPort(options: {
         }
         if (Date.now() >= deadline) {
           throw new Error(
-            '[opencove-bootstrap:runtime_start_failed] Worker readiness timed out; deployment retained for recovery.',
+            '[eclipse-code-bootstrap:runtime_start_failed] Worker readiness timed out; deployment retained for recovery.',
           )
         }
         await delay(150)

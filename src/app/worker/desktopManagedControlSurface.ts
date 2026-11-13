@@ -87,7 +87,7 @@ export function createDesktopManagedControlSurface(options: {
       ).catch(error => {
         const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
         process.stderr.write(
-          `[opencove] failed to write private control connection file: ${detail}\n`,
+          `[eclipse-code] failed to write private control connection file: ${detail}\n`,
         )
         throw error
       })

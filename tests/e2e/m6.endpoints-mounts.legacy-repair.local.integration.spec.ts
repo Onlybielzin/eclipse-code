@@ -14,12 +14,12 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
     const legacyWorkspaceId = `legacy-local-${randomUUID()}`
     const legacyProjectName = 'Legacy Local Project'
 
-    const baseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-m6-legacy-local-'))
+    const baseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-m6-legacy-local-'))
     const repoDir = await createRepo(path.join(baseDir, 'repo'))
 
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
       },
     })
 
@@ -64,7 +64,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
       const createdMountId = await pollFor(
         async () =>
           await window.evaluate(async workspaceId => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               mounts: Array<{ mountId: string }>
             }>({
               kind: 'query',
@@ -93,7 +93,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
       const spaceId = await pollFor(
         async () =>
           await window.evaluate(async workspaceId => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -117,7 +117,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
       await window
         .evaluate(
           async ({ workspaceId, spaceId: spaceIdInput }) => {
-            const mountResult = await window.opencoveApi.controlSurface.invoke<{
+            const mountResult = await window.eclipseCodeApi.controlSurface.invoke<{
               mounts: Array<{ mountId: string }>
             }>({
               kind: 'query',
@@ -127,7 +127,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
 
             await Promise.all(
               mountResult.mounts.map(mount =>
-                window.opencoveApi.controlSurface
+                window.eclipseCodeApi.controlSurface
                   .invoke({
                     kind: 'command',
                     id: 'mount.remove',
@@ -137,7 +137,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
               ),
             )
 
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               throw new Error('Missing persisted workspace state.')
             }
@@ -163,7 +163,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
               }
             })
 
-            return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+            return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
               raw: JSON.stringify(parsed),
             })
           },
@@ -184,7 +184,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
       const repairedMountId = await pollFor(
         async () =>
           await window.evaluate(async workspaceId => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               mounts: Array<{ mountId: string }>
             }>({
               kind: 'query',
@@ -200,7 +200,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
         async () =>
           await window.evaluate(
             async ({ workspaceId, spaceId: spaceIdInput, mountId }) => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -248,7 +248,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
           await window.evaluate(
             async ({ workspaceId, spaceId: spaceIdInput, repoRoot }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -275,7 +275,7 @@ test.describe('M6 - Legacy mount/space repair integration (local)', () => {
                   return null
                 }
 
-                if (!/[\\/][.]opencove[\\/]worktrees[\\/]/.test(directoryPath)) {
+                if (!/[\\/][.]eclipse-code[\\/]worktrees[\\/]/.test(directoryPath)) {
                   return null
                 }
 

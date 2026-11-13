@@ -64,7 +64,7 @@ function renderSettingsPanel(): void {
 
 describe('SettingsPanel agent executable installation', () => {
   afterEach(() => {
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 
@@ -162,12 +162,12 @@ describe('SettingsPanel agent executable installation', () => {
       stderr: '',
     }))
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       agent: {
         listInstalledProviders,
         installProvider,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     mockTerminalProfiles()
     renderSettingsPanel()

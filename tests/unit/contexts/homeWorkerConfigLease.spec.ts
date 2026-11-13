@@ -23,7 +23,7 @@ function ownerPath(userDataPath: string): string {
 }
 
 async function createUserDataPath(): Promise<string> {
-  const path = await mkdtemp(resolve(tmpdir(), 'opencove-home-worker-config-lease-'))
+  const path = await mkdtemp(resolve(tmpdir(), 'eclipse-code-home-worker-config-lease-'))
   cleanupPaths.push(path)
   return path
 }

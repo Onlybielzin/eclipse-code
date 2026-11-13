@@ -8,7 +8,7 @@ import { managedSshDiagnosticDetails } from '../../../src/app/main/controlSurfac
 
 describe('Managed SSH diagnostics', () => {
   it('writes only allowed correlated lifecycle fields to the bounded runtime log', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-ssh-diagnostics-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-ssh-diagnostics-'))
     try {
       const sink = createManagedSshOperationDiagnosticSink(root)
       const event = {
@@ -45,7 +45,7 @@ describe('Managed SSH diagnostics', () => {
   it('strips display signals, terminal controls, secrets and duplicate details and caps lines', () => {
     const result = managedSshDiagnosticDetails(
       [
-        '[opencove-bootstrap-progress:v1] starting_runtime\r\n\u001b[31mfailed SECRET\u001b[0m\nfailed SECRET',
+        '[eclipse-code-bootstrap-progress:v1] starting_runtime\r\n\u001b[31mfailed SECRET\u001b[0m\nfailed SECRET',
         'https://user:password@example.test/failed\nnext\nextra',
       ],
       'SECRET',

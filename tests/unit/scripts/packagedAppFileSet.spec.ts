@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
  *
  * electron-builder does NOT read .gitignore. With `build.files` unset it packages `**\/*` with
  * `dot: true`, minus a hardcoded exclusion list (.git, .github, .idea, ...). That list cannot know
- * about this project's own directories, so a local `.opencove/` -- which holds full git worktrees of
+ * about this project's own directories, so a local `.eclipse-code/` -- which holds full git worktrees of
  * other branches -- was swept into a locally built release: 5951 of 19762 asar entries, including
  * unreleased source from unmerged branches.
  *
@@ -70,12 +70,12 @@ describe('packaged app file set', () => {
   })
 
   describe('excludes local state that must never ship', () => {
-    // `.opencove` is the concrete leak: gitignored, untracked, 4.1 GB of git worktrees on the
+    // `.eclipse-code` is the concrete leak: gitignored, untracked, 4.1 GB of git worktrees on the
     // machine where this was found.
     it.each([
-      ['.opencove'],
-      ['.opencove/worktrees/some-branch/src/app/main/index.ts'],
-      ['.opencove/ui-audit/report.json'],
+      ['.eclipse-code'],
+      ['.eclipse-code/worktrees/some-branch/src/app/main/index.ts'],
+      ['.eclipse-code/ui-audit/report.json'],
       ['tests'],
       ['tests/e2e/issue-report.spec.ts'],
       ['test-results/junit.xml'],
@@ -115,11 +115,11 @@ describe('packaged app file set', () => {
     )
 
     it('packages the standalone server CLI entry point', () => {
-      expect(isPackaged('out/cli/opencove.mjs')).toBe(true)
+      expect(isPackaged('out/cli/eclipse-code.mjs')).toBe(true)
       expect(isPackaged('src/app/cli/publishRuntime.mjs')).toBe(true)
       expect(isPackaged('src/app/cli/run.mjs')).toBe(false)
       expect(isPackaged('docs/plugins/README.md')).toBe(true)
-      expect(isPackaged('src/app/cli/opencove.mjs')).toBe(true)
+      expect(isPackaged('src/app/cli/eclipse-code.mjs')).toBe(true)
     })
 
     it('packages every path listed in asarUnpack', () => {

@@ -110,7 +110,7 @@ import { invokeIpc } from './ipcInvoke'
 import { resolveDroppedFile } from './filesystemDrop'
 import { onApplicationShortcut } from './applicationShortcutApi'
 import { createIssueReportPreloadApi } from './issueReportApi'
-import { resolveOpenCoveMeta } from './opencoveMeta'
+import { resolveEclipseCodeMeta } from './eclipseCodeMeta'
 import { createPerformanceDiagnosticsPreloadApi } from './performanceDiagnosticsApi'
 import { createWebsiteWindowPreloadApi } from './websiteWindowApi'
 import { createSystemPreloadApi } from './systemApi'
@@ -128,8 +128,8 @@ ipcRenderer.on(IPC_CHANNELS.ptySessionMetadata, (_event, payload: TerminalSessio
 ipcRenderer.on(IPC_CHANNELS.ptyExit, (_event, payload: TerminalExitEvent) => {
   terminalEventReplayCache.disposeSession(payload.sessionId)
 })
-const opencoveApi = {
-  meta: resolveOpenCoveMeta(),
+const eclipseCodeApi = {
+  meta: resolveEclipseCodeMeta(),
   debug: {
     logTerminalDiagnostics: (payload: TerminalDiagnosticsLogInput): void => {
       ipcRenderer.send(IPC_CHANNELS.terminalDiagnosticsLog, payload)
@@ -472,8 +472,8 @@ const opencoveApi = {
   },
 }
 if (process.contextIsolated) {
-  contextBridge.exposeInMainWorld('opencoveApi', opencoveApi)
+  contextBridge.exposeInMainWorld('eclipseCodeApi', eclipseCodeApi)
 } else {
   // @ts-ignore (define in dts)
-  window.opencoveApi = opencoveApi
+  window.eclipseCodeApi = eclipseCodeApi
 }

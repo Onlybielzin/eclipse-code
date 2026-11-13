@@ -26,7 +26,7 @@ export async function rejectDocumentWrites(electronApp: ElectronApplication, uri
                 request.payload?.uri === targetUri
           if (isTargetWrite) {
             return {
-              __opencoveIpcEnvelope: true,
+              __eclipseCodeIpcEnvelope: true,
               ok: false,
               error: { code: 'filesystem.write_file_text_failed' },
             }

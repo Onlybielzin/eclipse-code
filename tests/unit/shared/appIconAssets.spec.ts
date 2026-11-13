@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 
 // Branding changes should update both assets together instead of drifting per-platform.
 const APPROVED_APP_ICON_HASHES = {
-  'build/icon.png': 'ab5051c48c4b33f425ee9f1a1fd278bc9b3bd4fd673cc3bb9cf3d7be8610c857',
-  'build/icon.ico': 'abb242e796c5af523f69f2f066316fedb0f1f0d746628665c1aa104174810767',
+  'build/icon.png': 'db3e9386bc844beb71d28418fa87827d25ecdc07ca7847cd4f2ee154a8130219',
+  'build/icon.ico': 'ca890a07f9d3a38e5b4e9b263b308e5d4fa86f8b0893c5719a54eeeef5900da8',
 } as const
 
 function sha256ForRepoFile(relativePath: string): string {

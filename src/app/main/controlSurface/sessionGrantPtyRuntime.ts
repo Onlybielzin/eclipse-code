@@ -1,4 +1,4 @@
-import { OpenCoveAppError, createAppError } from '../../../shared/errors/appError'
+import { EclipseCodeAppError, createAppError } from '../../../shared/errors/appError'
 import {
   createTerminalSpawnApplicationError,
   publicTerminalSpawnApplicationError,
@@ -45,7 +45,7 @@ export function createSessionGrantPtyRuntime(options: {
       // Inherited credentials and user overrides never become authority for a new session.
       for (const key of Object.keys(env)) {
         if (
-          /^OPENCOVE_(CONTROL_|NODE_ID$|SPACE_ID$|PROJECT_ID$|SESSION_ID$|CLI$|CLI_SHIM_DIRECTORY$|ENV$)/i.test(
+          /^ECLIPSE_CODE_(CONTROL_|NODE_ID$|SPACE_ID$|PROJECT_ID$|SESSION_ID$|CLI$|CLI_SHIM_DIRECTORY$|ENV$)/i.test(
             key,
           )
         ) {
@@ -72,14 +72,16 @@ export function createSessionGrantPtyRuntime(options: {
       let settled = false
       try {
         Object.assign(env, {
-          OPENCOVE_ENV: '1',
-          ...(identity.nodeId ? { OPENCOVE_NODE_ID: identity.nodeId } : {}),
-          OPENCOVE_SPACE_ID: identity.spaceId,
-          OPENCOVE_PROJECT_ID: identity.projectId,
-          OPENCOVE_CONTROL_URL: url,
-          OPENCOVE_CONTROL_TOKEN: reservation.token,
-          OPENCOVE_CLI: options.cliPath,
-          OPENCOVE_CLI_SHIM_DIRECTORY: assets.cliShimDirectory,
+          ECLIPSE_CODE_ENV: '1',
+          ...(identity.nodeId ? { ECLIPSE_CODE_NODE_ID: identity.nodeId } : {}),
+          ECLIPSE_CODE_SPACE_ID: identity.spaceId,
+          ECLIPSE_CODE_PROJECT_ID: identity.projectId,
+          ECLIPSE_CODE_CONTROL_URL: url,
+          ECLIPSE_CODE_CONTROL_TOKEN: reservation.token,
+          ECLIPSE_CODE_CLI: options.cliPath,
+          ECLIPSE_CODE_CLI_SHIM_DIRECTORY: assets.cliShimDirectory,
+          // The Worker relays team turns itself (TeamTurnRelay); provider hooks must not repeat it.
+          ECLIPSE_CODE_TEAM_RELAY: '1',
         })
         const pathKey = Object.keys(env).find(key => key.toLowerCase() === 'path') ?? 'PATH'
         // Only the CLI shim directory: provider shims on PATH would wrap a managed agent launch
@@ -107,7 +109,7 @@ export function createSessionGrantPtyRuntime(options: {
         }
         reservation.cancel()
         if (
-          error instanceof OpenCoveAppError &&
+          error instanceof EclipseCodeAppError &&
           ['common.forbidden', 'control_surface.unauthorized'].includes(error.code)
         ) {
           throw createAppError(error.code, { details: error.details })

@@ -24,7 +24,7 @@ vi.mock('../../../src/app/main/controlSurface/topology/managedSshEndpointRuntime
 
 describe('Managed SSH accepted operations over HTTP', () => {
   it('returns before completion, joins across clients, monitors phases and fences removal/shutdown', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-ssh-http-operation-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-ssh-http-operation-'))
     const requests: ManagedSshEndpointPreparationRequest[] = []
     execute.mockImplementation((request: ManagedSshEndpointPreparationRequest) => {
       requests.push(request)

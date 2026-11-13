@@ -221,7 +221,7 @@ export function useWorkspaceCanvasAgentNodeLifecycle({
       const launchToken = bumpAgentLaunchToken(nodeId)
       const launchFrameSize = resolveAgentRuntimeLaunchFrameSize(node)
       if (!mountId && launchData.shouldCreateDirectory && launchData.directoryMode === 'custom') {
-        await window.opencoveApi.workspace.ensureDirectory({ path: requestedExecutionDirectory })
+        await window.eclipseCodeApi.workspace.ensureDirectory({ path: requestedExecutionDirectory })
 
         if (!isAgentLaunchTokenCurrent(nodeId, launchToken)) {
           return undefined
@@ -230,7 +230,7 @@ export function useWorkspaceCanvasAgentNodeLifecycle({
 
       if (!binding && node.data.sessionId.length > 0) {
         invalidateCachedTerminalScreenState(nodeId, node.data.sessionId)
-        await window.opencoveApi.pty.kill({ sessionId: node.data.sessionId })
+        await window.eclipseCodeApi.pty.kill({ sessionId: node.data.sessionId })
 
         if (!isAgentLaunchTokenCurrent(nodeId, launchToken)) {
           return undefined
@@ -310,7 +310,7 @@ export function useWorkspaceCanvasAgentNodeLifecycle({
         const ownsNode = binding || launched.managedClaudeLifecycle?.binding.nodeSeen
         if (!isAgentLaunchTokenCurrent(nodeId, launchToken)) {
           if (!launched.managedClaudeLifecycle) {
-            void window.opencoveApi.pty
+            void window.eclipseCodeApi.pty
               .kill({ sessionId: launched.sessionId })
               .catch(() => undefined)
           }
@@ -319,7 +319,7 @@ export function useWorkspaceCanvasAgentNodeLifecycle({
 
         if (!nodesRef.current.some(item => item.id === nodeId)) {
           if (!launched.managedClaudeLifecycle) {
-            void window.opencoveApi.pty
+            void window.eclipseCodeApi.pty
               .kill({ sessionId: launched.sessionId })
               .catch(() => undefined)
           }

@@ -33,7 +33,7 @@ it.each([true, false])(
       spaceId: null,
     }
     f.values['system.capabilities'] = { features: { boundedAgentSpawningV1: bounded } }
-    delete f.io.env.OPENCOVE_SPACE_ID
+    delete f.io.env.ECLIPSE_CODE_SPACE_ID
     const code = await run(['session', 'run-agent', '--prompt', 'Help me'], f.io)
     expect(code).toBe(bounded ? 4 : 5)
     expect(f.requests.map(r => r.id)).toEqual(['system.whoami', 'system.capabilities'])
@@ -56,8 +56,8 @@ it.each([undefined, false])(
     f.values['system.capabilities'] = {
       features: { nodeLineageV1: true, boundedAgentSpawningV1: capability },
     }
-    delete f.io.env.OPENCOVE_ENV
-    delete f.io.env.OPENCOVE_NODE_ID
+    delete f.io.env.ECLIPSE_CODE_ENV
+    delete f.io.env.ECLIPSE_CODE_NODE_ID
     const code = await run(
       [
         'api',

@@ -2,15 +2,15 @@ import { expect, test } from '@playwright/test'
 import { clearAndSeedWorkspace, launchApp } from './workspace-canvas.helpers'
 
 const linuxOnly = process.platform !== 'linux'
-const READY_ENV_KEY = 'OPENCOVE_LINUX_COPY_READY_TOKEN'
-const SIGINT_ENV_KEY = 'OPENCOVE_LINUX_COPY_SIGINT_TOKEN'
+const READY_ENV_KEY = 'ECLIPSE_CODE_LINUX_COPY_READY_TOKEN'
+const SIGINT_ENV_KEY = 'ECLIPSE_CODE_LINUX_COPY_SIGINT_TOKEN'
 
 async function selectTerminalOutput(
   window: Parameters<typeof clearAndSeedWorkspace>[0],
   nodeId: string,
 ) {
   return await window.evaluate(async currentNodeId => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     if (!api) {
       return { hasSelection: false, selection: null }
     }
@@ -32,8 +32,8 @@ test.describe('Workspace Canvas - Terminal Copy (Linux)', () => {
   test.skip(linuxOnly, 'Linux only')
 
   test('Ctrl+Shift+C copies selected terminal output without sending SIGINT', async () => {
-    const readyToken = `OPENCOVE_LINUX_COPY_READY_${Date.now()}`
-    const sigintToken = `OPENCOVE_LINUX_COPY_SIGINT_${Date.now()}`
+    const readyToken = `ECLIPSE_CODE_LINUX_COPY_READY_${Date.now()}`
+    const sigintToken = `ECLIPSE_CODE_LINUX_COPY_SIGINT_${Date.now()}`
     const { electronApp, window } = await launchApp({
       env: {
         [READY_ENV_KEY]: readyToken,
@@ -92,8 +92,8 @@ test.describe('Workspace Canvas - Terminal Copy (Linux)', () => {
   })
 
   test('Ctrl+C still sends SIGINT when nothing is selected', async () => {
-    const readyToken = `OPENCOVE_LINUX_SIGINT_READY_${Date.now()}`
-    const sigintToken = `OPENCOVE_LINUX_SIGINT_${Date.now()}`
+    const readyToken = `ECLIPSE_CODE_LINUX_SIGINT_READY_${Date.now()}`
+    const sigintToken = `ECLIPSE_CODE_LINUX_SIGINT_${Date.now()}`
     const { electronApp, window } = await launchApp({
       env: {
         [READY_ENV_KEY]: readyToken,

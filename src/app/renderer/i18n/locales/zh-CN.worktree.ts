@@ -30,7 +30,7 @@ export const zhCNWorktree = {
     archiveWorktreeSpace: '归档 Worktree Space',
     closeWorktreeWindow: '关闭 worktree 窗口',
     clean: '干净',
-    apiUnavailable: 'Worktree API 不可用。请重启 OpenCove 后重试。',
+    apiUnavailable: 'Worktree API 不可用。请重启 Eclipse Code 后重试。',
     createBlockedAlreadyWorktree: '这个 Space 已经是 worktree。',
     createBlockedAncestorWorktree:
       '这个 Space 位于已经是 worktree 的 {{name}} 内。请创建同级 Space。',

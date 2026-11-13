@@ -2,7 +2,7 @@ export function logRendererErrorBoundaryDiagnostic(
   error: Error,
   errorInfo: Pick<React.ErrorInfo, 'componentStack'>,
 ): void {
-  window.opencoveApi.debug?.logRuntimeDiagnostics?.({
+  window.eclipseCodeApi.debug?.logRuntimeDiagnostics?.({
     source: 'renderer-error-boundary',
     level: 'error',
     event: 'component-did-catch',

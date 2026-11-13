@@ -109,7 +109,7 @@ export function useWorkspaceCanvasNodesStore({
 
   useLayoutEffect(() => {
     nodesRef.current = nodes
-    if (window.opencoveApi?.meta?.isTest === true) {
+    if (window.eclipseCodeApi?.meta?.isTest === true) {
       syncWorkspaceCanvasTestState(nodes)
     }
   }, [nodes])
@@ -124,7 +124,7 @@ export function useWorkspaceCanvasNodesStore({
         return
       }
       nodesRef.current = nextNodes
-      if (window.opencoveApi?.meta?.isTest === true) {
+      if (window.eclipseCodeApi?.meta?.isTest === true) {
         syncWorkspaceCanvasTestState(nextNodes)
       }
       onNodesChange(nextNodes)
@@ -169,14 +169,14 @@ export function useWorkspaceCanvasNodesStore({
         void killUnownedNodeRuntime(target).catch(() => undefined)
       }
       if (target?.data.kind === 'image' && target.data.image) {
-        const deleteCanvasImage = window.opencoveApi?.workspace?.deleteCanvasImage
+        const deleteCanvasImage = window.eclipseCodeApi?.workspace?.deleteCanvasImage
         if (typeof deleteCanvasImage === 'function') {
           await deleteCanvasImage({ assetId: target.data.image.assetId }).catch(() => undefined)
         }
       }
 
       if (target?.data.kind === 'website') {
-        const closeWebsiteWindow = window.opencoveApi?.websiteWindow?.close
+        const closeWebsiteWindow = window.eclipseCodeApi?.websiteWindow?.close
         if (typeof closeWebsiteWindow === 'function') {
           await closeWebsiteWindow({ nodeId }).catch(() => undefined)
         }

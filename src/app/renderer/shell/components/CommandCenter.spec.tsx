@@ -18,7 +18,7 @@ vi.mock('../hooks/useWorkspaceMountSummaries', () => ({
 function project(id: string): WorkspaceState {
   return {
     id,
-    name: id === 'local' ? 'OpenCove' : 'Remote project',
+    name: id === 'local' ? 'Eclipse Code' : 'Remote project',
     iconId: 'code',
     path: `/tmp/${id}/private-project`,
     worktreesRoot: '',

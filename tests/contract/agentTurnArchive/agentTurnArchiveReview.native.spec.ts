@@ -18,7 +18,7 @@ describeWithElectronNativeModules('ended-turn archive review fixes', () => {
   const archives: AgentTurnArchive[] = []
   const dbs: Database.Database[] = []
   function root() {
-    const dir = mkdtempSync(join(tmpdir(), 'opencove-archive-review-'))
+    const dir = mkdtempSync(join(tmpdir(), 'eclipse-code-archive-review-'))
     roots.push(dir)
     return dir
   }

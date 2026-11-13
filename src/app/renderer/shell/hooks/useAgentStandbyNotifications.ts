@@ -117,7 +117,7 @@ export function useAgentStandbyNotifications(): {
   resolveSystemNotificationTarget: (id: string) => AgentNotificationTarget | null
 } {
   const { t } = useTranslation()
-  const platform = window.opencoveApi?.meta?.platform
+  const platform = window.eclipseCodeApi?.meta?.platform
   const workspaces = useAppStore(state => state.workspaces)
   const settings = useAppStore(state => state.agentSettings)
   const isStandbyBannerEnabled = settings.standbyBannerEnabled
@@ -173,7 +173,7 @@ export function useAgentStandbyNotifications(): {
             summary: count => t('agentAttention.systemSummary', { count }),
           })
           // Always silent: the app plays the one sound itself, in front or behind.
-          void window.opencoveApi?.system
+          void window.eclipseCodeApi?.system
             ?.showNotification({
               ...text,
               silent: true,

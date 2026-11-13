@@ -35,7 +35,7 @@ describe('WorkspaceCanvas task run agent auto resize', () => {
         resumeSessionId: 'assigned-task-session',
       }))
 
-      Object.defineProperty(window, 'opencoveApi', {
+      Object.defineProperty(window, 'eclipseCodeApi', {
         configurable: true,
         writable: true,
         value: {
@@ -224,7 +224,7 @@ describe('WorkspaceCanvas task run agent auto resize', () => {
       throw new Error(`Unexpected control surface command: ${String(request.id)}`)
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

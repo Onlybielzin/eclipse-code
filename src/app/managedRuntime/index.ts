@@ -10,7 +10,7 @@ import { runManagedRuntimeCommand } from './runManagedRuntimeCommand'
 async function main(): Promise<void> {
   const build = getRuntimeBuildIdentity()
   if (!build) {
-    throw new Error('[opencove-bootstrap:runtime_corrupt] Missing embedded build identity.')
+    throw new Error('[eclipse-code-bootstrap:runtime_corrupt] Missing embedded build identity.')
   }
   if (process.argv[2] === 'verify') {
     await verifyNativeRuntime()
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
   const desired = parseRuntimeBuildIdentity(input.runtimeBuild)
   if (!desired || JSON.stringify(desired) !== JSON.stringify(build)) {
     throw new Error(
-      '[opencove-bootstrap:build_mismatch] Installed runtime does not match the requesting Desktop build.',
+      '[eclipse-code-bootstrap:build_mismatch] Installed runtime does not match the requesting Desktop build.',
     )
   }
   if (
@@ -63,7 +63,7 @@ async function main(): Promise<void> {
   const state = windows
     ? (process.env.LOCALAPPDATA ?? join(homedir(), 'AppData/Local'))
     : (process.env.XDG_STATE_HOME ?? join(homedir(), '.local/state'))
-  const suffix = join(windows ? 'OpenCove' : 'opencove', 'managed-ssh', input.endpointId)
+  const suffix = join(windows ? 'Eclipse Code' : 'eclipse-code', 'managed-ssh', input.endpointId)
   const port = await createManagedDeploymentPort({
     connection: { deploymentId: input.endpointId, port: input.port, token: input.token },
     profile: join(config, suffix),
@@ -75,7 +75,7 @@ async function main(): Promise<void> {
       { root: resolve(__dirname, '../..'), build },
       input.operationId,
     )
-    process.stdout.write('[opencove-bootstrap-progress:v1] waiting_for_runtime\n')
+    process.stdout.write('[eclipse-code-bootstrap-progress:v1] waiting_for_runtime\n')
   } finally {
     port.dispose()
   }

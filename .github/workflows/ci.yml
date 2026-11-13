@@ -118,10 +118,10 @@ jobs:
       - name: E2E tests (shard)
         timeout-minutes: 30
         env:
-          OPENCOVE_E2E_SKIP_BUILD: '1'
-          OPENCOVE_E2E_WINDOW_MODE: inactive
-          OPENCOVE_E2E_RETRIES: '0'
-          OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1'
+          ECLIPSE_CODE_E2E_SKIP_BUILD: '1'
+          ECLIPSE_CODE_E2E_WINDOW_MODE: inactive
+          ECLIPSE_CODE_E2E_RETRIES: '0'
+          ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1'
         run: xvfb-run -a -s "-screen 0 1600x1200x24" pnpm test:e2e -- --shard=${{ matrix.shard }}/3 --max-failures=2
 
       - name: Upload Playwright artifacts
@@ -136,8 +136,8 @@ jobs:
       - name: Cleanup E2E temp dirs
         if: always()
         run: |
-          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/opencove-e2e" || true; fi
-          rm -rf "/tmp/opencove-e2e" || true
+          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/eclipse-code-e2e" || true; fi
+          rm -rf "/tmp/eclipse-code-e2e" || true
           rm -rf "/tmp/cove-e2e-user-data-"* || true
 
   web-canvas-continuity-ubuntu:
@@ -179,8 +179,8 @@ jobs:
       - name: Chromium continuity tests
         timeout-minutes: 30
         env:
-          OPENCOVE_E2E_SKIP_BUILD: '1'
-          OPENCOVE_E2E_RETRIES: '0'
+          ECLIPSE_CODE_E2E_SKIP_BUILD: '1'
+          ECLIPSE_CODE_E2E_RETRIES: '0'
         run: >-
           pnpm test:e2e:web-canvas --
           tests/e2e-web-canvas/workerWebCanvas.terminal-auto-calibration.spec.ts
@@ -191,8 +191,8 @@ jobs:
       - name: WebKit calibration and theme tests
         timeout-minutes: 30
         env:
-          OPENCOVE_E2E_SKIP_BUILD: '1'
-          OPENCOVE_E2E_RETRIES: '0'
+          ECLIPSE_CODE_E2E_SKIP_BUILD: '1'
+          ECLIPSE_CODE_E2E_RETRIES: '0'
         run: >-
           pnpm test:e2e:web-canvas --
           tests/e2e-web-canvas/workerWebCanvas.terminal-auto-calibration.spec.ts
@@ -212,8 +212,8 @@ jobs:
       - name: Cleanup Web Canvas temp dirs
         if: always()
         run: |
-          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/opencove-web-canvas" || true; fi
-          rm -rf "/tmp/opencove-web-canvas" || true
+          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/eclipse-code-web-canvas" || true; fi
+          rm -rf "/tmp/eclipse-code-web-canvas" || true
 
   ci-macos:
     strategy:
@@ -255,10 +255,10 @@ jobs:
         # macOS runners take 25-30 minutes per shard; 30 cut off a passing shard mid-run.
         timeout-minutes: 45
         env:
-          OPENCOVE_E2E_SKIP_BUILD: '1'
-          OPENCOVE_E2E_WINDOW_MODE: inactive
-          OPENCOVE_E2E_RETRIES: '0'
-          OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1'
+          ECLIPSE_CODE_E2E_SKIP_BUILD: '1'
+          ECLIPSE_CODE_E2E_WINDOW_MODE: inactive
+          ECLIPSE_CODE_E2E_RETRIES: '0'
+          ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1'
         run: pnpm test:e2e -- --shard=${{ matrix.shard }}/3
 
       - name: Upload Playwright artifacts
@@ -273,8 +273,8 @@ jobs:
       - name: Cleanup E2E temp dirs
         if: always()
         run: |
-          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/opencove-e2e" || true; fi
-          rm -rf "/tmp/opencove-e2e" || true
+          if [ -n "${RUNNER_TEMP:-}" ]; then rm -rf "${RUNNER_TEMP}/eclipse-code-e2e" || true; fi
+          rm -rf "/tmp/eclipse-code-e2e" || true
           rm -rf "/tmp/cove-e2e-user-data-"* || true
 
   platform-e2e-windows:
@@ -316,11 +316,11 @@ jobs:
 
       - name: Windows-specific E2E tests
         env:
-          OPENCOVE_E2E_SKIP_BUILD: '1'
-          OPENCOVE_E2E_TEST_MATCH: '**/*.windows.spec.ts'
-          OPENCOVE_E2E_WINDOW_MODE: inactive
-          OPENCOVE_E2E_RETRIES: '0'
-          OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1'
+          ECLIPSE_CODE_E2E_SKIP_BUILD: '1'
+          ECLIPSE_CODE_E2E_TEST_MATCH: '**/*.windows.spec.ts'
+          ECLIPSE_CODE_E2E_WINDOW_MODE: inactive
+          ECLIPSE_CODE_E2E_RETRIES: '0'
+          ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1'
         run: pnpm exec playwright test
 
       - name: Upload Playwright report

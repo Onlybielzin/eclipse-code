@@ -15,7 +15,7 @@ describe('appError', () => {
       'Unable to start the agent.',
     )
     expect(formatAppErrorMessage(createAppErrorDescriptor('worktree.api_unavailable'))).toBe(
-      'Worktree API is unavailable. Please restart OpenCove and try again.',
+      'Worktree API is unavailable. Please restart Eclipse Code and try again.',
     )
   })
 
@@ -58,7 +58,7 @@ describe('appError', () => {
     expect(isAppErrorDescriptor(createAppErrorDescriptor('common.invalid_input'))).toBe(true)
     expect(
       isIpcInvokeResult({
-        __opencoveIpcEnvelope: true,
+        __eclipseCodeIpcEnvelope: true,
         ok: true,
         value: { ok: true, level: 'full', bytes: 12 },
       }),

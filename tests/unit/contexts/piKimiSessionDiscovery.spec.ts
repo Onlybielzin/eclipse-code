@@ -17,7 +17,7 @@ afterEach(() => {
 
 describe('Pi and Kimi session discovery', () => {
   it('resolves an exact native Pi session file outside configured discovery directories', async () => {
-    const directory = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-native-path-'))
+    const directory = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-native-path-'))
     const filePath = join(directory, 'session.jsonl')
     try {
       await fs.writeFile(
@@ -45,7 +45,7 @@ describe('Pi and Kimi session discovery', () => {
   })
 
   it('locates Pi v3 JSONL sessions by durable cwd/id metadata', async () => {
-    const root = await fs.mkdtemp(join(tmpdir(), 'opencove-pi-sessions-'))
+    const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-pi-sessions-'))
     const cwd = join(root, 'workspace')
     const startedAtMs = Date.now()
     const filePath = join(root, 'project', 'turn_session-id.jsonl')
@@ -77,7 +77,7 @@ describe('Pi and Kimi session discovery', () => {
   })
 
   it('resolves Kimi session_index entries only inside the configured sessions root', async () => {
-    const root = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-home-'))
+    const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-home-'))
     const cwd = join(root, 'workspace')
     const sessionId = 'session_123'
     const sessionDir = join(root, 'sessions', 'wd_workspace_hash', sessionId)
@@ -106,8 +106,8 @@ describe('Pi and Kimi session discovery', () => {
   })
 
   it('rejects a Kimi index entry that points outside its sessions root', async () => {
-    const root = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-home-'))
-    const outside = await fs.mkdtemp(join(tmpdir(), 'opencove-kimi-outside-'))
+    const root = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-home-'))
+    const outside = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-kimi-outside-'))
     const cwd = join(root, 'workspace')
     const sessionId = 'session_escape'
     process.env.KIMI_CODE_HOME = root

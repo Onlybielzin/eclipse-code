@@ -39,7 +39,7 @@ async function fixture(hookCoverage: 'lifecycle' | 'notify_only') {
   })
   const reservation = await socket.channel.reserveSpawn()
   reservation.commit('s')
-  const token = reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!
+  const token = reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!
   const post = async (name: string, id?: string) => {
     now += 900
     const payload =

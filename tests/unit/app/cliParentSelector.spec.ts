@@ -9,7 +9,7 @@ const command = defineCommand({
   connect: true,
   options: { node: { type: 'string', description: 'Node' } },
 })
-const io = { env: { OPENCOVE_ENV: '1', OPENCOVE_NODE_ID: 'child' } } as unknown as CliIo
+const io = { env: { ECLIPSE_CODE_ENV: '1', ECLIPSE_CODE_NODE_ID: 'child' } } as unknown as CliIo
 it('resolves @parent on the Worker before looking up a literal name', async () => {
   const invoke = vi.fn(async (id: string) => {
     if (id === 'system.capabilities') {

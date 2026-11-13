@@ -74,7 +74,7 @@ describe('activatePreferredTerminalRenderer', () => {
       configurable: true,
       value: 1,
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -91,7 +91,7 @@ describe('activatePreferredTerminalRenderer', () => {
 
   it('uses the WebGL renderer for Windows agent sessions when available', async () => {
     installCanvasContexts(['webgl2'])
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: { meta: { platform: 'win32' } },
@@ -115,7 +115,7 @@ describe('activatePreferredTerminalRenderer', () => {
       configurable: true,
       value: 1.25,
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -143,7 +143,7 @@ describe('activatePreferredTerminalRenderer', () => {
       configurable: true,
       value: 1.25,
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

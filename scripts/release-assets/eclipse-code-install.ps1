@@ -1,0 +1,432 @@
+param(
+  [switch]$Uninstall,
+  [switch]$Help
+)
+
+$ErrorActionPreference = 'Stop'
+
+if ($Help) {
+  Write-Output 'Usage: eclipse-code-install.ps1 [-Uninstall]'
+  exit 0
+}
+
+$Owner = if ($env:ECLIPSE_CODE_RELEASE_OWNER) { $env:ECLIPSE_CODE_RELEASE_OWNER } else { 'Onlybielzin' }
+$Repo = if ($env:ECLIPSE_CODE_RELEASE_REPO) { $env:ECLIPSE_CODE_RELEASE_REPO } else { 'eclipse-code' }
+$ReleaseBaseUrl = if ($env:ECLIPSE_CODE_RELEASE_BASE_URL) {
+  $env:ECLIPSE_CODE_RELEASE_BASE_URL
+} else {
+  "https://github.com/$Owner/$Repo/releases/latest/download"
+}
+$ChecksumsUrl = "$ReleaseBaseUrl/SHA256SUMS.txt"
+$LocalAppData = if ($env:LOCALAPPDATA) {
+  $env:LOCALAPPDATA
+} else {
+  Join-Path $HOME 'AppData\Local'
+}
+$InstallRoot = if ($env:ECLIPSE_CODE_INSTALL_ROOT) {
+  $env:ECLIPSE_CODE_INSTALL_ROOT
+} else {
+  Join-Path $LocalAppData 'Eclipse Code\standalone'
+}
+$BinDir = if ($env:ECLIPSE_CODE_BIN_DIR) {
+  $env:ECLIPSE_CODE_BIN_DIR
+} else {
+  Join-Path $LocalAppData 'Eclipse Code\bin'
+}
+$LauncherPath = Join-Path $BinDir 'eclipse-code.cmd'
+$CliWrapperMarker = '__ECLIPSE_CODE_CLI_WRAPPER__'
+$CliWrapperOwnerKey = 'ECLIPSE_CODE_INSTALL_OWNER'
+$CliWrapperOwnerStandalone = 'standalone'
+
+function Normalize-PathSegment([string]$Value) {
+  return $Value.Trim().TrimEnd('\', '/').ToLowerInvariant()
+}
+
+function Split-PathValue([string]$Value) {
+  if ([string]::IsNullOrWhiteSpace($Value)) {
+    return @()
+  }
+
+  return @($Value -split ';' | Where-Object { $_.Trim().Length -gt 0 })
+}
+
+function Set-EclipseCodeUserPath([string]$TargetPath, [string]$Action) {
+  $current = [Environment]::GetEnvironmentVariable('Path', 'User')
+  $segments = Split-PathValue $current
+  $normalizedTarget = Normalize-PathSegment $TargetPath
+  $nextSegments = @()
+
+  foreach ($segment in $segments) {
+    if ((Normalize-PathSegment $segment) -ne $normalizedTarget) {
+      $nextSegments += $segment
+    }
+  }
+
+  if ($Action -eq 'add') {
+    $nextSegments += $TargetPath
+  }
+
+  [Environment]::SetEnvironmentVariable('Path', ($nextSegments -join ';'), 'User')
+
+  $processSegments = Split-PathValue $env:Path
+  $nextProcessSegments = @()
+  foreach ($segment in $processSegments) {
+    if ((Normalize-PathSegment $segment) -ne $normalizedTarget) {
+      $nextProcessSegments += $segment
+    }
+  }
+  if ($Action -eq 'add') {
+    $nextProcessSegments += $TargetPath
+  }
+  $env:Path = $nextProcessSegments -join ';'
+}
+
+function Test-OwnedLauncher([string]$Path) {
+  if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+    return $false
+  }
+
+  $content = Get-Content -LiteralPath $Path -Raw
+  return $content.Contains($CliWrapperMarker)
+}
+
+function Get-LauncherMetadataValue([string]$Path, [string]$Key) {
+  if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+    return $null
+  }
+
+  $prefix = "$Key="
+  foreach ($line in Get-Content -LiteralPath $Path) {
+    $candidate = $line.Trim() -replace '^(?:#|@?rem|::)\s*', ''
+    if ($candidate.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+      return $candidate.Substring($prefix.Length).Trim()
+    }
+  }
+
+  return $null
+}
+
+function Test-StandaloneLauncher([string]$Path) {
+  if (!(Test-OwnedLauncher $Path)) {
+    return $false
+  }
+
+  $owner = Get-LauncherMetadataValue $Path $CliWrapperOwnerKey
+  if ($owner -eq $CliWrapperOwnerStandalone) {
+    return $true
+  }
+
+  if (![string]::IsNullOrWhiteSpace($owner)) {
+    return $false
+  }
+
+  $runtimeBin = Get-LauncherMetadataValue $Path 'ECLIPSE_CODE_NODE_BIN'
+  if ([string]::IsNullOrWhiteSpace($runtimeBin)) {
+    $runtimeBin = Get-LauncherMetadataValue $Path 'ECLIPSE_CODE_ELECTRON_BIN'
+  }
+  if ([string]::IsNullOrWhiteSpace($runtimeBin)) {
+    return $false
+  }
+
+  $normalizedRuntimeBin = Normalize-PathSegment $runtimeBin
+  $normalizedInstallRoot = Normalize-PathSegment $InstallRoot
+  return $normalizedRuntimeBin.StartsWith("$normalizedInstallRoot\", [StringComparison]::OrdinalIgnoreCase)
+}
+
+function Remove-EclipseCodeStandalone {
+  $shouldRemovePath = $true
+  if (Test-Path -LiteralPath $LauncherPath -PathType Leaf) {
+    if (!(Test-OwnedLauncher $LauncherPath)) {
+      throw "Refusing to remove existing non-Eclipse Code launcher at $LauncherPath"
+    }
+
+    if (Test-StandaloneLauncher $LauncherPath) {
+      Remove-Item -LiteralPath $LauncherPath -Force
+      Write-Output "Removed Eclipse Code CLI launcher at $LauncherPath"
+    } else {
+      $shouldRemovePath = $false
+      Write-Output "Leaving non-standalone Eclipse Code launcher at $LauncherPath"
+    }
+  }
+
+  if (Test-Path -LiteralPath $InstallRoot) {
+    Get-ChildItem -LiteralPath $InstallRoot -Filter 'eclipse-code-server-*' -Force |
+      Remove-Item -Recurse -Force
+    $currentPath = Join-Path $InstallRoot 'current'
+    if (Test-Path -LiteralPath $currentPath) {
+      Remove-Item -LiteralPath $currentPath -Recurse -Force
+    }
+  }
+
+  if ($shouldRemovePath) {
+    Set-EclipseCodeUserPath $BinDir 'remove'
+  }
+  Write-Output "Removed Eclipse Code standalone runtime bundles from $InstallRoot"
+}
+
+function Get-EclipseCodeArch {
+  $rawArch = if ($env:PROCESSOR_ARCHITEW6432) {
+    $env:PROCESSOR_ARCHITEW6432
+  } else {
+    $env:PROCESSOR_ARCHITECTURE
+  }
+  if ([string]::IsNullOrWhiteSpace($rawArch)) {
+    throw 'Unsupported architecture: unknown'
+  }
+  $arch = $rawArch.ToLowerInvariant()
+
+  if ($arch -eq 'amd64' -or $arch -eq 'x86_64') {
+    return 'x64'
+  }
+
+  if ($arch -eq 'arm64' -or $arch -eq 'aarch64') {
+    return 'arm64'
+  }
+
+  throw "Unsupported architecture: $rawArch"
+}
+
+function Read-RuntimeManifest([string]$Path) {
+  $values = @{}
+  foreach ($line in Get-Content -LiteralPath $Path) {
+    if ($line -match '^([^=]+)=(.*)$') {
+      $values[$Matches[1]] = $Matches[2]
+    }
+  }
+
+  if (!$values.ContainsKey('ECLIPSE_CODE_NODE_RELATIVE_PATH') -or
+      !$values.ContainsKey('ECLIPSE_CODE_CLI_SCRIPT_RELATIVE_PATH')) {
+    throw 'Standalone runtime manifest is incomplete.'
+  }
+
+  return $values
+}
+
+function Join-BundlePath([string]$Root, [string]$RelativePath) {
+  return Join-Path $Root ($RelativePath -replace '/', '\')
+}
+
+function Assert-EclipseCodeArchiveChecksum([string]$Path, [string]$AssetName) {
+  $checksumsPath = Join-Path $TempDir 'SHA256SUMS.txt'
+  if ($env:ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE) {
+    Copy-Item -LiteralPath $env:ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE -Destination $checksumsPath -Force
+  } else {
+    $request = @{
+      Uri = $ChecksumsUrl
+      OutFile = $checksumsPath
+    }
+    if ($PSVersionTable.PSVersion.Major -lt 6) {
+      $request.UseBasicParsing = $true
+    }
+    Invoke-WebRequest @request
+  }
+
+  $assetPattern = [Regex]::Escape($AssetName)
+  $match = Get-Content -LiteralPath $checksumsPath |
+    Select-String -Pattern "^(?<hash>[A-Fa-f0-9]{64})\s+\*?$assetPattern$" |
+    Select-Object -First 1
+  if ($null -eq $match) {
+    throw "[eclipse-code-bootstrap:checksum_failed] Checksum for $AssetName not found in $ChecksumsUrl"
+  }
+
+  $expected = $match.Matches[0].Groups['hash'].Value.ToLowerInvariant()
+  $algorithm = [Security.Cryptography.SHA256]::Create()
+  $stream = [IO.File]::OpenRead($Path)
+  try {
+    $actual = ([BitConverter]::ToString($algorithm.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+  } finally {
+    $stream.Dispose()
+    $algorithm.Dispose()
+  }
+  if ($actual -ne $expected) {
+    throw "[eclipse-code-bootstrap:checksum_failed] SHA256 mismatch for $AssetName"
+  }
+  Write-Output "Verified SHA256 for $AssetName"
+  $script:VerifiedArtifactDigest = $actual
+}
+
+# Shared lease protocol: mtime older than 120 seconds expires; exclusive-create retry once.
+function Open-LauncherLock([string]$LockPath) {
+  try {
+    return [IO.File]::Open($LockPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+  } catch {
+    $cause = $_.Exception
+    if ($cause.InnerException) { $cause = $cause.InnerException }
+    if (($cause.HResult -band 0xffff) -notin @(80, 183)) { throw }
+    try {
+      $observed = Get-Item -LiteralPath $LockPath -ErrorAction Stop
+      $mtime = $observed.LastWriteTimeUtc
+      $age = [Math]::Max(0, ([DateTime]::UtcNow - $mtime).TotalSeconds)
+      if ($age -le 120) {
+        $ownerPid = 'unknown'
+        try { $ownerPid = (Get-Content -LiteralPath $LockPath -Raw | ConvertFrom-Json).pid } catch {}
+        throw "Launcher publication busy or inaccessible: $LockPath; owner pid=$ownerPid, age=$([Math]::Floor($age))s"
+      }
+      $current = Get-Item -LiteralPath $LockPath -ErrorAction Stop
+      if ($current.LastWriteTimeUtc -eq $mtime -and $current.CreationTimeUtc -eq $observed.CreationTimeUtc) {
+        [IO.File]::Delete($LockPath)
+      }
+    } catch [System.Management.Automation.ItemNotFoundException] {
+      # Another contender removed the expired lock; still only one create retry.
+    }
+    try {
+      return [IO.File]::Open($LockPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+    } catch {
+      $ownerPid = 'unknown'; $age = 'unknown'
+      try {
+        $age = "$([Math]::Floor([Math]::Max(0, ([DateTime]::UtcNow - (Get-Item -LiteralPath $LockPath).LastWriteTimeUtc).TotalSeconds)))s"
+        $ownerPid = (Get-Content -LiteralPath $LockPath -Raw | ConvertFrom-Json).pid
+      } catch {}
+      throw "Launcher publication busy or inaccessible: $LockPath; owner pid=$ownerPid, age=$age"
+    }
+  }
+}
+
+function Escape-CmdValue([string]$Value) {
+  return $Value.Replace('%', '%%')
+}
+
+function Write-Launcher([string]$NodeBin, [string]$CliScript) {
+  $escapedNodeBin = Escape-CmdValue $NodeBin
+  $escapedCliScript = Escape-CmdValue $CliScript
+  $launcher = @"
+@echo off
+rem $CliWrapperMarker
+rem ECLIPSE_CODE_INSTALL_OWNER=$CliWrapperOwnerStandalone
+rem ECLIPSE_CODE_WRAPPER_KIND=runtime
+rem ECLIPSE_CODE_NODE_BIN=$escapedNodeBin
+rem ECLIPSE_CODE_CLI_SCRIPT=$escapedCliScript
+
+set "NODE_BIN=$escapedNodeBin"
+set "CLI_SCRIPT=$escapedCliScript"
+
+if not exist "%NODE_BIN%" (
+  echo [eclipse-code] bundled Node runtime not found: %NODE_BIN% 1>&2
+  exit /b 1
+)
+
+if not exist "%CLI_SCRIPT%" (
+  echo [eclipse-code] CLI entry not found: %CLI_SCRIPT% 1>&2
+  exit /b 1
+)
+
+"%NODE_BIN%" "%CLI_SCRIPT%" %*
+exit /b %ERRORLEVEL%
+"@
+  $temporaryLauncher = "$LauncherPath.new.$([Guid]::NewGuid().ToString('N'))"
+  # Persist the owner before publication; keep the handle shareable for lease recovery.
+  $lockPath = "$LauncherPath.lock"
+  $owner = @{ pid = $PID; hostname = [Net.Dns]::GetHostName(); createdAt = [DateTime]::UtcNow.ToString('o'); token = [Guid]::NewGuid().ToString() } | ConvertTo-Json -Compress
+  $publicationLock = Open-LauncherLock $lockPath
+  try {
+    $bytes = [Text.Encoding]::UTF8.GetBytes($owner)
+    $publicationLock.Write($bytes, 0, $bytes.Length)
+    $publicationLock.Flush()
+    if ((Test-Path -LiteralPath $LauncherPath) -and !(Test-OwnedLauncher $LauncherPath)) {
+      throw "Refusing to overwrite existing non-Eclipse Code launcher at $LauncherPath"
+    }
+    [IO.File]::WriteAllText($temporaryLauncher, $launcher, [Text.Encoding]::ASCII)
+    if ([IO.File]::Exists($LauncherPath)) {
+      [IO.File]::Replace($temporaryLauncher, $LauncherPath, $null)
+    } else {
+      try { [IO.File]::Move($temporaryLauncher, $LauncherPath) }
+      catch {
+        if (![IO.File]::Exists($LauncherPath)) { throw }
+        [IO.File]::Replace($temporaryLauncher, $LauncherPath, $null)
+      }
+    }
+  } finally {
+    try {
+      if ([IO.File]::Exists($temporaryLauncher)) { [IO.File]::Delete($temporaryLauncher) }
+    } finally {
+      $publicationLock.Dispose()
+      if ([IO.File]::Exists($lockPath) -and [IO.File]::ReadAllText($lockPath) -eq $owner) {
+        [IO.File]::Delete($lockPath)
+      }
+    }
+  }
+}
+
+if ($Uninstall) {
+  Remove-EclipseCodeStandalone
+  exit 0
+}
+
+if ((Test-Path -LiteralPath $LauncherPath -PathType Leaf) -and !(Test-OwnedLauncher $LauncherPath)) {
+  throw "Refusing to overwrite existing non-Eclipse Code launcher at $LauncherPath"
+}
+
+$Arch = Get-EclipseCodeArch
+$AssetName = "eclipse-code-server-windows-$Arch.zip"
+$AssetUrl = "$ReleaseBaseUrl/$AssetName"
+$BundleName = [IO.Path]::GetFileNameWithoutExtension($AssetName)
+$BundleDir = Join-Path $InstallRoot $BundleName
+$RuntimeEnvPath = Join-Path $BundleDir 'eclipse-code-runtime.env'
+$TempDir = Join-Path $InstallRoot ".eclipse-code-install-$([Guid]::NewGuid().ToString('N'))"
+$ArchivePath = Join-Path $TempDir $AssetName
+
+New-Item -ItemType Directory -Force -Path $InstallRoot, $BinDir, $TempDir | Out-Null
+
+try {
+  if ($env:ECLIPSE_CODE_STANDALONE_ASSET) {
+    Write-Output "Using local standalone asset $env:ECLIPSE_CODE_STANDALONE_ASSET"
+    Copy-Item -LiteralPath $env:ECLIPSE_CODE_STANDALONE_ASSET -Destination $ArchivePath -Force
+    Assert-EclipseCodeArchiveChecksum $ArchivePath $AssetName
+  } else {
+    Write-Output "Downloading $AssetUrl"
+    $request = @{
+      Uri = $AssetUrl
+      OutFile = $ArchivePath
+    }
+    if ($PSVersionTable.PSVersion.Major -lt 6) {
+      $request.UseBasicParsing = $true
+    }
+    Invoke-WebRequest @request
+    Assert-EclipseCodeArchiveChecksum $ArchivePath $AssetName
+  }
+
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  $archive = [IO.Compression.ZipFile]::OpenRead($ArchivePath)
+  try {
+    foreach ($entry in $archive.Entries) {
+      $entryPath = $entry.FullName.Replace('\', '/')
+      if ($entryPath.StartsWith('/') -or $entryPath.Contains(':') -or
+          $entryPath.Split('/').Contains('..') -or
+          ($entryPath -ne $BundleName -and !$entryPath.StartsWith("$BundleName/"))) {
+        throw '[eclipse-code-bootstrap:runtime_corrupt] Unsafe standalone archive paths.'
+      }
+    }
+  } finally { $archive.Dispose() }
+  Expand-Archive -LiteralPath $ArchivePath -DestinationPath $TempDir
+  $BundleDir = Join-Path $TempDir $BundleName
+  $RuntimeEnvPath = Join-Path $BundleDir 'eclipse-code-runtime.env'
+
+  if (!(Test-Path -LiteralPath $RuntimeEnvPath -PathType Leaf)) {
+    throw "Standalone runtime manifest not found: $RuntimeEnvPath"
+  }
+
+  $nodeBin = Join-Path $BundleDir 'runtime\node\node.exe'
+  $publishScript = Join-Path $BundleDir 'app\src\app\cli\publishRuntime.mjs'
+  $destination = Join-Path $InstallRoot "$BundleName-$VerifiedArtifactDigest"
+  $published = & $nodeBin $publishScript $BundleDir $destination $VerifiedArtifactDigest
+  if ($LASTEXITCODE -ne 0) { throw 'Runtime publication failed.' }
+  $BundleDir = [string]$published
+  $nodeBin = Join-Path $BundleDir 'runtime\node\node.exe'
+  $cliScript = Join-Path $BundleDir 'app\out\cli\eclipse-code.mjs'
+
+  Write-Launcher $nodeBin $cliScript
+  if ($env:ECLIPSE_CODE_MANAGED_INSTALL -ne '1') { Set-EclipseCodeUserPath $BinDir 'add' }
+
+  Write-Output "Installed Eclipse Code CLI at $LauncherPath"
+  Write-Output "Runtime bundle: $BundleDir"
+  Write-Output 'Smoke check:'
+  Write-Output '  eclipse-code worker start --help'
+} finally {
+  if (Test-Path -LiteralPath $TempDir) {
+    $canonicalRoot = [IO.Path]::GetFullPath($InstallRoot).TrimEnd('\') + '\'
+    if (![IO.Path]::GetFullPath($TempDir).StartsWith($canonicalRoot, [StringComparison]::OrdinalIgnoreCase)) {
+      throw 'Installer cleanup target escaped its installation root.'
+    }
+    Remove-Item -LiteralPath $TempDir -Recurse -Force
+  }
+}

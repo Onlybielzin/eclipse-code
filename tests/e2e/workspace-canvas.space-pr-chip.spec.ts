@@ -52,7 +52,7 @@ test.describe('Workspace Canvas - Space PR Chip', () => {
     const stamp = Date.now()
     const branchName = `e2e/pr-panel-${stamp}`
     const worktreeName = `wt-e2e-pr-panel-${stamp}`
-    const worktreePath = path.join(testWorkspacePath, '.opencove', 'worktrees', worktreeName)
+    const worktreePath = path.join(testWorkspacePath, '.eclipse-code', 'worktrees', worktreeName)
 
     await createGitWorktree({ branchName, worktreePath })
 
@@ -62,7 +62,7 @@ test.describe('Workspace Canvas - Space PR Chip', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_GITHUB_INTEGRATION: '1',
+          ECLIPSE_CODE_TEST_GITHUB_INTEGRATION: '1',
         },
       })
 

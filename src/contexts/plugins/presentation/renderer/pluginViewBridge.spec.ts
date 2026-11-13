@@ -27,7 +27,7 @@ function setup(preview = false) {
   const frame = document.createElement('iframe')
   document.body.append(frame)
   const invoke = vi.fn().mockResolvedValue({ answer: 42 })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { controlSurface: { invoke } },
   })
@@ -51,7 +51,7 @@ function setup(preview = false) {
       new MessageEvent('message', {
         source,
         origin,
-        data: { channel: 'opencove-plugin-v1', ...data },
+        data: { channel: 'eclipse-code-plugin-v1', ...data },
       }),
     )
   }
@@ -94,7 +94,7 @@ describe('plugin view bridge authority and lifetime', () => {
       context: { preview: true, theme: 'light' },
     })
     document.documentElement.dataset.coveTheme = 'dark'
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
     expect(post.mock.calls[1][0]).toMatchObject({ type: 'theme', context: { theme: 'dark' } })
     send({ type: 'request', id: '2', operation: 'title', payload: { title: 'Preview title' } })
     await vi.waitFor(() => expect(post).toHaveBeenCalledTimes(3))
@@ -118,7 +118,7 @@ describe('plugin view bridge authority and lifetime', () => {
     await Promise.resolve()
     await Promise.resolve()
     send({ type: 'ready' })
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
     expect(post).not.toHaveBeenCalled()
   })
   it('acknowledges a real title only after its opening Worker accepts the lease-scoped report', async () => {
@@ -219,7 +219,7 @@ describe('plugin view bridge authority and lifetime', () => {
     send({ type: 'restore' })
     send({ type: 'ready' })
     send({ type: 'request', id: 'old', operation: 'invoke', payload: { method: 'read' } })
-    window.dispatchEvent(new Event('opencove-theme-changed'))
+    window.dispatchEvent(new Event('eclipse-code-theme-changed'))
     expect(restore).toHaveBeenCalledOnce()
     expect(invoke).not.toHaveBeenCalled()
     expect(post).not.toHaveBeenCalled()
@@ -268,7 +268,7 @@ it('passes sanitized filesystem diagnostics to the iframe instead of debug messa
   })
   await vi.waitFor(() => expect(post).toHaveBeenCalledOnce())
   expect(post.mock.calls[0][0]).toEqual({
-    channel: 'opencove-plugin-v1',
+    channel: 'eclipse-code-plugin-v1',
     type: 'result',
     id: 'file',
     error: 'Unable to save the file. The destination already exists.',

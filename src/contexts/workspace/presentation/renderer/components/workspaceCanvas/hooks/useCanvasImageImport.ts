@@ -139,12 +139,12 @@ export function useWorkspaceCanvasImageImport({
 
   const importFiles = useCallback(
     async (files: File[], baseFlowCenter: Point) => {
-      const writeCanvasImage = window.opencoveApi?.workspace?.writeCanvasImage
+      const writeCanvasImage = window.eclipseCodeApi?.workspace?.writeCanvasImage
       if (typeof writeCanvasImage !== 'function') {
         return
       }
 
-      const deleteCanvasImage = window.opencoveApi?.workspace?.deleteCanvasImage
+      const deleteCanvasImage = window.eclipseCodeApi?.workspace?.deleteCanvasImage
       const defaultSize = resolveDefaultImageWindowSize(standardWindowSizeBucket)
       const maxMegabytes = Math.round(MAX_CANVAS_IMAGE_BYTES / 1024 / 1024)
 

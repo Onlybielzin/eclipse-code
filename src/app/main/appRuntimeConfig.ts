@@ -2,7 +2,7 @@ import { app } from 'electron'
 import { resolve } from 'path'
 import { shouldEnableWaylandIme } from './waylandIme'
 
-const APP_USER_DATA_DIRECTORY_NAME = 'opencove'
+const APP_USER_DATA_DIRECTORY_NAME = 'eclipse-code'
 
 export type E2EWindowMode = 'normal' | 'inactive' | 'hidden' | 'offscreen'
 
@@ -63,8 +63,8 @@ export function configureAppUserDataPath(): void {
     preserveCanonicalUserDataPath()
   }
 
-  if (process.env.NODE_ENV === 'test' && process.env['OPENCOVE_TEST_USER_DATA_DIR']) {
-    app.setPath('userData', resolve(process.env['OPENCOVE_TEST_USER_DATA_DIR']))
+  if (process.env.NODE_ENV === 'test' && process.env['ECLIPSE_CODE_TEST_USER_DATA_DIR']) {
+    app.setPath('userData', resolve(process.env['ECLIPSE_CODE_TEST_USER_DATA_DIR']))
     return
   }
 
@@ -73,15 +73,15 @@ export function configureAppUserDataPath(): void {
   }
 
   const wantsSharedUserData =
-    isTruthyEnv(process.env['OPENCOVE_DEV_USE_SHARED_USER_DATA']) ||
-    process.argv.includes('--opencove-shared-user-data') ||
+    isTruthyEnv(process.env['ECLIPSE_CODE_DEV_USE_SHARED_USER_DATA']) ||
+    process.argv.includes('--eclipse-code-shared-user-data') ||
     process.argv.includes('--shared-user-data')
 
   if (wantsSharedUserData) {
     return
   }
 
-  const explicitDevUserDataDir = process.env['OPENCOVE_DEV_USER_DATA_DIR']
+  const explicitDevUserDataDir = process.env['ECLIPSE_CODE_DEV_USER_DATA_DIR']
   const defaultUserDataDir = app.getPath('userData')
   const devUserDataDir = explicitDevUserDataDir
     ? resolve(explicitDevUserDataDir)
@@ -113,7 +113,7 @@ export function resolveE2EWindowMode(): E2EWindowMode {
     return 'normal'
   }
 
-  const explicitMode = parseE2EWindowMode(process.env['OPENCOVE_E2E_WINDOW_MODE'])
+  const explicitMode = parseE2EWindowMode(process.env['ECLIPSE_CODE_E2E_WINDOW_MODE'])
   if (explicitMode) {
     if (explicitMode === 'normal') {
       return 'inactive'
@@ -122,7 +122,7 @@ export function resolveE2EWindowMode(): E2EWindowMode {
     return explicitMode
   }
 
-  if (isTruthyEnv(process.env['OPENCOVE_E2E_NO_FOCUS'])) {
+  if (isTruthyEnv(process.env['ECLIPSE_CODE_E2E_NO_FOCUS'])) {
     return 'inactive'
   }
 

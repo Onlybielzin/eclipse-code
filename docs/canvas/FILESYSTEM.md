@@ -1,6 +1,6 @@
 # Filesystem
 
-OpenCove 文件系统能力以 `uri + provider + guardrails` 建模。Desktop、CLI、Web UI 和 remote worker 都通过同一套 Control Surface contracts 访问文件，不直接在 UI 或脚本里散落 path 读写规则。
+Eclipse Code 文件系统能力以 `uri + provider + guardrails` 建模。Desktop、CLI、Web UI 和 remote worker 都通过同一套 Control Surface contracts 访问文件，不直接在 UI 或脚本里散落 path 读写规则。
 
 ## Core Model
 
@@ -73,7 +73,7 @@ itself; see [plugin filesystem access](../plugins/FILESYSTEM.md).
 
 Renderer 不拥有文件访问规则：
 
-- `window.opencoveApi.filesystem.*` 只做边界映射。
+- `window.eclipseCodeApi.filesystem.*` 只做边界映射。
 - Workspace 使用 `resolveFilesystemApiForMount(mountId)` 选择普通 filesystem 或 mount-aware filesystem。
 - Space Explorer 使用 Space 的 `targetMountId`；新建的文件/文件夹节点使用自己的 `workerBinding`。
 - 显式本地绑定的 `mountId: null` 表示本机，不能在移动到远程 Space 后继承远端 mount。旧文档缺少绑定时兼容读取所属 Space 的 mount。
@@ -83,7 +83,7 @@ Renderer 不拥有文件访问规则：
 
 - 从浏览器拖文件到画布背景创建 Document Node；拖文件夹创建初始折叠的 Folder Node。创建的是引用，不调用 move/copy，不改变磁盘结构。
 - 文件夹图标以鼠标释放位置为中心；碰撞使用当前可见节点尺寸，不能被折叠窗口的隐藏展开区域推走。窗口的展开尺寸仍独立持久化。
-- `application/x-opencove-filesystem-entry` 携带来源 URI、浏览边界与 mount；接收方校验协议、URI 边界、mount target 与实际文件类型。浏览器内部拖放仍由原来的文件移动操作处理。
+- `application/x-eclipse-code-filesystem-entry` 携带来源 URI、浏览边界与 mount；接收方校验协议、URI 边界、mount target 与实际文件类型。浏览器内部拖放仍由原来的文件移动操作处理。
 - Folder Node 的持久化 owner 是 workspace node data：`uri` 为当前目录，`rootUri` 为固定导航边界，`viewMode` 为 `icons | list`，`expandedDirectoryUris` 为列表展开偏好。导航只更新目录与标题，不替换 node ID，不合并已打开的同目录窗口。
 - 图标模式按“目录优先、名称自然排序”固定网格排列，单击文件夹进入目录。列表模式为可展开的目录树：单击文件夹整行或箭头都只展开/收起，不改变当前位置；双击、Enter 或右键「打开」显式进入目录。
 - Explorer 根目录标题显示来源 Space 名称，进入子目录后显示当前目录名；标题旁不重复显示 Space 信息。Folder Node 始终以当前目录名为标题。

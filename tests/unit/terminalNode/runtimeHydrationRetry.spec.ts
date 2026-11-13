@@ -47,7 +47,7 @@ describe('runtime hydration survives finite geometry churn', () => {
     vi.stubGlobal('window', {
       setTimeout: globalThis.setTimeout.bind(globalThis),
       clearTimeout: globalThis.clearTimeout.bind(globalThis),
-      opencoveApi: { pty: { write: ptyWrite } },
+      eclipseCodeApi: { pty: { write: ptyWrite } },
     })
     const inputBridge = createRuntimeTerminalInputBridge({
       terminal,
@@ -131,7 +131,7 @@ describe('runtime hydration survives finite geometry churn', () => {
         }
         return snapshot
       })
-      Object.assign(window.opencoveApi.pty, { presentationSnapshot })
+      Object.assign(window.eclipseCodeApi.pty, { presentationSnapshot })
       disposeHydration = startRuntimeTerminalHydration({
         terminal,
         sessionId,

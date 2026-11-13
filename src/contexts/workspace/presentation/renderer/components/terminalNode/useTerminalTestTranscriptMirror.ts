@@ -12,8 +12,8 @@ const persistedTranscriptTextByNodeId = new Map<string, string>()
 const terminalRefsByNodeId = new Map<string, MutableRefObject<Terminal | null>>()
 
 type TranscriptDebugWindow = Window & {
-  __OPENCOVE_TEST_TERMINAL_TRANSCRIPTS__?: Record<string, string>
-  __OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__?: (nodeId: string) => string
+  __ECLIPSE_CODE_TEST_TERMINAL_TRANSCRIPTS__?: Record<string, string>
+  __ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__?: (nodeId: string) => string
 }
 
 function writePersistedTranscript(nodeId: string, text: string): void {
@@ -28,8 +28,8 @@ function writePersistedTranscript(nodeId: string, text: string): void {
   }
 
   const debugWindow = window as TranscriptDebugWindow
-  const transcripts = (debugWindow.__OPENCOVE_TEST_TERMINAL_TRANSCRIPTS__ ??= {})
-  debugWindow.__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__ = currentNodeId => {
+  const transcripts = (debugWindow.__ECLIPSE_CODE_TEST_TERMINAL_TRANSCRIPTS__ ??= {})
+  debugWindow.__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__ = currentNodeId => {
     const terminalRef = terminalRefsByNodeId.get(currentNodeId)
     if (terminalRef?.current) {
       return captureTerminalVisibleText(terminalRef.current)

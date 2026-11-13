@@ -34,23 +34,25 @@ const runFile = promisify(execFile)
 
 export async function createMaterialFixture() {
   // Git reports canonical worktree paths, including macOS /private/var aliases.
-  const directory = await realpath(await mkdtemp(path.join(tmpdir(), 'opencove-pixel-material-')))
+  const directory = await realpath(
+    await mkdtemp(path.join(tmpdir(), 'eclipse-code-pixel-material-')),
+  )
   const repo = path.join(directory, 'project')
-  const worktree = path.join(repo, '.opencove', 'worktrees', 'review')
+  const worktree = path.join(repo, '.eclipse-code', 'worktrees', 'review')
   await mkdir(repo, { recursive: true })
   const documentPath = path.join(repo, 'README.md')
   await writeFile(
     documentPath,
     '# Glacier workspace\n\nA shared surface for parallel work.\n\n- Keep terminal sessions alive.\n- Review changes in an isolated worktree.\n- Keep documents and decisions together.\n',
   )
-  const imagePath = path.join(repo, 'opencove-mark.png')
+  const imagePath = path.join(repo, 'eclipse-code-mark.png')
   await copyFile(path.join(testWorkspacePath, 'build', 'icon.png'), imagePath)
-  await writeFile(path.join(repo, '.gitignore'), '.opencove/\n')
+  await writeFile(path.join(repo, '.gitignore'), '.eclipse-code/\n')
   const git = async (...args: string[]) => {
     await runFile('git', args, { cwd: repo, windowsHide: true })
   }
   await git('init', '-b', 'main')
-  await git('config', 'user.name', 'OpenCove E2E')
+  await git('config', 'user.name', 'Eclipse Code E2E')
   await git('config', 'user.email', 'e2e@example.com')
   await git('add', '.')
   await git('commit', '--no-gpg-sign', '-m', 'Create material showcase fixture')
@@ -85,7 +87,7 @@ export async function createMaterialFixture() {
       note: 'Design notes',
       role: 'Code reviewer',
       website: 'Workspace handbook',
-      image: 'OpenCove mark',
+      image: 'Eclipse Code mark',
     }[kind],
     kind,
     position: { x: [52, 512, 1000][index % 3]!, y: [84, 392, 720][Math.floor(index / 3)]! },
@@ -131,7 +133,7 @@ export async function createMaterialFixture() {
   byKind('image').task = {
     assetId,
     mimeType: 'image/png',
-    fileName: 'opencove-mark.png',
+    fileName: 'eclipse-code-mark.png',
     naturalWidth: image.readUInt32BE(16),
     naturalHeight: image.readUInt32BE(20),
   }
@@ -194,20 +196,20 @@ export async function seedMaterialFixture(
   })
   await window.evaluate(
     async ({ id, repo, worktree, nodes, assetId, image, viewStateKey }) => {
-      await window.opencoveApi.workspace.writeCanvasImage({
+      await window.eclipseCodeApi.workspace.writeCanvasImage({
         assetId,
         bytes: new Uint8Array(image),
         mimeType: 'image/png',
-        fileName: 'opencove-mark.png',
+        fileName: 'eclipse-code-mark.png',
       })
-      const mounts = await window.opencoveApi.controlSurface.invoke<{
+      const mounts = await window.eclipseCodeApi.controlSurface.invoke<{
         mounts: Array<{ mountId: string }>
       }>({ kind: 'query', id: 'mount.list', payload: { projectId: id } })
       const mountId = mounts.mounts[0]?.mountId
       if (!mountId) {
         throw new Error('Material fixture local mount is missing')
       }
-      const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+      const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
       if (!raw) {
         throw new Error('Material fixture workspace is missing')
       }
@@ -241,7 +243,7 @@ export async function seedMaterialFixture(
           rect: { x: 976, y: 42, width: 470, height: 970 },
         },
       ]
-      const result = await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+      const result = await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
         raw: JSON.stringify(state),
       })
       if (!result.ok) {
@@ -255,7 +257,8 @@ export async function seedMaterialFixture(
             [id]: {
               viewport: { x: 0, y: 0, zoom: 1 },
               isMinimapVisible: false,
-              activeSpaceId: 'pixel-build-space',
+              // No open task: the material checks need every window on screen.
+              activeSpaceId: null,
             },
           },
         }),

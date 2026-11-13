@@ -35,6 +35,7 @@ import type {
   BrowserMode,
 } from '@shared/contracts/dto'
 import type { PluginNodePayload } from '@contexts/plugins/domain/pluginTypes'
+import type { QuestionCardData, TodosCardData } from '@shared/contracts/canvasCards'
 
 export type { AgentRuntimeStatus } from '@contexts/agent/domain/types'
 
@@ -49,6 +50,8 @@ export type WorkspaceNodeKind =
   | 'folder'
   | 'website'
   | 'plugin'
+  | 'question'
+  | 'todos'
 
 export type TaskRuntimeStatus = 'todo' | 'doing' | 'ai_done' | 'done'
 
@@ -241,6 +244,8 @@ export interface TerminalNodeData {
   document: DocumentNodeData | null
   folder?: FolderNodeData | null
   plugin?: PluginNodeData | null
+  question?: QuestionCardData | null
+  todos?: TodosCardData | null
   website: WebsiteNodeData | null
 }
 
@@ -277,6 +282,8 @@ export type PersistedTerminalNode = Omit<
     | FolderNodeData
     | PluginNodeData
     | WebsiteNodeData
+    | QuestionCardData
+    | TodosCardData
     | null
 }
 export type PersistedWorkspaceState = Omit<

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`makes skill discoverable on the last line of root help and provides offline help 1`] = `
-"Usage: opencove skill [topic] [options]
+"Usage: eclipse-code skill [topic] [options]
 
 Print the agent usage guide bundled with this CLI version
 
@@ -11,14 +11,14 @@ Table output (-o table): not supported.
 Projectable fields: version, content, topic
 
 Projection example:
-  opencove skill --fields version
+  eclipse-code skill --fields version
   {"version":"0.4.0"}
 
 Examples:
-  opencove skill
-  opencove skill coordinate
-  opencove skill read -o json
+  eclipse-code skill
+  eclipse-code skill coordinate
+  eclipse-code skill read -o json
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;

@@ -59,7 +59,7 @@ function createWorkspace(): WorkspaceState {
     id: 'workspace-1',
     name: 'Cove App',
     path: '/Users/example/cove',
-    worktreesRoot: '.opencove/worktrees',
+    worktreesRoot: '.eclipse-code/worktrees',
     environmentVariables: {},
     nodes: [],
     viewport: { x: 0, y: 0, zoom: 1 },

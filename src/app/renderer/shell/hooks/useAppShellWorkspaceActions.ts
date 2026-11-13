@@ -22,7 +22,7 @@ function resolveWorkspaceOpenInFileManagerPathFromFallback(
 async function resolveWorkspaceOpenInFileManagerPath(
   workspace: WorkspaceState,
 ): Promise<string | null> {
-  const controlSurfaceInvoke = window.opencoveApi?.controlSurface?.invoke
+  const controlSurfaceInvoke = window.eclipseCodeApi?.controlSurface?.invoke
   if (typeof controlSurfaceInvoke !== 'function') {
     return resolveWorkspaceOpenInFileManagerPathFromFallback(workspace)
   }
@@ -172,7 +172,7 @@ export function useAppShellWorkspaceActions({
         return
       }
 
-      const openPath = window.opencoveApi?.workspace?.openPath
+      const openPath = window.eclipseCodeApi?.workspace?.openPath
       if (typeof openPath !== 'function') {
         return
       }

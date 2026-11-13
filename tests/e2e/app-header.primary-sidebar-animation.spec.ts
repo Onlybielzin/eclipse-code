@@ -36,7 +36,7 @@ test.describe('Primary Sidebar Animation', () => {
           workspaces: [
             {
               id: workspaceId,
-              name: 'OpenCove',
+              name: 'Eclipse Code',
               path: testWorkspacePath,
               nodes: [
                 createRailAgent(

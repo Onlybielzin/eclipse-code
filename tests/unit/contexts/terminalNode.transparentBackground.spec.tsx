@@ -73,7 +73,7 @@ describe('terminal transparent background', () => {
       'opaque',
     )
     // The PTY stays: the new xterm reattaches to the same session instead of a new one.
-    const pty = window.opencoveApi.pty as unknown as { attach: ReturnType<typeof vi.fn> }
+    const pty = window.eclipseCodeApi.pty as unknown as { attach: ReturnType<typeof vi.fn> }
     expect(pty.attach).toHaveBeenCalled()
     expect(pty.attach.mock.calls.every(([input]) => input.sessionId === 'kept-session')).toBe(true)
   })

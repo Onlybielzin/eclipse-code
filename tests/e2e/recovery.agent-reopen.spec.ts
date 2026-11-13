@@ -10,7 +10,7 @@ import {
 
 async function readWorkspaceStateRaw(window: Page): Promise<unknown | null> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -84,7 +84,7 @@ test.describe('Recovery - Agent reopen', () => {
           restartedWindow.locator('.workspace-sidebar .workspace-agent-item'),
         ).toHaveCount(1)
         await expect(restartedWindow.locator('.terminal-node').first()).toContainText(
-          '[opencove-test-agent] codex new',
+          '[eclipse-code-test-agent] codex new',
         )
         await expect(
           restartedWindow.locator(
@@ -138,8 +138,8 @@ test.describe('Recovery - Agent reopen', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
         },
       })
 
@@ -238,7 +238,7 @@ test.describe('Recovery - Agent reopen', () => {
           })
           .catch(() => undefined)
 
-        await expect(terminalNode).toContainText('[opencove-test-agent] codex resume', {
+        await expect(terminalNode).toContainText('[eclipse-code-test-agent] codex resume', {
           timeout: 20_000,
         })
 
@@ -305,8 +305,8 @@ test.describe('Recovery - Agent reopen', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
         },
       })
 

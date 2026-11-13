@@ -267,7 +267,7 @@ export function usePtyWorkspaceRuntimeSync({
   const setWorkspaces = useAppStore(state => state.setWorkspaces)
 
   useEffect(() => {
-    const invoke = window.opencoveApi.controlSurface?.invoke
+    const invoke = window.eclipseCodeApi.controlSurface?.invoke
     if (!invoke) {
       return undefined
     }
@@ -303,7 +303,7 @@ export function usePtyWorkspaceRuntimeSync({
     const ptyEventHub = getPtyEventHub()
     let reconcilingActivitySnapshots = false
     const overlayReconciliationOwner = createTerminalAgentOverlayReconciliationOwner({
-      source: window.opencoveApi.pty,
+      source: window.eclipseCodeApi.pty,
       setWorkspaces,
       requestPersistFlush,
     })

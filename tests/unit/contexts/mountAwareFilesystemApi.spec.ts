@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveFilesystemApiForMount } from '@contexts/workspace/presentation/renderer/utils/mountAwareFilesystemApi'
 
 function setApi(value: unknown): void {
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value })
 }
 
 afterEach(() => setApi(undefined))

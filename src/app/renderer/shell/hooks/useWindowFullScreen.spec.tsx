@@ -26,7 +26,7 @@ function stubWindowChrome() {
       return () => listeners.delete(listener)
     }),
   }
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: { windowChrome } })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: { windowChrome } })
   return {
     listeners,
     answer: async (isFullScreen: boolean) => {
@@ -40,7 +40,7 @@ function stubWindowChrome() {
 
 afterEach(() => {
   latest = null
-  Reflect.deleteProperty(window, 'opencoveApi')
+  Reflect.deleteProperty(window, 'eclipseCodeApi')
 })
 
 describe('useWindowFullScreen', () => {

@@ -8,8 +8,8 @@ import { withCliLauncherLock } from '../../../src/app/main/cli/cliLauncherLock'
 let root: string
 let target: string
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'opencove-lock-lease-'))
-  target = join(root, 'opencove')
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-lock-lease-'))
+  target = join(root, 'eclipse-code')
 })
 afterEach(async () => {
   await rm(root, { recursive: true, force: true })

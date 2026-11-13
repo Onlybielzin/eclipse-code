@@ -4,7 +4,7 @@ import type { CreateNodeResult } from '../../src/shared/contracts/dto/nodeContro
 export async function createTerminalInSpace(page: Page, parentId: string) {
   const created = await page.evaluate(
     async payload => {
-      return window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+      return window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
         kind: 'command',
         id: 'node.create',
         payload: {
@@ -23,7 +23,7 @@ export async function createTerminalInSpace(page: Page, parentId: string) {
   }
   const binding = { nodeId: created.node.id, sessionId: created.node.sessionId }
   await page.evaluate(async nodeId => {
-    await window.opencoveApi.controlSurface.invoke({
+    await window.eclipseCodeApi.controlSurface.invoke({
       kind: 'command',
       id: 'canvas.focus',
       payload: { target: { kind: 'node', nodeId } },
@@ -36,10 +36,17 @@ export async function createTerminalInSpace(page: Page, parentId: string) {
 }
 
 export async function focusSpace(page: Page, spaceId: string) {
-  // Worker persistence can precede the renderer's debounced sync projection.
-  await expect(page.getByTestId(`workspace-space-region-${spaceId}`)).toBeAttached()
+  // Worker persistence can precede the renderer's debounced sync projection. A top-level Space of
+  // another task shows only as a task tab until the focus below opens that task.
+  await expect(
+    page
+      .locator(
+        `[data-testid="workspace-space-region-${spaceId}"], [data-testid="workspace-space-switch-${spaceId}"]`,
+      )
+      .first(),
+  ).toBeAttached()
   await page.evaluate(async id => {
-    await window.opencoveApi.controlSurface.invoke({
+    await window.eclipseCodeApi.controlSurface.invoke({
       kind: 'command',
       id: 'canvas.focus',
       payload: { target: { kind: 'space', locator: { kind: 'spaceId', spaceId: id } } },

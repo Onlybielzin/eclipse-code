@@ -45,29 +45,29 @@ test.describe('M6 - Managed SSH remote endpoint integration', () => {
     const remoteSshPort = 2222
     const remoteWorkerPort = await reserveLoopbackPort()
 
-    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-managed-ssh-remote-'))
+    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-managed-ssh-remote-'))
     const remoteProjectDir = path.join(remoteBaseDir, 'Managed SSH Project')
     await mkdir(remoteProjectDir, { recursive: true })
     await writeFile(path.join(remoteProjectDir, 'README.md'), '# managed ssh\n', 'utf8')
 
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-e2e-managed-ssh-worker-'),
+      path.join(tmpdir(), 'eclipse-code-e2e-managed-ssh-worker-'),
     )
-    const appUserDataDir = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-managed-ssh-app-'))
+    const appUserDataDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-managed-ssh-app-'))
     const fakeSshInstallDir = await createFakeManagedSshInstallDir()
 
     let remoteWorker: RemoteWorkerHandle | null = null
     const { electronApp, window } = await launchApp({
       userDataDir: appUserDataDir,
       env: {
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
         PATH: `${fakeSshInstallDir}${path.delimiter}${process.env['PATH'] ?? ''}`,
       },
     })
 
     try {
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -141,7 +141,7 @@ test.describe('M6 - Managed SSH remote endpoint integration', () => {
       const remoteEndpointId = await pollFor(
         async () =>
           await window.evaluate(async displayName => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({
               kind: 'query',
@@ -198,7 +198,7 @@ test.describe('M6 - Managed SSH remote endpoint integration', () => {
             async ({ expectedProjectName, expectedPath, expectedEndpointId }) => {
               const normalize = (value: string): string =>
                 value.trim().replaceAll('\\', '/').replace(/\/+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -214,7 +214,7 @@ test.describe('M6 - Managed SSH remote endpoint integration', () => {
                   return null
                 }
 
-                const mounts = await window.opencoveApi.controlSurface.invoke<{
+                const mounts = await window.eclipseCodeApi.controlSurface.invoke<{
                   mounts: Array<{ endpointId: string; rootPath: string }>
                 }>({
                   kind: 'query',

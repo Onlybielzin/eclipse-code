@@ -28,7 +28,7 @@ test.describe('Workspace Canvas - blank terminal agent restart', () => {
     await mkdir(testWorkspacePath, { recursive: true })
     const env = {
       PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
     }
 
     try {

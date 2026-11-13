@@ -4,14 +4,14 @@ import { delimiter, join, resolve } from 'node:path'
 import { expect, test } from '@playwright/test'
 import { clearAndSeedWorkspace, launchApp } from './workspace-canvas.helpers'
 
-// Canvas agents launch the provider by name. The session's PATH carries OpenCove's own CLI
-// shim; it must never route that name back into OpenCove's terminal launcher (which recursed).
+// Canvas agents launch the provider by name. The session's PATH carries Eclipse Code's own CLI
+// shim; it must never route that name back into Eclipse Code's terminal launcher (which recursed).
 test.describe('Agent launch resolves the provider on PATH', () => {
   test.skip(process.platform === 'win32', 'POSIX executable fixture')
 
   for (const provider of ['claude-code', 'codex'] as const) {
     test(`${provider} starts the real executable found by name`, async () => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-agent-path-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-path-'))
       const fixture = resolve('tests/e2e/fixtures/agent-hook-provider.mjs')
       const name = provider === 'codex' ? 'codex' : 'claude'
       const quote = (value: string) => `'${value.replaceAll("'", `'"'"'`)}'`
@@ -24,9 +24,9 @@ test.describe('Agent launch resolves the provider on PATH', () => {
         env: {
           PATH: `${root}${delimiter}${process.env.PATH ?? ''}`,
           CODEX_HOME: join(root, 'codex-home'),
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
         },
       })
       try {

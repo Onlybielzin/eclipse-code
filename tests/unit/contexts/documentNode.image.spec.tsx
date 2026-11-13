@@ -57,7 +57,7 @@ describe('URI-backed image window', () => {
     vi.stubGlobal('React', React)
     mocks.readFileBytes.mockResolvedValue({ bytes: Uint8Array.of(137, 80, 78, 71) })
     mocks.createUrl.mockReturnValue('blob:preview')
-    vi.stubGlobal('opencoveApi', { sync: { onStateUpdated: () => () => undefined } })
+    vi.stubGlobal('eclipseCodeApi', { sync: { onStateUpdated: () => () => undefined } })
     vi.spyOn(URL, 'createObjectURL').mockImplementation(mocks.createUrl)
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(mocks.revokeUrl)
   })

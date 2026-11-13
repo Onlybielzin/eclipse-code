@@ -138,6 +138,8 @@ export interface WorkspaceCanvasViewProps {
   onMinimapVisibilityChange: (isVisible: boolean) => void
   spaces: WorkspaceSpaceState[]
   activateSpace: (spaceId: string) => void
+  /** The open task (top-level Space); null shows every task. */
+  activeSpaceId?: string | null
   activateAllSpaces: () => void
   onOpenSpaceContextMenu?: (spaceId: string, anchor: { x: number; y: number }) => void
   contextMenu: ContextMenuState | null
@@ -152,6 +154,7 @@ export interface WorkspaceCanvasViewProps {
   arrangeInSpace: (spaceId: string, style?: WorkspaceArrangeStyle) => void
   openTaskCreator: () => void
   openRoleCreator: () => void
+  createDefaultTeam: () => void
   openAgentLauncher: () => void
   openAgentLauncherForProvider: (provider: AgentNodeData['provider']) => void
   projectRoles: ProjectRoleDefinition[]

@@ -35,10 +35,11 @@ test.describe('Recovery - Active workspace agent renderer restore', () => {
         ])
 
         const placeholderWriteResults = await window.evaluate(async () => {
-          const active = await window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback({
-            nodeId: 'agent-active',
-            scrollback: 'ACTIVE_PLACEHOLDER\\r\\n',
-          })
+          const active =
+            await window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback({
+              nodeId: 'agent-active',
+              scrollback: 'ACTIVE_PLACEHOLDER\\r\\n',
+            })
 
           return { activeOk: active.ok }
         })
@@ -62,7 +63,7 @@ test.describe('Recovery - Active workspace agent renderer restore', () => {
               const targetNodeId = 'agent-active'
               let didFail = false
 
-              const api = window.opencoveApi
+              const api = window.eclipseCodeApi
               if (!api || !api.persistence) {
                 return
               }

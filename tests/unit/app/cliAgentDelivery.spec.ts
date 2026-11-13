@@ -50,7 +50,7 @@ function fixture(values: unknown[], self = false) {
         err += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     now: Date.now,
     fetch,
     readTextFile: vi.fn(),

@@ -16,7 +16,7 @@ async function readWorkspaceSnapshot(window: {
   evaluate: <T>(fn: () => T | Promise<T>) => Promise<T>
 }) {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }

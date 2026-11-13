@@ -8,7 +8,7 @@ const DEFAULT_MAX_OLD_SPACE_SIZE_MB = 4096
 const MAX_OLD_SPACE_SIZE_PATTERN = /(?:^|\s)--max-old-space-size(?:=|\s+)\d+(?=\s|$)/
 
 export function resolveBuildHeapLimitMb(
-  rawValue = process.env.OPENCOVE_BUILD_MAX_OLD_SPACE_SIZE_MB,
+  rawValue = process.env.ECLIPSE_CODE_BUILD_MAX_OLD_SPACE_SIZE_MB,
 ) {
   const parsed = Number.parseInt(rawValue ?? '', 10)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_OLD_SPACE_SIZE_MB
@@ -35,7 +35,7 @@ export function buildElectronViteEnv(baseEnv = process.env) {
     ...baseEnv,
     NODE_OPTIONS: ensureMaxOldSpaceSizeOption(
       baseEnv.NODE_OPTIONS,
-      resolveBuildHeapLimitMb(baseEnv.OPENCOVE_BUILD_MAX_OLD_SPACE_SIZE_MB),
+      resolveBuildHeapLimitMb(baseEnv.ECLIPSE_CODE_BUILD_MAX_OLD_SPACE_SIZE_MB),
     ),
   }
 }

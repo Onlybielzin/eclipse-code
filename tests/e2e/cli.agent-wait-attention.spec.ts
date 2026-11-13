@@ -4,7 +4,10 @@ import { cli, launchRealClaude, prompt } from './agent.prompt.real-claude.helper
 import { terminalCommand } from './cli.terminal.helpers'
 
 test.describe('parent CLI attention for a real Claude child', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX acceptance')
 
   test('reports a child question to the parent, resumes the same turn after a TUI answer, and retains PTY exit', async ({
@@ -15,7 +18,7 @@ test.describe('parent CLI attention for a real Claude child', () => {
     const { window: page, nodeId, sessionId, userDataDir, snapshot } = real
     try {
       const parent = await page.evaluate(async () =>
-        window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -41,7 +44,7 @@ test.describe('parent CLI attention for a real Claude child', () => {
       const blocked = await snapshot()
       expect(blocked).toMatchObject({ turn: { id: turnId } })
       expect(['question', 'permission']).toContain(blocked.blockedReason)
-      const command = `opencove agent wait --node ${nodeId} --turn ${turnId} --timeout 30s -o json`
+      const command = `eclipse-code agent wait --node ${nodeId} --turn ${turnId} --timeout 30s -o json`
       const start = Date.now()
       const attention = await terminalCommand(page, binding, command, 'ATTENTION')
       expect(attention).toMatch(/\bexit=10\b/)
@@ -110,7 +113,7 @@ test.describe('parent CLI attention for a real Claude child', () => {
       expect(secondBlocked).toMatchObject({ turn: { id: secondTurn } })
       expect(['question', 'permission']).toContain(secondBlocked.blockedReason)
       // Kill only this test's own Claude PTY through the app lifecycle boundary.
-      await page.evaluate(async id => window.opencoveApi.pty.kill({ sessionId: id }), sessionId)
+      await page.evaluate(async id => window.eclipseCodeApi.pty.kill({ sessionId: id }), sessionId)
       // Until the exit is observed the turn is still blocked, and wait would correctly exit 10.
       await expect
         .poll(async () => (await snapshot()).lastEndedTurn?.id, { timeout: 30_000 })

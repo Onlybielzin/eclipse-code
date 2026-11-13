@@ -23,7 +23,7 @@ describe('session catalog filesystem budget', () => {
   it.each(['claude-code', 'codex'] as const)(
     'bounds open transcripts while listing a large %s directory',
     async provider => {
-      paths.home = await fs.mkdtemp(join(tmpdir(), 'opencove-catalog-budget-'))
+      paths.home = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-catalog-budget-'))
       const cwd = join(paths.home, 'project')
       const directory =
         provider === 'claude-code'

@@ -33,7 +33,7 @@ export function PluginCandidateList({
   }, [])
   async function copy(text: string): Promise<void> {
     try {
-      await window.opencoveApi.clipboard.writeText(text)
+      await window.eclipseCodeApi.clipboard.writeText(text)
       if (alive.current) {
         setFeedback(t('settingsPanel.plugins.tools.copied'))
       }

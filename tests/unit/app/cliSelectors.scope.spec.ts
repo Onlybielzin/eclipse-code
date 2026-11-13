@@ -11,7 +11,7 @@ const otherNode = { ...ownNode, id: 'abcdef-other', projectId: otherProject.id }
 
 function tokenOnly(admin = false) {
   const f = identityFixture()
-  f.io.env = { OPENCOVE_CONTROL_URL: 'http://fixture', OPENCOVE_CONTROL_TOKEN: 'secret' }
+  f.io.env = { ECLIPSE_CODE_CONTROL_URL: 'http://fixture', ECLIPSE_CODE_CONTROL_TOKEN: 'secret' }
   f.io.fetch = vi.fn(async (_url, init) => {
     const request = JSON.parse(String(init?.body))
     f.requests.push(request)
@@ -81,7 +81,7 @@ it('never lists or mutates after identity lookup is denied', async () => {
 it.each([false, true])('quotes all executable @self examples (ungrouped=%s)', async ungrouped => {
   const f = identityFixture()
   if (ungrouped) {
-    f.io.env.OPENCOVE_SPACE_ID = ''
+    f.io.env.ECLIPSE_CODE_SPACE_ID = ''
     f.values['system.whoami'] = { ...who, spaceId: '' }
   }
   expect(await run(['context'], f.io)).toBe(0)

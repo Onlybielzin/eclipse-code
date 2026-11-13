@@ -219,7 +219,7 @@ function normalizeSaveTextToDownloadsPayload(payload: unknown): SaveTextToDownlo
 }
 
 function shouldBypassSaveDialog(): boolean {
-  return Boolean(process.env.OPENCOVE_TEST_BYPASS_SAVE_DIALOG)
+  return Boolean(process.env.ECLIPSE_CODE_TEST_BYPASS_SAVE_DIALOG)
 }
 
 function resolveSaveDialogParent(event: IpcMainInvokeEvent): BrowserWindow | null {

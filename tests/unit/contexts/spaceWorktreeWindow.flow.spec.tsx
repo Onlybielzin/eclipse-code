@@ -25,7 +25,7 @@ describe('SpaceWorktreeWindow flow', () => {
         spaces={createSpaces()}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={() => undefined}
         onAppendSpaceArchiveRecord={() => undefined}
@@ -42,7 +42,7 @@ describe('SpaceWorktreeWindow flow', () => {
       'uncommitted changes',
     )
     expect(statusSummary).toHaveBeenCalledWith({
-      repoPath: '/repo/.opencove/worktrees/space-1',
+      repoPath: '/repo/.eclipse-code/worktrees/space-1',
     })
     expect(screen.queryByTestId('space-worktree-home-view')).not.toBeInTheDocument()
     await waitFor(() => {
@@ -61,7 +61,7 @@ describe('SpaceWorktreeWindow flow', () => {
         spaces={createSpaces('/repo')}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={() => undefined}
         onAppendSpaceArchiveRecord={() => undefined}
@@ -99,7 +99,7 @@ describe('SpaceWorktreeWindow flow', () => {
         spaces={createSpaces('/repo')}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={onClose}
         onShowMessage={undefined}
@@ -126,7 +126,7 @@ describe('SpaceWorktreeWindow flow', () => {
     await waitFor(() => {
       expect(onUpdateSpaceDirectory).toHaveBeenCalledWith(
         'space-1',
-        '/repo/.opencove/worktrees/space-demo--1a2b3c4d',
+        '/repo/.eclipse-code/worktrees/space-demo--1a2b3c4d',
         expect.objectContaining({
           markNodeDirectoryMismatch: true,
           renameSpaceTo: 'space/demo',

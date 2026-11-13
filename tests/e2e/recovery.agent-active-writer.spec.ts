@@ -17,7 +17,7 @@ test.describe('Recovery - Agent active writer', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-active-writer',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-active-writer',
         },
       })
 
@@ -62,7 +62,7 @@ test.describe('Recovery - Agent active writer', () => {
         await expect(agentNode.locator('.terminal-node__status')).toHaveText('Standby')
 
         const persisted = await window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           const state = raw
             ? (JSON.parse(raw) as { workspaces?: Array<{ nodes?: unknown[] }> })
             : null

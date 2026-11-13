@@ -17,6 +17,6 @@ describe('bundled plugin handbook navigation', () => {
     expect(resolveHandbookLink('https://example.com/API.md', tutorial, articles)).toBeNull()
     expect(resolveHandbookLink('//example.com/API.md', tutorial, articles)).toBeNull()
     expect(resolveHandbookLink('#chapter', tutorial, articles)).toBeNull()
-    expect(tutorial.markdown).toContain('opencove plugin guide')
+    expect(tutorial.markdown).toContain('eclipse-code plugin guide')
   })
 })

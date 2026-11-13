@@ -19,7 +19,7 @@ function postJson(endpoint: string, token: string, payload: unknown): Promise<nu
       headers: {
         'content-type': 'application/json',
         'content-length': Buffer.byteLength(body),
-        'x-opencove-hook-token': token,
+        'x-eclipse-code-hook-token': token,
       },
     })
     outgoing.once('error', reject)
@@ -40,7 +40,7 @@ describe('shared agent hook channel contract', () => {
     channel.onState(event => states.push(event))
     channel.onMetadata(event => metadata.push(event))
     const send = (hook_event_name: string, source?: string) =>
-      postJson(channel.getEndpoint()!, reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!, {
+      postJson(channel.getEndpoint()!, reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!, {
         session_id: 'real-session',
         transcript_path: '/tmp/real-session.jsonl',
         cwd: '/tmp',
@@ -82,7 +82,7 @@ describe('shared agent hook channel contract', () => {
   })
 
   it('binds terminal identity only from a current authenticated SessionStart', async () => {
-    const homeDirectory = await mkdtemp(join(tmpdir(), 'opencove-agent-hook-identity-'))
+    const homeDirectory = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-hook-identity-'))
     roots.push(homeDirectory)
     const channel = createClaudeHookChannel({
       homeDirectory,
@@ -91,7 +91,7 @@ describe('shared agent hook channel contract', () => {
     })
     await channel.start()
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const token = reservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
     let current = true
     const metadata: unknown[] = []
     const states: unknown[] = []
@@ -148,7 +148,7 @@ describe('shared agent hook channel contract', () => {
     expect(states).toHaveLength(0)
 
     const nextReservation = await channel.reserveSpawn()
-    const nextToken = nextReservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const nextToken = nextReservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
     nextReservation.commit('pty-session', {
       provider: 'claude-code',
       invocationId: 'invocation-2',
@@ -171,7 +171,7 @@ describe('shared agent hook channel contract', () => {
 
     const registryObservation = vi.fn(() => true)
     const registryReservation = await channel.reserveSpawn()
-    const registryToken = registryReservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const registryToken = registryReservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
     registryReservation.commit('pty-registry-owned', {
       provider: 'claude-code',
       invocationId: 'invocation-3',
@@ -207,7 +207,7 @@ describe('shared agent hook channel contract', () => {
   })
 
   it('keeps the existing provider channel isolated by reservation token', async () => {
-    const homeDirectory = await mkdtemp(join(tmpdir(), 'opencove-agent-hook-channel-'))
+    const homeDirectory = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-hook-channel-'))
     roots.push(homeDirectory)
     const channel = createClaudeHookChannel({
       homeDirectory,
@@ -216,7 +216,7 @@ describe('shared agent hook channel contract', () => {
     })
     await channel.start()
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CLAUDE_HOOK_TOKEN ?? ''
+    const token = reservation.env?.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN ?? ''
     const envelope = {
       version: 1,
       state: 'waiting',
@@ -248,12 +248,12 @@ describe('shared agent hook channel contract', () => {
 
 describe('Codex hook channel', () => {
   it('uses one ephemeral credential per launch and clears it with the PTY session', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-codex-hook-channel-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-codex-hook-channel-'))
     roots.push(root)
     const channel = createCodexHookChannel({})
     await channel.start()
     const reservation = await channel.reserveSpawn()
-    const token = reservation.env?.OPENCOVE_CODEX_HOOK_TOKEN ?? ''
+    const token = reservation.env?.ECLIPSE_CODE_CODEX_HOOK_TOKEN ?? ''
     const envelope = {
       version: 1,
       state: 'waiting',

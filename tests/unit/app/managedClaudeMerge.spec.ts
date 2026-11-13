@@ -8,9 +8,9 @@ import { ensurePersistedWorkspace } from '@contexts/workspace/presentation/rende
 import { guardNodeFromSyncOverwrite } from '@contexts/workspace/presentation/renderer/utils/syncNodeGuards'
 import { markPersistedStateAsSynced } from '@contexts/workspace/presentation/renderer/utils/persistence/write'
 import { toPersistedState } from '@contexts/workspace/presentation/renderer/utils/persistence/toPersistedState'
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 afterEach(() =>
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original }),
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original }),
 )
 function fixture(id: string, owned: boolean, runtime: string | null = 'runtime') {
   return ensurePersistedWorkspace({
@@ -101,7 +101,10 @@ it('preserves unowned local verified binding in the normal merge', () => {
   ).toBe('A')
 })
 it('attaches an old same-runtime preparation using the newer canonical tuple', () => {
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: { persistence: {} } })
+  Object.defineProperty(window, 'eclipseCodeApi', {
+    configurable: true,
+    value: { persistence: {} },
+  })
   const canonical = fixture('prepared', true),
     current = toShellWorkspaceState(canonical).nodes[0]
   markPersistedStateAsSynced(toPersistedState([toShellWorkspaceState(canonical)], canonical.id), 5)

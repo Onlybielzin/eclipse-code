@@ -58,7 +58,7 @@ function mockQueries(
   const invoke = vi.fn(({ id, payload }: { id: string; payload: { projectId: string } | null }) =>
     id === 'endpoint.list' ? listEndpoints() : listMounts(payload!.projectId),
   )
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
   return invoke
 }
 

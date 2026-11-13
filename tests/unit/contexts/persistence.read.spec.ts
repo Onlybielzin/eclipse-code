@@ -22,7 +22,7 @@ describe('workspace persistence (read/normalize)', () => {
         id: 'workspace-1',
         name: 'cove',
         path: '/tmp/cove',
-        worktreesRoot: '.opencove/worktrees',
+        worktreesRoot: '.eclipse-code/worktrees',
         spaceArchiveRecords: [],
         viewport: { x: -320, y: 180, zoom: 1.25 },
         isMinimapVisible: false,
@@ -90,7 +90,7 @@ describe('workspace persistence (read/normalize)', () => {
               endedAt: null,
               exitCode: null,
               lastError: null,
-              scrollback: '[opencove-test-agent] codex new gpt-5.2-codex\n',
+              scrollback: '[eclipse-code-test-agent] codex new gpt-5.2-codex\n',
               agent: {
                 provider: 'codex',
                 prompt: 'Implement retry for failed request',
@@ -142,7 +142,7 @@ describe('workspace persistence (read/normalize)', () => {
     expect(restored?.workspaces).toHaveLength(1)
     expect(restored?.workspaces[0].viewport).toEqual({ x: -320, y: 180, zoom: 1.25 })
     expect(restored?.workspaces[0].isMinimapVisible).toBe(false)
-    expect(restored?.workspaces[0].worktreesRoot).toBe('.opencove/worktrees')
+    expect(restored?.workspaces[0].worktreesRoot).toBe('.eclipse-code/worktrees')
     expect(restored?.workspaces[0].nodes).toHaveLength(3)
     expect(restored?.workspaces[0].nodes[0].title).toBe('terminal-1')
     expect(restored?.workspaces[0].nodes[0].scrollback).toBeNull()

@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`documents history deletion boundaries in offline help 1`] = `
-"Usage: opencove agent history clear --node <id> [options]
+"Usage: eclipse-code agent history clear --node <id> [options]
 
-Delete a node’s stored OpenCove replies without deleting the node
+Delete a node’s stored Eclipse Code replies without deleting the node
 
 Deletes this node’s stored ended-turn replies from the Worker archive and in-memory history across all retained incarnations. Does not delete the node, provider transcripts or backups, and does not change run state, active turns or delivery records. A turn that ends after the clear is stored normally.
 
@@ -18,12 +18,12 @@ Table output (-o table): not supported.
 Projectable fields: nodeId, memoryRemoved, archive, archive.status, archive.removed
 
 Projection example:
-  opencove agent history clear --node '<id>' --fields nodeId
+  eclipse-code agent history clear --node '<id>' --fields nodeId
   {"nodeId":"node-123","memoryRemoved":2,"archive":{"status":"cleared","removed":3}}
 
 Examples:
-  opencove agent history clear --node "Reviewer"
+  eclipse-code agent history clear --node "Reviewer"
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;

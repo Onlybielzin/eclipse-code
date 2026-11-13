@@ -29,7 +29,7 @@ interface Invocation {
 
 async function readBindings(window: Page): Promise<Binding[]> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{
         nodes?: Array<{
@@ -74,7 +74,7 @@ async function expectOwnedSessions(window: Page, bindings: Binding[], mode: stri
   for (const binding of bindings) {
     const terminal = window.locator(`[data-id="${binding.nodeId}"] .terminal-node`)
     // eslint-disable-next-line no-await-in-loop -- two independent nodes must both finish recovery
-    await expect(terminal).toContainText(`[opencove-test-claude-ownership] ${mode}`)
+    await expect(terminal).toContainText(`[eclipse-code-test-claude-ownership] ${mode}`)
     // eslint-disable-next-line no-await-in-loop -- keep the complete provider ID assertion exact
     await expect(terminal).toContainText(binding.sessionId!)
     // eslint-disable-next-line no-await-in-loop -- exercise the normally enabled hook channel
@@ -116,17 +116,17 @@ test.describe('Recovery - Claude managed session ownership', () => {
       XDG_DATA_HOME: path.join(home, '.local', 'share'),
       XDG_STATE_HOME: path.join(home, '.local', 'state'),
       XDG_RUNTIME_DIR: runtimeDirectory,
-      OPENCOVE_TEST_WORKSPACE: workspace,
-      OPENCOVE_WORKER_CLIENT: '1',
-      OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
-      OPENCOVE_TEST_AGENT_STUB_SCRIPT: path.join(
+      ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+      ECLIPSE_CODE_WORKER_CLIENT: '1',
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
+      ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: path.join(
         __dirname,
         'fixtures/claude-session-ownership.mjs',
       ),
-      OPENCOVE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
+      ECLIPSE_CODE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
       ANTHROPIC_API_KEY: '',
       ANTHROPIC_AUTH_TOKEN: '',
       CLAUDE_CODE_OAUTH_TOKEN: '',

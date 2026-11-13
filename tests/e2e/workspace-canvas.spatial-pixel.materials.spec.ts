@@ -35,7 +35,7 @@ async function geometry(window: Page) {
 
 async function terminalIdentity(window: Page) {
   return await window.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const node = document.querySelector(
       `[data-id="${id}"] .terminal-node__terminal`,
     ) as HTMLElement | null
@@ -57,7 +57,7 @@ async function attachTerminalDiagnostics(window: Page, testInfo: TestInfo) {
     .poll(
       () =>
         window.evaluate(() => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           return ['pixel-material-terminal', 'pixel-material-agent'].every(id => {
             return Boolean(
               api?.getRuntimeSessionId(id) && api?.getFontOptions(id) && api?.getSize(id),
@@ -68,7 +68,7 @@ async function attachTerminalDiagnostics(window: Page, testInfo: TestInfo) {
     )
     .toBe(true)
   const data = await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const settings = raw
       ? (
           JSON.parse(raw) as {
@@ -76,7 +76,7 @@ async function attachTerminalDiagnostics(window: Page, testInfo: TestInfo) {
           }
         ).settings
       : null
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     return {
       devicePixelRatio: window.devicePixelRatio,
       viewport: { width: window.innerWidth, height: window.innerHeight },
@@ -120,11 +120,11 @@ async function runBuildOutput(window: Page) {
     .poll(() =>
       window.evaluate(
         async ({ id, value }) => {
-          const sessionId = window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id)
+          const sessionId = window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id)
           if (!sessionId) {
             return false
           }
-          const screen = await window.opencoveApi.pty.presentationSnapshot({ sessionId })
+          const screen = await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId })
           return screen.serializedScreen.includes(value)
         },
         { id: MATERIAL_TERMINAL, value: marker },
@@ -142,7 +142,7 @@ test.describe('Workspace Canvas - Spatial Pixel Materials', () => {
     void browserName
     const fixture = await createMaterialFixture()
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
     })
     try {
       const nativeWindow = await electronApp.browserWindow(window)
@@ -227,9 +227,9 @@ test.describe('Workspace Canvas - Spatial Pixel Materials', () => {
   }, testInfo) => {
     void browserName
     const fixture = await createMaterialFixture()
-    const videoDirectory = process.env.OPENCOVE_E2E_PIXEL_PRESENTATION_VIDEO_DIR
+    const videoDirectory = process.env.ECLIPSE_CODE_E2E_PIXEL_PRESENTATION_VIDEO_DIR
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
       ...(videoDirectory
         ? { recordVideo: { dir: videoDirectory, size: { width: 1800, height: 1200 } } }
         : {}),
@@ -354,7 +354,7 @@ test.describe('Workspace Canvas - Spatial Pixel Materials', () => {
               rect: { x: 6300, y: 1900, width: 2200, height: 1800 },
             },
           ],
-          activeSpaceId: 'far-main',
+          activeSpaceId: null,
         },
       )
       await window.evaluate(
@@ -367,7 +367,7 @@ test.describe('Workspace Canvas - Spatial Pixel Materials', () => {
                 [id]: {
                   viewport: { x: 180, y: 170, zoom: 0.2 },
                   isMinimapVisible: false,
-                  activeSpaceId: 'far-main',
+                  activeSpaceId: null,
                 },
               },
             }),

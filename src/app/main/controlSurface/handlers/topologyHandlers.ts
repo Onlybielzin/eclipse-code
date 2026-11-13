@@ -33,7 +33,7 @@ import type {
   RepairWorkerEndpointResult,
   SshConfigHost,
 } from '../../../../shared/contracts/dto'
-import { createAppError, OpenCoveAppError } from '../../../../shared/errors/appError'
+import { createAppError, EclipseCodeAppError } from '../../../../shared/errors/appError'
 import type { ControlSurface } from '../controlSurface'
 import { registerOperation } from '../registerOperation'
 import { invokeControlSurface } from '../remote/controlSurfaceHttpClient'
@@ -183,7 +183,7 @@ export function registerTopologyHandlers(
             typeof value.pid === 'number' && Number.isFinite(value.pid) ? Math.floor(value.pid) : 0,
         }
       } catch (error) {
-        if (error instanceof OpenCoveAppError) {
+        if (error instanceof EclipseCodeAppError) {
           throw error
         }
 
@@ -258,7 +258,7 @@ export function registerTopologyHandlers(
             : {}),
         }
       } catch (error) {
-        if (error instanceof OpenCoveAppError) {
+        if (error instanceof EclipseCodeAppError) {
           throw error
         }
 
@@ -333,7 +333,7 @@ export function registerTopologyHandlers(
             : [],
         }
       } catch (error) {
-        if (error instanceof OpenCoveAppError) {
+        if (error instanceof EclipseCodeAppError) {
           throw error
         }
 

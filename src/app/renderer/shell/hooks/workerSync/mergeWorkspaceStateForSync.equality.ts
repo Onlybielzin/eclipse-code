@@ -259,6 +259,8 @@ function isNodeDataEquivalent(persisted: TerminalNodeData, existing: TerminalNod
     'plugin',
     'website',
     'role',
+    'question',
+    'todos',
     'terminalAgentBinding',
     'terminalGeometry',
   ] as const) {

@@ -10,7 +10,7 @@ import {
 } from '@contexts/workspace/presentation/renderer/utils/persistence/write'
 import { subscribeCanonicalRefresh } from '@contexts/workspace/presentation/renderer/utils/persistence/canonicalRefresh'
 import { isRetiredManagedNode } from '@contexts/workspace/presentation/renderer/utils/persistence/publicationState'
-const original = window.opencoveApi
+const original = window.eclipseCodeApi
 const base = {
   formatVersion: 1,
   activeWorkspaceId: null,
@@ -19,12 +19,12 @@ const base = {
 }
 const local = { ...base, settings: { ...base.settings, releaseNotesSeenVersion: 'local' } }
 afterEach(() =>
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original }),
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original }),
 )
 function api(
   write = vi.fn(async () => ({ ok: true, level: 'full', bytes: 1, revision: 3, corrected: true })),
 ) {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { persistence: { writeAppState: write } },
   })
@@ -81,7 +81,7 @@ it('identity rejection retains the accepted ancestor and permitted edits', async
 })
 
 it('keeps a raw replacement failure typed and retires its rejected node immediately', async () => {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

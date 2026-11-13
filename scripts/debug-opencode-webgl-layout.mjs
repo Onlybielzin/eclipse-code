@@ -17,9 +17,9 @@ import {
 } from './debug-terminal-webgl-geometry.mjs'
 
 const repoPath = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
-const port = Number.parseInt(process.env.OPENCOVE_OPENCODE_WEBGL_PORT ?? '9473', 10)
-const pnpmCommand = process.env.OPENCOVE_OPENCODE_WEBGL_PNPM_COMMAND ?? 'pnpm'
-const keepUserData = process.env.OPENCOVE_OPENCODE_WEBGL_KEEP_USER_DATA === '1'
+const port = Number.parseInt(process.env.ECLIPSE_CODE_OPENCODE_WEBGL_PORT ?? '9473', 10)
+const pnpmCommand = process.env.ECLIPSE_CODE_OPENCODE_WEBGL_PNPM_COMMAND ?? 'pnpm'
+const keepUserData = process.env.ECLIPSE_CODE_OPENCODE_WEBGL_KEEP_USER_DATA === '1'
 const artifactRoot = path.join(repoPath, 'artifacts', 'debug-opencode-webgl-layout')
 
 function delay(ms) {
@@ -84,7 +84,7 @@ async function isCdpAlive() {
 
 async function readTerminalDomSnapshot(page) {
   return await page.evaluate(() => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const terminalNodes = [...document.querySelectorAll('.terminal-node')].map(terminalNode => {
       const flowNode =
         terminalNode.closest('.react-flow__node') ?? terminalNode.closest('[data-id]')
@@ -188,7 +188,7 @@ async function waitForOpenCodeScreen(page, sessionId) {
   let latest = null
   while (Date.now() < deadline) {
     latest = await page.evaluate(
-      async id => await window.opencoveApi.pty.presentationSnapshot({ sessionId: id }),
+      async id => await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId: id }),
       sessionId,
     )
     if (/opencode/i.test(latest?.serializedScreen ?? '')) {
@@ -236,14 +236,14 @@ async function main() {
     new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-'),
   )
   await mkdir(artifactDir, { recursive: true })
-  const userDataDir = await createDebugUserDataDir('opencove-opencode-webgl-layout-')
+  const userDataDir = await createDebugUserDataDir('eclipse-code-opencode-webgl-layout-')
   await seedApprovedLocalWorkerUserData(userDataDir, repoPath)
   const logs = []
   const env = {
     ...process.env,
-    OPENCOVE_DEV_USER_DATA_DIR: userDataDir,
-    OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-    OPENCOVE_TERMINAL_TEST_API: '1',
+    ECLIPSE_CODE_DEV_USER_DATA_DIR: userDataDir,
+    ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+    ECLIPSE_CODE_TERMINAL_TEST_API: '1',
   }
   delete env.ELECTRON_RUN_AS_NODE
 
@@ -278,12 +278,12 @@ async function main() {
       context.pages()[0] ??
       (await context.waitForEvent('page'))
     await page.waitForLoadState('domcontentloaded')
-    await page.waitForFunction(() => Boolean(window.opencoveApi?.worker?.getStatus), null, {
+    await page.waitForFunction(() => Boolean(window.eclipseCodeApi?.worker?.getStatus), null, {
       timeout: 60_000,
     })
     const writeResult = await page.evaluate(
       async state =>
-        await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify(state),
         }),
       createSeededWorkspaceState(),

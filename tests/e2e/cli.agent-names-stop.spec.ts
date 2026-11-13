@@ -11,7 +11,7 @@ const spaceId = 'cli-names-space'
 
 test('CLI names survive session titles, rename by name and stop without removing the node', async () => {
   test.setTimeout(120_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-names-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-names-'))
   const workspace = join(root, 'project')
   const profile = join(root, 'profile')
   let app: ElectronApplication | undefined
@@ -21,12 +21,12 @@ test('CLI names survive session titles, rename by name and stop without removing
       userDataDir: profile,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-title-from-first-input',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-title-from-first-input',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
         CODEX_HOME: join(profile, 'home', '.codex'),
       },
     })
@@ -56,7 +56,7 @@ test('CLI names survive session titles, rename by name and stop without removing
     // The bootstrap shell receives the real interact grant, just as cli.agent-identity does.
     const shell = await page.evaluate(
       async payload =>
-        await window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        await window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -81,7 +81,7 @@ test('CLI names survive session titles, rename by name and stop without removing
     const cli = async (command: string, label: string) =>
       jsonOutput(await terminalCommand(page, binding, command, label))
     const created = await cli(
-      'opencove node create agent --provider codex --title "codex · Reviewer" --fields id,title,sessionId',
+      'eclipse-code node create agent --provider codex --title "codex · Reviewer" --fields id,title,sessionId',
       'CREATE_NAMED',
     )
     const named = created.node as { id: string; title: string; sessionId: string }
@@ -89,7 +89,7 @@ test('CLI names survive session titles, rename by name and stop without removing
     expect(named.sessionId).toBeTruthy()
     // Positive control: the same fixture must actually deliver an automatic session title.
     const autoResult = await cli(
-      'opencove node create agent --provider codex --fields id,sessionId',
+      'eclipse-code node create agent --provider codex --fields id,sessionId',
       'CREATE_AUTO',
     )
     const automatic = autoResult.node as { id: string; sessionId: string }
@@ -104,7 +104,7 @@ test('CLI names survive session titles, rename by name and stop without removing
       // eslint-disable-next-line no-await-in-loop
       const accepted = await page.evaluate(
         async target =>
-          await window.opencoveApi.controlSurface.invoke<{ accepted: boolean }>({
+          await window.eclipseCodeApi.controlSurface.invoke<{ accepted: boolean }>({
             kind: 'command',
             id: 'session.writeNode',
             payload: {
@@ -126,7 +126,7 @@ test('CLI names survive session titles, rename by name and stop without removing
         async () =>
           await page.evaluate(
             async nodeId =>
-              await window.opencoveApi.controlSurface.invoke<{ turnOutcome: string | null }>({
+              await window.eclipseCodeApi.controlSurface.invoke<{ turnOutcome: string | null }>({
                 kind: 'query',
                 id: 'agent.get',
                 payload: { nodeId },
@@ -140,10 +140,13 @@ test('CLI names survive session titles, rename by name and stop without removing
       page.locator(`[data-id="${named.id}"] [data-testid="terminal-node-title-display"]`),
     ).toHaveText('codex · Reviewer')
     expect(
-      await cli('opencove node get --node "codex · Reviewer" --fields id,title', 'RESOLVE_NAME'),
+      await cli(
+        'eclipse-code node get --node "codex · Reviewer" --fields id,title',
+        'RESOLVE_NAME',
+      ),
     ).toEqual({ node: { id: named.id, title: 'codex · Reviewer' } })
     const renamed = await cli(
-      'opencove node update agent --node "codex · Reviewer" --title "codex · Lead" --fields id,title',
+      'eclipse-code node update agent --node "codex · Reviewer" --title "codex · Lead" --fields id,title',
       'RENAME_AGENT',
     )
     expect(renamed).toMatchObject({ node: { id: named.id, title: 'codex · Lead' } })
@@ -152,7 +155,7 @@ test('CLI names survive session titles, rename by name and stop without removing
     ).toHaveText('codex · Lead')
     // Capture an unpinned renderer candidate, then publish it after a concurrent CLI rename.
     const stale = await page.evaluate(async nodeId => {
-      const snapshot = await window.opencoveApi.persistence.readAppState()
+      const snapshot = await window.eclipseCodeApi.persistence.readAppState()
       const state = snapshot.state as {
         workspaces: Array<{
           nodes: Array<{ id: string; title: string; titlePinnedByUser?: boolean }>
@@ -169,25 +172,25 @@ test('CLI names survive session titles, rename by name and stop without removing
     }, automatic.id)
     expect(
       await cli(
-        `opencove node update agent --node ${automatic.id} --title "Auto lead" --fields id,title`,
+        `eclipse-code node update agent --node ${automatic.id} --title "Auto lead" --fields id,title`,
         'PIN_AUTOMATIC',
       ),
     ).toMatchObject({ node: { id: automatic.id, title: 'Auto lead' } })
     const published = await page.evaluate(
-      async payload => await window.opencoveApi.persistence.writeAppState(payload),
+      async payload => await window.eclipseCodeApi.persistence.writeAppState(payload),
       stale,
     )
     expect(published.ok).toBe(true)
     expect(
       await cli(
-        'opencove node get --node "Auto lead" --fields id,title',
+        'eclipse-code node get --node "Auto lead" --fields id,title',
         'PIN_SURVIVES_PUBLICATION',
       ),
     ).toEqual({ node: { id: automatic.id, title: 'Auto lead' } })
     await expect(
       page.locator(`[data-id="${automatic.id}"] [data-testid="terminal-node-title-display"]`),
     ).toHaveText('Auto lead')
-    expect(await cli('opencove agent stop --node "codex · Lead"', 'STOP_AGENT')).toEqual({
+    expect(await cli('eclipse-code agent stop --node "codex · Lead"', 'STOP_AGENT')).toEqual({
       nodeId: named.id,
       sessionId: named.sessionId,
       stopped: true,
@@ -197,7 +200,7 @@ test('CLI names survive session titles, rename by name and stop without removing
         async () =>
           await page.evaluate(
             async nodeId =>
-              await window.opencoveApi.controlSurface.invoke<{ state: string }>({
+              await window.eclipseCodeApi.controlSurface.invoke<{ state: string }>({
                 kind: 'query',
                 id: 'agent.get',
                 payload: { nodeId },
@@ -207,34 +210,34 @@ test('CLI names survive session titles, rename by name and stop without removing
         { timeout: 15_000 },
       )
       .toMatchObject({ state: 'exited' })
-    expect(await cli('opencove agent stop --node "codex · Lead"', 'STOP_AGAIN')).toEqual({
+    expect(await cli('eclipse-code agent stop --node "codex · Lead"', 'STOP_AGAIN')).toEqual({
       nodeId: named.id,
       sessionId: named.sessionId,
       stopped: false,
       reason: 'not_running',
     })
     expect(
-      await cli('opencove node get --node "codex · Lead" --fields id,title', 'NODE_REMAINS'),
+      await cli('eclipse-code node get --node "codex · Lead" --fields id,title', 'NODE_REMAINS'),
     ).toEqual({
       node: { id: named.id, title: 'codex · Lead' },
     })
     await expect(page.locator(`[data-id="${named.id}"] .terminal-node`)).toBeVisible()
     expect(
       await cli(
-        'opencove node update terminal --node Coordinator --title Console --fields id,title',
+        'eclipse-code node update terminal --node Coordinator --title Console --fields id,title',
         'RENAME_TERMINAL',
       ),
     ).toMatchObject({ node: { id: binding.nodeId, title: 'Console' } })
     const refused = await terminalCommand(
       page,
       binding,
-      'opencove agent stop --node Console -o json',
+      'eclipse-code agent stop --node Console -o json',
       'REFUSE_SHELL',
     )
     expect(refused).toMatch(/\bexit=1\b/)
     expect(refused).toContain('session kill')
     // A refused stop must leave the coordinator shell usable.
-    expect(await cli('opencove node get --node @self --fields id', 'SHELL_SURVIVES')).toEqual({
+    expect(await cli('eclipse-code node get --node @self --fields id', 'SHELL_SURVIVES')).toEqual({
       node: { id: binding.nodeId },
     })
   } finally {

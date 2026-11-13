@@ -67,7 +67,7 @@ describe('node store successful closure', () => {
       order.push('kill')
       return new Promise<void>(() => undefined)
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { pty: { kill } },
     })
@@ -104,7 +104,7 @@ describe('node store successful closure', () => {
             release = resolve
           }),
       )
-      Object.defineProperty(window, 'opencoveApi', {
+      Object.defineProperty(window, 'eclipseCodeApi', {
         configurable: true,
         value: {
           workspace: { deleteCanvasImage: nativeCleanup },
@@ -144,7 +144,7 @@ describe('node store successful closure', () => {
 
   it('uses the latest committed nodes after an async cleanup, so a vanished node is not closed again', async () => {
     let release: () => void = () => undefined
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         websiteWindow: {

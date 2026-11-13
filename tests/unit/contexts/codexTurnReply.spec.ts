@@ -53,14 +53,19 @@ async function fixture() {
   ) => {
     now += 10
     expect(
-      await socket.post(reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!, name, String(stamp ?? now), {
-        session_id: session,
-        cwd: '/tmp',
-        hook_event_name: name,
-        turn_id: id,
-        last_assistant_message: message,
-        ...extra,
-      }),
+      await socket.post(
+        reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!,
+        name,
+        String(stamp ?? now),
+        {
+          session_id: session,
+          cwd: '/tmp',
+          hook_event_name: name,
+          turn_id: id,
+          last_assistant_message: message,
+          ...extra,
+        },
+      ),
     ).toBe(204)
   }
   return {

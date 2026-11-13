@@ -12,15 +12,15 @@ vi.mock(
     drainPersistedStateAtQuit: mocks.drain,
   }),
 )
-const originalApi = window.opencoveApi
+const originalApi = window.eclipseCodeApi
 const originalState = useAppStore.getState()
 afterEach(() => {
   useAppStore.setState(originalState, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
 })
 it('reports a quit drain failure before completing the flush callback', async () => {
   let flush!: () => Promise<void>
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       lifecycle: {

@@ -138,7 +138,7 @@ export async function resolveGitHubPullRequests(
     return {
       availability: toUnavailable(
         'unknown',
-        'GitHub integration is disabled in tests unless OPENCOVE_TEST_GITHUB_INTEGRATION is enabled.',
+        'GitHub integration is disabled in tests unless ECLIPSE_CODE_TEST_GITHUB_INTEGRATION is enabled.',
       ),
       pullRequestsByBranch: Object.fromEntries(input.branches.map(branch => [branch, null])),
     }

@@ -1,6 +1,6 @@
 # External Executable Resolution
 
-OpenCove 需要启动外部 CLI，例如 `codex`、`claude`、`gemini`、`opencode` 和 `gh`。GUI app 从 Finder、Dock 或系统入口启动时，进程环境经常不同于用户交互 shell，因此外部可执行文件和交互式终端启动必须有明确 owner，不能在各调用点散落 `which` / `where.exe`。
+Eclipse Code 需要启动外部 CLI，例如 `codex`、`claude`、`gemini`、`opencode` 和 `gh`。GUI app 从 Finder、Dock 或系统入口启动时，进程环境经常不同于用户交互 shell，因此外部可执行文件和交互式终端启动必须有明确 owner，不能在各调用点散落 `which` / `where.exe`。
 
 本问题不是“如何多补几个 PATH 目录”，而是“谁拥有 command runtime environment”。如果 `availability`、`model list`、`launch`、`session locator`、`task/worktree AI helper` 分别各自读取不同的 PATH 或 shell 状态，就会出现：
 
@@ -24,7 +24,7 @@ Command environment:
 - 负责决定本次 app session 的 command env owner：
   - Windows：当前进程环境。
   - test mode：当前进程环境。
-  - 显式 `OPENCOVE_TRUST_PROCESS_ENV=1`：当前进程环境。
+  - 显式 `ECLIPSE_CODE_TRUST_PROCESS_ENV=1`：当前进程环境。
   - 其它 POSIX GUI/desktop 场景：shell-derived env。
 - 当 owner 是 Windows `process_env` 时，仍会把常见稳定 shim/bin 目录正规化进 PATH，避免能解析到 `codex.cmd` / `claude.cmd`，但 wrapper 再找 `node` 时失败。
 - 会清理 shell capture 期间注入的保护性环境变量，避免把捕获辅助变量泄漏到真实 CLI。
@@ -48,7 +48,7 @@ Agent launch spawn resolver:
 
 - `src/contexts/agent/infrastructure/cli/AgentLaunchSpawnResolver.ts`
 - 真实 agent launch / resume 复用 `TerminalProfileResolver.resolveCommandSpawn()`。
-- Windows 上即使用户未显式选择 profile，也会走检测到的默认终端 profile（当前稳定默认是 PowerShell），让 PowerShell profile、Git Bash login shell、WSL distro 的启动语义与 OpenCove terminal 保持一致。
+- Windows 上即使用户未显式选择 profile，也会走检测到的默认终端 profile（当前稳定默认是 PowerShell），让 PowerShell profile、Git Bash login shell、WSL distro 的启动语义与 Eclipse Code terminal 保持一致。
 - 只有显式传入的 session env 会被注入 WSL 内部命令；宿主 command env 只用于启动 `wsl.exe`，避免把整个 Windows 环境展开到 `wsl.exe env ...`。
 - 上述 WSL 支持属于显式 Agent launch/profile 解析。终端中手动输入 `claude` / `codex` 的
   PATH-shim 识别当前只支持 native Windows；对 WSL profile 或 `wsl.exe` 必须保持原始 spawn
@@ -98,7 +98,7 @@ Agent provider availability 将这些状态映射为：
 
 ### Single Source Of Truth
 
-OpenCove 区分两类 owner：
+Eclipse Code 区分两类 owner：
 
 1. `CommandEnvironmentService` 是宿主侧 executable discovery、model list、session locator、task/worktree helper 的 env owner。它决定：
 
@@ -132,7 +132,7 @@ OpenCove 区分两类 owner：
 
 ## Supported Installation Patterns
 
-OpenCove 不负责安装这些工具，但 resolver / command env 必须能兼容它们的常见安装形态。
+Eclipse Code 不负责安装这些工具，但 resolver / command env 必须能兼容它们的常见安装形态。
 
 POSIX:
 

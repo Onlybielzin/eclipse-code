@@ -9,7 +9,7 @@ import { createOverview, installEndpointsApi } from './endpointsSection.testUtil
 describe('EndpointsSection', () => {
   afterEach(async () => {
     await applyUiLanguage('en')
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 

@@ -16,7 +16,10 @@ const blockedSummary = {
 }
 
 test.describe('Claude waiting reason and dialog summary', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX real Claude fixture')
 
   test('exposes the real question through CLI get/list and exit-10 details without treating it as an instruction', async ({
@@ -28,7 +31,7 @@ test.describe('Claude waiting reason and dialog summary', () => {
     const { window: page, nodeId, userDataDir, sessionId, snapshot } = real
     try {
       const parent = await page.evaluate(async () =>
-        window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -57,7 +60,7 @@ test.describe('Claude waiting reason and dialog summary', () => {
           await terminalCommand(
             page,
             binding,
-            `opencove agent get --node ${nodeId} --fields nodeId,sessionId,state,blockedReason,blockedSummary -o json`,
+            `eclipse-code agent get --node ${nodeId} --fields nodeId,sessionId,state,blockedReason,blockedSummary -o json`,
             'GET',
           ),
         )
@@ -74,7 +77,7 @@ test.describe('Claude waiting reason and dialog summary', () => {
         await terminalCommand(
           page,
           binding,
-          `opencove agent list --state waiting --fields nodeId,blockedSummary -o json`,
+          `eclipse-code agent list --state waiting --fields nodeId,blockedSummary -o json`,
           'LIST',
         ),
       )
@@ -82,7 +85,7 @@ test.describe('Claude waiting reason and dialog summary', () => {
       const output = await terminalCommand(
         page,
         binding,
-        `opencove agent wait --node ${nodeId} --turn ${turnId} --timeout 30s -o json`,
+        `eclipse-code agent wait --node ${nodeId} --turn ${turnId} --timeout 30s -o json`,
         'WAIT',
       )
       expect(output).toMatch(/\bexit=10\b/)

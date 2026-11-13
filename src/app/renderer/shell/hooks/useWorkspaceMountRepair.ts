@@ -44,8 +44,9 @@ async function retryUntil<T>(options: {
 }
 
 async function waitForControlSurfaceReady(options?: { timeoutMs?: number }): Promise<boolean> {
-  const invoke = (window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } })
-    .opencoveApi?.controlSurface?.invoke
+  const invoke = (
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   if (typeof invoke !== 'function') {
     return false
@@ -59,7 +60,7 @@ async function waitForControlSurfaceReady(options?: { timeoutMs?: number }): Pro
     }
 
     try {
-      await window.opencoveApi.controlSurface.invoke({
+      await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'query',
         id: 'system.ping',
         payload: null,
@@ -148,9 +149,9 @@ export function useWorkspaceMountRepair({
       setTopologyRevision(previous => previous + 1)
     }
 
-    window.addEventListener('opencove:topology-changed', handler)
+    window.addEventListener('eclipse-code:topology-changed', handler)
     return () => {
-      window.removeEventListener('opencove:topology-changed', handler)
+      window.removeEventListener('eclipse-code:topology-changed', handler)
     }
   }, [])
 
@@ -184,8 +185,8 @@ export function useWorkspaceMountRepair({
     }
 
     const controlSurfaceInvoke = (
-      window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-    ).opencoveApi?.controlSurface?.invoke
+      window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+    ).eclipseCodeApi?.controlSurface?.invoke
 
     if (typeof controlSurfaceInvoke !== 'function') {
       return
@@ -203,7 +204,7 @@ export function useWorkspaceMountRepair({
         return
       }
 
-      const lowercase = window.opencoveApi?.meta?.platform === 'win32'
+      const lowercase = window.eclipseCodeApi?.meta?.platform === 'win32'
       let didCreateMount = false
       const repairedSpacesByWorkspaceId = new Map<string, WorkspaceSpaceState[]>()
 
@@ -223,7 +224,7 @@ export function useWorkspaceMountRepair({
             intervalMs: 250,
             isCancelled: () => cancelled,
             fn: async () =>
-              await window.opencoveApi.controlSurface.invoke<ListMountsResult>({
+              await window.eclipseCodeApi.controlSurface.invoke<ListMountsResult>({
                 kind: 'query',
                 id: 'mount.list',
                 payload: { projectId: workspace.id },
@@ -244,7 +245,7 @@ export function useWorkspaceMountRepair({
               intervalMs: 500,
               isCancelled: () => cancelled,
               fn: async () =>
-                await window.opencoveApi.controlSurface.invoke<CreateMountResult>({
+                await window.eclipseCodeApi.controlSurface.invoke<CreateMountResult>({
                   kind: 'command',
                   id: 'mount.create',
                   payload: {

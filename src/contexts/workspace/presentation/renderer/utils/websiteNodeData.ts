@@ -3,7 +3,7 @@ import type { NodeFrame, WebsiteNodeData } from '../types'
 
 export function resolveDefaultBrowserMode(): BrowserMode {
   return typeof window !== 'undefined' &&
-    typeof window.opencoveApi?.websiteWindow?.activate === 'function'
+    typeof window.eclipseCodeApi?.websiteWindow?.activate === 'function'
     ? 'native'
     : 'iframe'
 }

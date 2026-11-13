@@ -172,7 +172,7 @@ export function useWorkspaceCanvasLifecycle({
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
     const resetShiftOnBlur = !(
-      typeof window !== 'undefined' && window.opencoveApi?.meta?.isTest === true
+      typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.isTest === true
     )
     if (resetShiftOnBlur) {
       window.addEventListener('blur', handleBlur)

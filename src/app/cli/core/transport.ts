@@ -45,7 +45,7 @@ export async function invoke(
       headers: {
         authorization: `Bearer ${connection.token}`,
         'content-type': 'application/json',
-        'x-opencove-protocol': String(CONTROL_SURFACE_PROTOCOL_VERSION),
+        'x-eclipse-code-protocol': String(CONTROL_SURFACE_PROTOCOL_VERSION),
       },
       body: JSON.stringify({ ...request, clientFeatures: clientFeaturesForOperation(request.id) }),
       signal: controller.signal,
@@ -79,7 +79,7 @@ export async function invoke(
         throw new CliError(
           error.code,
           5,
-          `The connected OpenCove Worker is older than this CLI and does not support ${request.id}. Restart or update OpenCove.`,
+          `The connected Eclipse Code Worker is older than this CLI and does not support ${request.id}. Restart or update Eclipse Code.`,
           undefined,
           error.details,
           // Capability negotiation still needs the canonical diagnostic.
@@ -168,7 +168,7 @@ export async function invoke(
           (prompt
             ? (promptError?.hint ?? promptUnknownRecovery)
             : error.code === 'common.approved_path_required'
-              ? 'Run "opencove mount list --project <id>" to see approved roots.'
+              ? 'Run "eclipse-code mount list --project <id>" to see approved roots.'
               : target
                 ? `Run "${target.listCommand}" to find available targets.`
                 : undefined),
@@ -209,7 +209,7 @@ export async function invoke(
       throw new CliError(
         error.code,
         error.exitCode,
-        'OpenCove returned an invalid delivery response. The outcome is unknown.',
+        'Eclipse Code returned an invalid delivery response. The outcome is unknown.',
         promptUnknownRecovery,
         { deliveryOutcome: 'unknown' },
       )
@@ -233,11 +233,11 @@ export async function invoke(
       'context.unreachable',
       3,
       prompt
-        ? `Could not obtain a delivery result from OpenCove at ${connection.endpoint}. The outcome is unknown.`
-        : `OpenCove endpoint ${connection.endpoint} is unreachable.`,
+        ? `Could not obtain a delivery result from Eclipse Code at ${connection.endpoint}. The outcome is unknown.`
+        : `Eclipse Code endpoint ${connection.endpoint} is unreachable.`,
       request.id === 'agent.prompt'
         ? promptUnknownRecovery
-        : 'Check the endpoint URL and ensure the OpenCove app or worker is running.',
+        : 'Check the endpoint URL and ensure the Eclipse Code app or worker is running.',
       {
         endpoint: connection.endpoint,
         ...(prompt

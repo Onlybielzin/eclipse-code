@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
 
-const WEB_SESSION_COOKIE_NAME = 'opencove_session'
+const WEB_SESSION_COOKIE_NAME = 'eclipse_code_session'
 const WEB_SESSION_TICKET_TTL_MS = 60_000
 const WEB_SESSION_TTL_MS = 8 * 60 * 60 * 1000
 

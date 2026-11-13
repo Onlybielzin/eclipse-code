@@ -28,7 +28,7 @@ function fixture() {
   network.mockImplementation(async (_endpoint, request) => ({
     httpStatus: 200,
     result: {
-      __opencoveControlEnvelope: true,
+      __eclipseCodeControlEnvelope: true,
       ok: true,
       value:
         request.id === 'workspace.approveRoot'
@@ -116,7 +116,7 @@ describe('remote Claude launch legacy execution', () => {
         ? {
             httpStatus: 503,
             result: {
-              __opencoveControlEnvelope: true,
+              __eclipseCodeControlEnvelope: true,
               ok: false,
               error: { code: 'worker.unavailable' },
             },
@@ -124,7 +124,7 @@ describe('remote Claude launch legacy execution', () => {
         : implementation(endpoint, request),
     )
     const retry = vi.fn(async () => ({ mountId: 'retry-mount', executionDirectory: '/repo' }))
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       controlSurface: {
         invoke: async request => {
           const result = await f.surface.invoke(context, request)
@@ -134,7 +134,7 @@ describe('remote Claude launch legacy execution', () => {
           return result.value
         },
       },
-    } as typeof window.opencoveApi
+    } as typeof window.eclipseCodeApi
     try {
       const result = await launchWorkspaceAgentSession({
         canvasNodeId: 'agent',

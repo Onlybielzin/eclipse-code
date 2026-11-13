@@ -78,8 +78,8 @@ function binding(generation: number): TerminalRuntimeBinding {
 
 describeWithElectronNativeModules('SQLite terminal recovery across runtime epochs', () => {
   it('reopens three generations with archived history plus only the latest live checkpoint', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'opencove-terminal-epochs-'))
-    const dbPath = join(directory, 'opencove.db')
+    const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-terminal-epochs-'))
+    const dbPath = join(directory, 'eclipse-code.db')
     try {
       const initialStore = await createPersistenceStore({ dbPath })
       const initialWrite = await initialStore.writeAppState(createState(directory))

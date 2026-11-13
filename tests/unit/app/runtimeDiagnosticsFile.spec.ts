@@ -18,7 +18,7 @@ afterEach(() => {
 
 describe('runtime diagnostics file', () => {
   it('rotates before the active log exceeds its byte budget', () => {
-    const directory = mkdtempSync(resolve(tmpdir(), 'opencove-runtime-diagnostics-'))
+    const directory = mkdtempSync(resolve(tmpdir(), 'eclipse-code-runtime-diagnostics-'))
     temporaryDirectories.push(directory)
     const filePath = resolve(directory, 'logs', 'runtime-diagnostics.log')
     const line = JSON.stringify({ event: 'renderer-performance', message: 'x'.repeat(8_000) })

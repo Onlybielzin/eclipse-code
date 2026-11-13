@@ -1,6 +1,6 @@
 import type { ManagedSshEndpointOperationPhase } from '../../../../shared/contracts/dto'
 
-export const MANAGED_SSH_BOOTSTRAP_PROGRESS_PREFIX = '[opencove-bootstrap-progress:v1]'
+export const MANAGED_SSH_BOOTSTRAP_PROGRESS_PREFIX = '[eclipse-code-bootstrap-progress:v1]'
 export const MANAGED_SSH_BOOTSTRAP_PHASES = [
   'checking_remote_runtime',
   'checking_installation',

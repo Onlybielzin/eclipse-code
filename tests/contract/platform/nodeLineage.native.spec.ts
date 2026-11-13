@@ -11,8 +11,8 @@ import { deriveNodeLineage } from '../../../src/contexts/workspace/domain/nodeLi
 import { DB_SCHEMA_VERSION } from '../../../src/platform/persistence/sqlite/constants'
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-lineage-'))
-  const dbPath = join(root, 'opencove.db')
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-lineage-'))
+  const dbPath = join(root, 'eclipse-code.db')
   const store = await createPersistenceStore({ dbPath })
   const state = createMinimalState(
     root,

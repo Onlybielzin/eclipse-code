@@ -8,7 +8,21 @@
   align-items: center;
   gap: var(--cove-spacing-2);
   min-width: 0;
+  overflow: hidden;
   cursor: grab;
+}
+
+/*
+ * Title and status give way, never the controls: a long title or status ends in "..." and the
+ * collapse and close buttons stay inside the window at any width.
+ */
+.cove-window-header
+  > :not(.cove-window-header__tile, .cove-window-header__trailing, .cove-label-dot) {
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cove-window-header:active {
@@ -32,13 +46,20 @@
 
 .cove-window-header__status {
   display: flex;
-  flex: none;
+  flex: 0 1 auto;
   align-items: center;
+}
+
+.cove-window-header__status > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cove-window-header > .cove-window-header__trailing {
   display: flex;
   flex: none;
+  margin-left: auto;
   align-items: center;
   gap: var(--cove-control-gap);
 }

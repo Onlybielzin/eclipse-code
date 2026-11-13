@@ -22,8 +22,8 @@
 
 1) **确认连接的是同一个 Worker**
 
-- 看 Worker stderr 日志：private control endpoint 与 `[opencove-worker] web ui: http://<host>:<port>/` 分开记录。
-- 若日志显示：`[opencove-worker] web ui: disabled`，说明 Web UI 未开启（Desktop 场景请在 Settings → Experimental → Worker Web UI 中开启）。
+- 看 Worker stderr 日志：private control endpoint 与 `[eclipse-code-worker] web ui: http://<host>:<port>/` 分开记录。
+- 若日志显示：`[eclipse-code-worker] web ui: disabled`，说明 Web UI 未开启（Desktop 场景请在 Settings → Experimental → Worker Web UI 中开启）。
 - Desktop 的 Settings 面板里显示的 Web 端口，应与 active Web generation 一致；它不应等于或改写 private connection-file port。
 - 若设置变更后 Worker pid、`createdAt` 或 private endpoint 改变，应视为 lifecycle regression，而不是正常 apply。
 

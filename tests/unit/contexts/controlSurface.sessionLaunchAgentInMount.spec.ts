@@ -65,7 +65,7 @@ describe('control surface session.launchAgentInMount', () => {
       terminalSpawnAdmission: availability,
       terminalRecoverySpawnAdmission: availability,
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -168,7 +168,7 @@ describe('control surface session.launchAgentInMount', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -268,7 +268,7 @@ describe('control surface session.launchAgentInMount', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -344,8 +344,8 @@ describe('control surface session.launchAgentInMount', () => {
   })
 
   it('falls back before starting a new mounted session for a compatibility-only provider', async () => {
-    const previousFlag = process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
-    process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
+    const previousFlag = process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
+    process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = '1'
 
     try {
       const rootPath = process.cwd()
@@ -369,7 +369,7 @@ describe('control surface session.launchAgentInMount', () => {
       registerSessionHandlers(controlSurface, {
         ...createReadyTerminalAdmissionDeps(),
         agentProviderRegistry: createTestAgentProviderRegistry(),
-        userDataPath: '/tmp/opencove-test-user-data',
+        userDataPath: '/tmp/eclipse-code-test-user-data',
         approvedWorkspaces: {
           registerRoot: async () => undefined,
           isPathApproved: async () => true,
@@ -431,9 +431,9 @@ describe('control surface session.launchAgentInMount', () => {
       )
     } finally {
       if (previousFlag === undefined) {
-        delete process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER
+        delete process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER
       } else {
-        process.env.OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
+        process.env.ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER = previousFlag
       }
     }
   })

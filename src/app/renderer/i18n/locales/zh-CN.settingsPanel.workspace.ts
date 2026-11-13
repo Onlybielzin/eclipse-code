@@ -6,7 +6,7 @@ export const zhCNSettingsPanelWorkspace = {
   workspacePathHelp: '{{name}} 的项目根目录。',
   worktreeRootLabel: 'Worktree 根目录',
   worktreeRootHelp: '相对路径以项目根目录为基准。',
-  worktreeRootPlaceholder: '.opencove/worktrees',
+  worktreeRootPlaceholder: '.eclipse-code/worktrees',
   resolvedPathLabel: '解析后的路径',
   resolvedPathHelp: '新 worktree 将会创建在这里。',
   pullRequestBaseBranchesLabel: 'PR 目标分支候选',

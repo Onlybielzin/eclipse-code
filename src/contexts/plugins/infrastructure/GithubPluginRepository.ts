@@ -25,7 +25,7 @@ export async function githubJson(
   limit = 1024 * 1024,
 ): Promise<Record<string, unknown> | null> {
   const response = await fetch(`https://api.github.com/${path}`, {
-    headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'OpenCove' },
+    headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Eclipse Code' },
     signal: AbortSignal.timeout(10_000),
     redirect: 'error',
   })
@@ -103,7 +103,7 @@ export async function inspectGithubPluginRepository(url: string): Promise<Plugin
   const base = `repos/${slug}`
   const [readmeFile, manifestFile] = await Promise.all([
     githubJson(`${base}/readme?ref=${commit}`, 512 * 1024),
-    githubJson(`${base}/contents/opencove.plugin.json?ref=${commit}`, 128 * 1024),
+    githubJson(`${base}/contents/eclipse-code.plugin.json?ref=${commit}`, 128 * 1024),
   ])
   let manifest: PluginRepositoryDetails['manifest'] = null
   let manifestError: string | null = null
@@ -112,7 +112,7 @@ export async function inspectGithubPluginRepository(url: string): Promise<Plugin
       manifest = normalizeLocalPluginPackage(JSON.parse(content(manifestFile, 64 * 1024)))
     } else {
       manifestError =
-        'No root opencove.plugin.json was found. This repository may require a package directory or build; inspect its README before installing.'
+        'No root eclipse-code.plugin.json was found. This repository may require a package directory or build; inspect its README before installing.'
     }
   } catch (error) {
     manifestError = error instanceof Error ? error.message : String(error)

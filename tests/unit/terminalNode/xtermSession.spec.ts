@@ -107,7 +107,7 @@ describe('createMountedXtermSession', () => {
       })),
       requestAnimationFrame: vi.fn(() => 1),
       open: vi.fn(),
-      opencoveApi: {
+      eclipseCodeApi: {
         meta: {
           platform: 'win32',
         },

@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
-const baseURL = process.env['OPENCOVE_WEB_CANVAS_BASE_URL']
+const baseURL = process.env['ECLIPSE_CODE_WEB_CANVAS_BASE_URL']
 
 function resolveRetries(rawValue: string | undefined): number {
   const parsed = Number(rawValue)
@@ -14,7 +14,7 @@ export default defineConfig({
   expect: {
     timeout: 15_000,
   },
-  retries: resolveRetries(process.env.OPENCOVE_E2E_RETRIES),
+  retries: resolveRetries(process.env.ECLIPSE_CODE_E2E_RETRIES),
   workers: 1,
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },

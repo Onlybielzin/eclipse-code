@@ -44,7 +44,7 @@ it('carries Claude 2.1.319 shape through channel, runtime, registry and the inte
       { kind: 'query', id: 'agent.finalMessage', payload },
     )
   const payload = { session_id: 'provider', transcript_path: '/tmp/t', cwd: '/tmp', prompt_id: 'p' }
-  const token = reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!
+  const token = reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!
   try {
     expect(
       await post(token, '', undefined, {
@@ -133,7 +133,7 @@ async function hookRuntimeFixture() {
     const emittedAtMs = timing ? timing.emittedAtMs : emissionBase + ++emissionSequence * 100
     expect(
       await post(
-        reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+        reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
         '',
         emittedAtMs === undefined ? undefined : String(emittedAtMs),
         {

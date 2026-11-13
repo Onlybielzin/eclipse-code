@@ -1,6 +1,6 @@
 # Themes
 
-A theme plugin can change OpenCove's visual foundation, materials, typography,
+A theme plugin can change Eclipse Code's visual foundation, materials, typography,
 component skins and motion. It does not need a backend or a canvas window.
 Install, update, reload, disable and uninstall it through the same plugin manager
 or CLI as any other package. Enabled themes appear in Settings → Appearance; while one is active, the Control Center shows its name.
@@ -68,7 +68,7 @@ foundation is exposed separately as `data-cove-theme-base`.
 ### Generated palettes (theme API v2)
 
 Instead of overriding colour tokens one by one, a theme can declare the four
-inputs OpenCove's own Cove themes are generated from, and the host generates
+inputs Eclipse Code's own Cove themes are generated from, and the host generates
 every colour with the same pipeline:
 
 ```json
@@ -127,7 +127,7 @@ Each theme can additionally declare:
 }
 ```
 
-Host styles live in the `opencove` cascade layer. The cascade is foundation →
+Host styles live in the `eclipse-code` cascade layer. The cascade is foundation →
 scoped author stylesheet → manifest tokens and metrics. User font scaling multiplies the theme's scale; explicit terminal font
 and terminal appearance settings remain controlled by the user. Avoid `!important`
 and overriding layout dimensions in CSS: use the metrics contract below.
@@ -345,7 +345,7 @@ theme plugin even if its CSS makes the application difficult to navigate.
 
 ## Author verification
 
-Run `opencove plugin guide` for the guide location and CLI help. Install a package,
+Run `eclipse-code plugin guide` for the guide location and CLI help. Install a package,
 select each theme in Appearance, and verify:
 
 1. Expanded/compact windows, Space, Sidebar, menus, focused/marked controls.

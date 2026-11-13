@@ -19,7 +19,7 @@ it('normalizes persisted Codex reuse settings at each gateway prepare instead of
   let settings: Record<string, unknown> = {}
   const readAppState = vi.fn(async () => ({ settings }))
   const runtime = createTerminalAgentActivityRuntime({
-    userDataPath: '/tmp/opencove-runtime-policy-unit',
+    userDataPath: '/tmp/eclipse-code-runtime-policy-unit',
     agentHookChannels: [],
     agentProviderRegistry: new AgentProviderRegistry([]),
     getPersistenceStore: async () => ({ readAppState }),
@@ -40,7 +40,7 @@ it('reads resident guidance from the executing Worker settings on every SessionS
   let settings: Record<string, unknown> = {}
   let resolveEnabled!: () => Promise<boolean>
   const runtime = createTerminalAgentActivityRuntime({
-    userDataPath: '/tmp/opencove-runtime-policy-unit',
+    userDataPath: '/tmp/eclipse-code-runtime-policy-unit',
     agentHookChannels: [
       {
         setResidentContextEnabled(resolve) {

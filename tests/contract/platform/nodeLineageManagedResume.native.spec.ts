@@ -15,7 +15,7 @@ describeWithElectronNativeModules('node creation with managed Claude resume bind
   let store: Awaited<ReturnType<typeof createPersistenceStore>>
   const lineage = deriveNodeLineage({ nodeId: 'child', callerNodeId: 'agent', parent: null })
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-lineage-resume-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-lineage-resume-'))
     const dbPath = join(root, 'state.db')
     store = await createPersistenceStore({ dbPath, strictRecovery: true })
     sql = new Database(dbPath)

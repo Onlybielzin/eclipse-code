@@ -40,7 +40,7 @@ async function expectCompleteSequence(
 ): Promise<void> {
   const sequencePositions = await page.evaluate(
     ({ id, sequencePrefix }) => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       return Array.from(
         { length: 600 },
         (_, index) =>
@@ -57,7 +57,7 @@ async function expectCompleteSequence(
     ),
   ).toBe(true)
   await page.evaluate(id => {
-    window.__opencoveTerminalSelectionTestApi?.scrollToBottom(id)
+    window.__eclipseCodeTerminalSelectionTestApi?.scrollToBottom(id)
   }, targetNodeId)
   await expect(page.locator(`[data-id="${targetNodeId}"] .terminal-node`)).toContainText(
     `${prefix}599`,
@@ -109,7 +109,7 @@ async function applyWebPort(page: Page, port: number): Promise<void> {
     .poll(
       async () =>
         await page.evaluate(async expectedPort => {
-          return (await window.opencoveApi.workerClient.getConfig()).webUi.port === expectedPort
+          return (await window.eclipseCodeApi.workerClient.getConfig()).webUi.port === expectedPort
         }, port),
     )
     .toBe(true)
@@ -150,8 +150,8 @@ async function readIdentity(
   viewportY: number | null
 }> {
   return await page.evaluate(async id => {
-    const status = await window.opencoveApi.worker.getStatus()
-    const api = window.__opencoveTerminalSelectionTestApi
+    const status = await window.eclipseCodeApi.worker.getStatus()
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const buffer = api?.getBufferText(id, 'HISTORY_HEAD') ?? null
     const xterm = document.querySelector(
       `.react-flow__node[data-id="${id}"] .terminal-node .xterm`,
@@ -199,8 +199,8 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
 
   try {
     const currentConfig = await window.evaluate(async () => {
-      const config = await window.opencoveApi.workerClient.getConfig()
-      return await window.opencoveApi.workerClient.setWebUiSettings({
+      const config = await window.eclipseCodeApi.workerClient.getConfig()
+      return await window.eclipseCodeApi.workerClient.setWebUiSettings({
         enabled: false,
         port: config.webUi.port,
       })
@@ -254,7 +254,7 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
           if (xterm) {
             xterm.dataset['continuityToken'] = `same-xterm-dom-${id}`
           }
-          window.__opencoveTerminalSelectionTestApi?.scrollToLine(id, 8)
+          window.__eclipseCodeTerminalSelectionTestApi?.scrollToLine(id, 8)
         })
       },
       [nodeId, secondNodeId],
@@ -298,7 +298,7 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
           async () =>
             await window.evaluate(
               async expectedPort =>
-                (await window.opencoveApi.workerClient.getConfig()).webUi.port === expectedPort,
+                (await window.eclipseCodeApi.workerClient.getConfig()).webUi.port === expectedPort,
               requestedPort,
             ),
         )
@@ -308,11 +308,13 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
       await new Promise<void>(resolvePromise => occupiedServer.close(() => resolvePromise()))
     }
 
-    const portUrl = await window.evaluate(async () => await window.opencoveApi.worker.getWebUiUrl())
+    const portUrl = await window.evaluate(
+      async () => await window.eclipseCodeApi.worker.getWebUiUrl(),
+    )
     expect(new URL(portUrl!).port).toBe(String(requestedPort))
     const web = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     await web.goto(portUrl!, { waitUntil: 'domcontentloaded' })
-    await web.goto(new URL('/?opencoveTerminalTestApi=1', portUrl!).toString(), {
+    await web.goto(new URL('/?eclipseCodeTerminalTestApi=1', portUrl!).toString(), {
       waitUntil: 'domcontentloaded',
     })
     await expect(web.locator('.terminal-node')).toHaveCount(2, { timeout: 30_000 })
@@ -322,7 +324,7 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
           .poll(
             async () =>
               await web.evaluate(id => {
-                const api = window.__opencoveTerminalSelectionTestApi
+                const api = window.__eclipseCodeTerminalSelectionTestApi
                 return {
                   sessionId: api?.getRuntimeSessionId(id) ?? null,
                   historyLine: api?.getBufferText(id, 'HISTORY_HEAD')?.markerAbsoluteLine ?? null,
@@ -340,7 +342,7 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
         async () =>
           await web.evaluate(async () => {
             try {
-              await window.opencoveApi.controlSurface.invoke({
+              await window.eclipseCodeApi.controlSurface.invoke({
                 kind: 'query',
                 id: 'system.ping',
                 payload: null,
@@ -356,12 +358,12 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
     await applyWebLan(window, false)
 
     const refreshedUrl = await window.evaluate(
-      async () => await window.opencoveApi.worker.getWebUiUrl(),
+      async () => await window.eclipseCodeApi.worker.getWebUiUrl(),
     )
     const reauthenticatedWeb = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     await reauthenticatedWeb.goto(refreshedUrl!, { waitUntil: 'domcontentloaded' })
     await reauthenticatedWeb.goto(
-      new URL('/?opencoveTerminalTestApi=1', refreshedUrl!).toString(),
+      new URL('/?eclipseCodeTerminalTestApi=1', refreshedUrl!).toString(),
       { waitUntil: 'domcontentloaded' },
     )
     await expect(reauthenticatedWeb.locator('.terminal-node')).toHaveCount(2, {
@@ -378,7 +380,7 @@ test('Web access settings preserve Worker, PTY, Renderer, xterm, history, and vi
             async () =>
               await window.evaluate(
                 ({ id, marker }) =>
-                  window.__opencoveTerminalSelectionTestApi?.getBufferText(id, marker)
+                  window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, marker)
                     ?.markerAbsoluteLine ?? null,
                 target,
               ),

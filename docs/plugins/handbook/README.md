@@ -2,7 +2,7 @@
 
 Settings → Plugins → Documentation opens the bundled handbook. The four introductory
 articles have English and Simplified Chinese versions. Technical references are the
-same version-matched files returned by `opencove plugin guide`; the Chinese index
+same version-matched files returned by `eclipse-code plugin guide`; the Chinese index
 identifies references whose full text is in English.
 
 The reader reuses `PluginReadme` for Markdown, tables, code, images and external
@@ -29,7 +29,7 @@ files, alongside the existing interface copy.
 The compact list/detail structure follows the
 [VS Code extension details pattern](https://code.visualstudio.com/docs/configure/extensions/extension-marketplace):
 show installed identity and controls at a glance, then put README and contributions
-in the detail page. OpenCove keeps its existing settings navigation and runtime
+in the detail page. Eclipse Code keeps its existing settings navigation and runtime
 owners; no marketplace download counts, ratings or availability claims are inferred.
 
 Targeted tests cover registered Markdown links, language selection, focus return,

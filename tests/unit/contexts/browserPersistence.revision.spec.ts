@@ -4,7 +4,7 @@ import {
 } from '../../support/managedClaudeResumePersistenceFixtures'
 import { normalizePersistedAppStateForMerge } from '../../../src/shared/sync/normalizePersistedAppStateForMerge'
 import { expect, it, vi } from 'vitest'
-import { createBrowserPersistenceApi } from '@app/renderer/browser/browserOpenCoveApi.persistence'
+import { createBrowserPersistenceApi } from '@app/renderer/browser/browserEclipseCodeApi.persistence'
 import { invokeBrowserControlSurface } from '@app/renderer/browser/browserControlSurface'
 import { DEFAULT_AGENT_SETTINGS } from '@contexts/settings/domain/agentSettings'
 import { createAppError } from '@shared/errors/appError'

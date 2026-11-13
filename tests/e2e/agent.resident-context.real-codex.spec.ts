@@ -7,8 +7,11 @@ import {
   expectResidentContext,
 } from './agent.resident-context.helpers'
 
-test.describe('Codex resident OpenCove context', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Codex CLI')
+test.describe('Codex resident Eclipse Code context', () => {
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Codex CLI',
+  )
   test.skip(process.platform === 'win32', 'Codex lifecycle hooks are not used on Windows')
   for (const mode of ['suggest', 'off'] as const) {
     test(`${mode}: startup and clear preserve the context policy`, async ({

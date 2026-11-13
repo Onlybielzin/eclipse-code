@@ -10,6 +10,7 @@ import type {
 import { normalizePersistedAppState } from '../../../../platform/persistence/sqlite/normalize'
 import {
   spaceCreateChildOperation,
+  spaceDeleteOperation,
   spaceGetOperation,
   spaceListOperation,
   spaceUpdateOperation,
@@ -22,6 +23,7 @@ import type {
   ListSpacesResult,
 } from '../../../../shared/contracts/dto'
 import { createAppError } from '../../../../shared/errors/appError'
+import { normalizeComparablePath } from '../../../../contexts/space/application/spaceBoundaryPolicy'
 import type { ControlSurface } from '../controlSurface'
 import { registerOperation } from '../registerOperation'
 
@@ -198,6 +200,78 @@ export function registerSpaceHandlers(
       throw createAppError('space.not_found', {
         debugMessage: `space.get: unknown space id: ${payload.spaceId}`,
       })
+    },
+    defaultErrorCode: 'common.unexpected',
+  })
+
+  registerOperation(controlSurface, spaceDeleteOperation, {
+    handle: async (_ctx, payload) => {
+      const store = await getPersistenceStore()
+      const expectedRevision = await store.readAppStateRevision()
+      const normalized = normalizePersistedAppState(await store.readAppState())
+      const workspace =
+        normalized?.workspaces.find(item =>
+          item.spaces.some(space => space.id === payload.spaceId),
+        ) ?? null
+      const space = workspace?.spaces.find(item => item.id === payload.spaceId) ?? null
+      if (!normalized || !workspace || !space) {
+        throw createAppError('space.not_found', {
+          debugMessage: `space.delete: unknown space id: ${payload.spaceId}`,
+        })
+      }
+
+      const removed = new Set([space.id])
+      let grew = true
+      while (grew) {
+        grew = false
+        for (const candidate of workspace.spaces) {
+          if (
+            candidate.parentSpaceId &&
+            removed.has(candidate.parentSpaceId) &&
+            !removed.has(candidate.id)
+          ) {
+            removed.add(candidate.id)
+            grew = true
+          }
+        }
+      }
+
+      // Never orphan a worktree: the Space must point back at the project root first.
+      const boundToWorktree = workspace.spaces.some(
+        candidate =>
+          removed.has(candidate.id) &&
+          !candidate.parentSpaceId &&
+          candidate.directoryPath.trim().length > 0 &&
+          normalizeComparablePath(candidate.directoryPath) !==
+            normalizeComparablePath(workspace.path),
+      )
+      if (boundToWorktree) {
+        throw createAppError('common.invalid_input', {
+          debugMessage:
+            'space.delete: the space is still bound to a worktree; run worktree.archive first.',
+        })
+      }
+
+      const nextState = {
+        ...normalized,
+        workspaces: normalized.workspaces.map(candidate =>
+          candidate.id === workspace.id
+            ? {
+                ...candidate,
+                spaces: candidate.spaces.filter(item => !removed.has(item.id)),
+                activeSpaceId:
+                  candidate.activeSpaceId && removed.has(candidate.activeSpaceId)
+                    ? null
+                    : candidate.activeSpaceId,
+              }
+            : candidate,
+        ),
+      }
+      const writeResult = await store.writeAppState(nextState, { expectedRevision })
+      if (!writeResult.ok) {
+        throw createAppError(writeResult.error)
+      }
+      return { projectId: workspace.id, removedSpaceIds: [...removed] }
     },
     defaultErrorCode: 'common.unexpected',
   })

@@ -13,7 +13,7 @@ export const filesystemCommands = (
     path: ['fs', name],
     summary,
     description:
-      'File access is limited to approved roots. Run "opencove mount list --project <id>" to see approved root URIs; select a mount with --mount when needed.',
+      'File access is limited to approved roots. Run "eclipse-code mount list --project <id>" to see approved root URIs; select a mount with --mount when needed.',
     connect: true,
     render:
       name === 'ls'
@@ -21,7 +21,7 @@ export const filesystemCommands = (
             listKey: 'entries',
             fields: ['name', 'uri', 'kind'],
             examples: [
-              'opencove fs ls --uri file:///repo --fields name',
+              'eclipse-code fs ls --uri file:///repo --fields name',
               '{"entries":[{"name":"README.md"}]}',
             ],
           }
@@ -29,7 +29,7 @@ export const filesystemCommands = (
           ? {
               fields: ['content'],
               examples: [
-                'opencove fs read --uri file:///repo/README.md --fields content',
+                'eclipse-code fs read --uri file:///repo/README.md --fields content',
                 '{"content":"Hello"}',
               ],
             }
@@ -37,7 +37,7 @@ export const filesystemCommands = (
             ? {
                 fields: ['uri', 'kind', 'sizeBytes', 'mtimeMs'],
                 examples: [
-                  'opencove fs stat --uri file:///repo --fields kind',
+                  'eclipse-code fs stat --uri file:///repo --fields kind',
                   '{"kind":"directory"}',
                 ],
               }
@@ -77,7 +77,7 @@ export const filesystemCommands = (
         }
       : {}),
     examples: [
-      `opencove fs ${name} --uri file:///workspace/${name === 'ls' ? '' : 'notes.txt'}${name === 'write' ? ' --content-file ./notes.txt' : ''}`,
+      `eclipse-code fs ${name} --uri file:///workspace/${name === 'ls' ? '' : 'notes.txt'}${name === 'write' ? ' --content-file ./notes.txt' : ''}`,
     ],
   }),
 )

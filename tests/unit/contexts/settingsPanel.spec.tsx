@@ -101,7 +101,7 @@ function renderSettingsPanel(overrides: Partial<React.ComponentProps<typeof Sett
 
 describe('SettingsPanel', () => {
   afterEach(() => {
-    delete (window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi
+    delete (window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi
   })
 
   it('persists the selected default profile', () => {
@@ -215,11 +215,11 @@ describe('SettingsPanel', () => {
       fetchedAt: '2026-04-30T00:00:00.000Z',
     }))
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       agent: {
         listInstalledProviders,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     mockTerminalProfiles()
     renderSettingsPanel()
@@ -364,9 +364,9 @@ describe('SettingsPanel', () => {
       screen.queryByTestId('settings-experimental-remote-workers-enabled'),
     ).not.toBeInTheDocument()
     expect(onChange).not.toHaveBeenCalled()
-    expect(window.opencoveApi.workerClient.setConfig).not.toHaveBeenCalled()
-    expect(window.opencoveApi.worker.start).not.toHaveBeenCalled()
-    expect(window.opencoveApi.worker.stop).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.workerClient.setConfig).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.worker.start).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.worker.stop).not.toHaveBeenCalled()
   })
 
   it('keeps the legacy endpoints route and shows registration with a disabled legacy flag', async () => {
@@ -385,7 +385,7 @@ describe('SettingsPanel', () => {
 
   it('toggles the opt-in header performance monitor button from diagnostics settings', () => {
     const onChange = vi.fn()
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot: vi.fn(async () => ({
           capturedAt: '2026-05-07T00:00:00.000Z',
@@ -404,7 +404,7 @@ describe('SettingsPanel', () => {
           notes: [],
         })),
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     mockTerminalProfiles()
     renderSettingsPanel({ onChange })
@@ -439,8 +439,8 @@ describe('SettingsPanel', () => {
       processes: [],
       processSummary: [
         {
-          kind: 'opencove-renderer' as const,
-          scope: 'opencove' as const,
+          kind: 'eclipse-code-renderer' as const,
+          scope: 'eclipse-code' as const,
           count: 1,
           workingSetBytes: 24 * 1024 * 1024,
           privateBytes: 20 * 1024 * 1024,
@@ -460,7 +460,7 @@ describe('SettingsPanel', () => {
     }))
     const writeText = vi.fn(async () => undefined)
 
-    ;(window as typeof window & { opencoveApi?: Window['opencoveApi'] }).opencoveApi = {
+    ;(window as typeof window & { eclipseCodeApi?: Window['eclipseCodeApi'] }).eclipseCodeApi = {
       performanceDiagnostics: {
         getSnapshot,
       },
@@ -468,7 +468,7 @@ describe('SettingsPanel', () => {
         readText: vi.fn(async () => ''),
         writeText,
       },
-    } as Window['opencoveApi']
+    } as Window['eclipseCodeApi']
 
     mockTerminalProfiles()
     renderSettingsPanel()
@@ -477,7 +477,7 @@ describe('SettingsPanel', () => {
 
     expect(await screen.findByText('Performance Diagnostics')).toBeVisible()
     await waitFor(() => expect(getSnapshot).toHaveBeenCalledTimes(1))
-    expect(screen.getByText('OpenCove renderer')).toBeVisible()
+    expect(screen.getByText('Eclipse Code renderer')).toBeVisible()
     expect(screen.getByText('Codex CLI')).toBeVisible()
     expect(screen.getByText('12.0 MB')).toBeVisible()
     expect(screen.getByText('Threads')).toBeVisible()

@@ -1,4 +1,5 @@
 import { normalizeTextValue } from './settingsNormalization'
+import { AGENT_PROVIDERS, type AgentProvider } from './agentSettings.providers'
 
 export interface ProjectRoleDefinition {
   id: string
@@ -7,6 +8,12 @@ export interface ProjectRoleDefinition {
   promptTemplate: string
   inputHint: string
   outputFormat: string
+  /** Provider this role always runs on; null follows the window's choice or the default. */
+  provider: AgentProvider | null
+  /** Model for this role; empty follows the provider's configured model. */
+  model: string
+  /** The team lead: it receives every task and creates the other roles' agents (eclipse-code mcp). */
+  isLead: boolean
   createdAt: string
   updatedAt: string
 }
@@ -19,6 +26,13 @@ const MAX_PROJECT_ROLE_DESCRIPTION_LENGTH = 1_000
 const MAX_PROJECT_ROLE_PROMPT_TEMPLATE_LENGTH = 40_000
 const MAX_PROJECT_ROLE_INPUT_HINT_LENGTH = 4_000
 const MAX_PROJECT_ROLE_OUTPUT_FORMAT_LENGTH = 8_000
+const MAX_PROJECT_ROLE_MODEL_LENGTH = 120
+
+function normalizeRoleProvider(value: unknown): AgentProvider | null {
+  return typeof value === 'string' && (AGENT_PROVIDERS as readonly string[]).includes(value)
+    ? (value as AgentProvider)
+    : null
+}
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
@@ -53,6 +67,9 @@ function normalizeProjectRoleDefinition(value: unknown): ProjectRoleDefinition |
       0,
       MAX_PROJECT_ROLE_OUTPUT_FORMAT_LENGTH,
     ),
+    provider: normalizeRoleProvider(value.provider),
+    model: normalizeTextValue(value.model).slice(0, MAX_PROJECT_ROLE_MODEL_LENGTH),
+    isLead: value.isLead === true,
     createdAt: normalizeTextValue(value.createdAt),
     updatedAt: normalizeTextValue(value.updatedAt),
   }
@@ -70,6 +87,7 @@ export function normalizeProjectRoles(value: unknown): ProjectRoleDefinition[] {
   const normalized: ProjectRoleDefinition[] = []
   const seenIds = new Set<string>()
   const seenNames = new Set<string>()
+  let hasLead = false
 
   for (const item of value) {
     const role = normalizeProjectRoleDefinition(item)
@@ -84,6 +102,11 @@ export function normalizeProjectRoles(value: unknown): ProjectRoleDefinition[] {
 
     seenIds.add(role.id)
     seenNames.add(nameKey)
+    // One lead per project: the first one saved keeps the mark.
+    if (role.isLead && hasLead) {
+      role.isLead = false
+    }
+    hasLead ||= role.isLead
     normalized.push(role)
 
     if (normalized.length >= MAX_PROJECT_ROLES_PER_WORKSPACE) {

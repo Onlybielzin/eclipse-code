@@ -81,7 +81,9 @@ describe('TerminalNode theme behavior', () => {
       '--cove-terminal-selection',
       'rgba(94, 156, 255, 0.24)',
     )
-    window.dispatchEvent(new CustomEvent('opencove-theme-changed', { detail: { theme: 'light' } }))
+    window.dispatchEvent(
+      new CustomEvent('eclipse-code-theme-changed', { detail: { theme: 'light' } }),
+    )
 
     await waitFor(() => {
       expect(__getLastTerminal()?.options.theme).toEqual(
@@ -158,7 +160,9 @@ describe('TerminalNode theme behavior', () => {
       '--cove-terminal-selection',
       'rgba(94, 156, 255, 0.24)',
     )
-    window.dispatchEvent(new CustomEvent('opencove-theme-changed', { detail: { theme: 'light' } }))
+    window.dispatchEvent(
+      new CustomEvent('eclipse-code-theme-changed', { detail: { theme: 'light' } }),
+    )
 
     await waitFor(() => {
       expect(__getLastTerminal()?.options.theme).toEqual(
@@ -190,7 +194,7 @@ describe('TerminalNode theme behavior', () => {
     const previousTerminal = __getLastTerminal()
     const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
     const themeListenerBaseline = addEventListenerSpy.mock.calls.filter(
-      ([type]) => type === 'opencove-theme-changed',
+      ([type]) => type === 'eclipse-code-theme-changed',
     ).length
     const { container } = render(
       <TerminalNode
@@ -213,7 +217,7 @@ describe('TerminalNode theme behavior', () => {
     await waitFor(() => {
       expect(__getLastTerminal()).not.toBe(previousTerminal)
       expect(
-        addEventListenerSpy.mock.calls.filter(([type]) => type === 'opencove-theme-changed'),
+        addEventListenerSpy.mock.calls.filter(([type]) => type === 'eclipse-code-theme-changed'),
       ).toHaveLength(themeListenerBaseline + 1)
     })
     const terminal = __getLastTerminal()!
@@ -224,7 +228,7 @@ describe('TerminalNode theme behavior', () => {
     document.documentElement.style.setProperty('--cove-terminal-background', '#19120e')
     terminalNode.style.setProperty('--cove-terminal-background', '#19120e')
     window.dispatchEvent(
-      new CustomEvent('opencove-theme-changed', {
+      new CustomEvent('eclipse-code-theme-changed', {
         detail: { theme: 'dark', themeId: 'plugin:fixture:dusk' },
       }),
     )
@@ -232,7 +236,7 @@ describe('TerminalNode theme behavior', () => {
     document.documentElement.style.setProperty('--cove-terminal-background', '#111827')
     terminalNode.style.setProperty('--cove-terminal-background', '#111827')
     window.dispatchEvent(
-      new CustomEvent('opencove-theme-changed', {
+      new CustomEvent('eclipse-code-theme-changed', {
         detail: { theme: 'dark', themeId: 'dark' },
       }),
     )
@@ -246,8 +250,8 @@ describe('TerminalNode theme behavior', () => {
   it('passes Windows PTY compatibility metadata into xterm when available', async () => {
     installResizeObserverMock()
     installPtyApiMock()
-    window.opencoveApi.meta.platform = 'win32'
-    window.opencoveApi.meta.windowsPty = {
+    window.eclipseCodeApi.meta.platform = 'win32'
+    window.eclipseCodeApi.meta.windowsPty = {
       backend: 'conpty',
       buildNumber: 19045,
     }

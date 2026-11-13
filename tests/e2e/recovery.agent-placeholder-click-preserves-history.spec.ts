@@ -15,7 +15,7 @@ async function readTaskLinkedAgentInfo(window: Page): Promise<{
   resumeSessionIdVerified: boolean
 }> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -71,8 +71,8 @@ test.describe('Recovery - Agent placeholder click preserves history', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-click-redraw-after-click',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-click-redraw-after-click',
         },
       })
 
@@ -152,8 +152,10 @@ test.describe('Recovery - Agent placeholder click preserves history', () => {
 
         const snapshot = await window.evaluate(
           async payload => {
-            const result = await window.opencoveApi.pty.snapshot({ sessionId: payload.sessionId })
-            await window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback({
+            const result = await window.eclipseCodeApi.pty.snapshot({
+              sessionId: payload.sessionId,
+            })
+            await window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback({
               nodeId: payload.nodeId,
               scrollback: result.data,
             })
@@ -162,7 +164,7 @@ test.describe('Recovery - Agent placeholder click preserves history', () => {
           { nodeId: agentInfo.linkedAgentNodeId, sessionId: agentInfo.sessionId },
         )
 
-        expect(snapshot).toContain('[opencove-test-click] ready')
+        expect(snapshot).toContain('[eclipse-code-test-click] ready')
       } finally {
         await electronApp.close()
       }
@@ -172,8 +174,8 @@ test.describe('Recovery - Agent placeholder click preserves history', () => {
         userDataDir,
         cleanupUserDataDir: true,
         env: {
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-          OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-click-redraw-after-click',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-click-redraw-after-click',
         },
       })
 
@@ -185,28 +187,30 @@ test.describe('Recovery - Agent placeholder click preserves history', () => {
         const terminalBody = agentNode.locator('.xterm')
         const transcript = agentNode.locator('.terminal-node__transcript')
 
-        await expect(agentNode).toContainText('[opencove-test-click] ready', { timeout: 10_000 })
+        await expect(agentNode).toContainText('[eclipse-code-test-click] ready', {
+          timeout: 10_000,
+        })
         await expect(agentNode.locator('.terminal-node__terminal')).toHaveAttribute(
           'aria-busy',
           'false',
         )
 
         const transcriptBeforeClick = (await transcript.textContent()) ?? ''
-        expect(transcriptBeforeClick).toContain('[opencove-test-click] ready')
+        expect(transcriptBeforeClick).toContain('[eclipse-code-test-click] ready')
 
         await terminalBody.click()
         await restartedWindow.waitForTimeout(200)
 
         const transcriptAfterControlOnlyRedraw = (await transcript.textContent()) ?? ''
-        expect(transcriptAfterControlOnlyRedraw).toContain('[opencove-test-click] ready')
+        expect(transcriptAfterControlOnlyRedraw).toContain('[eclipse-code-test-click] ready')
         expect(transcriptAfterControlOnlyRedraw).not.toContain(
-          '[opencove-test-click] redraw complete',
+          '[eclipse-code-test-click] redraw complete',
         )
 
-        await expect(transcript).toContainText('[opencove-test-click] redraw complete', {
+        await expect(transcript).toContainText('[eclipse-code-test-click] redraw complete', {
           timeout: 5_000,
         })
-        await expect(transcript).not.toContainText('[opencove-test-click] ready')
+        await expect(transcript).not.toContainText('[eclipse-code-test-click] ready')
       } finally {
         await restartedApp.close()
       }

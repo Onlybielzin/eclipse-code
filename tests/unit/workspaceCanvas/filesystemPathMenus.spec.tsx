@@ -14,10 +14,10 @@ const copyLocalPath = vi.fn()
 beforeEach(() => {
   writeText.mockReset().mockResolvedValue(undefined)
   copyLocalPath.mockReset().mockRejectedValue(new Error('remote path is not a local workspace'))
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     clipboard: { writeText },
     workspace: { copyPath: copyLocalPath },
-  } as unknown as Window['opencoveApi']
+  } as unknown as Window['eclipseCodeApi']
 })
 
 describe('filesystem path menus', () => {

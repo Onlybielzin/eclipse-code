@@ -189,7 +189,7 @@ test.describe('Workspace Canvas - Note to Task', () => {
     const { electronApp, window } = await launchApp({
       userDataDir,
       env: {
-        OPENCOVE_TEST_BYPASS_SAVE_DIALOG: '1',
+        ECLIPSE_CODE_TEST_BYPASS_SAVE_DIALOG: '1',
       },
     })
     const noteText = 'Download body\nSecond line'
@@ -251,7 +251,7 @@ test.describe('Workspace Canvas - Note to Task', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(async nodeId => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

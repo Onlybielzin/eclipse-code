@@ -27,7 +27,7 @@ export async function ensureArtifactsDir(): Promise<void> {
 
 export async function resolveCanonicalBucketForWindow(window: Page): Promise<CanonicalSizeBucket> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return 'regular'
     }
@@ -145,7 +145,7 @@ export async function readSeededWorkspaceLayout(
   spaces: Record<string, { x: number; y: number; width: number; height: number } | null>
 }> {
   return await window.evaluate(async ({ nodeIds, spaceIds }) => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return { nodes: {}, spaces: {} }
     }

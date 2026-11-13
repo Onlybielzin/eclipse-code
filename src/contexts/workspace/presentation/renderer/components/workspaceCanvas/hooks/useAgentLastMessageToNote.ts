@@ -15,16 +15,16 @@ async function delay(ms: number): Promise<void> {
 }
 
 async function readLastAgentMessageWithRetry(
-  payload: Parameters<typeof window.opencoveApi.agent.readLastMessage>[0],
+  payload: Parameters<typeof window.eclipseCodeApi.agent.readLastMessage>[0],
 ): Promise<string> {
   return await readLastAgentMessageWithRetryAttempt(payload, 0)
 }
 
 async function readLastAgentMessageWithRetryAttempt(
-  payload: Parameters<typeof window.opencoveApi.agent.readLastMessage>[0],
+  payload: Parameters<typeof window.eclipseCodeApi.agent.readLastMessage>[0],
   attempt: number,
 ): Promise<string> {
-  const result = await window.opencoveApi.agent.readLastMessage(payload)
+  const result = await window.eclipseCodeApi.agent.readLastMessage(payload)
   const message = typeof result.message === 'string' ? result.message.trim() : ''
   if (message.length > 0) {
     return message
@@ -78,11 +78,11 @@ export function useWorkspaceCanvasAgentLastMessageCopy({
           return
         }
 
-        if (typeof window.opencoveApi?.clipboard?.writeText !== 'function') {
+        if (typeof window.eclipseCodeApi?.clipboard?.writeText !== 'function') {
           throw new Error(t('common.unknownError'))
         }
 
-        await window.opencoveApi.clipboard.writeText(message)
+        await window.eclipseCodeApi.clipboard.writeText(message)
         onShowMessage?.(t('messages.agentLastMessageCopied'))
       } catch (error) {
         const detail =

@@ -29,7 +29,7 @@ describe('SpaceWorktreeWindow create flow', () => {
     }))
     const create = vi.fn(async () => ({
       worktree: {
-        path: '/repo/.opencove/worktrees/space-demo--1a2b3c4d',
+        path: '/repo/.eclipse-code/worktrees/space-demo--1a2b3c4d',
         head: null,
         branch: 'space/demo',
       },
@@ -37,7 +37,7 @@ describe('SpaceWorktreeWindow create flow', () => {
     const onClose = vi.fn()
     const onUpdateSpaceDirectory = vi.fn()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -68,7 +68,7 @@ describe('SpaceWorktreeWindow create flow', () => {
         spaces={createSpaces('/repo')}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={onClose}
         onUpdateSpaceDirectory={onUpdateSpaceDirectory}
@@ -99,12 +99,12 @@ describe('SpaceWorktreeWindow create flow', () => {
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreesRoot: '/repo/.opencove/worktrees',
+        worktreesRoot: '/repo/.eclipse-code/worktrees',
         branchMode: { kind: 'new', name: 'space/demo', startPoint: 'main' },
       })
       expect(onUpdateSpaceDirectory).toHaveBeenCalledWith(
         'space-1',
-        '/repo/.opencove/worktrees/space-demo--1a2b3c4d',
+        '/repo/.eclipse-code/worktrees/space-demo--1a2b3c4d',
         { renameSpaceTo: 'space/demo' },
       )
       expect(onClose).toHaveBeenCalledTimes(1)
@@ -134,7 +134,7 @@ describe('SpaceWorktreeWindow create flow', () => {
         spaces={createSpaces('/repo')}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={onClose}
         onOperationPhaseChange={onOperationPhaseChange}
@@ -160,7 +160,7 @@ describe('SpaceWorktreeWindow create flow', () => {
 
     resolveCreate?.({
       worktree: {
-        path: '/repo/.opencove/worktrees/space-demo',
+        path: '/repo/.eclipse-code/worktrees/space-demo',
         head: null,
         branch: 'space/demo',
       },
@@ -213,7 +213,7 @@ describe('SpaceWorktreeWindow create flow', () => {
         spaces={spaces}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={onClose}
         onUpdateSpaceDirectory={onUpdateSpaceDirectory}
@@ -238,7 +238,7 @@ describe('SpaceWorktreeWindow create flow', () => {
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith({
         repoPath: '/repo',
-        worktreesRoot: '/repo/.opencove/worktrees',
+        worktreesRoot: '/repo/.eclipse-code/worktrees',
         branchMode: { kind: 'existing', name: 'feature/existing' },
       })
       expect(onUpdateSpaceDirectory).toHaveBeenCalledWith(
@@ -270,7 +270,7 @@ describe('SpaceWorktreeWindow create flow', () => {
         spaces={createSpaces('/repo')}
         nodes={createNodes()}
         workspacePath="/repo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         agentSettings={DEFAULT_AGENT_SETTINGS}
         onClose={onClose}
         onUpdateSpaceDirectory={onUpdateSpaceDirectory}

@@ -86,8 +86,8 @@ describe('headless PTY runtime', () => {
         args: [],
         env: {
           EXISTING: 'value',
-          OPENCOVE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
-          OPENCOVE_CLAUDE_HOOK_TOKEN: 'token-1',
+          ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
+          ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'token-1',
         },
         agentProvider: 'claude-code',
         initialAgentState: 'working',
@@ -102,8 +102,8 @@ describe('headless PTY runtime', () => {
         args: [],
         env: {
           EXISTING: 'codex-value',
-          OPENCOVE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:5678/hooks/codex',
-          OPENCOVE_CODEX_HOOK_TOKEN: 'reserved-token',
+          ECLIPSE_CODE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:5678/hooks/codex',
+          ECLIPSE_CODE_CODEX_HOOK_TOKEN: 'reserved-token',
         },
         agentProvider: 'codex',
         initialAgentState: 'working',
@@ -249,8 +249,8 @@ describe('headless PTY runtime', () => {
         expect.objectContaining({
           env: {
             EXISTING: 'value',
-            OPENCOVE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
-            OPENCOVE_CLAUDE_HOOK_TOKEN: 'token-1',
+            ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1234/hooks/claude',
+            ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'token-1',
           },
         }),
       )
@@ -259,8 +259,8 @@ describe('headless PTY runtime', () => {
         expect.objectContaining({
           env: {
             EXISTING: 'codex-value',
-            OPENCOVE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:5678/hooks/codex',
-            OPENCOVE_CODEX_HOOK_TOKEN: 'reserved-token',
+            ECLIPSE_CODE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:5678/hooks/codex',
+            ECLIPSE_CODE_CODEX_HOOK_TOKEN: 'reserved-token',
           },
         }),
       )

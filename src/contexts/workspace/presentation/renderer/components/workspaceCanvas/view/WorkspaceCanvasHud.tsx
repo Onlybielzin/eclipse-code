@@ -35,9 +35,12 @@ const ZoomChip = memo(function ZoomChip(): React.JSX.Element {
 export const WorkspaceCanvasHud = memo(function WorkspaceCanvasHud({
   canvasRef,
   farViewEnabled,
+  taskTabs = null,
 }: {
   canvasRef: RefObject<HTMLDivElement | null>
   farViewEnabled: boolean
+  /** Eclipse Code task tabs, shown right after the Far/Near switch. */
+  taskTabs?: React.ReactNode
 }): React.JSX.Element {
   const { t } = useTranslation()
   const reactFlow = useReactFlow()
@@ -65,26 +68,27 @@ export const WorkspaceCanvasHud = memo(function WorkspaceCanvasHud({
   }
   return (
     <div className="workspace-canvas-hud" data-testid="workspace-canvas-hud">
-      {farViewEnabled ? (
-        <Surface material="acrylic" className="workspace-canvas-hud__lod nodrag nopan">
-          <SegmentedControl
-            testId="workspace-canvas-hud-lod"
-            label={t('canvasHud.view')}
-            value={pending ?? lod}
-            onValueChange={choose}
-            options={[
-              { value: 'far', label: t('canvasHud.far'), testId: 'workspace-canvas-hud-lod-far' },
-              {
-                value: 'near',
-                label: t('canvasHud.near'),
-                testId: 'workspace-canvas-hud-lod-near',
-              },
-            ]}
-          />
-        </Surface>
-      ) : (
-        <span />
-      )}
+      <div className="workspace-canvas-hud__leading">
+        {farViewEnabled ? (
+          <Surface material="acrylic" className="workspace-canvas-hud__lod nodrag nopan">
+            <SegmentedControl
+              testId="workspace-canvas-hud-lod"
+              label={t('canvasHud.view')}
+              value={pending ?? lod}
+              onValueChange={choose}
+              options={[
+                { value: 'far', label: t('canvasHud.far'), testId: 'workspace-canvas-hud-lod-far' },
+                {
+                  value: 'near',
+                  label: t('canvasHud.near'),
+                  testId: 'workspace-canvas-hud-lod-near',
+                },
+              ]}
+            />
+          </Surface>
+        ) : null}
+        {taskTabs}
+      </div>
       <ZoomChip />
     </div>
   )

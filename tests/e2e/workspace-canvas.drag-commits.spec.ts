@@ -11,7 +11,7 @@ test('dragging commits only the moving window and persists its final geometry on
   const readNode = () =>
     window.evaluate(async id => {
       const state = JSON.parse(
-        (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+        (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
       )
       return state.workspaces?.[0]?.nodes?.find((node: { id: string }) => node.id === id)
     }, DRAG_NODE)
@@ -63,7 +63,7 @@ test('dragging commits only the moving window and persists its final geometry on
         window.evaluate(
           point =>
             window
-              .__opencovePixelWallTestApi!.getLights()
+              .__eclipseCodePixelWallTestApi!.getLights()
               .some(
                 light =>
                   Math.abs(light.x - point.x) < 0.1 &&

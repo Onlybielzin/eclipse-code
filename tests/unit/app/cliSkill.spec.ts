@@ -19,12 +19,12 @@ it.each(['', ...topics])('bundles the offline %s guide within its budget', async
     (content.endsWith('\n') ? content.slice(0, -1) : content).split('\n').length,
   ).toBeLessThanOrEqual(topic ? 180 : 120)
   expect(Buffer.byteLength(content)).toBeLessThanOrEqual((topic ? 16 : 8) * 1024)
-  const cwd = mkdtempSync(join(tmpdir(), 'opencove-skill-'))
+  const cwd = mkdtempSync(join(tmpdir(), 'eclipse-code-skill-'))
   try {
     expect(
-      execFileSync(process.execPath, [resolve('out/cli/opencove.mjs'), ...args], {
+      execFileSync(process.execPath, [resolve('out/cli/eclipse-code.mjs'), ...args], {
         cwd,
-        env: { ...process.env, OPENCOVE_CONTROL_URL: 'http://127.0.0.1:1' },
+        env: { ...process.env, ECLIPSE_CODE_CONTROL_URL: 'http://127.0.0.1:1' },
         encoding: 'utf8',
       }),
     ).toBe(content)
@@ -55,7 +55,7 @@ it.each(['', ...topics])(
   async topic => {
     const lines = source(topic)
       .split('\n')
-      .filter(line => line.startsWith('opencove '))
+      .filter(line => line.startsWith('eclipse-code '))
     expect(lines.length).toBeGreaterThan(0)
     for (const line of lines) {
       const argv = line
@@ -73,7 +73,7 @@ it.each(['', ...topics])(
 
 it('indexes exactly the bundled topic files in the core guide', () => {
   expect(readdirSync('src/app/cli/skill/topics').sort()).toEqual(topics.map(t => `${t}.md`).sort())
-  const indexed = [...source('').matchAll(/^- `opencove skill (\w+)`/gm)].map(match => match[1])
+  const indexed = [...source('').matchAll(/^- `eclipse-code skill (\w+)`/gm)].map(match => match[1])
   expect(indexed).toEqual(topics)
 })
 
@@ -90,7 +90,7 @@ it.each(['missing', 'constructor', '__proto__', 'Canvas'])(
     expect(f.fetch).not.toHaveBeenCalled()
     const result = spawnSync(
       process.execPath,
-      [resolve('out/cli/opencove.mjs'), 'skill', topic, '-o', 'json'],
+      [resolve('out/cli/eclipse-code.mjs'), 'skill', topic, '-o', 'json'],
       { encoding: 'utf8' },
     )
     expect(result.status).toBe(2)
@@ -103,7 +103,7 @@ it('makes skill discoverable on the last line of root help and provides offline 
   const f = identityFixture(false)
   expect(await run(['--help'], f.io)).toBe(0)
   expect(f.out().trimEnd().split('\n').at(-1)).toBe(
-    'AI agents: run `opencove skill` for a usage guide.',
+    'AI agents: run `eclipse-code skill` for a usage guide.',
   )
   const guide = identityFixture(false)
   expect(await run(['skill', '--help'], guide.io)).toBe(0)

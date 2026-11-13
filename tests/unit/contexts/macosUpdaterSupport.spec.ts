@@ -9,7 +9,7 @@ describe('macosUpdaterSupport', () => {
   it('extracts the designated requirement from codesign output', () => {
     const requirement = extractDesignatedRequirement(
       [
-        'Executable=/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+        'Executable=/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
         '# designated => cdhash H"deadbeef"',
       ].join('\n'),
     )
@@ -20,14 +20,14 @@ describe('macosUpdaterSupport', () => {
   it('detects ad-hoc designated requirements', () => {
     expect(isAdhocDesignatedRequirement('cdhash H"deadbeef"')).toBe(true)
     expect(
-      isAdhocDesignatedRequirement('identifier "dev.deadwave.opencove" and anchor apple'),
+      isAdhocDesignatedRequirement('identifier "dev.vings.eclipsecode" and anchor apple'),
     ).toBe(false)
   })
 
   it('treats non-darwin platforms as supported', () => {
     const result = resolveMacUpdaterSupport({
       platform: 'linux',
-      appPath: '/Applications/OpenCove.app',
+      appPath: '/Applications/Eclipse Code.app',
     })
 
     expect(result.supported).toBe(true)
@@ -43,7 +43,7 @@ describe('macosUpdaterSupport', () => {
 
     const result = resolveMacUpdaterSupport({
       platform: 'darwin',
-      appPath: '/Applications/OpenCove.app',
+      appPath: '/Applications/Eclipse Code.app',
       spawn,
     })
 
@@ -56,12 +56,12 @@ describe('macosUpdaterSupport', () => {
     const spawn = vi.fn(() => ({
       status: 0,
       stdout: '',
-      stderr: 'designated => identifier "dev.deadwave.opencove" and anchor apple\n',
+      stderr: 'designated => identifier "dev.vings.eclipsecode" and anchor apple\n',
     })) as unknown as Parameters<typeof resolveMacUpdaterSupport>[0]['spawn']
 
     const result = resolveMacUpdaterSupport({
       platform: 'darwin',
-      appPath: '/Applications/OpenCove.app',
+      appPath: '/Applications/Eclipse Code.app',
       spawn,
     })
 
@@ -79,7 +79,7 @@ describe('macosUpdaterSupport', () => {
 
     const result = resolveMacUpdaterSupport({
       platform: 'darwin',
-      appPath: '/Applications/OpenCove.app',
+      appPath: '/Applications/Eclipse Code.app',
       spawn,
     })
 

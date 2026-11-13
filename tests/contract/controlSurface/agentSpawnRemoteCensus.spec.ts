@@ -37,7 +37,7 @@ it('does not let local completion history hide a later human remote incarnation 
       async () =>
         new Response(
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { sessionId: 'remote' },
           }),

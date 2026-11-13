@@ -1,12 +1,12 @@
 # Persistence
 
-OpenCove 当前使用 SQLite 保存 app/workspace durable state，并使用独立 topology 文件保存 Worker endpoints 和 mounts。
+Eclipse Code 当前使用 SQLite 保存 app/workspace durable state，并使用独立 topology 文件保存 Worker endpoints 和 mounts。
 
 ## Stores
 
 SQLite:
 
-- DB 文件：`opencove.db`
+- DB 文件：`eclipse-code.db`
 - Store：`src/platform/persistence/sqlite/PersistenceStore.ts`
 - Schema：`src/platform/persistence/sqlite/schema.ts`
 - Migration：`src/platform/persistence/sqlite/migrate.ts`
@@ -40,10 +40,10 @@ truth：恢复优先使用该 binding，并通过 topology registry 解析 endpo
 
 Schema 变更属于 Large Change，必须写清旧数据迁移、失败恢复和验证。
 
-SQLite `PRAGMA user_version` 是 OpenCove 的应用级 schema 版本标记，不是数据库
+SQLite `PRAGMA user_version` 是 Eclipse Code 的应用级 schema 版本标记，不是数据库
 自动迁移系统。它只能说明“上次代码认为迁移到了哪个版本”，不能替代启动期结构
 repair。Electron 的 `userData` 目录是安装版和 dev 版数据隔离的 durable profile；
-安装版默认读 `%APPDATA%/opencove`，dev 默认读 `%APPDATA%/opencove-dev`，所以必须单独
+安装版默认读 `%APPDATA%/eclipse-code`，dev 默认读 `%APPDATA%/eclipse-code-dev`，所以必须单独
 验证安装版升级路径。
 
 ## Migration Safety
@@ -59,8 +59,8 @@ repair。Electron 的 `userData` 目录是安装版和 dev 版数据隔离的 du
 
 启动行为：
 
-- `user_version < DB_SCHEMA_VERSION` 时先备份 `opencove.db` 为 `opencove.db.bak-<timestamp>`。
-- 打开或迁移失败时将原 DB 隔离为 `opencove.db.corrupt-<timestamp>`，创建新库继续启动。
+- `user_version < DB_SCHEMA_VERSION` 时先备份 `eclipse-code.db` 为 `eclipse-code.db.bak-<timestamp>`。
+- 打开或迁移失败时将原 DB 隔离为 `eclipse-code.db.corrupt-<timestamp>`，创建新库继续启动。
 - Renderer 会收到一次性恢复提示，说明原因是 corrupt DB 或 migration failure。
 
 读取失败不能被当作“没有 durable state”。如果 `readAppState()`、IPC、Control Surface
@@ -167,7 +167,7 @@ schema。缺这个测试时不得合并。
 
 ## Downgrade / Rollback Contract
 
-OpenCove 的 SQLite migration 是前向升级链路，不是双向迁移系统。除非某个版本显式写
+Eclipse Code 的 SQLite migration 是前向升级链路，不是双向迁移系统。除非某个版本显式写
 入并测试了 rollback support，否则用户从新版本退回旧版本不属于保证可用路径。
 
 当前代码行为：

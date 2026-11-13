@@ -102,10 +102,10 @@ beforeEach(() => {
     entries: files[uri] ?? [],
   }))
   writeText.mockResolvedValue(undefined)
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     filesystem: { readDirectory },
     clipboard: { writeText },
-  } as unknown as Window['opencoveApi']
+  } as unknown as Window['eclipseCodeApi']
 })
 
 describe('directory browser', () => {
@@ -222,7 +222,7 @@ describe('directory browser', () => {
   it('keeps the newly created and renamed entry selected while its directory refreshes', async () => {
     const listing = [...files[docsUri]]
     readDirectory.mockImplementation(async () => ({ entries: [...listing] }))
-    Object.assign(window.opencoveApi.filesystem, {
+    Object.assign(window.eclipseCodeApi.filesystem, {
       writeFileText: vi.fn(async ({ uri }: { uri: string }) => {
         listing.push({ uri, name: uri.split('/').at(-1) ?? '', kind: 'file' })
       }),

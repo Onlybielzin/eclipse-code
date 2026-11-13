@@ -12,7 +12,7 @@ import { createTopologyMutationQueue } from '../../../src/app/main/controlSurfac
 const tempPaths: string[] = []
 
 async function createSubject(writeFileImpl?: typeof writeFile) {
-  const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-topology-persistence-'))
+  const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-topology-persistence-'))
   tempPaths.push(userDataPath)
   return {
     userDataPath,

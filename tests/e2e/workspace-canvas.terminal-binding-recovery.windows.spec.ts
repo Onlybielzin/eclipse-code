@@ -7,13 +7,13 @@ for (const uiTheme of ['dark', 'light'] as const) {
     test.skip(process.platform !== 'win32', 'Windows terminal recovery')
     const { electronApp, window } = await launchApp({
       deviceScaleFactor: 1.5,
-      env: { OPENCOVE_WORKER_CLIENT: '1' },
+      env: { ECLIPSE_CODE_WORKER_CLIENT: '1' },
     })
     const nodeId = 'binding-recovery'
     const terminal = window.locator(`[data-id="${nodeId}"] .terminal-node`)
     const runtimeId = () =>
       window.evaluate(
-        id => window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(id),
+        id => window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(id),
         nodeId,
       )
     try {
@@ -25,7 +25,7 @@ for (const uiTheme of ['dark', 'light'] as const) {
       await expect.poll(runtimeId).toBeTruthy()
       const oldSessionId = (await runtimeId())!
       await window.evaluate(async sessionId => {
-        await window.opencoveApi.pty.kill({ sessionId })
+        await window.eclipseCodeApi.pty.kill({ sessionId })
       }, oldSessionId)
       const resizer = await readLocatorClientRect(terminal.getByTestId('terminal-resizer-right'))
       await window.mouse.move(resizer.x + resizer.width / 2, resizer.y + resizer.height / 2)
@@ -44,7 +44,7 @@ for (const uiTheme of ['dark', 'light'] as const) {
       await expect
         .poll(() =>
           window.evaluate(async sessionId => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               sessions: Array<{ sessionId: string; status: string }>
             }>({ kind: 'query', id: 'session.list', payload: {} })
             return result.sessions.find(session => session.sessionId === sessionId)?.status
@@ -58,7 +58,7 @@ for (const uiTheme of ['dark', 'light'] as const) {
       await expect
         .poll(() =>
           window.evaluate(async id => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             const state = JSON.parse(raw!)
             return state.workspaces
               .flatMap(

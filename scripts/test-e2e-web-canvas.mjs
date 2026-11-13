@@ -57,10 +57,10 @@ async function startWorker(options) {
         ...process.env,
         ELECTRON_RUN_AS_NODE: '1',
         ...(options.agentStubScriptPath
-          ? { OPENCOVE_TEST_AGENT_STUB_SCRIPT: options.agentStubScriptPath }
+          ? { ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: options.agentStubScriptPath }
           : {}),
         ...(options.agentSessionScenario
-          ? { OPENCOVE_TEST_AGENT_SESSION_SCENARIO: options.agentSessionScenario }
+          ? { ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: options.agentSessionScenario }
           : {}),
         ...(options.nodeEnv ? { NODE_ENV: options.nodeEnv } : {}),
       },
@@ -145,7 +145,7 @@ async function main() {
   const forwardedArgsRaw = process.argv.slice(2)
   const forwardedArgs = forwardedArgsRaw[0] === '--' ? forwardedArgsRaw.slice(1) : forwardedArgsRaw
 
-  if (!isTruthyEnv(process.env['OPENCOVE_E2E_SKIP_BUILD'])) {
+  if (!isTruthyEnv(process.env['ECLIPSE_CODE_E2E_SKIP_BUILD'])) {
     const buildCode = await runCommand(['build'])
     if (buildCode !== 0) {
       process.exit(buildCode)
@@ -153,8 +153,8 @@ async function main() {
   }
 
   const workerPath = resolve(process.cwd(), 'out', 'main', 'worker.js')
-  const userDataPath = await mkdtemp(resolve(tmpdir(), 'opencove-web-canvas-userdata-'))
-  const workspaceRoot = await mkdtemp(resolve(tmpdir(), 'opencove-web-canvas-workspace-'))
+  const userDataPath = await mkdtemp(resolve(tmpdir(), 'eclipse-code-web-canvas-userdata-'))
+  const workspaceRoot = await mkdtemp(resolve(tmpdir(), 'eclipse-code-web-canvas-workspace-'))
   const token = randomBytes(16).toString('hex')
   const agentStubScriptPath = resolve(process.cwd(), 'scripts', 'test-agent-session-stub.mjs')
 
@@ -177,9 +177,9 @@ async function main() {
 
     const testEnv = {
       ...process.env,
-      OPENCOVE_WEB_CANVAS_BASE_URL: baseUrl,
-      OPENCOVE_WEB_CANVAS_TOKEN: token,
-      OPENCOVE_WEB_CANVAS_WORKSPACE_ROOT: workspaceRoot,
+      ECLIPSE_CODE_WEB_CANVAS_BASE_URL: baseUrl,
+      ECLIPSE_CODE_WEB_CANVAS_TOKEN: token,
+      ECLIPSE_CODE_WEB_CANVAS_WORKSPACE_ROOT: workspaceRoot,
     }
 
     exitCode = await runCommand(

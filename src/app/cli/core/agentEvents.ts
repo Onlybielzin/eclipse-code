@@ -25,7 +25,7 @@ export async function* agentEvents(options: {
   const response = await options.fetch(url.toString(), {
     headers: {
       authorization: `Bearer ${options.connection.token}`,
-      'x-opencove-protocol': String(CONTROL_SURFACE_PROTOCOL_VERSION),
+      'x-eclipse-code-protocol': String(CONTROL_SURFACE_PROTOCOL_VERSION),
       accept: 'text/event-stream',
     },
     signal: options.signal,
@@ -40,7 +40,7 @@ export async function* agentEvents(options: {
       'agent.stream_failed',
       [401, 403].includes(response.status) ? 4 : 1,
       `Agent event stream refused (HTTP ${response.status}).`,
-      'Check the connection and credentials; inspect with opencove agent get.',
+      'Check the connection and credentials; inspect with eclipse-code agent get.',
     )
   }
   const reader = response.body.getReader()

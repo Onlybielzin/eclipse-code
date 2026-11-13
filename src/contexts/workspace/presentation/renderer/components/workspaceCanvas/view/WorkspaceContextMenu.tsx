@@ -32,6 +32,7 @@ export function WorkspaceContextMenu({
   websiteWindowsEnabled,
   openTaskCreator,
   openRoleCreator,
+  createDefaultTeam,
   openAgentLauncher,
   agentProviderOrder,
   agentExecutablePathOverrideByProvider,
@@ -462,6 +463,7 @@ export function WorkspaceContextMenu({
         enabledQuickPhrases={enabledQuickPhrases}
         projectRoles={projectRoles}
         openRoleCreator={openRoleCreator}
+        createDefaultTeam={createDefaultTeam}
         keepAgentProviderSubmenuOpen={keepAgentProviderSubmenuOpen}
         keepQuickCommandsSubmenuOpen={openQuickCommandsSubmenu}
         keepQuickPhrasesSubmenuOpen={openQuickPhrasesSubmenu}

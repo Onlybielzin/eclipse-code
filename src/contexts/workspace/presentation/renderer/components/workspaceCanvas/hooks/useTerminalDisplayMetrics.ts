@@ -4,7 +4,7 @@ import type { TerminalPtyGeometryDisplayMetrics } from '@contexts/workspace/doma
 import type { RuntimeDiagnosticsDetailValue } from '@shared/contracts/dto'
 
 function runtimeDiagnosticsEnabled(): boolean {
-  return window.opencoveApi?.meta?.enableTerminalDiagnostics === true
+  return window.eclipseCodeApi?.meta?.enableTerminalDiagnostics === true
 }
 
 function logTerminalDisplayCalibrationDiagnostics(
@@ -14,7 +14,7 @@ function logTerminalDisplayCalibrationDiagnostics(
     return
   }
 
-  window.opencoveApi?.debug?.logRuntimeDiagnostics?.({
+  window.eclipseCodeApi?.debug?.logRuntimeDiagnostics?.({
     source: 'renderer-workspace-canvas',
     level: 'info',
     event: 'terminal-display-calibration:resolved',

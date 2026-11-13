@@ -27,13 +27,13 @@ export function useSystemFonts(): SystemFontsState {
       return
     }
 
-    if (!window.opencoveApi?.system) {
+    if (!window.eclipseCodeApi?.system) {
       return
     }
 
     setState(prev => ({ ...prev, isLoading: true }))
 
-    void window.opencoveApi.system
+    void window.eclipseCodeApi.system
       .listFonts()
       .then(result => {
         cachedFonts = result.fonts

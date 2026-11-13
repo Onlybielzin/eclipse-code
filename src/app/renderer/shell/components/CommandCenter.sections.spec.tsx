@@ -26,7 +26,7 @@ function node(
 
 const workspace: WorkspaceState = {
   id: 'core',
-  name: 'OpenCove',
+  name: 'Eclipse Code',
   iconId: 'code',
   path: '/tmp/core',
   worktreesRoot: '',
@@ -85,7 +85,7 @@ describe('Command Center sections', () => {
     expect(options[0]?.getAttribute('data-testid')).toBe(
       'command-center-item-needs-you:core:agent-wait',
     )
-    expect(options[0]?.textContent).toContain('OpenCove · Project canvas')
+    expect(options[0]?.textContent).toContain('Eclipse Code · Project canvas')
     expect(options[0]?.getAttribute('data-tone')).toBe('waiting')
     const pill = options[0]?.querySelector('[data-cove-part="status-pill"]')
     expect(pill?.getAttribute('data-tone')).toBe('waiting')

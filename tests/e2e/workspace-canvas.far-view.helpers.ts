@@ -7,7 +7,7 @@ export const SYNC_REFRESH_NAME = 'Zoom sync refresh'
 
 export async function setZoom(window: Page, zoom: number): Promise<void> {
   expect(
-    await window.evaluate(next => window.__opencoveWorkspaceCanvasTestApi?.setZoom(next), zoom),
+    await window.evaluate(next => window.__eclipseCodeWorkspaceCanvasTestApi?.setZoom(next), zoom),
   ).toBe(true)
 }
 
@@ -74,7 +74,7 @@ export async function continuousWheelGesture(window: Page, deltaY: number, react
           // Force a real background Worker refresh during the gesture. Only workspace metadata
           // changes: deserialized task arrays must not rebuild task or website chrome.
           // eslint-disable-next-line no-await-in-loop -- One refresh is ordered within the gesture.
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           const state = JSON.parse(raw ?? '{}') as PersistedAppState
           const workspace = state.workspaces.find(item => item.id === gesture.workspaceId)
           if (!workspace) {
@@ -82,7 +82,7 @@ export async function continuousWheelGesture(window: Page, deltaY: number, react
           }
           workspace.name = gesture.workspaceName
           // eslint-disable-next-line no-await-in-loop -- Publish the same refresh before continuing.
-          const result = await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+          const result = await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
             raw: JSON.stringify(state),
           })
           if (!result.ok) {
@@ -111,7 +111,7 @@ export async function continuousWheelGesture(window: Page, deltaY: number, react
         // eslint-disable-next-line no-await-in-loop
         await new Promise(resolve => setTimeout(resolve, 20))
       }
-      return window.__opencoveWorkspaceCanvasTestApi!.getWindowCommitCounts()
+      return window.__eclipseCodeWorkspaceCanvasTestApi!.getWindowCommitCounts()
     },
     { deltaY, point, reactivate, workspaceId: seededWorkspaceId, workspaceName: SYNC_REFRESH_NAME },
   )

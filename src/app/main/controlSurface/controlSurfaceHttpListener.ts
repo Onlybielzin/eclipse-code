@@ -82,7 +82,7 @@ export function createControlSurfaceHttpListener(options: {
         res.statusCode = 500
         res.end()
         const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-        process.stderr.write(`[opencove] control surface request failed: ${detail}\n`)
+        process.stderr.write(`[eclipse-code] control surface request failed: ${detail}\n`)
       })
       .finally(() => {
         inFlightRequests.delete(operation)
@@ -160,7 +160,7 @@ export function createControlSurfaceHttpListener(options: {
 
   server.on('error', error => {
     const detail = error instanceof Error ? `${error.name}: ${error.message}` : 'unknown error'
-    process.stderr.write(`[opencove] control surface listener error: ${detail}\n`)
+    process.stderr.write(`[eclipse-code] control surface listener error: ${detail}\n`)
     if (!readySettled) {
       readySettled = true
       rejectReady?.(new Error(detail))

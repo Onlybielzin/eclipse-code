@@ -238,7 +238,7 @@ function appendLines(target: string[], lines: readonly string[]): void {
 
 function writeWarning(message: string): void {
   try {
-    process.stderr.write(`[opencove-ssh-config] ${message}\n`)
+    process.stderr.write(`[eclipse-code-ssh-config] ${message}\n`)
   } catch {
     // Diagnostics must not turn a fail-closed reader branch into a Query failure.
   }

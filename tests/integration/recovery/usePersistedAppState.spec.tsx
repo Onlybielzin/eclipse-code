@@ -51,7 +51,7 @@ describe('usePersistedAppState', () => {
     schedulePersistedStateWrite.mockReset()
     flushScheduledScrollbackWrites.mockReset()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: { meta: { isTest: false } },
@@ -85,7 +85,7 @@ describe('usePersistedAppState', () => {
     window.dispatchEvent(new Event('beforeunload'))
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'opencove:terminal-flush-scrollback' }),
+      expect.objectContaining({ type: 'eclipse-code:terminal-flush-scrollback' }),
     )
     expect(flushScheduledScrollbackWrites).toHaveBeenCalledTimes(1)
     expect(flushScheduledPersistedStateWrite).toHaveBeenCalledTimes(1)

@@ -32,7 +32,7 @@ export function useTerminalProfiles(): {
   const requestStoreRef = useRef(createLatestOnlyRequestStore<'terminal-profiles'>())
 
   const refreshTerminalProfiles = useCallback(async (): Promise<void> => {
-    const listProfiles = window.opencoveApi.pty.listProfiles
+    const listProfiles = window.eclipseCodeApi.pty.listProfiles
     const requestToken = requestStoreRef.current.start('terminal-profiles')
 
     if (typeof listProfiles !== 'function') {

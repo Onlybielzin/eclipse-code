@@ -8,7 +8,7 @@ interface UseAppUpdatesInput {
 }
 
 function getUpdateApi() {
-  return window.opencoveApi?.update
+  return window.eclipseCodeApi?.update
 }
 
 function getErrorMessage(error: unknown): string {

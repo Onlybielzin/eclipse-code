@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { IPC_CHANNELS } from '../../../src/shared/contracts/ipc'
 import { invokeHandledIpc } from './ipcTestUtils'
 
-const downloadsDirectory = path.join(tmpdir(), 'opencove-downloads')
+const downloadsDirectory = path.join(tmpdir(), 'eclipse-code-downloads')
 
 function createIpcHarness() {
   const handlers = new Map<string, (...args: unknown[]) => unknown>()

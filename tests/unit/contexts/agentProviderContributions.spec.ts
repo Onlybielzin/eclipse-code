@@ -29,12 +29,12 @@ function channel(provider: 'claude' | 'codex') {
     env:
       provider === 'claude'
         ? {
-            OPENCOVE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1/hooks/claude',
-            OPENCOVE_CLAUDE_HOOK_TOKEN: 'claude-token',
+            ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT: 'http://127.0.0.1:1/hooks/claude',
+            ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'claude-token',
           }
         : {
-            OPENCOVE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:2/hooks/codex',
-            OPENCOVE_CODEX_HOOK_TOKEN: 'codex-token',
+            ECLIPSE_CODE_CODEX_HOOK_ENDPOINT: 'http://127.0.0.1:2/hooks/codex',
+            ECLIPSE_CODE_CODEX_HOOK_TOKEN: 'codex-token',
           },
     installState: 'installed' as const,
     usesHook: true,
@@ -97,7 +97,7 @@ describe('ClaudeCodeAgentProviderContribution', () => {
       args: [
         'ELECTRON_RUN_AS_NODE=1',
         '/runtime/node',
-        expect.stringContaining('opencove-claude-hook-'),
+        expect.stringContaining('eclipse-code-claude-hook-'),
       ],
     })
     expect(settings.hooks.SessionStart[0].hooks[0]).toMatchObject({
@@ -106,7 +106,7 @@ describe('ClaudeCodeAgentProviderContribution', () => {
     })
     expect(plan.args.at(-1)).toBe('Explain the change')
     expect(plan.env).toMatchObject({
-      OPENCOVE_CLAUDE_HOOK_TOKEN: 'claude-token',
+      ECLIPSE_CODE_CLAUDE_HOOK_TOKEN: 'claude-token',
     })
 
     plan.onStarted?.('pty-1')
@@ -121,7 +121,7 @@ describe('CodexAgentProviderContribution', () => {
   let testHome: string
 
   beforeEach(async () => {
-    testHome = await mkdtemp(join(tmpdir(), 'opencove-provider-home-'))
+    testHome = await mkdtemp(join(tmpdir(), 'eclipse-code-provider-home-'))
     // Daemon detection must never consult the developer's running Codex instance.
     vi.stubEnv('HOME', testHome)
     vi.stubEnv('USERPROFILE', testHome)
@@ -136,7 +136,7 @@ describe('CodexAgentProviderContribution', () => {
   it.skipIf(process.platform === 'win32')(
     'uses the effective terminal environment for an nvm-style Codex executable only during trust planning',
     async () => {
-      const root = await mkdtemp(join(tmpdir(), 'opencove-codex-nvm-trust-'))
+      const root = await mkdtemp(join(tmpdir(), 'eclipse-code-codex-nvm-trust-'))
       const rawBin = join(root, 'raw-bin')
       const nvmBin = join(root, 'nvm-bin')
       const executable = join(root, 'codex')
@@ -231,7 +231,7 @@ describe('CodexAgentProviderContribution', () => {
       expect.objectContaining({
         executable: 'codex',
         hookCommand: expect.stringMatching(
-          /^'\/usr\/bin\/env' 'ELECTRON_RUN_AS_NODE=1' '\/runtime\/node' '.*opencove-codex-hook-.*[\\/]relay\.mjs'$/u,
+          /^'\/usr\/bin\/env' 'ELECTRON_RUN_AS_NODE=1' '\/runtime\/node' '.*eclipse-code-codex-hook-.*[\\/]relay\.mjs'$/u,
         ),
       }),
     )
@@ -242,7 +242,7 @@ describe('CodexAgentProviderContribution', () => {
     )
     expect(plan.args.at(-1)).toBe('Explain the change')
     expect(plan.env).toMatchObject({
-      OPENCOVE_CODEX_HOOK_TOKEN: 'codex-token',
+      ECLIPSE_CODE_CODEX_HOOK_TOKEN: 'codex-token',
     })
 
     await artifacts.dispose()

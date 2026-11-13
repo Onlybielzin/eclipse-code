@@ -29,7 +29,7 @@ export async function verifyTerminalQuickCommand(
       userDataDir,
       cleanupUserDataDir: false,
       windowMode: 'offscreen',
-      env: { OPENCOVE_WORKER_CLIENT: '1' },
+      env: { ECLIPSE_CODE_WORKER_CLIENT: '1' },
     })
     try {
       await clearAndSeedWorkspace(window, [], {

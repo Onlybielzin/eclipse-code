@@ -13,14 +13,15 @@
    tint is the one the theme contrast checks hold for (`--cove-glass-chrome`; solid material
    and reduced transparency make it opaque). Like window glass it is lit: a sheen fading down
    from the top edge over the grain (--cove-chrome-background-image). */
-.app-shell:has(> .app-shell__wall > .workspace-pixel-wall) :is(.app-header, .workspace-sidebar) {
+.app-shell:has(> .app-shell__wall > :is(.workspace-pixel-wall, .workspace-canvas-wallpaper))
+  :is(.app-header, .workspace-sidebar) {
   background: var(--cove-chrome-background-image), var(--cove-surface);
   backdrop-filter: none;
   box-shadow: none;
 }
 
 /* The project rail shares the sidebar's glass; its border still sets it apart. */
-.app-shell:has(> .app-shell__wall > .workspace-pixel-wall)
+.app-shell:has(> .app-shell__wall > :is(.workspace-pixel-wall, .workspace-canvas-wallpaper))
   .workspace-sidebar
   .workspace-project-rail {
   background: transparent;
@@ -29,13 +30,13 @@
 /* The settings page is one sheet of glass over the wall (Tide: `--cove-glass-sheet`, 72% dark,
    80% light): its tab strip, panel, navigation and content let the sheet's tint through. While
    it previews the focus zoom over the canvas it keeps its own transparent preview look. */
-.app-shell:has(> .app-shell__wall > .workspace-pixel-wall)
+.app-shell:has(> .app-shell__wall > :is(.workspace-pixel-wall, .workspace-canvas-wallpaper))
   .settings-page:not(.settings-page--preview) {
   background: var(--cove-surface-strong);
   backdrop-filter: none;
 }
 
-.app-shell:has(> .app-shell__wall > .workspace-pixel-wall)
+.app-shell:has(> .app-shell__wall > :is(.workspace-pixel-wall, .workspace-canvas-wallpaper))
   .settings-page:not(.settings-page--preview)
   :is(
     .settings-page__tabs,
@@ -46,7 +47,7 @@
   background: transparent;
 }
 
-.app-shell:has(> .app-shell__wall > .workspace-pixel-wall)
+.app-shell:has(> .app-shell__wall > :is(.workspace-pixel-wall, .workspace-canvas-wallpaper))
   .settings-page:not(.settings-page--preview)
   .settings-page__active-tab {
   background: var(--cove-settings-group-surface);

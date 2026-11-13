@@ -25,7 +25,7 @@ afterEach(async () => {
 async function backendFixture(
   hostRequest?: (operation: string, payload: unknown) => Promise<unknown>,
 ) {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-host-rpc-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-host-rpc-'))
   cleanups.push(() => rm(root, { recursive: true, force: true }))
   await writeFile(
     join(root, 'main.mjs'),
@@ -272,7 +272,7 @@ describe('host RPC lifecycle and bounds', () => {
     await expect(client.api.target.resolve({ projectId: 'a' })).rejects.toThrow('Too many pending')
     client.close()
     expect(await Promise.all(pending)).toEqual(
-      Array(128).fill('OpenCove plugin host connection closed.'),
+      Array(128).fill('Eclipse Code plugin host connection closed.'),
     )
     await expect(client.api.operations.start({})).rejects.toThrow('connection closed')
   })

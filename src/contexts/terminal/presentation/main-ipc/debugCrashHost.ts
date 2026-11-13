@@ -1,5 +1,6 @@
 export function isDebugCrashHostEnabled(): boolean {
   return (
-    process.env.NODE_ENV === 'test' || typeof process.env.OPENCOVE_TEST_USER_DATA_DIR === 'string'
+    process.env.NODE_ENV === 'test' ||
+    typeof process.env.ECLIPSE_CODE_TEST_USER_DATA_DIR === 'string'
   )
 }

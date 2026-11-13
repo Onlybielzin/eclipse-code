@@ -1,6 +1,6 @@
 import type { WindowSignalKind } from './signalDetector'
 
-const WINDOW_SIGNAL_EVENT = 'opencove-window-signal'
+const WINDOW_SIGNAL_EVENT = 'eclipse-code-window-signal'
 
 export interface WindowSignal {
   kind: WindowSignalKind

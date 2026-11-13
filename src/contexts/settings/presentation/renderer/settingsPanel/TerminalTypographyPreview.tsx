@@ -26,7 +26,7 @@ export function TerminalTypographyPreview({
         <div className="settings-terminal-preview__header" aria-hidden="true">
           <TerminalIcon size={18} />
           <span>Terminal</span>
-          <code>~/opencove</code>
+          <code>~/eclipse-code</code>
           <div className="settings-terminal-preview__chrome">
             <MinusIcon size={12} />
             <StopIcon size={12} />

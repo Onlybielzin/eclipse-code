@@ -32,7 +32,7 @@ async function readTerminalRenderMetrics(
   nodeId: string,
 ): Promise<TerminalRenderMetrics | null> {
   return await window.evaluate(targetNodeId => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const metrics = api?.getRenderMetrics?.(targetNodeId) ?? null
     if (!metrics) {
       return null
@@ -206,7 +206,7 @@ test.describe('Workspace Canvas - Terminal effective DPR', () => {
         const changedLayoutDpr = zoomedWindowDpr * expectedZoomedRasterScale
         const rendererDprProjection = await window.evaluate(
           ({ nextDpr, nodeId }) =>
-            window.__opencoveTerminalSelectionTestApi?.simulateRendererDevicePixelRatioChange(
+            window.__eclipseCodeTerminalSelectionTestApi?.simulateRendererDevicePixelRatioChange(
               nodeId,
               nextDpr,
             ) ?? null,

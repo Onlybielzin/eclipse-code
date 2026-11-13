@@ -10,7 +10,7 @@ import { terminalCommand, jsonOutput } from './cli.terminal.helpers'
 test('agent stop preserves a surviving shell and its unrelated foreground work', async () => {
   test.skip(process.platform === 'win32', 'Uses the existing POSIX terminal-agent command shim')
   test.setTimeout(120_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-terminal-stop-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-terminal-stop-'))
   const commandDirectory = await createAgentCommandPath({
     scenario: 'jsonl-two-stage-ctrl-c-unbound',
   })
@@ -22,14 +22,14 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
         PATH: `${commandDirectory}${delimiter}${process.env.PATH ?? ''}`,
         CODEX_HOME: join(root, 'profile', 'home', '.codex'),
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -58,7 +58,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
     // Both terminals must be created through the real grant-issuing path.
     const coordinator = await page.evaluate(
       async () =>
-        await window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        await window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -82,7 +82,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
       await terminalCommand(
         page,
         caller,
-        'opencove node create terminal --title Target --shell /bin/sh --fields id,sessionId',
+        'eclipse-code node create terminal --title Target --shell /bin/sh --fields id,sessionId',
         'CREATE_TARGET',
       ),
     )
@@ -101,7 +101,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
     await page.keyboard.press('Enter')
     const transcript = async () =>
       (await terminal.locator('.terminal-node__transcript').textContent()) ?? ''
-    await expect.poll(transcript).toContain('[opencove-test-2c] codex ready')
+    await expect.poll(transcript).toContain('[eclipse-code-test-2c] codex ready')
     await page.keyboard.press('Control+C')
     await expect.poll(transcript).toContain('codex cancel-alt-exit')
     await page.keyboard.press('Control+C')
@@ -109,7 +109,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
     const run = () =>
       page.evaluate(
         async nodeId =>
-          await window.opencoveApi.controlSurface.invoke<{ state: string }>({
+          await window.eclipseCodeApi.controlSurface.invoke<{ state: string }>({
             kind: 'query',
             id: 'agent.get',
             payload: { nodeId },
@@ -118,7 +118,9 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
       )
     await expect.poll(run).toMatchObject({ state: 'exited' })
     const cliStop = async (label: string) =>
-      jsonOutput(await terminalCommand(page, caller, 'opencove agent stop --node Target', label))
+      jsonOutput(
+        await terminalCommand(page, caller, 'eclipse-code agent stop --node Target', label),
+      )
     const noOp = {
       nodeId: node.id,
       sessionId: node.sessionId,
@@ -129,7 +131,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
     // The shell now runs work unrelated to the exited agent. Assemble the marker so echo cannot pass.
     const accepted = await page.evaluate(
       async binding =>
-        await window.opencoveApi.controlSurface.invoke<{ accepted: boolean }>({
+        await window.eclipseCodeApi.controlSurface.invoke<{ accepted: boolean }>({
           kind: 'command',
           id: 'session.writeNode',
           payload: { ...binding, data: "printf '\\n%s%s\\n' unrelated- work; sleep 30\r" },
@@ -142,7 +144,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
     // End only this test's foreground sleep, then prove the same shell binding is still usable.
     await page.evaluate(
       async binding =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'session.writeNode',
           payload: { ...binding, data: '\u0003' },
@@ -154,7 +156,7 @@ test('agent stop preserves a surviving shell and its unrelated foreground work',
         await terminalCommand(
           page,
           target,
-          'opencove node get --node @self --fields id',
+          'eclipse-code node get --node @self --fields id',
           'TARGET_SURVIVES',
         ),
       ),

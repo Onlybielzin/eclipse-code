@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getAppErrorDebugMessage, OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { getAppErrorDebugMessage, EclipseCodeAppError } from '../../../src/shared/errors/appError'
 
 describe('workspace path opener validation', () => {
   it('accepts the supported opener ids and absolute path formats', async () => {
@@ -33,9 +33,9 @@ describe('workspace path opener validation', () => {
       })
       throw new Error('Expected normalizeOpenWorkspacePathPayload to throw')
     } catch (error) {
-      expect(error).toBeInstanceOf(OpenCoveAppError)
-      expect((error as OpenCoveAppError).code).toBe('common.invalid_input')
-      expect((error as OpenCoveAppError).message).toBe('The request was invalid.')
+      expect(error).toBeInstanceOf(EclipseCodeAppError)
+      expect((error as EclipseCodeAppError).code).toBe('common.invalid_input')
+      expect((error as EclipseCodeAppError).message).toBe('The request was invalid.')
       expect(getAppErrorDebugMessage(error)).toBe('Invalid openerId for workspace:open-path')
     }
   })

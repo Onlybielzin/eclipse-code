@@ -104,7 +104,9 @@ describe('Worker ended-turn archive lifecycle', () => {
       }),
     )
     expect(open).not.toHaveBeenCalled()
-    expect(diagnostic).toHaveBeenCalledWith('[opencove] ended-turn archive startup unavailable.\n')
+    expect(diagnostic).toHaveBeenCalledWith(
+      '[eclipse-code] ended-turn archive startup unavailable.\n',
+    )
   })
 
   it('does not open after shutdown crosses a persistence await', async () => {

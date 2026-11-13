@@ -81,7 +81,7 @@ export function PluginInstallPanel({
     setError(null)
     try {
       if (mode === 'discover') {
-        const result = await window.opencoveApi.controlSurface.invoke<{
+        const result = await window.eclipseCodeApi.controlSurface.invoke<{
           repositories: Repository[]
         }>({ kind: 'query', id: 'plugin.discover', payload: { query: query.trim() } })
         if (alive.current) {

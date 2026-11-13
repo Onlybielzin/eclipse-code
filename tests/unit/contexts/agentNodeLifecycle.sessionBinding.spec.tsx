@@ -73,7 +73,7 @@ describe('agent relaunch session binding', () => {
       if (owned) {
         node.data.sessionId = 'old-runtime'
       }
-      window.opencoveApi = {
+      window.eclipseCodeApi = {
         ...(provider === 'claude-code'
           ? {
               controlSurface: {
@@ -102,7 +102,7 @@ describe('agent relaunch session binding', () => {
           })),
         },
         pty: { kill: vi.fn() },
-      } as unknown as typeof window.opencoveApi
+      } as unknown as typeof window.eclipseCodeApi
       const { result } = renderHook(() =>
         useWorkspaceCanvasAgentNodeLifecycle({
           workspaceId: 'workspace-a',
@@ -124,10 +124,10 @@ describe('agent relaunch session binding', () => {
         }),
       )
       await act(() => result.current.launchAgentInNode(node.id, mode))
-      expect(window.opencoveApi.agent.launch).toHaveBeenCalledOnce()
+      expect(window.eclipseCodeApi.agent.launch).toHaveBeenCalledOnce()
       if (owned) {
-        expect(window.opencoveApi.pty.kill).not.toHaveBeenCalled()
-        expect(window.opencoveApi.agent.launch).toHaveBeenCalledWith(
+        expect(window.eclipseCodeApi.pty.kill).not.toHaveBeenCalled()
+        expect(window.eclipseCodeApi.agent.launch).toHaveBeenCalledWith(
           expect.objectContaining({
             intent: expect.objectContaining({
               kind: mode === 'resume' ? 'resumeCurrent' : 'launchNew',

@@ -20,7 +20,7 @@ import { Server } from '../../support/convergence/server'
 import { installMockStorage } from '../../support/persistenceTestStorage'
 
 const original = {
-  api: Object.getOwnPropertyDescriptor(window, 'opencoveApi'),
+  api: Object.getOwnPropertyDescriptor(window, 'eclipseCodeApi'),
   app: useAppStore.getState(),
   storage: window.localStorage,
 }
@@ -49,9 +49,9 @@ afterEach(async () => {
   Object.assign(window, { __dropManagedSync: false })
   await flushScheduledPersistedStateWriteAsync()
   if (original.api) {
-    Object.defineProperty(window, 'opencoveApi', original.api)
+    Object.defineProperty(window, 'eclipseCodeApi', original.api)
   } else {
-    Reflect.deleteProperty(window, 'opencoveApi')
+    Reflect.deleteProperty(window, 'eclipseCodeApi')
   }
   useAppStore.setState(original.app, true)
   Object.defineProperty(window, 'localStorage', { configurable: true, value: original.storage })
@@ -90,7 +90,7 @@ async function setup(cas = false) {
   })
   await holdPrepare(page, 'agent')
   const submit = vi.spyOn(api, 'writeAppState')
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     meta: { runtime: 'browser', isTest: false },
     persistence: api,
     sync: { onStateUpdated: () => () => {} },
@@ -129,7 +129,7 @@ async function setup(cas = false) {
         }
       },
     },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   useAppStore.setState({ workspaces: [], activeWorkspaceId: null, persistNotice: null })
   const client = renderHook(useClient)
   await waitFor(() =>
@@ -293,7 +293,7 @@ it('logs raw correction and rejection without freezing the required canonical B 
     }),
   )
   expect(
-    await window.opencoveApi.persistence.writeWorkspaceStateRaw({ raw: 'invalid JSON' }),
+    await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({ raw: 'invalid JSON' }),
   ).toMatchObject({ ok: false })
   expect(window.__managedContinuity!.writes).toContainEqual(
     expect.objectContaining({
@@ -315,12 +315,12 @@ it('starts the stale phase with a fresh A read and clears any bootstrap receipt 
     await flushScheduledPersistedStateWriteAsync()
   })
   await waitFor(() => expect(t.submit).toHaveBeenCalled())
-  await window.opencoveApi.persistence.readAppState()
+  await window.eclipseCodeApi.persistence.readAppState()
   Object.assign(window, { __correctedManagedWrite: true })
   await freezeManagedClient(page)
   const afterSeq = window.__managedContinuity!.seq
   commitB(t.server)
-  const frozen = await window.opencoveApi.persistence.readAppState()
+  const frozen = await window.eclipseCodeApi.persistence.readAppState()
   expect((frozen.state as ReturnType<typeof produce>).workspaces[0].nodes[0]).toMatchObject({
     agent: { resumeSessionId: 'A' },
     position: { x: 120, y: 80 },

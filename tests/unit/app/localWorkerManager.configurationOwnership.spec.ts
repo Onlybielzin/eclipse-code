@@ -8,8 +8,8 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('electron', () => ({
   app: {
-    getPath: () => '/tmp/opencove-owner-test',
-    getAppPath: () => '/tmp/opencove-owner-test',
+    getPath: () => '/tmp/eclipse-code-owner-test',
+    getAppPath: () => '/tmp/eclipse-code-owner-test',
     isPackaged: false,
   },
 }))

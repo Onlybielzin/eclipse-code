@@ -42,7 +42,7 @@ export function resolveClaudeWorkspacePathCandidates(cwd: string): string[] {
 
 /**
  * Claude Code keeps its state under CLAUDE_CONFIG_DIR when set, otherwise under ~/.claude.
- * OpenCove-launched agents inherit the Worker environment, so the Worker's value is the one
+ * Eclipse Code-launched agents inherit the Worker environment, so the Worker's value is the one
  * the agent wrote its transcripts with.
  */
 export function resolveClaudeConfigDirectoryCandidates(

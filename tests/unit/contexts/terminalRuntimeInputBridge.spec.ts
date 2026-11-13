@@ -15,7 +15,7 @@ describe('runtime terminal input bridge', () => {
   it('preserves command semantics for input accepted during hydration', async () => {
     const pendingWrite = createDeferred()
     const write = vi.fn(() => pendingWrite.promise)
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: { pty: { write } },
@@ -64,7 +64,7 @@ describe('runtime terminal input bridge', () => {
 
   it('does not let a delayed interrupt clear a replacement overlay activation', async () => {
     const pendingWrite = createDeferred()
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

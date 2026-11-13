@@ -15,6 +15,13 @@ export const enRole = {
     nameRequired: 'Role name is required.',
     promptRequired: 'Prompt template is required.',
     duplicateName: 'A role with this name already exists in this project.',
+    provider: 'Provider',
+    providerDefault: 'Default',
+    model: 'Model',
+    modelPlaceholder: 'Empty uses the provider default, e.g. claude-sonnet-5-5',
+    lead: 'Team lead',
+    leadHelp:
+      'Receives every task and creates the other roles as agents (eclipse-code mcp). One per project.',
   },
   roleActions: {
     more: 'Role actions',

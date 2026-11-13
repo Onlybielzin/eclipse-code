@@ -177,7 +177,7 @@ test.describe('Workspace Canvas - Background style', () => {
       await expect
         .poll(() =>
           window.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             const settings = raw ? JSON.parse(raw).settings : null
             return [settings?.canvasBackgroundStyle, settings?.canvasBackgroundTwinkleEnabled]
           }),
@@ -211,7 +211,7 @@ test.describe('Workspace Canvas - Work light', () => {
             : value
         }, name)
       const noteLight = async () =>
-        (await window.evaluate(() => window.__opencovePixelWallTestApi?.getLights() ?? []))[0]
+        (await window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getLights() ?? []))[0]
           ?.light
       const knowledge = await token('--cove-wall-light-knowledge')
       const neutral = await token('--cove-wall-light-neutral')
@@ -221,7 +221,7 @@ test.describe('Workspace Canvas - Work light', () => {
       expect((await noteLight())?.intensity).toBeCloseTo(0.46)
       // The note's frame is frosted glass on the wall.
       expect(
-        await window.evaluate(() => window.__opencovePixelWallTestApi?.getGlassCount() ?? 0),
+        await window.evaluate(() => window.__eclipseCodePixelWallTestApi?.getGlassCount() ?? 0),
       ).toBe(1)
 
       await window.getByTestId('app-header-settings').click({ noWaitAfter: true })

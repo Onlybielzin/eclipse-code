@@ -1,3 +1,4 @@
+import { createDefaultProjectTeam } from '@contexts/settings/domain/projectTeam'
 import {
   useCallback,
   useLayoutEffect,
@@ -100,6 +101,7 @@ export function useWorkspaceCanvasRoleActions({
   roleCreator: RoleCreatorState | null
   setRoleCreator: Dispatch<SetStateAction<RoleCreatorState | null>>
   openRoleCreator: () => void
+  createDefaultTeam: () => void
   closeRoleCreator: () => void
   createRole: () => void
   runProjectRoleFromContextMenu: (roleId: string) => void
@@ -124,7 +126,10 @@ export function useWorkspaceCanvasRoleActions({
       const targetSpace = findContainingSpaceByAnchor(spacesRef.current, cursorAnchor)
       const created = createRoleNode(nodeAnchor, role, {
         targetSpaceRect: targetSpace?.rect ?? null,
-        selectedProvider: resolveSelectableAgentProvider(agentSettings.defaultProvider),
+        // Team roles open on their own provider; the window's picker can still change it.
+        selectedProvider: resolveSelectableAgentProvider(
+          role.provider ?? agentSettings.defaultProvider,
+        ),
       })
 
       if (!created || !targetSpace) {
@@ -171,11 +176,48 @@ export function useWorkspaceCanvasRoleActions({
       promptTemplate: '',
       inputHint: '',
       outputFormat: '',
+      provider: null,
+      model: '',
+      isLead: false,
       isCreating: false,
       error: null,
     })
     setContextMenu(null)
   }, [contextMenu, setContextMenu])
+
+  /** Adds the default team (Lead, Devs, Tests, Reviewer) and opens the Lead's window here. */
+  const createDefaultTeam = useCallback(() => {
+    if (!contextMenu || contextMenu.kind !== 'pane') {
+      return
+    }
+    const anchor = resolvePaneNodeCreationAnchor(contextMenu)
+    setContextMenu(null)
+    const added = createDefaultProjectTeam(projectRoles, new Date().toISOString(), () =>
+      crypto.randomUUID(),
+    )
+    if (added.length > 0) {
+      setAgentSettings(prev => ({
+        ...prev,
+        projectRolesByWorkspaceId: {
+          ...prev.projectRolesByWorkspaceId,
+          [workspaceId]: [...(prev.projectRolesByWorkspaceId[workspaceId] ?? []), ...added],
+        },
+      }))
+    }
+    const lead = [...projectRoles, ...added].find(role => role.isLead)
+    if (lead) {
+      createRoleNodeAtFlowPoint(anchor, lead)
+    }
+    onRequestPersistFlush?.()
+  }, [
+    contextMenu,
+    createRoleNodeAtFlowPoint,
+    onRequestPersistFlush,
+    projectRoles,
+    setAgentSettings,
+    setContextMenu,
+    workspaceId,
+  ])
 
   const closeRoleCreator = useCallback(() => {
     setRoleCreator(prev => (prev?.isCreating ? prev : null))
@@ -225,6 +267,9 @@ export function useWorkspaceCanvasRoleActions({
       promptTemplate,
       inputHint: roleCreator.inputHint.trim(),
       outputFormat: roleCreator.outputFormat.trim(),
+      provider: roleCreator.provider,
+      model: roleCreator.model.trim(),
+      isLead: roleCreator.isLead,
       createdAt: existingRole?.createdAt ?? now,
       updatedAt: now,
     }
@@ -232,10 +277,18 @@ export function useWorkspaceCanvasRoleActions({
     setRoleCreator(prev => (prev ? { ...prev, isCreating: true, error: null } : prev))
     setAgentSettings(prev => {
       const current = prev.projectRolesByWorkspaceId[workspaceId] ?? []
-      const nextRoles =
+      const replaced =
         roleCreator.mode === 'edit'
           ? current.map(candidate => (candidate.id === role.id ? role : candidate))
           : [...current, role]
+      // One lead per project: marking this role as lead clears the mark elsewhere.
+      const nextRoles = role.isLead
+        ? replaced.map(candidate =>
+            candidate.id !== role.id && candidate.isLead
+              ? { ...candidate, isLead: false, updatedAt: now }
+              : candidate,
+          )
+        : replaced
       return {
         ...prev,
         projectRolesByWorkspaceId: {
@@ -373,6 +426,9 @@ export function useWorkspaceCanvasRoleActions({
         promptTemplate: role.promptTemplate,
         inputHint: role.inputHint,
         outputFormat: role.outputFormat,
+        provider: role.provider,
+        model: role.model,
+        isLead: role.isLead,
         isCreating: false,
         error: null,
       })
@@ -409,6 +465,7 @@ export function useWorkspaceCanvasRoleActions({
     roleCreator,
     setRoleCreator,
     openRoleCreator,
+    createDefaultTeam,
     closeRoleCreator,
     createRole,
     runProjectRoleFromContextMenu,

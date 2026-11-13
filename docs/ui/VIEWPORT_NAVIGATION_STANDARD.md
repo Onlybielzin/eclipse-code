@@ -1,6 +1,6 @@
 # Viewport Navigation Standard
 
-本规范定义 OpenCove 画布中的定位导航行为，确保从不同入口进入目标区域时体验一致、可预期。
+本规范定义 Eclipse Code 画布中的定位导航行为，确保从不同入口进入目标区域时体验一致、可预期。
 
 > 关联全局 UI 规范：`docs/ui/README.md`
 
@@ -108,7 +108,7 @@
 验证：归一化、策略与初始化顺序用 unit 覆盖；Electron E2E 安装 Playwright Clock 后重载页面，
 让 D3 和 rAF 使用同一可控时钟，检查两种效果落点误差 ≤1px、平移倍率边界、双向导航、
 快速切换、手动接管、减少动态效果及重启恢复。普通 E2E 仍跳过动画；专用动画用例设置
-`document.documentElement.dataset.opencoveTestViewportAnimation = 'true'` 启用生产动画路径。
+`document.documentElement.dataset.eclipseCodeTestViewportAnimation = 'true'` 启用生产动画路径。
 轨迹数据标记为 controlled，失败时也保留已采样结果；可控时钟与截图只用于行为验证，
 真实流畅度、掉帧与 Long Animation Frame 必须另外在实时运行中观察，不能由虚拟帧间隔推断。
 该测试标记不改变生产环境策略。

@@ -99,7 +99,7 @@ export function PerformanceMonitorPanel({
   }
 
   const copyReport = async (): Promise<void> => {
-    await window.opencoveApi.clipboard.writeText(
+    await window.eclipseCodeApi.clipboard.writeText(
       JSON.stringify(
         {
           snapshot,

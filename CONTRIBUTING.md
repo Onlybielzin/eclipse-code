@@ -1,8 +1,8 @@
-# Contributing to OpenCove 🤝
+# Contributing to Eclipse Code 🤝
 
-First off, thank you for considering contributing to OpenCove! 🎉
+First off, thank you for considering contributing to Eclipse Code! 🎉
 
-OpenCove is an ambitious open-source project aimed at redefining how we interact with AI agents in a spatial workspace. Building a high-performance, complex desktop OS-like environment requires discipline. To ensure we can iterate rapidly without breaking the core experience, we maintain strict engineering and architectural standards.
+Eclipse Code is an ambitious open-source project aimed at redefining how we interact with AI agents in a spatial workspace. Building a high-performance, complex desktop OS-like environment requires discipline. To ensure we can iterate rapidly without breaking the core experience, we maintain strict engineering and architectural standards.
 
 > **🚨 CRITICAL FIRST STEP:**
 > Before you write any code, you **MUST** read [DEVELOPMENT.md](./DEVELOPMENT.md). 
@@ -33,7 +33,7 @@ To keep the Project healthy and to preserve future distribution options (includi
 - **No retroactive chasing**: We do not require retroactive signatures for contributions merged before the CLA check was enabled.
 - **Contributing on behalf of an employer**: Make sure you have permission to contribute under the CLA terms. If your company requires a corporate CLA, contact the Steward listed in `CLA.md`.
   - Maintainers: see `docs/runtime/CLA_SETUP.md`.
-- Trademarks & branding: see `TRADEMARKS.md` (forks/redistributions should not use the "OpenCove" name/logo in a confusing way).
+- Trademarks & branding: see `TRADEMARKS.md` (forks/redistributions should not use the "Eclipse Code" name/logo in a confusing way).
 
 ## 💻 Development Workflow
 
@@ -47,8 +47,8 @@ To keep the Project healthy and to preserve future distribution options (includi
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/DeadWaveWave/opencove.git
-cd opencove
+git clone https://github.com/Onlybielzin/eclipse-code.git
+cd eclipse-code
 
 # 2. Install dependencies
 pnpm install

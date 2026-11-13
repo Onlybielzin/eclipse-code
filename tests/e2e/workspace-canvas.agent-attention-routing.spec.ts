@@ -15,8 +15,8 @@ import {
 type RecordedSystemNotification = { id: string | null; title: string; silent: boolean }
 
 // Main's E2E harness (`systemNotifications.ts`) and the renderer's sound log (`notificationSound.ts`).
-const HARNESS = '__opencoveSystemNotificationTestState'
-const SOUND_LOG = '__opencoveNotificationSoundTestLog'
+const HARNESS = '__eclipseCodeSystemNotificationTestState'
+const SOUND_LOG = '__eclipseCodeNotificationSoundTestLog'
 
 async function pretendForeground(electronApp: ElectronApplication, foreground: boolean) {
   await electronApp.evaluate(
@@ -56,7 +56,7 @@ test.describe('Agent attention routing', () => {
       const { electronApp, window } = await launchApp({
         env: {
           PATH: `${commandDirectory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
         },
       })
       try {
@@ -101,7 +101,7 @@ test.describe('Agent attention routing', () => {
         await expect.poll(() => readSounds(window)).toEqual([{ sound: 'bit', volume: 40 }])
 
         if (foreground) {
-          // Main drops it while OpenCove is in front, even with the switch on.
+          // Main drops it while Eclipse Code is in front, even with the switch on.
           await expect.poll(() => readShown(electronApp)).toEqual([])
           return
         }

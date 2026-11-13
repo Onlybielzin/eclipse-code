@@ -74,11 +74,11 @@ it('joins granted CLI selectors, Worker updates, saved geometry and renderer syn
       },
     },
     env: {
-      OPENCOVE_ENV: '1',
-      OPENCOVE_PROJECT_ID: 'project',
-      OPENCOVE_SPACE_ID: 'space',
-      OPENCOVE_CONTROL_URL: 'http://in-memory',
-      OPENCOVE_CONTROL_TOKEN: 'grant',
+      ECLIPSE_CODE_ENV: '1',
+      ECLIPSE_CODE_PROJECT_ID: 'project',
+      ECLIPSE_CODE_SPACE_ID: 'space',
+      ECLIPSE_CODE_CONTROL_URL: 'http://in-memory',
+      ECLIPSE_CODE_CONTROL_TOKEN: 'grant',
     },
     fetch: async (_url, init) =>
       new Response(JSON.stringify(await surface.invoke(ctx, JSON.parse(String(init?.body))))),

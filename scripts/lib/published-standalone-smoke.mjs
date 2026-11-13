@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 
-const DEFAULT_RELEASE_ROOT = 'https://github.com/DeadWaveWave/opencove/releases'
+const DEFAULT_RELEASE_ROOT = 'https://github.com/Onlybielzin/eclipse-code/releases'
 const RELEASE_TAG_PATTERN = /^v\d+\.\d+\.\d+(?:-nightly\.\d{8}\.\d+)?$/u
 
 function normalizeReleasePlatform(platform) {
@@ -57,13 +57,13 @@ export function resolvePublishedStandaloneReleaseTarget({
   const extension = windows ? 'ps1' : 'sh'
   const stable = !normalizedTag.includes('-nightly.')
   const version = normalizedTag.slice(1)
-  const installerName = `opencove-install-${normalizedTag}.${extension}`
-  const uninstallerName = `opencove-uninstall-${normalizedTag}.${extension}`
-  const latestInstallerName = stable ? `opencove-install.${extension}` : null
-  const latestUninstallerName = stable ? `opencove-uninstall.${extension}` : null
+  const installerName = `eclipse-code-install-${normalizedTag}.${extension}`
+  const uninstallerName = `eclipse-code-uninstall-${normalizedTag}.${extension}`
+  const latestInstallerName = stable ? `eclipse-code-install.${extension}` : null
+  const latestUninstallerName = stable ? `eclipse-code-uninstall.${extension}` : null
   const bundleName = windows
-    ? `opencove-server-windows-${normalizedArch}.zip`
-    : `opencove-server-${normalizedPlatform}-${normalizedArch}.tar.gz`
+    ? `eclipse-code-server-windows-${normalizedArch}.zip`
+    : `eclipse-code-server-${normalizedPlatform}-${normalizedArch}.tar.gz`
   const normalizedReleaseRoot = releaseRoot.replace(/\/+$/u, '')
   const tagBaseUrl = `${normalizedReleaseRoot}/download/${normalizedTag}`
   const latestBaseUrl = `${normalizedReleaseRoot}/latest/download`

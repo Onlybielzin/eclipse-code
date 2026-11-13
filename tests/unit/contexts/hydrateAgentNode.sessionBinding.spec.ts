@@ -57,7 +57,7 @@ beforeEach(() => {
     effectiveModel: null,
     resumeSessionId: assignedSessionId,
   }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       agent: {

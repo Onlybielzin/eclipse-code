@@ -1,5 +1,5 @@
 export const enSettingsPanelAgent = {
-  residentContextLabel: 'Tell agents about OpenCove',
+  residentContextLabel: 'Tell agents about Eclipse Code',
   residentContextSuggest: 'Suggest',
   residentContextOff: 'Off',
   residentContextHelp:
@@ -27,7 +27,7 @@ export const enSettingsPanelAgent = {
   moveDown: 'Move down',
   codexReuseRunningAppServerLabel: 'Reuse a running Codex app-server',
   codexReuseRunningAppServerHelp:
-    "When a running Codex app-server is reused, OpenCove can't send prompts to the agent and has only limited status. Applies to newly launched agents.",
+    "When a running Codex app-server is reused, Eclipse Code can't send prompts to the agent and has only limited status. Applies to newly launched agents.",
   fullAccessLabel: 'Full Access Mode',
   fullAccessHelp: 'Let agents leave their sandbox and act without asking for approval.',
   fullAccessOffHelp:

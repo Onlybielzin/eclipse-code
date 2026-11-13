@@ -15,7 +15,7 @@ function correlations(text: string) {
     'refused',
     'uncertain',
     'neither submission nor consumption',
-    'opencove agent delivery <id>',
+    'eclipse-code agent delivery <id>',
     'inspect each deliveryId',
   ]) {
     expect(normalized).toContain(phrase)
@@ -47,7 +47,7 @@ it('core guide keeps first-action rules and topic discovery', async () => {
     expect(guide, rule).toContain(rule)
   }
   for (const topic of ['canvas', 'coordinate', 'wait', 'read', 'access']) {
-    expect(guide).toContain(`opencove skill ${topic}`)
+    expect(guide).toContain(`eclipse-code skill ${topic}`)
   }
 })
 it.each([
@@ -111,7 +111,7 @@ it.each([
       'session final --session',
       '64 KiB',
       '60 turns/node',
-      'opencove agent history clear',
+      'eclipse-code agent history clear',
       '30 days',
       '20,000',
       '128 MiB',
@@ -133,7 +133,7 @@ it.each([
       'rejectedFields',
       'field_denied',
       'Full Access Mode',
-      'Tell agents about OpenCove',
+      'Tell agents about Eclipse Code',
       'one-word',
       'Project isolation is not yet enforced',
     ],
@@ -150,7 +150,7 @@ it.each([
   }
 })
 it('mirrored prompt skill explains the same correlation limits', () => {
-  correlations(readFileSync('docs/cli/skills/opencove-agent-prompt/SKILL.md', 'utf8'))
+  correlations(readFileSync('docs/cli/skills/eclipse-code-agent-prompt/SKILL.md', 'utf8'))
 })
 it('every shipped command help and skill is usable outside the repository', async () => {
   for (const command of commands) {
@@ -192,13 +192,13 @@ it('core guide checks session identity with whoami before consulting environment
   const f = identityFixture(false)
   expect(await run(['skill'], f.io)).toBe(0)
   const guide = f.out().replace(/\s+/g, ' ')
-  expect(guide).toContain('Run `opencove whoami` first')
+  expect(guide).toContain('Run `eclipse-code whoami` first')
   expect(guide).toContain('exit 3 or 4')
   expect(guide).toContain('ask the user for an authorized endpoint or profile')
   expect(guide).toContain("Never search for or modify a real user's profile or tokens")
-  expect(guide).not.toContain('Check `OPENCOVE_ENV=1` before')
+  expect(guide).not.toContain('Check `ECLIPSE_CODE_ENV=1` before')
   const firstExample = f.out().split('```sh\n')[1].split('\n')[0]
-  expect(firstExample).toBe('opencove whoami')
+  expect(firstExample).toBe('eclipse-code whoami')
 })
 
 it('canvas guide creates a Space, binds a worktree, then launches the delegated agent', async () => {
@@ -213,12 +213,12 @@ it('canvas guide creates a Space, binds a worktree, then launches the delegated 
   expect(recipe).toContain('repository root')
   expect(recipe).toContain('--in')
   expect(recipe).toContain('--name is optional')
-  const createSpace = recipe.indexOf('opencove space create --name "Review work"')
+  const createSpace = recipe.indexOf('eclipse-code space create --name "Review work"')
   const createWorktree = recipe.indexOf(
-    'opencove worktree create --space space-123 --name review-work',
+    'eclipse-code worktree create --space space-123 --name review-work',
   )
   const launchAgent = recipe.indexOf(
-    'opencove node create agent --space space-123 --title "Reviewer"',
+    'eclipse-code node create agent --space space-123 --title "Reviewer"',
   )
   expect(createSpace).toBeGreaterThanOrEqual(0)
   expect(createWorktree).toBeGreaterThan(createSpace)

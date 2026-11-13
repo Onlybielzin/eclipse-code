@@ -68,7 +68,7 @@ test.describe('Workspace Canvas - Tasks (Create & Run)', () => {
       const persisted = await window.evaluate(async key => {
         void key
 
-        const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+        const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
         if (!raw) {
           return null
         }
@@ -138,7 +138,7 @@ test.describe('Workspace Canvas - Tasks (Create & Run)', () => {
           endedAt: null,
           exitCode: null,
           lastError: null,
-          scrollback: '[opencove-test-agent] ready',
+          scrollback: '[eclipse-code-test-agent] ready',
           agent: {
             provider: 'codex',
             prompt: 'Summarize release notes',

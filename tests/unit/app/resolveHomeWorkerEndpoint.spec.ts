@@ -118,7 +118,7 @@ describe('resolveHomeWorkerEndpoint', () => {
   })
 
   it('starts a local worker when worker-client mode is requested without an existing endpoint', async () => {
-    vi.stubEnv('OPENCOVE_WORKER_CLIENT', '1')
+    vi.stubEnv('ECLIPSE_CODE_WORKER_CLIENT', '1')
     mocks.readHomeWorkerConfig.mockResolvedValue({
       version: 1,
       mode: 'local',
@@ -159,7 +159,7 @@ describe('resolveHomeWorkerEndpoint', () => {
     })
     expect(resolved.diagnostics).toEqual(
       expect.arrayContaining([
-        'OPENCOVE_WORKER_CLIENT=1 but no worker control surface connection file was found.',
+        'ECLIPSE_CODE_WORKER_CLIENT=1 but no worker control surface connection file was found.',
       ]),
     )
   })

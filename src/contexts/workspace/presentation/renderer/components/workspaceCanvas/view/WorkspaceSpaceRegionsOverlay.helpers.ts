@@ -3,7 +3,7 @@ export function normalizeComparablePath(pathValue: string): string {
     .trim()
     .replace(/[/\\]+$/, '')
     .replaceAll('\\', '/')
-  const platform = window.opencoveApi?.meta?.platform
+  const platform = window.eclipseCodeApi?.meta?.platform
   return platform === 'win32' ? normalized.toLowerCase() : normalized
 }
 

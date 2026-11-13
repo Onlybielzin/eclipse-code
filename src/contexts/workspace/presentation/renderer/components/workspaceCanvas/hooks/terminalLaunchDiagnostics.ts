@@ -3,7 +3,7 @@ import type { Size } from '../../../types'
 import type { TerminalPtyGeometryDisplayMetrics } from '@contexts/workspace/domain/terminalPtyGeometry'
 
 function runtimeDiagnosticsEnabled(): boolean {
-  return window.opencoveApi?.meta?.enableTerminalDiagnostics === true
+  return window.eclipseCodeApi?.meta?.enableTerminalDiagnostics === true
 }
 
 function logTerminalLaunchRuntimeDiagnostics({
@@ -21,7 +21,7 @@ function logTerminalLaunchRuntimeDiagnostics({
     return
   }
 
-  window.opencoveApi?.debug?.logRuntimeDiagnostics?.({
+  window.eclipseCodeApi?.debug?.logRuntimeDiagnostics?.({
     source: 'renderer-workspace-canvas',
     level,
     event: `terminal-launch:${event}`,

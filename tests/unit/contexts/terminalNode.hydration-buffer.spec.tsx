@@ -172,7 +172,7 @@ describe('TerminalNode hydration buffering', () => {
     let dataListener: ((event: DataEvent) => void) | null = null
     let exitListener: ((event: ExitEvent) => void) | null = null
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -230,12 +230,12 @@ describe('TerminalNode hydration buffering', () => {
     expect(container.querySelector('.terminal-node__terminal')).toHaveClass(
       'terminal-node__terminal--hydrating',
     )
-    expect(window.opencoveApi.pty.snapshot).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.pty.snapshot).not.toHaveBeenCalled()
 
     attachDeferred.resolve()
 
     await waitFor(() => {
-      expect(window.opencoveApi.pty.snapshot).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.pty.snapshot).toHaveBeenCalledTimes(1)
     })
 
     dataListener?.({ sessionId: 'session-1', data: 'lo!!' })
@@ -280,7 +280,7 @@ describe('TerminalNode hydration buffering', () => {
       rows: 28,
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -337,7 +337,7 @@ describe('TerminalNode hydration buffering', () => {
       }
     }
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -378,7 +378,7 @@ describe('TerminalNode hydration buffering', () => {
     )
 
     await waitFor(() => {
-      expect(window.opencoveApi.pty.snapshot).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.pty.snapshot).toHaveBeenCalledTimes(1)
     })
     await Promise.resolve()
 
@@ -387,7 +387,7 @@ describe('TerminalNode hydration buffering', () => {
     __getLastTerminal()?.emitBinary(binaryInput)
 
     await waitFor(() => {
-      expect(window.opencoveApi.pty.write).toHaveBeenCalledWith({
+      expect(window.eclipseCodeApi.pty.write).toHaveBeenCalledWith({
         sessionId: 'session-1',
         data: binaryInput,
         encoding: 'binary',

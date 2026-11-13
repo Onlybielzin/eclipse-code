@@ -7,7 +7,7 @@ import electronPath from 'electron'
 
 test('runtime publisher dispatches from Windows short and long temporary paths', async () => {
   test.skip(process.platform !== 'win32', 'Windows short-path entrypoint regression')
-  const root = await mkdtemp(join(tmpdir(), 'opencove-publisher-long-path-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-publisher-long-path-'))
   try {
     await copyFile(resolve('src/app/cli/publishRuntime.mjs'), join(root, 'publishRuntime.mjs'))
     const short = spawnSync(
@@ -15,13 +15,13 @@ test('runtime publisher dispatches from Windows short and long temporary paths',
       [
         '-NoProfile',
         '-Command',
-        '(New-Object -ComObject Scripting.FileSystemObject).GetFolder($env:OPENCOVE_TEST_LONG_PATH).ShortPath',
+        '(New-Object -ComObject Scripting.FileSystemObject).GetFolder($env:ECLIPSE_CODE_TEST_LONG_PATH).ShortPath',
       ],
       {
         encoding: 'utf8',
         windowsHide: true,
         timeout: 5000,
-        env: { ...process.env, OPENCOVE_TEST_LONG_PATH: root },
+        env: { ...process.env, ECLIPSE_CODE_TEST_LONG_PATH: root },
       },
     )
     expect(short.status, short.stderr).toBe(0)

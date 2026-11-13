@@ -90,7 +90,7 @@ describe('control surface session handlers', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -169,7 +169,7 @@ describe('control surface session handlers', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,
@@ -278,7 +278,7 @@ describe('control surface session handlers', () => {
     registerSessionHandlers(controlSurface, {
       ...createReadyTerminalAdmissionDeps(),
       agentProviderRegistry: createTestAgentProviderRegistry(),
-      userDataPath: '/tmp/opencove-test-user-data',
+      userDataPath: '/tmp/eclipse-code-test-user-data',
       approvedWorkspaces: {
         registerRoot: async () => undefined,
         isPathApproved: async () => true,

@@ -10,7 +10,7 @@ export function createNodes(): Node<TerminalNodeData>[] {
 }
 
 export function createSpaces(
-  directoryPath = '/repo/.opencove/worktrees/space-1',
+  directoryPath = '/repo/.eclipse-code/worktrees/space-1',
 ): WorkspaceSpaceState[] {
   return [
     {
@@ -74,7 +74,7 @@ export function installWorktreeApi(overrides?: Record<string, unknown>): {
 } {
   const create = vi.fn(async () => ({
     worktree: {
-      path: '/repo/.opencove/worktrees/space-demo--1a2b3c4d',
+      path: '/repo/.eclipse-code/worktrees/space-demo--1a2b3c4d',
       head: null,
       branch: 'space/demo',
     },
@@ -94,7 +94,7 @@ export function installWorktreeApi(overrides?: Record<string, unknown>): {
       worktrees: [
         { path: '/repo', head: 'abc', branch: 'main' },
         {
-          path: '/repo/.opencove/worktrees/space-1',
+          path: '/repo/.eclipse-code/worktrees/space-1',
           head: 'def',
           branch: 'feature/demo',
         },
@@ -114,7 +114,7 @@ export function installWorktreeApi(overrides?: Record<string, unknown>): {
     ...overrides,
   }
 
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     writable: true,
     value: {
@@ -130,7 +130,7 @@ export function installWorktreeApi(overrides?: Record<string, unknown>): {
 }
 
 export function clearWorktreeApi(): void {
-  delete (window as unknown as { opencoveApi?: unknown }).opencoveApi
+  delete (window as unknown as { eclipseCodeApi?: unknown }).eclipseCodeApi
 }
 
 export function createArchiveSummaryScenario(): {
@@ -142,7 +142,7 @@ export function createArchiveSummaryScenario(): {
       {
         id: 'space-1',
         name: 'Space 1',
-        directoryPath: '/repo/.opencove/worktrees/space-1',
+        directoryPath: '/repo/.eclipse-code/worktrees/space-1',
         targetMountId: null,
         labelColor: null,
         nodeIds: ['agent-1', 'terminal-1', 'task-1', 'note-1'],

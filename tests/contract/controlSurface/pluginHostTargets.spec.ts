@@ -52,7 +52,7 @@ function pty(name: string) {
 
 describe('plugin target routing over two authenticated Workers', () => {
   it('routes file reads and operation lifecycle to the selected Space, never the home placeholder', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-target-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-target-'))
     const localRoot = join(root, 'local-files'),
       remoteRoot = join(root, 'remote-files'),
       source = join(root, 'plugin')
@@ -60,7 +60,7 @@ describe('plugin target routing over two authenticated Workers', () => {
     await writeFile(join(localRoot, 'where.txt'), 'local file')
     await writeFile(join(remoteRoot, 'where.txt'), 'remote file')
     await writeFile(
-      join(source, 'opencove.plugin.json'),
+      join(source, 'eclipse-code.plugin.json'),
       JSON.stringify({
         apiVersion: 1,
         id: 'target-test',

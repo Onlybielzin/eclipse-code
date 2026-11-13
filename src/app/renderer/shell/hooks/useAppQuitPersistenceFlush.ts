@@ -24,7 +24,7 @@ export function useAppQuitPersistenceFlush({ enabled }: { enabled: boolean }): v
       return
     }
 
-    const register = window.opencoveApi?.lifecycle?.onRequestPersistFlush
+    const register = window.eclipseCodeApi?.lifecycle?.onRequestPersistFlush
     if (typeof register !== 'function') {
       return
     }

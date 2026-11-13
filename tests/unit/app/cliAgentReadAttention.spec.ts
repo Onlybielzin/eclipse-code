@@ -50,7 +50,7 @@ it.each(['permission', 'question', 'plan', null])(
     if (reason) {
       expect(error.message).toContain(reason)
     }
-    expect(error.hint).toContain('Ask the user to resolve it in OpenCove')
+    expect(error.hint).toContain('Ask the user to resolve it in Eclipse Code')
     expect(f.out()).toBe('')
   },
 )
@@ -59,7 +59,7 @@ it('reports a working target and retains the exact wait command', async () => {
   expect(await run(args, f.io)).toBe(1)
   expect(f.error()).toMatchObject({
     details: { state: 'working' },
-    hint: expect.stringContaining(`opencove agent wait --node ${node.id} --turn turn-live`),
+    hint: expect.stringContaining(`eclipse-code agent wait --node ${node.id} --turn turn-live`),
   })
 })
 it.each(['missing', 'failed', 'replacement', 'turn_changed'])(
@@ -198,9 +198,9 @@ it.each(
     if (state === 'waiting') {
       expect(error.details.blockedReason).toBe('permission')
       expect(error.message).toContain('waiting for the user')
-      expect(error.hint).toContain('Ask the user to resolve it in OpenCove')
+      expect(error.hint).toContain('Ask the user to resolve it in Eclipse Code')
     } else {
-      expect(error.hint).toContain(`opencove agent wait --node ${node.id} --turn turn-live`)
+      expect(error.hint).toContain(`eclipse-code agent wait --node ${node.id} --turn turn-live`)
     }
   },
 )

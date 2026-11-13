@@ -4,8 +4,8 @@ import {
   resolveDefaultBrowserMode,
 } from '../../../src/contexts/workspace/presentation/renderer/utils/websiteNodeData'
 
-function setOpenCoveApi(value: unknown): void {
-  Object.defineProperty(window, 'opencoveApi', {
+function setEclipseCodeApi(value: unknown): void {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value,
   })
@@ -13,12 +13,12 @@ function setOpenCoveApi(value: unknown): void {
 
 afterEach(() => {
   vi.restoreAllMocks()
-  setOpenCoveApi(undefined)
+  setEclipseCodeApi(undefined)
 })
 
 describe('websiteNodeData', () => {
   it('defaults to native mode when the client website API is available', () => {
-    setOpenCoveApi({ websiteWindow: { activate: vi.fn() } })
+    setEclipseCodeApi({ websiteWindow: { activate: vi.fn() } })
 
     expect(resolveDefaultBrowserMode()).toBe('native')
     expect(createWebsiteNodeData({ url: ' https://example.test ' })).toMatchObject({
@@ -32,7 +32,7 @@ describe('websiteNodeData', () => {
   })
 
   it('defaults new WebUI nodes to iframe without rewriting synced native nodes', () => {
-    setOpenCoveApi({})
+    setEclipseCodeApi({})
 
     expect(resolveDefaultBrowserMode()).toBe('iframe')
     expect(createWebsiteNodeData({ url: 'https://web.example.test' }).browserMode).toBe('iframe')

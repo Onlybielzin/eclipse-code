@@ -12,9 +12,9 @@ Installation executes trusted code; review its source before installing. Reposit
 credentials come from Git's configured SSH/credential mechanisms, not URL passwords.
 
 ```sh
-opencove plugin install-git https://github.com/example/plugin.git --ref v1.0.0
-opencove plugin source plugin-id
-opencove plugin details plugin-id
+eclipse-code plugin install-git https://github.com/example/plugin.git --ref v1.0.0
+eclipse-code plugin source plugin-id
+eclipse-code plugin details plugin-id
 ```
 
 `--ref` accepts a branch, tag or full commit ID; omission resolves the remote default
@@ -36,7 +36,7 @@ Local directory installation remains available as `plugin install <directory>`.
 ## Explicit builds
 
 ```sh
-opencove plugin install-git https://github.com/example/plugin.git \
+eclipse-code plugin install-git https://github.com/example/plugin.git \
   --ref main --directory packages/plugin \
   --build npm --script build --build-output dist
 ```
@@ -66,9 +66,9 @@ read `plugin source` and `plugin details` before taking another action.
 ## Check, update, resolve
 
 ```sh
-opencove plugin check plugin-id
-opencove plugin update plugin-id
-opencove plugin update plugin-id --ref refs/heads/main
+eclipse-code plugin check plugin-id
+eclipse-code plugin update plugin-id
+eclipse-code plugin update plugin-id --ref refs/heads/main
 ```
 
 Check reads the remote ref and reports the recorded/current available commit. It
@@ -98,7 +98,7 @@ exits with status 1 for both failed and conflicting outcomes.
 Resolve conflicts and commit the resolution in the reported candidate, then:
 
 ```sh
-opencove plugin apply candidate-id
+eclipse-code plugin apply candidate-id
 ```
 
 Apply revalidates and rebuilds; it does not trust the earlier validation result.
@@ -113,8 +113,8 @@ source snapshots are unsupported. Source snapshots are bounded to 5000 files,
 ## Code rollback
 
 ```sh
-opencove plugin source plugin-id
-opencove plugin rollback plugin-id exact-retained-artifact-revision
+eclipse-code plugin source plugin-id
+eclipse-code plugin rollback plugin-id exact-retained-artifact-revision
 ```
 
 Rollback republishes a retained immutable artifact, reactivates its code and restores
@@ -133,10 +133,10 @@ though the active registry and old process were preserved.
 ## Discovery
 
 ```sh
-opencove plugin discover --query notes
+eclipse-code plugin discover --query notes
 ```
 
-Discovery queries public GitHub repositories with the `opencove-plugin` topic and
+Discovery queries public GitHub repositories with the `eclipse-code-plugin` topic and
 returns at most twenty names, URLs, descriptions and popularity/update metadata.
 This is a search result, not a curated or verified catalog. It does not clone,
 install, execute, or update anything. Explicit installation and source review remain
@@ -181,7 +181,7 @@ automatically discarded.
 
 Discovery results open a read-only repository detail before installation. The Worker
 reads the public GitHub repository metadata, resolves its default branch to one
-commit, and reads its README and root `opencove.plugin.json` at that exact commit.
+commit, and reads its README and root `eclipse-code.plugin.json` at that exact commit.
 The view displays declared version/platform requirements, not a certification of
 compatibility. A missing/invalid root manifest does not prove the repository is not
 a plugin: it may need an explicit package directory or build. The next install form

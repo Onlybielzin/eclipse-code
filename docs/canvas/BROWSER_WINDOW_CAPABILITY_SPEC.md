@@ -35,7 +35,7 @@ Final implementation verification:
 
 这属于成熟的嵌入式浏览器壳层问题：主流浏览器都提供导航、历史、书签、主页、下载、权限、查找、新窗口处理等稳定心智；Electron 则提供 `WebContentsView`、`webContents`、`session`、download 和 permission hooks 作为客户端实现边界。
 
-OpenCove 当前不清晰的承诺是：画布内网页节点已经能导航和恢复 URL，但还不是完整浏览器。浏览历史、书签、主页、下载、权限、WebUI 降级行为和尺寸上限都没有统一的 durable owner 与跨运行时语义。
+Eclipse Code 当前不清晰的承诺是：画布内网页节点已经能导航和恢复 URL，但还不是完整浏览器。浏览历史、书签、主页、下载、权限、WebUI 降级行为和尺寸上限都没有统一的 durable owner 与跨运行时语义。
 
 ## External References
 
@@ -279,7 +279,7 @@ Local architecture check:
 - Existing Renderer UI owner is `WebsiteNode` and `useWebsiteNodeNativeView`.
 - Existing durable website node data is normalized through `WebsiteNodeData` and stored in SQLite `nodes.task_json`.
 - Existing SQLite schema version is `8`; browser profile tables require a schema migration.
-- WebUI installs `window.opencoveApi` from `src/app/renderer/browser/browserOpenCoveApi.ts` and currently exposes no `websiteWindow` API. This is a good runtime discriminator for native placeholder vs iframe fallback.
+- WebUI installs `window.eclipseCodeApi` from `src/app/renderer/browser/browserEclipseCodeApi.ts` and currently exposes no `websiteWindow` API. This is a good runtime discriminator for native placeholder vs iframe fallback.
 - Existing E2E coverage for Website Window already validates native view bounds, zoom freeze, snapshots and device pixel ratio. New coverage can extend those tests instead of starting from scratch.
 
 Feasibility conclusion:

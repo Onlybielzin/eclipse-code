@@ -4,7 +4,7 @@ import { CopyIcon, TerminalIcon } from '@app/renderer/components/ui/pixelIcons'
 import { useTranslation } from '@app/renderer/i18n'
 import { SettingsGroup } from './SettingsGroup'
 
-const GUIDE_COMMAND = 'opencove plugin guide'
+const GUIDE_COMMAND = 'eclipse-code plugin guide'
 
 export function PluginDevelopmentGuide(): JSX.Element {
   const { t } = useTranslation()
@@ -19,7 +19,7 @@ export function PluginDevelopmentGuide(): JSX.Element {
   const copyGuide = async (): Promise<void> => {
     setCopyState('copying')
     try {
-      await window.opencoveApi.clipboard.writeText(GUIDE_COMMAND)
+      await window.eclipseCodeApi.clipboard.writeText(GUIDE_COMMAND)
       if (mountedRef.current) {
         setCopyState('copied')
       }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   normalizeCanonicalPersistedAppStateForMerge,
   normalizePersistedAppStateForMerge,
-} from '../../../src/app/renderer/browser/browserOpenCoveApi.helpers'
+} from '../../../src/app/renderer/browser/browserEclipseCodeApi.helpers'
 import { DEFAULT_AGENT_SETTINGS } from '../../../src/contexts/settings/domain/agentSettings'
 
 function legacyState() {

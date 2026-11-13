@@ -64,7 +64,7 @@ async function assertInteriorContentCell(window: Page, nodeId: string): Promise<
     .poll(
       async () =>
         await window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize(id)
           const renderMetrics = api?.getRenderMetrics(id)
           if (!api || !size || !renderMetrics?.cssCellWidth) {
@@ -165,7 +165,7 @@ async function assertOverviewRulerAndScrollbarGap(window: Page, nodeId: string):
     .poll(
       async () =>
         await window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const renderMetrics = api?.getRenderMetrics(id)
           const nodeElement = document.querySelector(
             `.react-flow__node[data-id="${id}"] .terminal-node`,
@@ -231,7 +231,7 @@ async function scrollAwayFromBottom(window: Page, nodeId: string): Promise<Scrol
     .poll(
       async () =>
         await window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const metrics = api?.getRenderMetrics(id)
           if (!api || !metrics || metrics.baseY === null) {
             return null
@@ -245,7 +245,7 @@ async function scrollAwayFromBottom(window: Page, nodeId: string): Promise<Scrol
     .toEqual(expect.any(Number))
 
   const metricsBeforeZoom = await window.evaluate(id => {
-    const metrics = window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)
+    const metrics = window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)
     if (
       !metrics ||
       metrics.baseY === null ||
@@ -307,7 +307,7 @@ async function assertScrollStateSurvivesZoomAndResize(
       async () =>
         await window.evaluate(
           ({ id, instanceIdBeforeZoom }) => {
-            const metrics = window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)
+            const metrics = window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)
             return Boolean(
               metrics &&
               metrics.baseY !== null &&
@@ -332,19 +332,19 @@ async function assertRedrawKeepsContentInsideScreen(
   await expect(node.locator('.xterm-helper-textarea')).toBeFocused()
   await window.keyboard.type(
     buildNodeEvalCommand(`
-      const lines = Array.from({ length: 120 }, (_, index) => 'OPENCOVE_REDRAW_' + index.toString().padStart(3, '0')).join('\\n')
+      const lines = Array.from({ length: 120 }, (_, index) => 'ECLIPSE_CODE_REDRAW_' + index.toString().padStart(3, '0')).join('\\n')
       process.stdout.write('\\u001b[2J\\u001b[H' + lines + '\\n')
       setInterval(() => {}, 1000)
     `),
   )
   await window.keyboard.press('Enter')
-  await expect(node).toContainText('OPENCOVE_REDRAW_119', { timeout: 20_000 })
+  await expect(node).toContainText('ECLIPSE_CODE_REDRAW_119', { timeout: 20_000 })
 
   await expect
     .poll(
       async () =>
         await window.evaluate(id => {
-          const metrics = window.__opencoveTerminalSelectionTestApi?.getRenderMetrics(id)
+          const metrics = window.__eclipseCodeTerminalSelectionTestApi?.getRenderMetrics(id)
           return metrics?.viewportY === null || metrics?.baseY === null
             ? null
             : metrics.viewportY > 0 && metrics.viewportY >= metrics.baseY
@@ -357,7 +357,7 @@ async function assertRedrawKeepsContentInsideScreen(
     .poll(
       async () =>
         await window.evaluate(id => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const size = api?.getSize(id)
           const screenElement = document.querySelector(
             `.react-flow__node[data-id="${id}"] .terminal-node .xterm-screen`,
@@ -384,10 +384,12 @@ export async function assertTerminalScrollbarGutterSurface(
   node: Locator,
 ): Promise<void> {
   const xterm = node.locator('.xterm')
-  const tailToken = `OPENCOVE_SCROLLBAR_GUTTER_${nodeId}_220`
+  const tailToken = `ECLIPSE_CODE_SCROLLBAR_GUTTER_${nodeId}_220`
   await xterm.click()
   await expect(node.locator('.xterm-helper-textarea')).toBeFocused()
-  await window.keyboard.type(buildEchoSequenceCommand(`OPENCOVE_SCROLLBAR_GUTTER_${nodeId}`, 220))
+  await window.keyboard.type(
+    buildEchoSequenceCommand(`ECLIPSE_CODE_SCROLLBAR_GUTTER_${nodeId}`, 220),
+  )
   await window.keyboard.press('Enter')
   await expect(node).toContainText(tailToken, { timeout: 20_000 })
 

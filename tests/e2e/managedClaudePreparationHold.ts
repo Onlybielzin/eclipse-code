@@ -11,7 +11,7 @@ import type {
 /** Hold one genuine live prepare response; observe both adapter receipts and canonical wire IO. */
 export async function holdPrepare(page: Page, nodeId: string) {
   await page.addInitScript(targetNodeId => {
-    let api: typeof window.opencoveApi
+    let api: typeof window.eclipseCodeApi
     let held = false
     const log: ContinuityDiagnostics = {
       nodeId: targetNodeId,
@@ -182,7 +182,7 @@ export async function holdPrepare(page: Page, nodeId: string) {
     }
     const originalAdd = EventSource.prototype.addEventListener
     EventSource.prototype.addEventListener = function (type, callback, options) {
-      if (type !== 'opencove.sync' || !callback) {
+      if (type !== 'eclipse-code.sync' || !callback) {
         return originalAdd.call(this, type, callback, options)
       }
       return originalAdd.call(
@@ -201,7 +201,7 @@ export async function holdPrepare(page: Page, nodeId: string) {
         options,
       )
     }
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       get: () => api,
       set: value => {

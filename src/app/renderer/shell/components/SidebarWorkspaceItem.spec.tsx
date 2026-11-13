@@ -118,9 +118,9 @@ describe('SidebarWorkspaceItem', () => {
   })
 
   describe('Space cards', () => {
-    const original = window.opencoveApi
+    const original = window.eclipseCodeApi
     afterEach(() => {
-      window.opencoveApi = original
+      window.eclipseCodeApi = original
     })
 
     it("names the branch of a Space's own worktree, and none for the project's checkout", async () => {
@@ -130,10 +130,10 @@ describe('SidebarWorkspaceItem', () => {
           { path: '/tmp/branch-project/.worktrees/review', branch: 'pr/431', head: 'b'.repeat(40) },
         ],
       }))
-      window.opencoveApi = {
+      window.eclipseCodeApi = {
         ...original,
         worktree: { ...original?.worktree, listWorktrees },
-      } as typeof window.opencoveApi
+      } as typeof window.eclipseCodeApi
       const space = (id: string, directoryPath: string) => ({
         id,
         name: id,

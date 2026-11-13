@@ -25,7 +25,7 @@ function fixture(value: unknown, mode: Mode) {
         err += text
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'test' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'test' },
     fetch,
     now: Date.now,
     readTextFile: vi.fn(),
@@ -123,7 +123,7 @@ it.each(modes)('retains a declared hint after an inherited name (%s)', async mod
     ),
   ).toBe(2)
   assertDiagnostic(f.err(), mode, 'Unknown fields: toString, data.text. Available fields:')
-  expect(f.err()).toContain('opencove node get --node <id> --fields data.text')
+  expect(f.err()).toContain('eclipse-code node get --node <id> --fields data.text')
   expect(f.out()).toBe('')
 })
 

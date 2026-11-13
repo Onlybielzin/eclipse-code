@@ -27,17 +27,17 @@ afterEach(async () => {
 
 function check(version: string | null, range = '>=0.3.2 <0.4.0') {
   assertPluginCompatibility(
-    { id: pkg.id, engines: { opencove: range } },
+    { id: pkg.id, engines: { eclipseCode: range } },
     { version, platform: 'linux' },
   )
 }
 async function fixture(extra: Record<string, unknown> = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-compatibility-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-compatibility-'))
   roots.push(root)
   const source = join(root, 'source')
   const profile = join(root, 'profile')
   await mkdir(source)
-  await writeFile(join(source, 'opencove.plugin.json'), JSON.stringify({ ...pkg, ...extra }))
+  await writeFile(join(source, 'eclipse-code.plugin.json'), JSON.stringify({ ...pkg, ...extra }))
   await writeFile(join(source, 'main.mjs'), 'original')
   await writeFile(join(source, 'index.html'), '<html>Original window</html>')
   return { root, source, profile }
@@ -68,17 +68,17 @@ describe('declared plugin compatibility', () => {
     ).not.toThrow()
     expect(() => normalizeLocalPluginPackage({ ...pkg, apiVersion: 2 })).toThrow('requires 1')
     expect(
-      normalizeLocalPluginPackage({ ...pkg, engines: { opencove: ' >=0.3.2 <0.4.0 ' } }).engines,
-    ).toEqual({ opencove: '>=0.3.2 <0.4.0' })
+      normalizeLocalPluginPackage({ ...pkg, engines: { eclipseCode: ' >=0.3.2 <0.4.0 ' } }).engines,
+    ).toEqual({ eclipseCode: '>=0.3.2 <0.4.0' })
   })
 
   it.each([
     null,
     [],
     {},
-    { opencove: '' },
-    { opencove: 'latest' },
-    { opencove: 1 },
+    { eclipseCode: '' },
+    { eclipseCode: 'latest' },
+    { eclipseCode: 1 },
     { node: '>=22' },
   ])('rejects an invalid engines declaration: %j', engines => {
     expect(() => normalizeLocalPluginPackage({ ...pkg, engines })).toThrow('engines')
@@ -120,9 +120,9 @@ describe('declared plugin compatibility', () => {
 
 describe('compatibility admission and recovery', () => {
   it('rejects installation before backend activation and does not write the registry', async () => {
-    const { source, profile } = await fixture({ engines: { opencove: '>=1.0.0' } })
+    const { source, profile } = await fixture({ engines: { eclipseCode: '>=1.0.0' } })
     const { manager, files, start } = runtime(profile, '0.3.2')
-    await expect(manager.install(source)).rejects.toThrow('requires OpenCove >=1.0.0')
+    await expect(manager.install(source)).rejects.toThrow('requires Eclipse Code >=1.0.0')
     expect(start).not.toHaveBeenCalled()
     expect(await files.readRegistry()).toEqual([])
   })
@@ -135,10 +135,10 @@ describe('compatibility admission and recovery', () => {
     await manager.storageSet(view.viewId, 'content', { value: 'keep me' })
     const registry = await files.readRegistry()
     await writeFile(
-      join(source, 'opencove.plugin.json'),
-      JSON.stringify({ ...pkg, engines: { opencove: '>=1.0.0' } }),
+      join(source, 'eclipse-code.plugin.json'),
+      JSON.stringify({ ...pkg, engines: { eclipseCode: '>=1.0.0' } }),
     )
-    await expect(manager.reload(pkg.id)).rejects.toThrow('requires OpenCove >=1.0.0')
+    await expect(manager.reload(pkg.id)).rejects.toThrow('requires Eclipse Code >=1.0.0')
     expect(start).toHaveBeenCalledTimes(1)
     expect(await manager.invoke(view.viewId, 'read', null)).toBe('original backend')
     expect(await manager.storageGet(view.viewId, 'content')).toEqual({ value: 'keep me' })
@@ -147,7 +147,7 @@ describe('compatibility admission and recovery', () => {
   })
 
   it('isolates incompatibility on restart without erasing enabled intent, other plugins or private data', async () => {
-    const { source, profile, root } = await fixture({ engines: { opencove: '^0.3.2' } })
+    const { source, profile, root } = await fixture({ engines: { eclipseCode: '^0.3.2' } })
     const first = runtime(profile, '0.3.2')
     await first.manager.install(source)
     const view = await first.manager.openView({ pluginId: pkg.id, nodeId: 'saved' })
@@ -155,7 +155,7 @@ describe('compatibility admission and recovery', () => {
     const legacy = join(root, 'legacy')
     await mkdir(legacy)
     await writeFile(
-      join(legacy, 'opencove.plugin.json'),
+      join(legacy, 'eclipse-code.plugin.json'),
       JSON.stringify({ ...pkg, id: 'legacy-package' }),
     )
     await writeFile(join(legacy, 'main.mjs'), 'legacy')
@@ -170,7 +170,7 @@ describe('compatibility admission and recovery', () => {
         id: pkg.id,
         enabled: true,
         status: 'error',
-        error: expect.stringContaining('requires OpenCove ^0.3.2'),
+        error: expect.stringContaining('requires Eclipse Code ^0.3.2'),
       },
       { id: 'legacy-package', status: 'ready' },
     ])

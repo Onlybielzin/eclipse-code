@@ -19,7 +19,7 @@ export function archiveManagedRuntimeOverlay({ base, staging, bundleName, archiv
     run('tar', ['-czf', archive, '-C', staging, bundleName])
     return
   }
-  const distribution = process.env.OPENCOVE_WSL_DISTRIBUTION
+  const distribution = process.env.ECLIPSE_CODE_WSL_DISTRIBUTION
   const wslArgs = distribution ? ['--distribution', distribution, '--exec'] : ['--exec']
   const unix = path => run('wsl', [...wslArgs, 'wslpath', '-a', path])
   const basePath = unix(base)
@@ -29,8 +29,8 @@ export function archiveManagedRuntimeOverlay({ base, staging, bundleName, archiv
     'wsl',
     [...wslArgs, 'sh', '-s'],
     `set -eu
-stage=$(mktemp -d /tmp/opencove-overlay.XXXXXX)
-case "$stage" in /tmp/opencove-overlay.*) ;; *) exit 1 ;; esac
+stage=$(mktemp -d /tmp/eclipse-code-overlay.XXXXXX)
+case "$stage" in /tmp/eclipse-code-overlay.*) ;; *) exit 1 ;; esac
 trap 'rm -rf -- "$stage"' EXIT INT TERM
 tar -xzf ${quote(basePath)} -C "$stage"
 app="$stage/"${quote(`${bundleName}/app`)}
@@ -39,8 +39,8 @@ cp -R ${quote(`${appPath}/out`)} "$app/out"
 cp -R ${quote(`${appPath}/src/app/cli`)} "$app/src/app/cli"
 mkdir -p "$app/docs"
 cp -R ${quote(`${appPath}/docs/plugins`)} "$app/docs/plugins"
-chmod 755 "$app/out/cli/opencove.mjs"
-cp ${quote(`${appPath}/../opencove-runtime.env`)} "$app/../opencove-runtime.env"
+chmod 755 "$app/out/cli/eclipse-code.mjs"
+cp ${quote(`${appPath}/../eclipse-code-runtime.env`)} "$app/../eclipse-code-runtime.env"
 cp ${quote(`${appPath}/package.json`)} "$app/package.json"
 tar -czf ${quote(archivePath)} -C "$stage" ${quote(bundleName)}
 `,

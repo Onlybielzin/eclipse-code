@@ -2,20 +2,9 @@ import React from 'react'
 import { ViewportMenuSurface } from '@app/renderer/components/ViewportMenuSurface'
 import { ChevronDownIcon, CloseIcon, TagIcon } from '@app/renderer/components/ui/pixelIcons'
 import { useTranslation } from '@app/renderer/i18n'
-import {
-  isWorkspaceSpacePinned,
-  orderRootSpaces,
-} from '@contexts/workspace/domain/workspaceSpacePinning'
 import { LABEL_COLORS, type LabelColor } from '@shared/types/labelColor'
-import type { WorkspaceSpaceState } from '../../../types'
-import { WorkspaceSpaceSwitcher } from './WorkspaceSpaceSwitcher'
 
 interface WorkspaceCanvasTopOverlaysProps {
-  spaces: WorkspaceSpaceState[]
-  activateSpace: (spaceId: string) => void
-  activateAllSpaces: () => void
-  cancelSpaceRename: () => void
-  onOpenSpaceContextMenu?: (spaceId: string, anchor: { x: number; y: number }) => void
   usedLabelColors: LabelColor[]
   activeLabelColorFilter: LabelColor | null
   onToggleLabelColorFilter: (color: LabelColor) => void
@@ -23,11 +12,6 @@ interface WorkspaceCanvasTopOverlaysProps {
 }
 
 export function WorkspaceCanvasTopOverlays({
-  spaces,
-  activateSpace,
-  activateAllSpaces,
-  cancelSpaceRename,
-  onOpenSpaceContextMenu,
   usedLabelColors,
   activeLabelColorFilter,
   onToggleLabelColorFilter,
@@ -67,12 +51,8 @@ export function WorkspaceCanvasTopOverlays({
     }
   }, [isFilterMenuOpen])
 
-  const pinnedTopLevelSpaces = React.useMemo(
-    () => orderRootSpaces(spaces).filter(isWorkspaceSpacePinned),
-    [spaces],
-  )
-  const hasAnyOverlay =
-    selectedNodeCount > 0 || pinnedTopLevelSpaces.length > 0 || orderedUsedLabelColors.length > 0
+  // Eclipse Code: the task tabs live in the canvas HUD (WorkspaceTaskTabs).
+  const hasAnyOverlay = selectedNodeCount > 0 || orderedUsedLabelColors.length > 0
 
   if (!hasAnyOverlay) {
     return null
@@ -80,16 +60,6 @@ export function WorkspaceCanvasTopOverlays({
 
   return (
     <div className="workspace-canvas__top-overlays">
-      {pinnedTopLevelSpaces.length > 0 ? (
-        <WorkspaceSpaceSwitcher
-          spaces={pinnedTopLevelSpaces}
-          activateSpace={activateSpace}
-          activateAllSpaces={activateAllSpaces}
-          cancelSpaceRename={cancelSpaceRename}
-          onOpenSpaceContextMenu={onOpenSpaceContextMenu}
-        />
-      ) : null}
-
       {orderedUsedLabelColors.length > 0 ? (
         <>
           <div

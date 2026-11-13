@@ -1,7 +1,7 @@
 # Install, use and keep your work
 
 Start with a plugin directory from an author you trust. It must contain
-`opencove.plugin.json` and ready-to-run files. OpenCove does not install package
+`eclipse-code.plugin.json` and ready-to-run files. Eclipse Code does not install package
 dependencies or run build scripts for you.
 
 
@@ -26,12 +26,12 @@ the detail page; the previous working copy remains untouched.
 not restore older user data. See [Git distribution](../DISTRIBUTION.md) for builds,
 conflict resolution and command examples.
 
-## Connect to the intended OpenCove
+## Connect to the intended Eclipse Code
 
 Keep your intended app or Worker running. In a terminal, check the installation list:
 
 ```sh
-opencove plugin list --pretty
+eclipse-code plugin list --pretty
 ```
 
 The CLI and running app must support the same plugin API. If the CLI is missing,
@@ -44,8 +44,8 @@ Keep the same profile or endpoint; do not substitute another running instance.
 Use the absolute path to the plugin on the connected runtime's machine:
 
 ```sh
-opencove plugin install /absolute/path/to/your-plugin --pretty
-opencove plugin list --pretty
+eclipse-code plugin install /absolute/path/to/your-plugin --pretty
+eclipse-code plugin list --pretty
 ```
 
 Open **Settings → Plugins** and refresh the list if needed. Select the plugin to
@@ -66,8 +66,8 @@ existing windows. Use the plugin's enable switch to stop or resume the plugin it
 After editing or rebuilding the source directory, load the new files explicitly:
 
 ```sh
-opencove plugin reload your-plugin
-opencove plugin details your-plugin --pretty
+eclipse-code plugin reload your-plugin
+eclipse-code plugin details your-plugin --pretty
 ```
 
 Replace `your-plugin` with the manifest ID. Check the resulting revision and logs.

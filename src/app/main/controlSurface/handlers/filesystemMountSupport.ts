@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import type { ApprovedWorkspaceStore } from '../../../../contexts/workspace/infrastructure/approval/ApprovedWorkspaceStore'
-import { createAppError, OpenCoveAppError } from '../../../../shared/errors/appError'
+import { createAppError, EclipseCodeAppError } from '../../../../shared/errors/appError'
 import type { ResolveMountTargetResult } from '../../../../shared/contracts/dto'
 import type { WorkerTopologyStore } from '../topology/topologyStore'
 import { assertFileUriWithinRootUri } from '../topology/fileUriScope'
@@ -101,7 +101,7 @@ export async function invokeRemoteValue<TResult>(options: {
 
     return result.value as TResult
   } catch (error) {
-    if (error instanceof OpenCoveAppError) {
+    if (error instanceof EclipseCodeAppError) {
       throw error
     }
 

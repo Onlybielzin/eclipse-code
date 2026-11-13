@@ -55,7 +55,10 @@ async function ledger(app: ElectronApplication, userDataDir: string) {
         db.close()
       }
     },
-    { dbPath: path.join(userDataDir, 'opencove.db'), packagePath: path.resolve('package.json') },
+    {
+      dbPath: path.join(userDataDir, 'eclipse-code.db'),
+      packagePath: path.resolve('package.json'),
+    },
   )
 }
 async function expectInvocation(logPath: string, _nodeId: string, mode: string, id: string) {
@@ -92,15 +95,18 @@ test('managed Claude relaunch, switch, role identity and cold restart use commit
     XDG_CACHE_HOME: path.join(home, '.cache'),
     XDG_STATE_HOME: path.join(home, '.local', 'state'),
     XDG_RUNTIME_DIR: path.join(userDataDir, 'runtime'),
-    OPENCOVE_TEST_WORKSPACE: workspace,
-    OPENCOVE_WORKER_CLIENT: '1',
-    OPENCOVE_TEST_USE_REAL_AGENTS: '0',
-    OPENCOVE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS: '1',
-    OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-    OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-    OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
-    OPENCOVE_TEST_AGENT_STUB_SCRIPT: path.join(__dirname, 'fixtures/claude-session-ownership.mjs'),
-    OPENCOVE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
+    ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+    ECLIPSE_CODE_WORKER_CLIENT: '1',
+    ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '0',
+    ECLIPSE_CODE_EXPERIMENTAL_MANAGED_CLAUDE_BINDINGS: '1',
+    ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+    ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+    ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-session-ownership',
+    ECLIPSE_CODE_TEST_AGENT_STUB_SCRIPT: path.join(
+      __dirname,
+      'fixtures/claude-session-ownership.mjs',
+    ),
+    ECLIPSE_CODE_TEST_CLAUDE_OWNERSHIP_LOG: logPath,
     ANTHROPIC_API_KEY: '',
     ANTHROPIC_AUTH_TOKEN: '',
     CLAUDE_CODE_OAUTH_TOKEN: '',
@@ -139,7 +145,7 @@ test('managed Claude relaunch, switch, role identity and cold restart use commit
     })
     const terminal = await page.evaluate(
       async targetSpaceId =>
-        window.opencoveApi.controlSurface.invoke<CreateNodeResult>({
+        window.eclipseCodeApi.controlSurface.invoke<CreateNodeResult>({
           kind: 'command',
           id: 'node.create',
           payload: {
@@ -199,7 +205,7 @@ test('managed Claude relaunch, switch, role identity and cold restart use commit
     const roleAgent = async () =>
       page.evaluate(async () => {
         const state = JSON.parse(
-          (await window.opencoveApi.persistence.readWorkspaceStateRaw()) ?? '{}',
+          (await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()) ?? '{}',
         )
         const role = state.workspaces?.[0]?.nodes?.find(
           (node: { kind: string }) => node.kind === 'role',

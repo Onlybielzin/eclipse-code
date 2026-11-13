@@ -4,7 +4,7 @@ async function readWallAnimationDiagnostics(page: Page) {
   return await page.evaluate(async () => {
     const snapshot = () => {
       const wall = document.querySelector('[data-testid="workspace-pixel-wall"]')
-      const api = window.__opencovePixelWallTestApi
+      const api = window.__eclipseCodePixelWallTestApi
       return {
         visibilityState: document.visibilityState,
         hasFocus: document.hasFocus(),
@@ -42,7 +42,7 @@ async function readWallAnimationDiagnostics(page: Page) {
 /** Proves ambient motion makes progress without assuming the browser delivers a fixed rate. */
 export async function expectAnimatedWall(page: Page, testInfo: Pick<TestInfo, 'attach'>) {
   const readAnimated = () =>
-    page.evaluate(() => window.__opencovePixelWallTestApi?.getAnimatedFrameCount() ?? 0)
+    page.evaluate(() => window.__eclipseCodePixelWallTestApi?.getAnimatedFrameCount() ?? 0)
   const baseline = await readAnimated()
   try {
     await expect
@@ -65,7 +65,7 @@ export async function expectAnimatedWall(page: Page, testInfo: Pick<TestInfo, 'a
 
 export async function readWallProbe(page: Page) {
   return await page.evaluate(() => {
-    const api = window.__opencovePixelWallTestApi
+    const api = window.__eclipseCodePixelWallTestApi
     return api
       ? {
           frames: api.getFrameCount(),

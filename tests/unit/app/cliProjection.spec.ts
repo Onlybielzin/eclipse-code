@@ -19,7 +19,7 @@ function fixture(value: unknown = {}, error?: unknown) {
         err += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     fetch,
     now: Date.now,
     readStdinText: vi.fn(),
@@ -121,7 +121,7 @@ it('reports JSON line, column and parser reason', async () => {
 it('explains approved roots and conflicting locator flags', async () => {
   const f = fixture(null, { code: 'common.approved_path_required' })
   expect(await run(['fs', 'read', '--uri', 'file:///outside'], f.io)).toBe(1)
-  expect(f.error().hint).toContain('opencove mount list --project <id>')
+  expect(f.error().hint).toContain('eclipse-code mount list --project <id>')
   const g = fixture()
   expect(await run(['node', 'list', '--space', 's', '--space-name', 'Main'], g.io)).toBe(2)
   expect(g.error().message).toContain('--space, --space-name')
@@ -131,7 +131,7 @@ it('includes dedicated commands by default and summarizes operation domains', as
   expect(await run(['api', 'ops', '--prefix', 'node'], f.io)).toBe(0)
   const rows = JSON.parse(f.out())
   expect(rows.find((row: { id: string }) => row.id === 'node.create').cliCommand).toBe(
-    'opencove node create',
+    'eclipse-code node create',
   )
   const raw = fixture()
   expect(await run(['api', 'ops', '--prefix', 'system'], raw.io)).toBe(0)

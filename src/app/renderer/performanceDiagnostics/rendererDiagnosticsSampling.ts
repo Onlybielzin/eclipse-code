@@ -290,7 +290,7 @@ export function usePerformanceDiagnosticsSnapshot({
     setError(null)
 
     try {
-      const nextSnapshot = await window.opencoveApi.performanceDiagnostics.getSnapshot()
+      const nextSnapshot = await window.eclipseCodeApi.performanceDiagnostics.getSnapshot()
       if (!mountedRef.current || requestId !== requestIdRef.current) {
         return
       }

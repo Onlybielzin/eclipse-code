@@ -33,7 +33,7 @@ This test intentionally produces a large amount of output:
 - Draws static rows using absolute cursor positioning
 - Writes 30,000 frames to the same absolute row (`ESC[20;1H...`)
 
-OpenCove keeps a bounded raw PTY tail for compatibility/fallback:
+Eclipse Code keeps a bounded raw PTY tail for compatibility/fallback:
 
 - cap: `400_000` chars (see terminal recovery and persistence constants)
 
@@ -150,7 +150,7 @@ Local:
 
 ```powershell
 pnpm build
-$env:OPENCOVE_E2E_WINDOW_MODE='inactive'
+$env:ECLIPSE_CODE_E2E_WINDOW_MODE='inactive'
 pnpm exec playwright test tests/e2e/workspace-canvas.persistence.ansi-screen.spec.ts --project electron --reporter=line
 ```
 
@@ -164,5 +164,5 @@ CI:
 ## Additional Diagnostics
 
 - Add bounded "drain pending writes before caching" logic on unmount (avoid UI jank).
-- `OPENCOVE_TERMINAL_DIAGNOSTICS=1` should distinguish durable checkpoint, hot cache, raw-tail fallback,
+- `ECLIPSE_CODE_TERMINAL_DIAGNOSTICS=1` should distinguish durable checkpoint, hot cache, raw-tail fallback,
   generation/runtime epoch and alt/normal buffer decisions.

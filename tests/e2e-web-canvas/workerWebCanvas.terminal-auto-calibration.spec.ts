@@ -28,11 +28,11 @@ test('Web automatically calibrates a compatible shared terminal reference withou
     }),
   )
   await openAuthedCanvas(page)
-  await page.goto('/?opencoveTerminalTestApi=1', { waitUntil: 'domcontentloaded' })
+  await page.goto('/?eclipseCodeTerminalTestApi=1', { waitUntil: 'domcontentloaded' })
   await page.evaluate(() => {
-    window.localStorage.removeItem('opencove:terminal-display-calibration:v1')
-    window.localStorage.removeItem('opencove:terminal-display-calibration-environment:v1')
-    window.localStorage.removeItem('opencove:terminal-display-calibration-suppression:v1')
+    window.localStorage.removeItem('eclipse-code:terminal-display-calibration:v1')
+    window.localStorage.removeItem('eclipse-code:terminal-display-calibration-environment:v1')
+    window.localStorage.removeItem('eclipse-code:terminal-display-calibration-suppression:v1')
   })
 
   const pane = page.locator('.workspace-canvas .react-flow__pane')
@@ -54,7 +54,7 @@ test('Web automatically calibrates a compatible shared terminal reference withou
     .not.toBeNull()
   expect(
     await page.evaluate(() =>
-      window.localStorage.getItem('opencove:terminal-display-calibration:v1'),
+      window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1'),
     ),
   ).toBeNull()
 
@@ -79,10 +79,10 @@ test('Web automatically calibrates a compatible shared terminal reference withou
     if (element) {
       element.dataset['calibrationIdentity'] = 'same-web-terminal'
     }
-    window.__opencoveTerminalSelectionTestApi?.scrollToLine(id, 3)
+    window.__eclipseCodeTerminalSelectionTestApi?.scrollToLine(id, 3)
   }, nodeId)
   const before = await page.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const buffer = api?.getBufferText(id, 'WEB_CALIBRATION_HISTORY') ?? null
     return {
       timeOrigin: performance.timeOrigin,
@@ -116,7 +116,7 @@ test('Web automatically calibrates a compatible shared terminal reference withou
     .poll(
       async () => {
         calibration = await page.evaluate(() => {
-          const raw = window.localStorage.getItem('opencove:terminal-display-calibration:v1')
+          const raw = window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1')
           return raw ? JSON.parse(raw) : null
         })
         return calibration
@@ -128,7 +128,7 @@ test('Web automatically calibrates a compatible shared terminal reference withou
   await expect(terminal).toContainText('WEB_CALIBRATION_HISTORY')
 
   const after = await page.evaluate(id => {
-    const api = window.__opencoveTerminalSelectionTestApi
+    const api = window.__eclipseCodeTerminalSelectionTestApi
     const buffer = api?.getBufferText(id, 'WEB_CALIBRATION_HISTORY') ?? null
     return {
       timeOrigin: performance.timeOrigin,
@@ -164,7 +164,7 @@ test('Web automatically calibrates a compatible shared terminal reference withou
   })
   const snapshot = await page.evaluate(
     async sessionId =>
-      sessionId ? await window.opencoveApi.pty.presentationSnapshot({ sessionId }) : null,
+      sessionId ? await window.eclipseCodeApi.pty.presentationSnapshot({ sessionId }) : null,
     after.sessionId,
   )
   expect(snapshot).toMatchObject({ cols: after.size?.cols, rows: after.size?.rows })
@@ -236,7 +236,7 @@ test('a fresh Web client applies a compatible reference without opening Settings
     const measurement = reference.measurement
     if (measurement) {
       window.localStorage.setItem(
-        'opencove:terminal-display-calibration:v1',
+        'eclipse-code:terminal-display-calibration:v1',
         JSON.stringify({
           version: 1,
           profileKey: JSON.stringify({ fontSize: 13, fontFamily: null }),
@@ -261,7 +261,7 @@ test('a fresh Web client applies a compatible reference without opening Settings
           measuredAt: '2026-09-01T00:00:00.000Z',
         }),
       )
-      window.localStorage.removeItem('opencove:terminal-display-calibration-environment:v1')
+      window.localStorage.removeItem('eclipse-code:terminal-display-calibration-environment:v1')
     }
 
     const probe = {
@@ -269,9 +269,9 @@ test('a fresh Web client applies a compatible reference without opening Settings
       detached: false,
       sawUnverifiedFont: false,
     }
-    Object.defineProperty(window, '__opencoveCalibrationMountProbe', { value: probe })
+    Object.defineProperty(window, '__eclipseCodeCalibrationMountProbe', { value: probe })
     const observeRuntime = (): void => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       const current = document.querySelector('.terminal-node .xterm')
       if (api?.getRuntimeSessionId('calibration-terminal')) {
         if (!probe.firstXterm && current) {
@@ -289,13 +289,13 @@ test('a fresh Web client applies a compatible reference without opening Settings
   }, seededReference)
   const freshPage = await freshContext.newPage()
   try {
-    await openAuthedCanvas(freshPage, '/?opencoveTerminalTestApi=1')
+    await openAuthedCanvas(freshPage, '/?eclipseCodeTerminalTestApi=1')
     await expect(freshPage.locator('.terminal-node')).toBeVisible()
     await expect
       .poll(
         async () =>
           await freshPage.evaluate(() => {
-            const raw = window.localStorage.getItem('opencove:terminal-display-calibration:v1')
+            const raw = window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1')
             if (!raw) {
               return null
             }
@@ -309,7 +309,7 @@ test('a fresh Web client applies a compatible reference without opening Settings
       .not.toBeNull()
 
     const storedCalibration = await freshPage.evaluate(() => {
-      const raw = window.localStorage.getItem('opencove:terminal-display-calibration:v1')
+      const raw = window.localStorage.getItem('eclipse-code:terminal-display-calibration:v1')
       return raw
         ? (JSON.parse(raw) as {
             fontSize: number
@@ -323,7 +323,7 @@ test('a fresh Web client applies a compatible reference without opening Settings
       .poll(
         async () =>
           await freshPage.evaluate(() =>
-            window.__opencoveTerminalSelectionTestApi?.getFontOptions('calibration-terminal'),
+            window.__eclipseCodeTerminalSelectionTestApi?.getFontOptions('calibration-terminal'),
           ),
       )
       .toMatchObject({
@@ -336,13 +336,13 @@ test('a fresh Web client applies a compatible reference without opening Settings
       await freshPage.evaluate(() => {
         const probe = (
           window as unknown as {
-            __opencoveCalibrationMountProbe?: {
+            __eclipseCodeCalibrationMountProbe?: {
               firstXterm: Element | null
               detached: boolean
               sawUnverifiedFont: boolean
             }
           }
-        ).__opencoveCalibrationMountProbe
+        ).__eclipseCodeCalibrationMountProbe
         return {
           captured: Boolean(probe?.firstXterm),
           detached: probe?.detached ?? false,

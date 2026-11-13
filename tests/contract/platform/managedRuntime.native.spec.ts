@@ -13,7 +13,7 @@ import { createPersistenceStore } from '../../../src/platform/persistence/sqlite
 
 describeWithElectronNativeModules('managed runtime native storage', () => {
   it('releases the deployment OS lock after an independent controller crashes', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-runtime-crash-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-crash-'))
     const store = new ManagedDeploymentStore(root)
     const script = join(root, 'lock.cjs')
     const require = createRequire(import.meta.url)
@@ -56,11 +56,11 @@ db.exec('BEGIN EXCLUSIVE'); process.send('locked'); setInterval(()=>{},1000);`,
   }, 15_000)
 
   it('retains committed WAL data and validates migration without modifying the snapshot', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-runtime-snapshot-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-snapshot-'))
     try {
       const profile = join(root, 'profile')
       await mkdir(profile)
-      const path = join(profile, 'opencove.db')
+      const path = join(profile, 'eclipse-code.db')
       const store = await createPersistenceStore({ dbPath: path })
       store.dispose()
       const db = new Database(path)
@@ -71,7 +71,7 @@ db.exec('BEGIN EXCLUSIVE'); process.send('locked'); setInterval(()=>{},1000);`,
       )
       try {
         const snapshot = await snapshotManagedProfile(profile, join(root, 'state'), 'operation')
-        const restored = new Database(join(snapshot, 'profile/opencove.db'), { readonly: true })
+        const restored = new Database(join(snapshot, 'profile/eclipse-code.db'), { readonly: true })
         try {
           expect(restored.prepare('SELECT value FROM snapshot_probe').get()).toEqual({
             value: 'committed-in-wal',
@@ -88,9 +88,9 @@ db.exec('BEGIN EXCLUSIVE'); process.send('locked'); setInterval(()=>{},1000);`,
   })
 
   it('refuses a newer schema without moving or replacing the original database', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-runtime-schema-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-schema-'))
     try {
-      const path = join(root, 'opencove.db')
+      const path = join(root, 'eclipse-code.db')
       const db = new Database(path)
       db.pragma('user_version=999')
       db.exec('CREATE TABLE durable_data (id INTEGER)')
@@ -106,7 +106,7 @@ db.exec('BEGIN EXCLUSIVE'); process.send('locked'); setInterval(()=>{},1000);`,
   })
 
   it('serializes independent lock connections while allowing durable journal updates', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-runtime-lock-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-lock-'))
     const first = new ManagedDeploymentStore(root)
     const second = new ManagedDeploymentStore(root)
     try {

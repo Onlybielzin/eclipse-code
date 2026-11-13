@@ -7,15 +7,15 @@ import { expect, it } from 'vitest'
 import { withCliLauncherLock } from '../../../src/app/main/cli/cliLauncherLock'
 
 it('the actual platform installer publication honors the Desktop lock and releases its own lock', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-publication-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-publication-'))
   const windows = process.platform === 'win32'
-  const target = join(root, windows ? 'opencove.cmd' : 'opencove')
-  const original = '# __OPENCOVE_CLI_WRAPPER__\n# OPENCOVE_INSTALL_OWNER=desktop\n'
+  const target = join(root, windows ? 'eclipse-code.cmd' : 'eclipse-code')
+  const original = '# __ECLIPSE_CODE_CLI_WRAPPER__\n# ECLIPSE_CODE_INSTALL_OWNER=desktop\n'
   try {
     await writeFile(target, original)
     let run: () => ReturnType<typeof spawnSync>
     if (windows) {
-      const source = await readFile('scripts/release-assets/opencove-install.ps1', 'utf8')
+      const source = await readFile('scripts/release-assets/eclipse-code-install.ps1', 'utf8')
       const functions = source.slice(
         source.indexOf('# Shared lease protocol'),
         source.indexOf('if ($Uninstall)'),
@@ -26,11 +26,11 @@ it('the actual platform installer publication honors the Desktop lock and releas
         [
           "$ErrorActionPreference = 'Stop'",
           '$LauncherPath = $args[0]',
-          "$CliWrapperMarker = '__OPENCOVE_CLI_WRAPPER__'",
+          "$CliWrapperMarker = '__ECLIPSE_CODE_CLI_WRAPPER__'",
           "$CliWrapperOwnerStandalone = 'standalone'",
           'function Test-OwnedLauncher { return $true }',
           functions,
-          "Write-Launcher 'C:\\runtime\\node.exe' 'C:\\app\\out\\cli\\opencove.mjs'",
+          "Write-Launcher 'C:\\runtime\\node.exe' 'C:\\app\\out\\cli\\eclipse-code.mjs'",
         ].join('\n'),
       )
       run = () =>
@@ -44,7 +44,7 @@ it('the actual platform installer publication honors the Desktop lock and releas
           target,
         ])
     } else {
-      const source = await readFile('scripts/release-assets/opencove-install.sh', 'utf8')
+      const source = await readFile('scripts/release-assets/eclipse-code-install.sh', 'utf8')
       const cleanup = source.slice(source.indexOf('cleanup() {'), source.indexOf('quote_sh() {'))
       const quote = source.slice(
         source.indexOf('quote_sh() {'),
@@ -56,7 +56,7 @@ it('the actual platform installer publication honors the Desktop lock and releas
       )
       const publication = source.slice(
         source.indexOf('# Same exclusive sentinel'),
-        source.indexOf('\nprintf "Installed OpenCove CLI'),
+        source.indexOf('\nprintf "Installed Eclipse Code CLI'),
       )
       run = () =>
         spawnSync('sh', [
@@ -64,10 +64,10 @@ it('the actual platform installer publication honors the Desktop lock and releas
           [
             'set -eu',
             'LAUNCHER_PATH=$1',
-            'CLI_WRAPPER_MARKER=__OPENCOVE_CLI_WRAPPER__',
+            'CLI_WRAPPER_MARKER=__ECLIPSE_CODE_CLI_WRAPPER__',
             'CLI_WRAPPER_OWNER_STANDALONE=standalone',
             'NODE_BIN=$2',
-            'CLI_SCRIPT=/app/out/cli/opencove.mjs',
+            'CLI_SCRIPT=/app/out/cli/eclipse-code.mjs',
             cleanup,
             quote,
             ownership,
@@ -99,7 +99,7 @@ it('the actual platform installer publication honors the Desktop lock and releas
     const published = run()
     expect(published.error).toBeUndefined()
     expect(published.status, published.stderr?.toString()).toBe(0)
-    expect(await readFile(target, 'utf8')).toContain('OPENCOVE_INSTALL_OWNER=standalone')
+    expect(await readFile(target, 'utf8')).toContain('ECLIPSE_CODE_INSTALL_OWNER=standalone')
     await withCliLauncherLock(target, async () => {})
     await writeFile(
       `${target}.lock`,

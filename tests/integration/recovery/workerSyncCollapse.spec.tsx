@@ -53,7 +53,7 @@ function setup(collapsed: boolean) {
     return { ok: true, level: 'full', bytes: 1, revision: 11 }
   })
   let emit!: (event: SyncEventPayload) => void
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: { readAppState, writeAppState },

@@ -50,7 +50,7 @@ describe('AddProjectWizardWindow', () => {
     selectDirectory.mockReset()
     invoke.mockReset()
     invoke.mockResolvedValue({ endpoints: [] })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         meta: { runtime: 'electron' },

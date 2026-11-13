@@ -122,7 +122,7 @@ async function printAnsiPalette(page: Page) {
     .poll(() =>
       page.evaluate(() => {
         const lines =
-          window.__opencoveTerminalSelectionTestApi
+          window.__eclipseCodeTerminalSelectionTestApi
             ?.getBufferText('pixel-material-terminal', 'ANSI16_READY')
             ?.viewportLines.join('\n') ?? ''
         return ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].every(
@@ -179,7 +179,7 @@ test.describe('Workspace Canvas - Light appearance', () => {
       }
     }
     const { electronApp, window: page } = await launchApp({
-      env: { OPENCOVE_TEST_WORKSPACE: fixture.repo },
+      env: { ECLIPSE_CODE_TEST_WORKSPACE: fixture.repo },
     })
     try {
       await (
@@ -341,7 +341,7 @@ test.describe('Workspace Canvas - Light appearance', () => {
       await expect
         .poll(() =>
           page.evaluate(async () => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             return raw
               ? (JSON.parse(raw) as { settings?: { uiTheme?: string } }).settings?.uiTheme
               : null

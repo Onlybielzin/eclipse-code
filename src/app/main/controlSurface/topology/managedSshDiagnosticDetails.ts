@@ -19,7 +19,7 @@ export function managedSshDiagnosticDetails(
   const details = new Set<string>()
   for (const value of values) {
     for (let line of (value ?? '').split(/\r\n|\r|\n/)) {
-      if (line.includes('[opencove-bootstrap-progress:')) {
+      if (line.includes('[eclipse-code-bootstrap-progress:')) {
         continue
       }
       line = stripVTControlCharacters(line)

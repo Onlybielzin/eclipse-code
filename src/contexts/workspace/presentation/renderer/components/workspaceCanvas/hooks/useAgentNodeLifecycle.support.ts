@@ -126,7 +126,7 @@ export async function launchAgentRuntime({
   if (mountId) {
     const cwd = executionDirectory.trim()
     const cwdUri = cwd.length > 0 ? toFileUri(cwd) : null
-    const launched = await window.opencoveApi.controlSurface.invoke<LaunchAgentSessionResult>({
+    const launched = await window.eclipseCodeApi.controlSurface.invoke<LaunchAgentSessionResult>({
       kind: 'command',
       id: 'session.launchAgentInMount',
       clientFeatures: { managedClaudeResumeBindingV1: true },
@@ -171,7 +171,7 @@ export async function launchAgentRuntime({
     }
   }
 
-  const launched = await window.opencoveApi.agent.launch({
+  const launched = await window.eclipseCodeApi.agent.launch({
     clientFeatures: { managedClaudeResumeBindingV1: true },
     ...(intent ? { intent } : {}),
     canvasNodeId: node.id,

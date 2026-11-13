@@ -126,7 +126,7 @@ test.describe('Workspace Canvas - Agent Session Switch', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(() => {
-            return window.__opencoveWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
+            return window.__eclipseCodeWorkspaceCanvasTestApi?.getFirstAgentSessionId?.() ?? null
           })
         })
         .not.toBeNull()
@@ -150,7 +150,7 @@ test.describe('Workspace Canvas - Agent Session Switch', () => {
         .poll(
           async () => {
             return await window.evaluate(async () => {
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

@@ -22,8 +22,8 @@ describe('WebsiteNodeIframe', () => {
     expect(resolveWebsiteIframeSourceUrl('https://google.com/')).toBe(
       'https://www.google.com/webhp?igu=1',
     )
-    expect(resolveWebsiteIframeSourceUrl('https://www.google.com/search?q=opencove')).toBe(
-      'https://www.google.com/search?q=opencove&igu=1',
+    expect(resolveWebsiteIframeSourceUrl('https://www.google.com/search?q=eclipse-code')).toBe(
+      'https://www.google.com/search?q=eclipse-code&igu=1',
     )
     expect(resolveWebsiteIframeSourceUrl('https://mail.google.com/mail/u/0/')).toBe(
       'https://mail.google.com/mail/u/0/',

@@ -138,7 +138,7 @@ register.buildInput = args => {
   if (port <= 0 || port > 65535) {
     usage(
       'Invalid --port: expected a number from 1 to 65535',
-      'Run "opencove endpoint register --help" to see its options.',
+      'Run "eclipse-code endpoint register --help" to see its options.',
     )
   }
   return registerInput(args)

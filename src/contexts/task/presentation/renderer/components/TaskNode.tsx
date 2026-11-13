@@ -138,7 +138,7 @@ export function TaskNode({
     (input: HTMLTextAreaElement, files: FileList | null, uriList?: string): boolean => {
       const paths = files
         ? Array.from(files)
-            .map(file => window.opencoveApi.filesystem.getPathForFile(file))
+            .map(file => window.eclipseCodeApi.filesystem.getPathForFile(file))
             .filter(path => path.length > 0)
         : []
       const uriPaths = (uriList ?? '')

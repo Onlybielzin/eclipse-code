@@ -12,18 +12,18 @@ function createSpacesRef(spaces: WorkspaceSpaceState[]): MutableRefObject<Worksp
 
 describe('workspaceAgentLaunch.shared', () => {
   beforeEach(() => {
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       controlSurface: {
         invoke: vi.fn(),
       },
       agent: {
         launch: vi.fn(),
       },
-    } as typeof window.opencoveApi
+    } as typeof window.eclipseCodeApi
   })
 
   it('repairs missing Space mount bindings using the best matching mount', async () => {
-    const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+    const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
     invoke.mockResolvedValueOnce({
       mounts: [
         { mountId: 'mount-root', rootPath: '/project' },
@@ -63,7 +63,7 @@ describe('workspaceAgentLaunch.shared', () => {
   })
 
   it('does not bind an external worktree directory to the first project mount', async () => {
-    const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+    const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
     invoke.mockResolvedValueOnce({
       mounts: [{ mountId: 'mount-root', rootPath: '/project' }],
     })
@@ -100,7 +100,7 @@ describe('workspaceAgentLaunch.shared', () => {
   })
 
   it('launches external worktree agents through the control surface plain runtime', async () => {
-    const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+    const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
     invoke.mockResolvedValueOnce({
       sessionId: 'session-external',
       profileId: 'profile-1',
@@ -135,7 +135,7 @@ describe('workspaceAgentLaunch.shared', () => {
 
     expect(launched.executionDirectory).toBe('/external/worktrees/feature-a')
     expect(launched.workerBinding).toEqual({ endpointId: 'local', mountId: null })
-    expect(window.opencoveApi.agent.launch).not.toHaveBeenCalled()
+    expect(window.eclipseCodeApi.agent.launch).not.toHaveBeenCalled()
     expect(invoke).toHaveBeenCalledWith({
       kind: 'command',
       id: 'session.launchAgent',
@@ -148,7 +148,7 @@ describe('workspaceAgentLaunch.shared', () => {
   })
 
   it('retries mount launches after refreshing the mount binding', async () => {
-    const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+    const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
     invoke.mockRejectedValueOnce(new Error('stale mount')).mockResolvedValueOnce({
       sessionId: 'session-2',
       profileId: 'profile-1',
@@ -224,12 +224,12 @@ describe('workspaceAgentLaunch.shared', () => {
           mountId: null,
         },
       }
-      const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+      const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
       if (route === 'retry') {
         invoke.mockRejectedValueOnce(new Error('stale mount'))
       }
       invoke.mockResolvedValue(response)
-      const launch = vi.mocked(window.opencoveApi.agent.launch)
+      const launch = vi.mocked(window.eclipseCodeApi.agent.launch)
       launch.mockResolvedValue(response as never)
       await launchWorkspaceAgentSession({
         mountId: route === 'mount' || route === 'retry' ? 'mount-old' : null,
@@ -278,12 +278,12 @@ describe('workspaceAgentLaunch.shared', () => {
           mountId: route === 'mount' || route === 'retry' ? 'mount-a' : null,
         },
       }
-      const invoke = vi.mocked(window.opencoveApi.controlSurface.invoke)
+      const invoke = vi.mocked(window.eclipseCodeApi.controlSurface.invoke)
       if (route === 'retry') {
         invoke.mockRejectedValueOnce(new Error('stale mount'))
       }
       invoke.mockResolvedValue(response)
-      vi.mocked(window.opencoveApi.agent.launch).mockResolvedValue(response as never)
+      vi.mocked(window.eclipseCodeApi.agent.launch).mockResolvedValue(response as never)
       const launched = await launchWorkspaceAgentSession({
         mountId: route === 'mount' || route === 'retry' ? 'mount-old' : null,
         workspacePath: route === 'plain' ? '/elsewhere' : '/repo',
@@ -321,7 +321,9 @@ it.each(['unknown', 'superseded', 'nodeGone', 'conflict', 'afterSpawn'])(
           : { code: 'agent.managed_launch_rejected', details: { reason } },
     )
     const invoke = vi.fn().mockRejectedValue(error)
-    window.opencoveApi = { controlSurface: { invoke } } as unknown as typeof window.opencoveApi
+    window.eclipseCodeApi = {
+      controlSurface: { invoke },
+    } as unknown as typeof window.eclipseCodeApi
     const retry = vi.fn()
     await expect(
       launchWorkspaceAgentSession({

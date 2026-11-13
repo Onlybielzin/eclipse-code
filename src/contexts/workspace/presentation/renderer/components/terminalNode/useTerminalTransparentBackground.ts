@@ -11,6 +11,6 @@ import {
 export function useTerminalTransparentBackground(mode: TerminalBackgroundMode): boolean {
   return resolveTerminalTransparentBackground({
     mode,
-    platform: window.opencoveApi?.meta?.platform ?? null,
+    platform: window.eclipseCodeApi?.meta?.platform ?? null,
   })
 }

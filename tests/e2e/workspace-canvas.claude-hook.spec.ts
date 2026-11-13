@@ -67,18 +67,20 @@ async function waitForInitialHookWorkingSignal(
   sessionId: string,
   agentNode: ReturnType<typeof window.locator>,
 ): Promise<void> {
-  await expect(agentNode).toContainText('[opencove-test-hook] ready')
+  await expect(agentNode).toContainText('[eclipse-code-test-hook] ready')
   await writeToPty(window, { sessionId, data: '<test-hook-initial-working>\r' })
   // Drive the first hook POST only after the stub owns PTY input. Until it lands,
   // session_file legitimately wins arbitration, so gate hook authority on the real signal.
   await expect
     .poll(async () => {
       return await window.evaluate(async id => {
-        const snapshot = await window.opencoveApi.controlSurface.invoke<AgentRunSnapshot | null>({
-          kind: 'query',
-          id: 'agent.get',
-          payload: { sessionId: id },
-        })
+        const snapshot = await window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot | null>(
+          {
+            kind: 'query',
+            id: 'agent.get',
+            payload: { sessionId: id },
+          },
+        )
         return snapshot?.source === 'claude_hook' ? snapshot.state : null
       }, sessionId)
     })
@@ -90,9 +92,9 @@ test.describe('Workspace Canvas - Claude hook channel', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'inactive',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
       },
     })
     try {
@@ -167,9 +169,9 @@ test.describe('Workspace Canvas - Claude hook channel', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'inactive',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-fallback',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '1',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-fallback',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '1',
       },
     })
     try {
@@ -195,9 +197,9 @@ test.describe('Workspace Canvas - Claude hook channel', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'inactive',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-arbitration',
-        OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-arbitration',
+        ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
       },
     })
     try {
@@ -211,7 +213,7 @@ test.describe('Workspace Canvas - Claude hook channel', () => {
       await expect(status).toHaveText('Needs approval')
 
       await writeToPty(window, { sessionId, data: '<test-session-standby>\r' })
-      await expect(agentNode).toContainText('[opencove-test-hook] session-standby')
+      await expect(agentNode).toContainText('[eclipse-code-test-hook] session-standby')
       await expect(status).toHaveText('Needs approval')
       await expect(agentNode).toHaveAttribute('data-agent-state-source', 'claude_hook')
 

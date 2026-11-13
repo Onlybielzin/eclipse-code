@@ -97,7 +97,7 @@ export function useNativeFilesystemDrop({
         epoch !== null &&
         lifetime.current === epoch &&
         (targetSpaceId === null || spacesRef.current.some(space => space.id === targetSpaceId))
-      const resolveDroppedFile = window.opencoveApi.filesystem.resolveDroppedFile!
+      const resolveDroppedFile = window.eclipseCodeApi.filesystem.resolveDroppedFile!
       void (async () => {
         for (const [index, file] of files.entries()) {
           if (!isCurrent()) {

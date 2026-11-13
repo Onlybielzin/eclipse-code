@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 describe('cli runtime discovery', () => {
   it('uses source beside the CLI when launched by development Electron as Node', async () => {
     const { resolveCliRuntime } = await import('../../../src/app/cli/runtime.mjs')
-    const repoRoot = resolve('/development/opencove')
+    const repoRoot = resolve('/development/eclipse-code')
     expect(
       resolveCliRuntime({
         cliDirectory: resolve(repoRoot, 'out/cli'),
@@ -27,7 +27,7 @@ describe('cli runtime discovery', () => {
     'recognizes a CLI actually inside packaged %s',
     async appDirectory => {
       const { resolveCliRuntime } = await import('../../../src/app/cli/runtime.mjs')
-      const resourcesPath = resolve('/Applications/OpenCove.app/Contents/Resources')
+      const resourcesPath = resolve('/Applications/Eclipse Code.app/Contents/Resources')
       const appRoot = resolve(resourcesPath, appDirectory)
       expect(
         resolveCliRuntime({
@@ -51,9 +51,9 @@ describe('cli runtime discovery', () => {
         cliDirectory: resolve('/bundle/app/out/cli'),
         resourcesPath: null,
         existsSyncImpl: (candidate: string) =>
-          candidate === resolve('/bundle/opencove-runtime.env'),
+          candidate === resolve('/bundle/eclipse-code-runtime.env'),
         readFileSyncImpl: () =>
-          'OPENCOVE_NODE_RELATIVE_PATH=runtime/node/bin/node\nOPENCOVE_CLI_SCRIPT_RELATIVE_PATH=app/out/cli/opencove.mjs\n',
+          'ECLIPSE_CODE_NODE_RELATIVE_PATH=runtime/node/bin/node\nECLIPSE_CODE_CLI_SCRIPT_RELATIVE_PATH=app/out/cli/eclipse-code.mjs\n',
       }),
     ).toEqual({
       kind: 'standalone',
@@ -93,14 +93,14 @@ describe('cli runtime electron binary resolution', () => {
     await expect(
       resolveElectronBinaryForWorkerStart({
         processObject: {
-          execPath: '/Applications/OpenCove.app/Contents/MacOS/OpenCove',
+          execPath: '/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code',
           versions: { electron: '35.7.5' },
         },
         importElectron: async () => {
           throw new Error('should not import electron')
         },
       }),
-    ).resolves.toBe('/Applications/OpenCove.app/Contents/MacOS/OpenCove')
+    ).resolves.toBe('/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code')
   })
 
   it('falls back to the electron package when running from plain node', async () => {
@@ -147,7 +147,7 @@ describe('worker runtime selection', () => {
       resolveWorkerRuntimeForStart({
         cliRuntime: { kind: 'standalone', nodeExecutablePath: '/bundle/runtime/node/bin/node' },
         processObject: {
-          execPath: '/bundle/runtime/OpenCove',
+          execPath: '/bundle/runtime/Eclipse Code',
           versions: { node: '22.22.0', electron: '41.5.1' },
         },
       }),
@@ -195,7 +195,7 @@ describe('worker runtime selection', () => {
       }),
     ).toEqual({
       PATH: '/bundle/runtime/node/bin',
-      OPENCOVE_TRUST_PROCESS_ENV: '1',
+      ECLIPSE_CODE_TRUST_PROCESS_ENV: '1',
     })
   })
 })

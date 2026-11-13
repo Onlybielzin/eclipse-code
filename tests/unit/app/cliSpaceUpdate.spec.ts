@@ -108,11 +108,11 @@ it('does not retry a CAS conflict or print success', async () => {
   ).toHaveLength(1)
 })
 
-it('explains fixed members, frame adjustments and dragging contents in OpenCove', async () => {
+it('explains fixed members, frame adjustments and dragging contents in Eclipse Code', async () => {
   const f = fixture()
   expect(await run(['space', 'update', '--help'], f.io)).toBe(0)
   expect(f.out()).toContain('without moving any member node or child space')
   expect(f.out()).toContain('requested x and y may also be adjusted')
-  expect(f.out()).toContain('To move a space together with its contents, drag it in OpenCove')
+  expect(f.out()).toContain('To move a space together with its contents, drag it in Eclipse Code')
   expect(f.fetch).not.toHaveBeenCalled()
 })

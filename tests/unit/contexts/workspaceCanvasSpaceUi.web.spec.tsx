@@ -12,7 +12,7 @@ function HookHost(): React.JSX.Element {
     {
       id: 'space-1',
       name: 'Space 1',
-      directoryPath: '/tmp/opencove-space',
+      directoryPath: '/tmp/eclipse-code-space',
       targetMountId: null,
       labelColor: null,
       nodeIds: [],
@@ -25,7 +25,7 @@ function HookHost(): React.JSX.Element {
     setContextMenu,
     setEmptySelectionPrompt,
     cancelSpaceRename: () => undefined,
-    workspacePath: '/tmp/opencove-workspace',
+    workspacePath: '/tmp/eclipse-code-workspace',
     spacesRef,
     handlePaneClick: () => undefined,
     handlePaneContextMenu: () => undefined,
@@ -87,14 +87,14 @@ function HookHost(): React.JSX.Element {
 
 describe('useWorkspaceCanvasSpaceUi (web UI differences)', () => {
   beforeEach(() => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: undefined,
     })
   })
 
   afterEach(() => {
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
   })
 
   it('uses browser clipboard when Electron IPC copyPath API is unavailable', async () => {
@@ -108,7 +108,7 @@ describe('useWorkspaceCanvasSpaceUi (web UI differences)', () => {
     fireEvent.click(screen.getByTestId('copy-space-path'))
 
     await waitFor(() => {
-      expect(writeText).toHaveBeenCalledWith('/tmp/opencove-space')
+      expect(writeText).toHaveBeenCalledWith('/tmp/eclipse-code-space')
     })
   })
 
@@ -116,7 +116,7 @@ describe('useWorkspaceCanvasSpaceUi (web UI differences)', () => {
     const copyPath = vi.fn(async () => undefined)
     const writeText = vi.fn(async () => undefined)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         workspace: {
@@ -134,7 +134,7 @@ describe('useWorkspaceCanvasSpaceUi (web UI differences)', () => {
     fireEvent.click(screen.getByTestId('copy-space-path'))
 
     await waitFor(() => {
-      expect(copyPath).toHaveBeenCalledWith({ path: '/tmp/opencove-space' })
+      expect(copyPath).toHaveBeenCalledWith({ path: '/tmp/eclipse-code-space' })
     })
 
     expect(writeText).not.toHaveBeenCalled()
@@ -158,7 +158,7 @@ describe('useWorkspaceCanvasSpaceUi (web UI differences)', () => {
       ],
     }))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         workspace: {

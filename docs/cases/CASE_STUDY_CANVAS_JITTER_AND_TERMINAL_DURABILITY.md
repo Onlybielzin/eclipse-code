@@ -42,7 +42,7 @@ The refactor that resolved these issues followed a few principles that generaliz
 - **Define explicit override rules** whenever a value can be updated from multiple sources.
 - **Assetize the bug**: leave behind a regression test (unit/contract/integration/E2E) that proves the invariant.
 
-## OpenCove-Specific References (This Case)
+## Eclipse Code-Specific References (This Case)
 
 Key implementation artifacts added/changed by the fix:
 

@@ -144,7 +144,7 @@ async function requestHooksList(input: CodexHookTrustInput): Promise<unknown> {
         id: initializeRequestId,
         method: 'initialize',
         params: {
-          clientInfo: { name: 'opencove', title: 'OpenCove', version: input.clientVersion },
+          clientInfo: { name: 'eclipse-code', title: 'Eclipse Code', version: input.clientVersion },
         },
       })}\n`,
     )

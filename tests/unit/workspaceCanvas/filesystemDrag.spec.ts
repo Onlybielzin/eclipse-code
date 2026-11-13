@@ -19,7 +19,7 @@ const entry: FilesystemEntryDragData = {
 }
 
 describe('filesystem entry canvas drag', () => {
-  it('round-trips only the OpenCove MIME with the source location intact', () => {
+  it('round-trips only the Eclipse Code MIME with the source location intact', () => {
     const transfer = new DataTransfer()
     setFilesystemEntryDragData(transfer, entry)
 

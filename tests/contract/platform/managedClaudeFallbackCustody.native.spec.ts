@@ -61,7 +61,7 @@ vi.mock('../../../src/platform/terminal/TerminalProfileResolver', () => ({
 describeWithElectronNativeModules('managed Claude fallback shell custody', () => {
   let root: string, f: SnapshotFixture
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-fallback-custody-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-fallback-custody-'))
   })
   afterEach(async () => {
     eventMutation.omitDisplacement = false

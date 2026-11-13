@@ -68,7 +68,7 @@ export type NotificationSound = (typeof NOTIFICATION_SOUNDS)[number]
 
 /** How an Agent that needs you is announced: in-app card, system notification and one sound. */
 export interface NotificationSettings {
-  /** Sent only while OpenCove is in the background; always silent, the app plays the sound. */
+  /** Sent only while Eclipse Code is in the background; always silent, the app plays the sound. */
   systemNotificationsEnabled: boolean
   /** The in-app card at the top right. */
   standbyBannerEnabled: boolean

@@ -69,12 +69,12 @@ export function AddProjectWizardWindow({
 
   const canBrowseLocal =
     typeof window !== 'undefined' &&
-    window.opencoveApi?.meta?.runtime === 'electron' &&
+    window.eclipseCodeApi?.meta?.runtime === 'electron' &&
     homeWorkerMode !== 'remote'
 
   useEffect(() => {
     let cancelled = false
-    void window.opencoveApi.workerClient
+    void window.eclipseCodeApi.workerClient
       .getConfig()
       .then(config => {
         if (!cancelled) {
@@ -125,7 +125,7 @@ export function AddProjectWizardWindow({
         return
       }
 
-      const selected = await window.opencoveApi.workspace.selectDirectory()
+      const selected = await window.eclipseCodeApi.workspace.selectDirectory()
       if (!selected) {
         if (!remoteWorkersEnabled) {
           onClose()

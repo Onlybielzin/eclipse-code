@@ -23,7 +23,7 @@ test('the command entry names the Space the canvas is showing', async () => {
       workspaces: [
         {
           id: workspaceId,
-          name: 'OpenCove',
+          name: 'Eclipse Code',
           path: testWorkspacePath,
           nodes: [note('alpha-note', 200), note('beta-note', 4200)],
           spaces: [
@@ -48,7 +48,7 @@ test('the command entry names the Space the canvas is showing', async () => {
     })
     const entry = window.getByTestId('app-header-command-center')
     const space = window.getByTestId('app-header-active-space')
-    await expect(entry).toContainText('OpenCove')
+    await expect(entry).toContainText('Eclipse Code')
     await expect(space).toHaveText('Alpha')
 
     await window.getByTestId(`workspace-space-item-${workspaceId}-space-beta`).click()

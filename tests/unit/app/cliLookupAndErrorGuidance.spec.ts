@@ -46,7 +46,7 @@ it.each(['api schema', 'api call'])('suggests unknown operations for %s before I
   const f = identityFixture(false)
   expect(await run([...path.split(' '), 'node.gte'], f.io)).toBe(2)
   expect(f.error().hint).toContain('node.get')
-  expect(f.error().hint).toContain('opencove api ops --prefix node')
+  expect(f.error().hint).toContain('eclipse-code api ops --prefix node')
   expect(f.fetch).not.toHaveBeenCalled()
 })
 
@@ -55,7 +55,9 @@ it('gives actionable URI errors before IO', async () => {
   expect(await run(['fs', 'read', '--uri', 'README.md'], f.io)).toBe(2)
   expect(f.error().message).toContain('absolute file:// URI')
   expect(f.error().hint).toContain('README.md')
-  expect(f.error().hint).toContain('opencove mount list --project "@self" --fields mountId,rootUri')
+  expect(f.error().hint).toContain(
+    'eclipse-code mount list --project "@self" --fields mountId,rootUri',
+  )
   expect(f.fetch).not.toHaveBeenCalled()
 })
 
@@ -96,7 +98,7 @@ it.each(['read', 'interact', 'admin'])(
     expect(catalog.find((op: { id: string }) => op.id === 'node.get')).toMatchObject({
       scope: 'read',
       allowed: true,
-      cliCommand: 'opencove node get',
+      cliCommand: 'eclipse-code node get',
     })
     expect(catalog.find((op: { id: string }) => op.id === 'node.delete').allowed).toBe(false)
     expect(catalog.find((op: { id: string }) => op.id === 'mount.create').allowed).toBe(false)
@@ -158,5 +160,5 @@ it('suggests same-domain operation IDs when edit distance is large', async () =>
   const f = identityFixture(false)
   expect(await run(['api', 'schema', 'node.missing'], f.io)).toBe(2)
   expect(f.error().hint).toContain('node.')
-  expect(f.error().hint).toContain('opencove api ops --prefix node')
+  expect(f.error().hint).toContain('eclipse-code api ops --prefix node')
 })

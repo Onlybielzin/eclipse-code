@@ -18,7 +18,7 @@ test.describe('Pi native hook UI integration', () => {
   for (const entry of ['terminal', 'agent'] as const) {
     test(`${entry} launch follows native states, reload and explicit new-session binding`, async () => {
       const testInfo = test.info()
-      const directory = await mkdtemp(path.join(tmpdir(), 'opencove-pi-ui-'))
+      const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-pi-ui-'))
       const executable = path.join(directory, 'pi')
       const fixture = path.resolve(__dirname, '../fixtures/agent/pi-lifecycle-stub.mjs')
       await writeFile(
@@ -30,8 +30,8 @@ test.describe('Pi native hook UI integration', () => {
         windowMode: 'offscreen',
         env: {
           PATH: `${directory}${path.delimiter}${process.env.PATH ?? ''}`,
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-          OPENCOVE_TEST_PI_SESSION_DIR: directory,
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_PI_SESSION_DIR: directory,
         },
       })
       try {
@@ -108,7 +108,7 @@ test.describe('Pi native hook UI integration', () => {
         await expect(status).toHaveText('Standby')
         const binding = () =>
           window.evaluate(async kind => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             const state = raw ? JSON.parse(raw) : null
             const node = state?.workspaces
               ?.flatMap(workspace => workspace.nodes ?? [])

@@ -28,6 +28,7 @@ import { useAppHeaderActivity } from './hooks/useAppHeaderActivity'
 import { useAgentStandbyNotifications } from './hooks/useAgentStandbyNotifications'
 import { useFloatingMessage } from './hooks/useFloatingMessage'
 import { useQuitShortcutHint } from './hooks/useQuitShortcutHint'
+import { scrollToSettingsAnchor, subscribeOpenSettingsPage } from './settingsNavigationEvents'
 import { useWorkspaceStateHandlers } from './hooks/useWorkspaceStateHandlers'
 import { useAppUpdates } from './hooks/useAppUpdates'
 import { useAppShellWorkspaceActions } from './hooks/useAppShellWorkspaceActions'
@@ -189,6 +190,17 @@ export default function App(): React.JSX.Element {
     closeSidebar: sidebar.close,
     flushPersistNow,
   })
+
+  useEffect(
+    () =>
+      subscribeOpenSettingsPage((pageId, anchorId) => {
+        handleOpenSettings(pageId)
+        if (anchorId) {
+          scrollToSettingsAnchor(anchorId)
+        }
+      }),
+    [handleOpenSettings],
+  )
 
   useAppKeybindings({
     enabled: isPersistReady && !isIssueReportOpen && projectDeleteConfirmation === null,

@@ -221,7 +221,7 @@ export const lifecycleCommands = [
               'worker.lifecycle',
               2,
               error.message,
-              `Run "opencove worker ${name} --help" to see its options.`,
+              `Run "eclipse-code worker ${name} --help" to see its options.`,
             )
           }
           throw error

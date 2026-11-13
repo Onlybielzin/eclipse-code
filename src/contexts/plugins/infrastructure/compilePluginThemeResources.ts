@@ -166,7 +166,7 @@ export async function compilePluginThemeResources(
       throw new Error('Theme supports at most 32 font faces.')
     }
     const id = `plugin:${pluginId}:${theme.id}`
-    const prefix = `opencove-theme-${createHash('sha256').update(id).digest('hex').slice(0, 16)}`
+    const prefix = `eclipse-code-theme-${createHash('sha256').update(id).digest('hex').slice(0, 16)}`
     rewriteThemeAnimations(root, prefix)
     scopeThemeCss(root, id)
     const compiled = root.toString()

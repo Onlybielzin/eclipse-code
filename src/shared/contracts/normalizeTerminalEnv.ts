@@ -2,7 +2,7 @@ const MAX_ENV_ENTRIES = 100
 const MAX_ENV_KEY_LENGTH = 256
 const MAX_ENV_VALUE_LENGTH = 32_768
 const ENV_KEY_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/
-const RESERVED_ENV_PREFIX = 'OPENCOVE_'
+const RESERVED_ENV_PREFIX = 'ECLIPSE_CODE_'
 
 export function normalizeEnvPayload(raw: unknown): Record<string, string> | undefined {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {

@@ -26,7 +26,7 @@ it('exports field-level schemas with the intended authority', () => {
   }
 })
 
-it.each(['relative', '/definitely-missing-opencove-p1c', resolve('package.json')])(
+it.each(['relative', '/definitely-missing-eclipse-code-p1c', resolve('package.json')])(
   'rejects invalid directory %s before approval',
   async path => {
     const surface = createControlSurface()
@@ -50,7 +50,7 @@ it('returns committed creation details while retaining the original IDs', async 
   const { mkdtemp, rm } = await import('node:fs/promises')
   const { tmpdir } = await import('node:os')
   const { join } = await import('node:path')
-  const root = await mkdtemp(join(tmpdir(), 'opencove-bootstrap-output-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-bootstrap-output-'))
   try {
     const store = createInMemoryPersistenceStore()
     const surface = createControlSurface()

@@ -52,7 +52,7 @@ async function waitForTerminalGeometryCommitResult(
   let timeoutId: ReturnType<typeof setTimeout> | null = null
   try {
     const result = await Promise.race([
-      window.opencoveApi.pty.resize(payload),
+      window.eclipseCodeApi.pty.resize(payload),
       new Promise<never>((_resolve, reject) => {
         timeoutId = setTimeout(() => {
           reject(new Error(`Terminal geometry commit timed out: ${payload.operationId}`))

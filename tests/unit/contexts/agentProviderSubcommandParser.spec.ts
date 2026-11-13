@@ -68,7 +68,7 @@ it.each(['update the project', 'resume\nthe task'])(
 
 // Opt-in parser-only check against an installed Pi package, never its CLI main/handlers.
 // The ordinary adapter suite always covers the same vectors without a local installation.
-const piRoot = process.env.OPENCOVE_TEST_PI_PARSER_ROOT
+const piRoot = process.env.ECLIPSE_CODE_TEST_PI_PARSER_ROOT
 async function piParsers() {
   const source = await readFile(join(piRoot!, 'dist/package-manager-cli.js'), 'utf8')
   const start = source.indexOf('function parsePackageCommand(')

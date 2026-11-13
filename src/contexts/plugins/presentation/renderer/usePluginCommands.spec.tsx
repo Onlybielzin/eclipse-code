@@ -45,7 +45,7 @@ it('derives the command-center project from an explicitly selected view when no 
         }
       : null,
   )
-  vi.stubGlobal('opencoveApi', { controlSurface: { invoke } })
+  vi.stubGlobal('eclipseCodeApi', { controlSurface: { invoke } })
   const { result } = renderHook(() => usePluginCommands({ surface: 'commandCenter' }))
   await waitFor(() => expect(result.current.items).toHaveLength(1))
   await act(async () => {

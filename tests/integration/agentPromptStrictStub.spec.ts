@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path'
 import { expect, it, vi } from 'vitest'
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-strict-prompt-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-strict-prompt-'))
   const relay = join(root, 'relay.mjs'),
     settings = join(root, 'settings.json')
   const record = join(root, 'record.jsonl'),
@@ -49,8 +49,8 @@ async function fixture() {
       env: {
         ...process.env,
         STRICT_HOOK_RECORD: hooks,
-        OPENCOVE_TEST_PROMPT_RECORD: record,
-        OPENCOVE_TEST_PROMPT_DIALOG: dialog,
+        ECLIPSE_CODE_TEST_PROMPT_RECORD: record,
+        ECLIPSE_CODE_TEST_PROMPT_DIALOG: dialog,
       },
       stdio: ['pipe', 'pipe', 'pipe'],
     },
@@ -160,7 +160,7 @@ it('compares strict Claude hook prompts through the real receiver and accepted r
     // Only the socket is replaced: feed the child relay's recorded payload into the HTTP receiver.
     expect(
       await post(
-        reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!,
+        reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
         'UserPromptSubmit',
         String(Date.now()),
         submission,
@@ -177,7 +177,12 @@ it('compares strict Claude hook prompts through the real receiver and accepted r
       last_assistant_message: 'Strict reply 1',
     })
     expect(
-      await post(reservation.env!.OPENCOVE_CLAUDE_HOOK_TOKEN!, 'Stop', String(Date.now()), ended),
+      await post(
+        reservation.env!.ECLIPSE_CODE_CLAUDE_HOOK_TOKEN!,
+        'Stop',
+        String(Date.now()),
+        ended,
+      ),
     ).toBe(204)
     expect(runtime.registry.finalMessage({ nodeId: 'n', turnId: 'turn' })).toMatchObject({
       message: 'Strict reply 1',

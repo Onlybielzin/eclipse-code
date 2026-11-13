@@ -36,7 +36,7 @@ export function useTerminalFileDropPaste({
       }
 
       const paths = Array.from(files)
-        .map(file => window.opencoveApi.filesystem.getPathForFile(file))
+        .map(file => window.eclipseCodeApi.filesystem.getPathForFile(file))
         .filter(path => path.length > 0)
         .map(quoteShellPath)
         .join(' ')

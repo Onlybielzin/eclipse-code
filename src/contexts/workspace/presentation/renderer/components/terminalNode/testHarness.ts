@@ -41,7 +41,7 @@ type TerminalOptionsIntrospection = {
     allowTransparency?: unknown
     theme?: { background?: unknown }
   }
-  __opencoveXtermSessionInstanceId?: unknown
+  __eclipseCodeXtermSessionInstanceId?: unknown
 }
 
 type TerminalSelectionTestApi = {
@@ -91,7 +91,7 @@ type TerminalSelectionTestApi = {
 
 declare global {
   interface Window {
-    __opencoveTerminalSelectionTestApi?: TerminalSelectionTestApi
+    __eclipseCodeTerminalSelectionTestApi?: TerminalSelectionTestApi
   }
 }
 
@@ -108,8 +108,8 @@ function getTerminalSelectionTestApi(): TerminalSelectionTestApi | undefined {
     return undefined
   }
 
-  if (!window.__opencoveTerminalSelectionTestApi) {
-    window.__opencoveTerminalSelectionTestApi = {
+  if (!window.__eclipseCodeTerminalSelectionTestApi) {
+    window.__eclipseCodeTerminalSelectionTestApi = {
       flushOutput: async nodeId => {
         const terminal = terminalHandles.get(nodeId) as Terminal | undefined
         if (terminal) {
@@ -243,8 +243,8 @@ function getTerminalSelectionTestApi(): TerminalSelectionTestApi | undefined {
           allowTransparency: options.allowTransparency === true,
           background: typeof options.theme?.background === 'string' ? options.theme.background : '',
           instanceId:
-            typeof terminal.__opencoveXtermSessionInstanceId === 'number'
-              ? terminal.__opencoveXtermSessionInstanceId
+            typeof terminal.__eclipseCodeXtermSessionInstanceId === 'number'
+              ? terminal.__eclipseCodeXtermSessionInstanceId
               : null,
         }
       },
@@ -360,7 +360,7 @@ function getTerminalSelectionTestApi(): TerminalSelectionTestApi | undefined {
     }
   }
 
-  return window.__opencoveTerminalSelectionTestApi
+  return window.__eclipseCodeTerminalSelectionTestApi
 }
 
 export function registerTerminalSelectionTestHandle(

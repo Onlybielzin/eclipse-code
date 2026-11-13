@@ -102,7 +102,7 @@ export function applicationShortcutTests(): void {
   test('quit requires a second independent press', async () => {
     test.setTimeout(90_000)
     test.skip(process.platform !== 'darwin', 'Only macOS has a guarded quit shortcut')
-    const userDataDir = await mkdtemp(join(tmpdir(), 'opencove-shortcut-quit-'))
+    const userDataDir = await mkdtemp(join(tmpdir(), 'eclipse-code-shortcut-quit-'))
     const { electronApp, window } = await launchApp({ userDataDir, cleanupUserDataDir: false })
     let appClosed = false
     electronApp.once('close', () => {

@@ -54,7 +54,7 @@ test('installs, explicitly updates and restores Git plugin code through settings
     const detail = page.getByTestId('settings-plugin-detail-hello-clock')
     await expect(detail).toContainText('0.1.0')
     await expect(page.getByTestId('settings-plugin-check-update')).toBeVisible()
-    const manifestPath = join(directory, 'opencove.plugin.json')
+    const manifestPath = join(directory, 'eclipse-code.plugin.json')
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as { version: string }
     manifest.version = '0.2.0'
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
@@ -63,7 +63,7 @@ test('installs, explicitly updates and restores Git plugin code through settings
     await page.getByTestId('settings-plugin-check-update').click()
     await expect(page.getByTestId('settings-plugin-apply-update')).toBeVisible()
     await expect(detail).toContainText('0.1.0')
-    const screenshot = '/tmp/opencove-plugin-library-review/plugin-git-update-dark.png'
+    const screenshot = '/tmp/eclipse-code-plugin-library-review/plugin-git-update-dark.png'
     await page.screenshot({ path: screenshot })
     await testInfo.attach('plugin-git-update-dark', { path: screenshot, contentType: 'image/png' })
     await page.getByTestId('settings-plugin-apply-update').click()

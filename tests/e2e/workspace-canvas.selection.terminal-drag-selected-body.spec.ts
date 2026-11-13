@@ -61,7 +61,7 @@ test.describe('Workspace Canvas - Selection (Terminal Drag)', () => {
           async ({ key, nodeId: requestedNodeId }) => {
             void key
 
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

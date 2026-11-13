@@ -16,7 +16,7 @@ function resolveWebsiteScrollbarSizePx(canvasZoom: number): number {
 
 function resolveWebsiteScrollbarCss(sizePx: number): string {
   return `
-/* opencove website window scrollbar scaling */
+/* eclipse-code website window scrollbar scaling */
 ::-webkit-scrollbar {
   width: ${sizePx}px !important;
   height: ${sizePx}px !important;

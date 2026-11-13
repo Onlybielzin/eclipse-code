@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
 import { runtimeBuildIdentityPlugin } from './scripts/lib/runtime-build-plugin'
 
-export function buildOpenCoveContentSecurityPolicy(isDev: boolean): string {
+export function buildEclipseCodeContentSecurityPolicy(isDev: boolean): string {
   const scriptSources = isDev ? ["'self'", "'unsafe-eval'"] : ["'self'"]
   const connectSources = isDev ? ["'self'", 'ws:', 'http:', 'https:'] : ["'self'"]
   const styleSources = isDev ? ["'self'", "'unsafe-inline'"] : ["'self'"]
@@ -31,12 +31,12 @@ export function buildOpenCoveContentSecurityPolicy(isDev: boolean): string {
   ].join('; ')
 }
 
-function opencoveCspPlugin(): Plugin {
+function eclipseCodeCspPlugin(): Plugin {
   return {
-    name: 'opencove:csp',
+    name: 'eclipse-code:csp',
     transformIndexHtml(html, ctx) {
       const isDev = Boolean(ctx.server)
-      const content = buildOpenCoveContentSecurityPolicy(isDev)
+      const content = buildEclipseCodeContentSecurityPolicy(isDev)
 
       return {
         html,
@@ -56,7 +56,7 @@ function opencoveCspPlugin(): Plugin {
 }
 
 export default defineConfig(({ command }) => {
-  const development = command === 'serve' || process.env.OPENCOVE_BUILD_CHANNEL === 'dev'
+  const development = command === 'serve' || process.env.ECLIPSE_CODE_BUILD_CHANNEL === 'dev'
   const runtimeIdentityPlugin = (publish = false): Plugin =>
     runtimeBuildIdentityPlugin({
       root: __dirname,
@@ -125,7 +125,7 @@ export default defineConfig(({ command }) => {
           },
         },
       },
-      plugins: [runtimeIdentityPlugin(), opencoveCspPlugin(), tailwindcss(), react()],
+      plugins: [runtimeIdentityPlugin(), eclipseCodeCspPlugin(), tailwindcss(), react()],
       resolve: {
         alias: {
           '@app': resolve(__dirname, 'src/app'),

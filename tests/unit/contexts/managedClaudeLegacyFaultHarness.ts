@@ -105,7 +105,7 @@ export async function executeLegacyFault(options: {
   })
   registerSessionHandlers(surface, {
     ...admission,
-    userDataPath: '/tmp/opencove-legacy-fault-model',
+    userDataPath: '/tmp/eclipse-code-legacy-fault-model',
     getPersistenceStore: async () => store,
     approvedWorkspaces: { isPathApproved: async () => options.failure !== 'validation' } as never,
     agentProviderRegistry: registry,

@@ -8,7 +8,7 @@ export function useWindowFocused(): boolean {
   const [isFocused, setIsFocused] = useState(true)
 
   useEffect(() => {
-    const windowChrome = window.opencoveApi?.windowChrome
+    const windowChrome = window.eclipseCodeApi?.windowChrome
     if (!windowChrome?.onFocusChange || !windowChrome.getFocus) {
       return undefined
     }

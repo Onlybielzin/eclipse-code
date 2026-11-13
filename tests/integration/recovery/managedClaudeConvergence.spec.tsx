@@ -13,7 +13,7 @@ import {
 import { drainPersistedStateAtQuit } from '@contexts/workspace/presentation/renderer/utils/persistence/drain'
 import { flushScheduledPersistedStateWriteAsync } from '@contexts/workspace/presentation/renderer/utils/persistence/schedule'
 const original = useAppStore.getState(),
-  originalApi = window.opencoveApi
+  originalApi = window.eclipseCodeApi
 const marker = { activationId: 'activation', runtimeSessionId: 'runtime' }
 function setup() {
   const workspace = toShellWorkspaceState(
@@ -55,7 +55,7 @@ function setup() {
 afterEach(async () => {
   await flushScheduledPersistedStateWriteAsync()
   useAppStore.setState(original, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: originalApi })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: originalApi })
 })
 it.each(['no events', 'event before response', 'edit during read'] as const)(
   'converges owned fields and retains layout with %s',
@@ -77,7 +77,7 @@ it.each(['no events', 'event before response', 'edit during read'] as const)(
       }
       return { ok: true, level: 'full', bytes: 1, revision: 3, corrected: true }
     })
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { persistence: { readAppState: read, writeAppState: write } },
     })
@@ -142,7 +142,7 @@ it('repairs an identity rejection and drains the captured layout on immediate qu
       return { ok: true, level: 'full', bytes: 1, revision: 4, corrected: false }
     })
   const read = vi.fn(async () => ({ state: durable, revision: 3, recovery: null }))
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: { persistence: { readAppState: read, writeAppState: write } },
   })
@@ -166,7 +166,7 @@ it('publishes remaining edits even when canonical rebase needs no UI change', as
     .fn()
     .mockResolvedValueOnce({ ok: true, level: 'full', bytes: 1, revision: 3, merged: true })
     .mockResolvedValue({ ok: true, level: 'full', bytes: 1, revision: 4, corrected: false })
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       persistence: {

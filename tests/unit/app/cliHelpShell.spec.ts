@@ -7,7 +7,7 @@ import { shellWord } from '../../../src/app/cli/core/shellWord'
 import type { CliIo } from '../../../src/app/cli/core/io'
 
 // Split POSIX literal words while rejecting expansion/redirection in help examples.
-// A pipe is allowed only between the existing printf producer and opencove.
+// A pipe is allowed only between the existing printf producer and eclipse-code.
 function shellWords(source: string): string[] {
   const words: string[] = []
   let word = '',
@@ -98,12 +98,12 @@ it.each(commands.map(command => [command.path.join(' '), command] as const))(
     const examples = out
       .split('\n')
       .map(line => line.trim())
-      .filter(line => line.startsWith('opencove ') || line.startsWith('printf '))
+      .filter(line => line.startsWith('eclipse-code ') || line.startsWith('printf '))
     expect(examples.length).toBeGreaterThan(0)
     await Promise.all(
       examples.map(async example => {
         const words = shellWords(example)
-        const argv = words.slice(words.indexOf('opencove') + 1)
+        const argv = words.slice(words.indexOf('eclipse-code') + 1)
         const parsed = await parseCommand([...argv, '--help'], command, io)
         const specs = { ...globals, ...command.options }
         for (let i = 0; i < argv.length; i++) {
@@ -134,5 +134,7 @@ it.each(commands.map(command => [command.path.join(' '), command] as const))(
 )
 
 it('keeps $schema literal in the schema help projection example', () => {
-  expect(shellWords("opencove api schema node.create --fields '$schema'").at(-1)).toBe('$schema')
+  expect(shellWords("eclipse-code api schema node.create --fields '$schema'").at(-1)).toBe(
+    '$schema',
+  )
 })

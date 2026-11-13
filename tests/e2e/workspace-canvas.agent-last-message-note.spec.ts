@@ -51,8 +51,8 @@ test.describe('Workspace Canvas - Agent Last Message Copy', () => {
     const { electronApp, window } = await launchApp({
       windowMode: 'offscreen',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-no-newline',
       },
     })
 

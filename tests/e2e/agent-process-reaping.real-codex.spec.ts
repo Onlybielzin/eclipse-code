@@ -15,7 +15,10 @@ import { resolveFirstAgentSessionId } from './workspace-canvas.agent-status-watc
 import { launchApp, seedWorkspaceState } from './workspace-canvas.helpers'
 
 test.describe('managed Agent tool process reaping with real Codex', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Codex CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Codex CLI',
+  )
   test.skip(
     process.platform !== 'darwin' && process.platform !== 'linux',
     'POSIX lifecycle regression',
@@ -32,7 +35,7 @@ test.describe('managed Agent tool process reaping with real Codex', () => {
         ),
         contentType: 'text/plain',
       })
-      const root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-codex-reap-')))
+      const root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-codex-reap-')))
       const workspace = join(root, 'workspace')
       const codexHome = join(root, 'codex-home')
       const marker = join(root, 'tool-pids')
@@ -52,7 +55,7 @@ test.describe('managed Agent tool process reaping with real Codex', () => {
           'name = "mock"',
           `base_url = "${api.url}"`,
           'wire_api = "responses"',
-          'env_key = "OPENCOVE_TEST_MOCK_API_KEY"',
+          'env_key = "ECLIPSE_CODE_TEST_MOCK_API_KEY"',
           `[projects."${workspace}"]`,
           'trust_level = "trusted"',
           '',
@@ -62,9 +65,9 @@ test.describe('managed Agent tool process reaping with real Codex', () => {
         userDataDir: join(root, 'user-data'),
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-          OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_MOCK_API_KEY: 'opencove-local-diagnostic-not-a-real-key',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_MOCK_API_KEY: 'eclipse-code-local-diagnostic-not-a-real-key',
           CODEX_HOME: codexHome,
         },
       })
@@ -111,7 +114,7 @@ test.describe('managed Agent tool process reaping with real Codex', () => {
         const snapshot = () =>
           window.evaluate(
             id =>
-              window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+              window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
                 kind: 'query',
                 id: 'agent.get',
                 payload: { sessionId: id },
@@ -150,7 +153,7 @@ test.describe('managed Agent tool process reaping with real Codex', () => {
           await agent.locator('.terminal-node__close').click()
         } else {
           await window.evaluate(async id => {
-            await window.opencoveApi.controlSurface.invoke({
+            await window.eclipseCodeApi.controlSurface.invoke({
               kind: 'command',
               id: 'node.delete',
               payload: { nodeId: id },

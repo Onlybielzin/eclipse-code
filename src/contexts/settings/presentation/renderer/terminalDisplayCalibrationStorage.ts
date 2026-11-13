@@ -13,9 +13,10 @@ import {
   type TerminalDisplayReference,
 } from '../../domain/terminalDisplayCalibration'
 
-export const TERMINAL_DISPLAY_CALIBRATION_STORAGE_KEY = 'opencove:terminal-display-calibration:v1'
-const ENVIRONMENT_STORAGE_KEY = 'opencove:terminal-display-calibration-environment:v1'
-const SUPPRESSION_STORAGE_KEY = 'opencove:terminal-display-calibration-suppression:v1'
+export const TERMINAL_DISPLAY_CALIBRATION_STORAGE_KEY =
+  'eclipse-code:terminal-display-calibration:v1'
+const ENVIRONMENT_STORAGE_KEY = 'eclipse-code:terminal-display-calibration-environment:v1'
+const SUPPRESSION_STORAGE_KEY = 'eclipse-code:terminal-display-calibration-suppression:v1'
 export function isTerminalDisplayCalibrationStorageKey(key: string | null): boolean {
   return (
     key === null ||
@@ -25,7 +26,7 @@ export function isTerminalDisplayCalibrationStorageKey(key: string | null): bool
   )
 }
 export const TERMINAL_DISPLAY_CALIBRATION_CHANGE_EVENT =
-  'opencove:terminal-display-calibration-changed'
+  'eclipse-code:terminal-display-calibration-changed'
 
 export type TerminalDisplayCalibrationStorageMetadata = TerminalDisplayCalibrationMetadata
 

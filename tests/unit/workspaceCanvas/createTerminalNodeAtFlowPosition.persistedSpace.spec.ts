@@ -57,7 +57,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
     const onSpacesChange = vi.fn()
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -74,7 +74,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
                     {
                       id: 'space-1',
                       name: 'Feature',
-                      directoryPath: '/repo/.opencove/worktrees/feature-a',
+                      directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
                       targetMountId: 'mount-1',
                       labelColor: null,
                       nodeIds: [],
@@ -129,7 +129,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
         workspaceId: 'workspace-1',
         spaceId: 'space-1',
         mountId: 'mount-1',
-        cwdUri: 'file:///repo/.opencove/worktrees/feature-a',
+        cwdUri: 'file:///repo/.eclipse-code/worktrees/feature-a',
         profileId: null,
         cols: expectedGeometry.cols,
         rows: expectedGeometry.rows,
@@ -139,8 +139,8 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
     expect(createNodeForSession).toHaveBeenCalledWith(
       expect.objectContaining({
         nodeId: '00000000-0000-4000-8000-000000000001',
-        executionDirectory: '/repo/.opencove/worktrees/feature-a',
-        expectedDirectory: '/repo/.opencove/worktrees/feature-a',
+        executionDirectory: '/repo/.eclipse-code/worktrees/feature-a',
+        expectedDirectory: '/repo/.eclipse-code/worktrees/feature-a',
       }),
     )
     const nextSpaces = onSpacesChange.mock.calls[0]?.[0]
@@ -148,7 +148,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
       expect.objectContaining({
         id: 'space-1',
         name: 'Feature',
-        directoryPath: '/repo/.opencove/worktrees/feature-a',
+        directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
         targetMountId: 'mount-1',
         nodeIds: ['00000000-0000-4000-8000-000000000001'],
       }),
@@ -183,7 +183,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
     }
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           spawn: ptySpawn,
         },
@@ -200,7 +200,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
                     {
                       id: 'space-1',
                       name: 'Feature',
-                      directoryPath: '/repo/.opencove/worktrees/feature-a',
+                      directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
                       targetMountId: 'mount-1',
                       labelColor: null,
                       nodeIds: [],
@@ -240,7 +240,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
 
     expect(ptySpawn).toHaveBeenCalledWith(
       expect.objectContaining({
-        cwd: '/repo/.opencove/worktrees/feature-a',
+        cwd: '/repo/.eclipse-code/worktrees/feature-a',
       }),
     )
     const nextSpaces = onSpacesChange.mock.calls[0]?.[0]
@@ -254,7 +254,7 @@ describe('createTerminalNodeAtFlowPosition persisted space launch', () => {
       expect.objectContaining({
         id: 'space-1',
         name: 'Feature',
-        directoryPath: '/repo/.opencove/worktrees/feature-a',
+        directoryPath: '/repo/.eclipse-code/worktrees/feature-a',
         targetMountId: 'mount-1',
         nodeIds: ['00000000-0000-4000-8000-000000000001'],
       }),

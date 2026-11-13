@@ -70,7 +70,7 @@ let focusListeners = new Set<(state: WindowFocusState) => void>()
 
 function stubWindowFocus(isFocused: boolean): void {
   focusListeners = new Set()
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     value: {
       windowChrome: {
@@ -347,7 +347,7 @@ describe('AgentIsland', () => {
     expect(cards()[0]?.dataset.leaving).toBeUndefined()
   })
 
-  it('holds the countdown while OpenCove is behind another app', async () => {
+  it('holds the countdown while Eclipse Code is behind another app', async () => {
     stubWindowFocus(false)
     seed([notification('n-1', 'codex · Fix tests', 1)])
     render(<Harness />)

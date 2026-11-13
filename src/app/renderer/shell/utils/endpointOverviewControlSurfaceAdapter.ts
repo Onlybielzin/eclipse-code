@@ -10,7 +10,7 @@ export function createEndpointOverviewControlSurfaceAdapter(): EndpointOverviewC
   return {
     list: async () => {
       const result =
-        await window.opencoveApi.controlSurface.invoke<ListWorkerEndpointOverviewsResult>({
+        await window.eclipseCodeApi.controlSurface.invoke<ListWorkerEndpointOverviewsResult>({
           kind: 'query',
           id: 'endpoint.overview.list',
           payload: null,
@@ -18,15 +18,17 @@ export function createEndpointOverviewControlSurfaceAdapter(): EndpointOverviewC
       return result.endpoints
     },
     prepare: async input => {
-      const result = await window.opencoveApi.controlSurface.invoke<PrepareWorkerEndpointResult>({
-        kind: 'command',
-        id: 'endpoint.prepare',
-        payload: input,
-      })
+      const result = await window.eclipseCodeApi.controlSurface.invoke<PrepareWorkerEndpointResult>(
+        {
+          kind: 'command',
+          id: 'endpoint.prepare',
+          payload: input,
+        },
+      )
       return result.overview
     },
     repair: async input => {
-      const result = await window.opencoveApi.controlSurface.invoke<RepairWorkerEndpointResult>({
+      const result = await window.eclipseCodeApi.controlSurface.invoke<RepairWorkerEndpointResult>({
         kind: 'command',
         id: 'endpoint.repair',
         payload: input,

@@ -9,7 +9,7 @@ import { installEndpointsApi } from './endpointsSection.testUtils'
 describe('EndpointsSection SSH config picker', () => {
   afterEach(async () => {
     await applyUiLanguage('en')
-    delete (window as { opencoveApi?: unknown }).opencoveApi
+    delete (window as { eclipseCodeApi?: unknown }).eclipseCodeApi
     vi.restoreAllMocks()
   })
 

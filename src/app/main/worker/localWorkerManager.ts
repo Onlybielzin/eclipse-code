@@ -11,7 +11,7 @@ import type { Readable } from 'node:stream'
 import type { WorkerConnectionInfoDto, WorkerStatusResult } from '../../../shared/contracts/dto'
 import { resolveControlSurfaceConnectionInfoFromUserData } from '../controlSurface/remote/resolveControlSurfaceConnectionInfo'
 import { WORKER_CONTROL_SURFACE_CONNECTION_FILE } from '../../../shared/constants/controlSurface'
-import { resolvePackagedWorkerScriptPath } from '../../../shared/runtime/opencoveRuntimePaths'
+import { resolvePackagedWorkerScriptPath } from '../../../shared/runtime/eclipseCodeRuntimePaths'
 import { removeConnectionFile } from '../controlSurface/http/connectionFile'
 import {
   isWorkerPidPossiblyAlive,
@@ -262,9 +262,9 @@ function spawnWorkerChild(args: string[], userDataPath: string): WorkerChildProc
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
-      OPENCOVE_USER_DATA_DIR: userDataPath,
-      ...(isTruthyEnv(process.env['OPENCOVE_DEV_USE_SHARED_USER_DATA'])
-        ? { OPENCOVE_DEV_USE_SHARED_USER_DATA: '1' }
+      ECLIPSE_CODE_USER_DATA_DIR: userDataPath,
+      ...(isTruthyEnv(process.env['ECLIPSE_CODE_DEV_USE_SHARED_USER_DATA'])
+        ? { ECLIPSE_CODE_DEV_USE_SHARED_USER_DATA: '1' }
         : {}),
       ...resolveForwardedLocalWorkerDiagnosticsEnv(),
     },

@@ -70,7 +70,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 1, state: firstState },
           }),
@@ -79,7 +79,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 2, state: secondState },
           }),
@@ -122,7 +122,7 @@ describe('remote persistence store', () => {
     const fetchMock = vi.fn().mockResolvedValue({
       text: async () =>
         JSON.stringify({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { revision: 0, state: null },
         }),
@@ -157,44 +157,44 @@ describe('remote persistence store', () => {
     [
       'a success envelope without an ok discriminator',
       {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         value: { revision: 0, state: null },
       },
     ],
-    ['a success envelope without a value', { __opencoveControlEnvelope: true, ok: true }],
-    ['a null success value', { __opencoveControlEnvelope: true, ok: true, value: null }],
+    ['a success envelope without a value', { __eclipseCodeControlEnvelope: true, ok: true }],
+    ['a null success value', { __eclipseCodeControlEnvelope: true, ok: true, value: null }],
     [
       'a value without revision',
-      { __opencoveControlEnvelope: true, ok: true, value: { state: null } },
+      { __eclipseCodeControlEnvelope: true, ok: true, value: { state: null } },
     ],
     [
       'a value without state',
-      { __opencoveControlEnvelope: true, ok: true, value: { revision: 0 } },
+      { __eclipseCodeControlEnvelope: true, ok: true, value: { revision: 0 } },
     ],
     [
       'a negative revision',
-      { __opencoveControlEnvelope: true, ok: true, value: { revision: -1, state: null } },
+      { __eclipseCodeControlEnvelope: true, ok: true, value: { revision: -1, state: null } },
     ],
     [
       'a fractional revision',
-      { __opencoveControlEnvelope: true, ok: true, value: { revision: 1.5, state: null } },
+      { __eclipseCodeControlEnvelope: true, ok: true, value: { revision: 1.5, state: null } },
     ],
     [
       'an unsafe revision',
       {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: true,
         value: { revision: Number.MAX_SAFE_INTEGER + 1, state: null },
       },
     ],
     [
       'an invalid persisted state',
-      { __opencoveControlEnvelope: true, ok: true, value: { revision: 0, state: {} } },
+      { __eclipseCodeControlEnvelope: true, ok: true, value: { revision: 0, state: {} } },
     ],
     [
       'a nested malformed persisted state',
       {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: true,
         value: {
           revision: 1,
@@ -242,7 +242,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 7, state: initialState },
           }),
@@ -251,7 +251,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 9, state: {} },
           }),
@@ -260,7 +260,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 8 },
           }),
@@ -297,7 +297,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 1, state: initialState },
           }),
@@ -306,7 +306,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: false,
             error: {
               code: 'persistence.invalid_state',
@@ -318,7 +318,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 2, state: remoteState },
           }),
@@ -327,7 +327,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 3 },
           }),
@@ -358,7 +358,7 @@ describe('remote persistence store', () => {
     const fetchMock = vi.fn().mockResolvedValue({
       text: async () =>
         JSON.stringify({
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { revision: 7, state: {} },
         }),
@@ -400,7 +400,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 7, state: initialState },
           }),
@@ -409,7 +409,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: false,
             error: {
               code: 'persistence.invalid_state',
@@ -421,7 +421,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { revision: 8, state: {} },
           }),
@@ -448,7 +448,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: 'PLACEHOLDER_SCROLLBACK',
           }),
@@ -457,7 +457,7 @@ describe('remote persistence store', () => {
       .mockResolvedValueOnce({
         text: async () =>
           JSON.stringify({
-            __opencoveControlEnvelope: true,
+            __eclipseCodeControlEnvelope: true,
             ok: true,
             value: { ok: true, level: 'full', bytes: 19 },
           }),

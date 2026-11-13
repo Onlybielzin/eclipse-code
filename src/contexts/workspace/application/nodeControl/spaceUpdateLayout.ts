@@ -41,7 +41,7 @@ export function planSpaceUpdate(workspace: NodeControlWorkspace, input: UpdateSp
     if (!target.rect) {
       throw createAppError('common.invalid_input', {
         debugMessage:
-          'This space has no canvas boundary. Open it in OpenCove before changing its frame.',
+          'This space has no canvas boundary. Open it in Eclipse Code before changing its frame.',
       })
     }
     const ancestors = collectAncestorSpaces(spaces, target.id)
@@ -64,7 +64,7 @@ export function planSpaceUpdate(workspace: NodeControlWorkspace, input: UpdateSp
       if (!space.rect) {
         throw createAppError('common.invalid_input', {
           debugMessage:
-            'An ancestor space has no canvas boundary. Open it in OpenCove before changing this frame.',
+            'An ancestor space has no canvas boundary. Open it in Eclipse Code before changing this frame.',
         })
       }
       let rect = space.rect

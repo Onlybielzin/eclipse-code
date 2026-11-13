@@ -52,7 +52,7 @@ export function AppStartupLoadingState(): React.JSX.Element {
         <div className="app-startup-state__content">
           <div className="app-startup-state__badge">
             <span className="app-startup-state__badge-dot" aria-hidden="true" />
-            <span>OpenCove</span>
+            <span>Eclipse Code</span>
           </div>
           <h1>{t('appStartupState.title')}</h1>
           {connectionError ? (

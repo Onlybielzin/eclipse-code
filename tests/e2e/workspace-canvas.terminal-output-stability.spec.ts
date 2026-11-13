@@ -25,7 +25,7 @@ type OutputSample = {
 }
 
 type TranscriptDebugWindow = Window & {
-  __OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__?: (nodeId: string) => string
+  __ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__?: (nodeId: string) => string
 }
 
 function geometryKey(geometry: Geometry): string {
@@ -126,20 +126,20 @@ async function forceDomRendererOnNextNavigation(window: Page): Promise<void> {
 
 async function readRuntimeSessionId(window: Page): Promise<string | null> {
   return await window.evaluate(nodeId => {
-    return window.__opencoveTerminalSelectionTestApi?.getRuntimeSessionId(nodeId) ?? null
+    return window.__eclipseCodeTerminalSelectionTestApi?.getRuntimeSessionId(nodeId) ?? null
   }, NODE_ID)
 }
 
 async function readOutputSample(window: Page, sessionId: string): Promise<OutputSample> {
   return await window.evaluate(
     async payload => {
-      const api = window.__opencoveTerminalSelectionTestApi
+      const api = window.__eclipseCodeTerminalSelectionTestApi
       const metrics = api?.getRenderMetrics(payload.nodeId) ?? null
-      const worker = await window.opencoveApi.pty.presentationSnapshot({
+      const worker = await window.eclipseCodeApi.pty.presentationSnapshot({
         sessionId: payload.runtimeSessionId,
       })
       const transcript =
-        (window as TranscriptDebugWindow).__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__?.(
+        (window as TranscriptDebugWindow).__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__?.(
           payload.nodeId,
         ) ?? ''
       const lines = transcript.split('\n')
@@ -177,7 +177,7 @@ async function runProgramAndSample(options: {
 }): Promise<OutputSample[]> {
   // Keep the typed shell command short: a multi-kilobyte inline program can
   // exceed the PTY's canonical input buffer before the shell enters raw mode.
-  const directory = await mkdtemp(path.join(tmpdir(), 'opencove-output-program-'))
+  const directory = await mkdtemp(path.join(tmpdir(), 'eclipse-code-output-program-'))
   const scriptPath = path.join(directory, 'output.cjs')
   await writeFile(scriptPath, options.program)
   try {
@@ -198,7 +198,7 @@ async function runCommandAndSample(options: {
 }): Promise<OutputSample[]> {
   await options.window.evaluate(
     async payload => {
-      await window.opencoveApi.pty.write({
+      await window.eclipseCodeApi.pty.write({
         sessionId: payload.runtimeSessionId,
         data: `${payload.shellCommand}\r`,
       })
@@ -270,7 +270,7 @@ function assertChildTtyReport(options: {
 test.describe('Workspace Canvas - Terminal continuous output stability', () => {
   test('keeps DOM renderer, Worker and child TTY geometry identical during progress and TUI redraws', async () => {
     const { electronApp, window } = await launchApp({
-      env: { OPENCOVE_TERMINAL_DIAGNOSTICS: '1' },
+      env: { ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1' },
     })
 
     try {

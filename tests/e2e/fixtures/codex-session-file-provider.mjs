@@ -14,7 +14,7 @@ if (args.includes('app-server') || args.includes('--config')) {
   throw new Error('Unexpected Codex hook preflight or injection')
 }
 appendFileSync(
-  process.env.OPENCOVE_SESSION_FILE_FIXTURE_LOG,
+  process.env.ECLIPSE_CODE_SESSION_FILE_FIXTURE_LOG,
   JSON.stringify({ event: 'invocation', args }) + '\n',
 )
 const resumeIndex = args.indexOf('resume')
@@ -88,7 +88,7 @@ process.stdin.on('data', chunk => {
 // A screen redraw can overwrite the history banner. Retain what this ready invocation read,
 // independently of both the terminal screen and the file that later turns will append to.
 appendFileSync(
-  process.env.OPENCOVE_SESSION_FILE_FIXTURE_LOG,
+  process.env.ECLIPSE_CODE_SESSION_FILE_FIXTURE_LOG,
   JSON.stringify({ event: 'ready', args, sessionId: id, restoredHistory }) + '\n',
 )
 process.stdout.write('CODEX_FILE_READY=' + id + '\r\n')

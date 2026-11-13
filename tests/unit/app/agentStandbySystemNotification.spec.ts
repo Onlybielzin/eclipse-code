@@ -6,7 +6,7 @@ describe('formatAgentStandbySystemNotification', () => {
     const notification = formatAgentStandbySystemNotification(
       {
         title: 'Codex',
-        workspaceName: 'OpenCove',
+        workspaceName: 'Eclipse Code',
         taskTitle: 'Fix session watcher',
         spaceName: 'Agent Runtime',
       },
@@ -19,7 +19,7 @@ describe('formatAgentStandbySystemNotification', () => {
 
     expect(notification).toEqual({
       title: 'Codex',
-      body: ['Standby · OpenCove', 'Tasks: Fix session watcher', 'Spaces: Agent Runtime'].join(
+      body: ['Standby · Eclipse Code', 'Tasks: Fix session watcher', 'Spaces: Agent Runtime'].join(
         '\n',
       ),
     })

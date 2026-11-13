@@ -53,7 +53,7 @@ function shouldUseSyncDebounce(): boolean {
     return false
   }
 
-  return typeof window.opencoveApi?.sync?.onStateUpdated === 'function'
+  return typeof window.eclipseCodeApi?.sync?.onStateUpdated === 'function'
 }
 
 function resolveDefaultPersistWriteDebounceMs(): number {

@@ -17,11 +17,12 @@ import type {
   SuggestWorktreeNamesResult,
 } from '@shared/contracts/dto'
 
-type WorktreeApiClient = Window['opencoveApi']['worktree']
+type WorktreeApiClient = Window['eclipseCodeApi']['worktree']
 
 function resolveControlSurfaceInvoke(): ((request: unknown) => Promise<unknown>) | null {
-  const invoke = (window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } })
-    .opencoveApi?.controlSurface?.invoke
+  const invoke = (
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   return typeof invoke === 'function' ? (invoke as (request: unknown) => Promise<unknown>) : null
 }
@@ -32,13 +33,13 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
   if (mountId && controlSurfaceInvoke) {
     return {
       listBranches: async (_payload: ListGitBranchesInput): Promise<ListGitBranchesResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'gitWorktree.listBranchesInMount',
           payload: { mountId },
         }),
       listWorktrees: async (_payload: ListGitWorktreesInput): Promise<ListGitWorktreesResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'gitWorktree.listWorktreesInMount',
           payload: { mountId },
@@ -46,7 +47,7 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
       statusSummary: async (
         payload: GetGitStatusSummaryInput,
       ): Promise<GetGitStatusSummaryResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'gitWorktree.statusSummaryInMount',
           payload: { mountId, uri: toFileUri(payload.repoPath) },
@@ -54,13 +55,13 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
       getDefaultBranch: async (
         _payload: GetGitDefaultBranchInput,
       ): Promise<GetGitDefaultBranchResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'query',
           id: 'gitWorktree.getDefaultBranchInMount',
           payload: { mountId },
         }),
       create: async (payload: CreateGitWorktreeInput): Promise<CreateGitWorktreeResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'gitWorktree.createInMount',
           payload: {
@@ -70,7 +71,7 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
           },
         }),
       remove: async (payload: RemoveGitWorktreeInput): Promise<RemoveGitWorktreeResult> =>
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'gitWorktree.removeInMount',
           payload: {
@@ -81,7 +82,7 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
           },
         }),
       renameBranch: async (payload: RenameGitBranchInput): Promise<void> => {
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'gitWorktree.renameBranchInMount',
           payload: {
@@ -96,9 +97,9 @@ export function resolveGitWorktreeApiForMount(mountId: string | null): WorktreeA
       suggestNames: async (
         payload: SuggestWorktreeNamesInput,
       ): Promise<SuggestWorktreeNamesResult> =>
-        await window.opencoveApi.worktree.suggestNames(payload),
+        await window.eclipseCodeApi.worktree.suggestNames(payload),
     }
   }
 
-  return window.opencoveApi?.worktree ?? null
+  return window.eclipseCodeApi?.worktree ?? null
 }

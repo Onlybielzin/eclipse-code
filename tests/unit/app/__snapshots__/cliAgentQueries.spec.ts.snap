@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`agent  help is offline and complete 1`] = `
-"Usage: opencove agent <command> [options]
+"Usage: eclipse-code agent <command> [options]
 
 Commands:
   stop             Stop the agent session bound to a canvas node
@@ -9,16 +9,16 @@ Commands:
   history <clear>  History canvas targets
   list             List live agent run states and node titles
   get              Inspect an agent run-state snapshot with its node title
-  prompt           Send a prompt to an agent window OpenCove launched
+  prompt           Send a prompt to an agent window Eclipse Code launched
   wait             Wait until agents reach a state or finish a turn
   read             Read an agent reply or inspect its current terminal screen
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`agent get help is offline and complete 1`] = `
-"Usage: opencove agent get --node <id> [options]
+"Usage: eclipse-code agent get --node <id> [options]
 
 Inspect an agent run-state snapshot with its node title
 
@@ -38,25 +38,25 @@ Field descriptions:
   lineageStatus  recorded when creation is recorded, root when no parent is recorded, unavailable when lineage cannot be read
 
 Projection example:
-  opencove agent get --node '<id>' --fields nodeId
+  eclipse-code agent get --node '<id>' --fields nodeId
   {"nodeId":"node-123"}
 
 Examples:
-  opencove agent get --node "Reviewer" --pretty
-  opencove agent get --node @self --fields state,quality,turn
+  eclipse-code agent get --node "Reviewer" --pretty
+  eclipse-code agent get --node @self --fields state,quality,turn
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`agent list help is offline and complete 1`] = `
-"Usage: opencove agent list [options]
+"Usage: eclipse-code agent list [options]
 
 List live agent run states and node titles
 
-Returns {epoch, seq, agents}, one row per live agent session. Exited sessions are excluded by agent.list (so --state exited returns no rows); use agent get or wait for a known exited node. taskNodeId is the task whose linkedAgentNodeId points here (null if absent/ambiguous). Titles come from node metadata; null means unbound or deleted. turn.startedAt is epoch milliseconds, or absent when no turn is active. Inside OpenCove, the default scope is your space; --project selects a whole project.
+Returns {epoch, seq, agents}, one row per live agent session. Exited sessions are excluded by agent.list (so --state exited returns no rows); use agent get or wait for a known exited node. taskNodeId is the task whose linkedAgentNodeId points here (null if absent/ambiguous). Titles come from node metadata; null means unbound or deleted. turn.startedAt is epoch milliseconds, or absent when no turn is active. Inside Eclipse Code, the default scope is your space; --project selects a whole project.
 
-When no target is given, inside OpenCove defaults to your own space; project options default to your own project.
+When no target is given, inside Eclipse Code defaults to your own space; project options default to your own project.
 
 Shows up to 50 results in Worker order. Use --full or --limit 0 for all; --limit <n> overrides the default.
 
@@ -78,19 +78,19 @@ Field descriptions:
   lineageStatus  recorded when creation is recorded, root when no parent is recorded, unavailable when lineage cannot be read
 
 Projection example:
-  opencove agent list --fields nodeId
+  eclipse-code agent list --fields nodeId
   {"epoch":"e","seq":1,"agents":[{"nodeId":"node-123"}]}
 
 Examples:
-  opencove agent list -o table
-  opencove agent list --space "Review" --state waiting --fields nodeId,title,state,blockedReason
+  eclipse-code agent list -o table
+  eclipse-code agent list --space "Review" --state waiting --fields nodeId,title,state,blockedReason
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`agent read help is offline and complete 1`] = `
-"Usage: opencove agent read --node <id> [options]
+"Usage: eclipse-code agent read --node <id> [options]
 
 Read an agent reply or inspect its current terminal screen
 
@@ -100,14 +100,14 @@ Loop: prompt → delivery status → wait --turn <turnId> → read --turn <turnI
 
 --screen shows the visible terminal (last 40 lines); --scrollback adds retained history (last 200; --lines 1–5000; none on the alternate screen). Both work for terminals and agent windows and strip ANSI. Inspect --screen for drafts/dialogs before prompting. Reading never sends input. --screen and --scrollback exclude each other and --last/--turn.
 
-Exit codes: 0 readable result (including empty content); 1 unavailable reply/transcript; 2 invalid input; 4 authentication or grant-policy refusal. Detailed fallback rules, truncation, retention and recovery: opencove skill read.
+Exit codes: 0 readable result (including empty content); 1 unavailable reply/transcript; 2 invalid input; 4 authentication or grant-policy refusal. Detailed fallback rules, truncation, retention and recovery: eclipse-code skill read.
 
-deliveryIds are retained correlations of OpenCove deliveries with this turn, including refused or uncertain attempts. Membership proves neither submission nor consumption, and an empty list proves nothing either: delivery records live in memory only, are cleared when OpenCove restarts and expire 30 minutes after resolving; inspect each deliveryId with opencove agent delivery <id>. promptIds are the provider prompt IDs for this turn (Claude continuations included); agent delivery does not accept them.
+deliveryIds are retained correlations of Eclipse Code deliveries with this turn, including refused or uncertain attempts. Membership proves neither submission nor consumption, and an empty list proves nothing either: delivery records live in memory only, are cleared when Eclipse Code restarts and expire 30 minutes after resolving; inspect each deliveryId with eclipse-code agent delivery <id>. promptIds are the provider prompt IDs for this turn (Claude continuations included); agent delivery does not accept them.
 
 Options:
   --node <id>         Select a canvas node by its ID; also accepts @self, @parent, an exact name or a unique ID prefix (6+ characters) (required)
   --last              Read the latest ended turn (default; --turn selects an exact turn)
-  --turn <turnId>     Read exactly this OpenCove turn ID from agent prompt; never falls back
+  --turn <turnId>     Read exactly this Eclipse Code turn ID from agent prompt; never falls back
   --screen            Inspect the current terminal screen as plain text instead of the final message
   --scrollback        Read retained terminal history and screen (default: 200 lines; maximum: 5000)
   --lines <n>         Return the last n rendered lines (positive integer; requires --screen or --scrollback)
@@ -118,23 +118,23 @@ Table output (-o table): not supported.
 Projectable fields: nodeId, sessionId, turnId, promptId, deliveryIds, promptIds, outcome, persisted, memoryOnlyReason, message, messageKind, truncated, source, provider, startedAt, cwd, resumeSessionId
 
 Projection example:
-  opencove agent read --node '<id>' --fields nodeId
+  eclipse-code agent read --node '<id>' --fields nodeId
   {"nodeId":"node-123"}
 
 Examples:
-  opencove agent read --node "Reviewer" --screen
-  opencove agent read --node "Shell" --scrollback --lines 200
-  opencove agent read --node "Reviewer" --screen --lines 20 -o json
-  opencove agent read --node "Reviewer" --last
-  opencove agent read --node node-123 --turn turn-123
-  opencove agent read --node node-123 --turn turn-123 -o json
+  eclipse-code agent read --node "Reviewer" --screen
+  eclipse-code agent read --node "Shell" --scrollback --lines 200
+  eclipse-code agent read --node "Reviewer" --screen --lines 20 -o json
+  eclipse-code agent read --node "Reviewer" --last
+  eclipse-code agent read --node node-123 --turn turn-123
+  eclipse-code agent read --node node-123 --turn turn-123 -o json
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`agent wait help is offline and complete 1`] = `
-"Usage: opencove agent wait --node <selector> (--turn <turnId> | --until idle|waiting|exited|turn-end [--node <selector> ...] [--any|--all]) [--timeout <duration>] [options]
+"Usage: eclipse-code agent wait --node <selector> (--turn <turnId> | --until idle|waiting|exited|turn-end [--node <selector> ...] [--any|--all]) [--timeout <duration>] [options]
 
 Wait until agents reach a state or finish a turn
 
@@ -142,14 +142,14 @@ Wait without sending input. Save turnId: prompt → delivery status → wait --t
 
 --turn selects one exact turn and includes provider continuations. All ended outcomes exit 0; check outcome. --until selects idle, waiting, exited or a future turn-end. Idle requires no active turn and nondegraded evidence. --all remembers fulfilled bindings; a session change resets progress; --any stops on the first success OR waiting/exited observation of an unfulfilled target.
 
-Exit codes: 0 condition met; 1 unavailable history; 2 invalid input; 4 authentication or grant-policy refusal; 10 waiting observed (the agent may need the user — inspect before acting); 11 target exited before the condition was met (a PTY exit that ends the selected turn succeeds with outcome unknown); 124 timeout; 130 interruption. --through-waiting continues when waiting is reported; it does not suppress 11. Resolve in OpenCove, inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Prefer --turn: turn-end cannot resume an already observed completion. Details: opencove skill wait.
+Exit codes: 0 condition met; 1 unavailable history; 2 invalid input; 4 authentication or grant-policy refusal; 10 waiting observed (the agent may need the user — inspect before acting); 11 target exited before the condition was met (a PTY exit that ends the selected turn succeeds with outcome unknown); 124 timeout; 130 interruption. --through-waiting continues when waiting is reported; it does not suppress 11. Resolve in Eclipse Code, inspect agent read --screen with the same connection options and matching session/turn IDs, then repeat the wait. Prefer --turn: turn-end cannot resume an already observed completion. Details: eclipse-code skill wait.
 
-deliveryIds are retained correlations, including refused or uncertain attempts; membership proves neither submission nor consumption. Records expire 30 minutes after resolving and clear on restart: inspect each deliveryId with opencove agent delivery <id>. promptIds are the provider prompt IDs, not delivery IDs.
+deliveryIds are retained correlations, including refused or uncertain attempts; membership proves neither submission nor consumption. Records expire 30 minutes after resolving and clear on restart: inspect each deliveryId with eclipse-code agent delivery <id>. promptIds are the provider prompt IDs, not delivery IDs.
 
 Options:
   --node <id>                             Select a canvas node by its ID; also accepts @self, @parent, an exact name or a unique ID prefix (6+ characters) (required)
   --until <idle|waiting|exited|turn-end>  Condition to observe
-  --turn <turnId>                         Exact OpenCove turn ID returned by agent prompt
+  --turn <turnId>                         Exact Eclipse Code turn ID returned by agent prompt
   --any                                   Stop on the first success or waiting/exited observation of an unfulfilled target
   --all                                   Resolve when all selected nodes match (default)
   --through-waiting                       Continue waiting when a target reports waiting
@@ -163,22 +163,22 @@ Table output (-o table): not supported.
 Projectable fields: nodeId, taskNodeId, sessionId, provider, state, blockedReason, blockedSummary, blockedSummary.kind, blockedSummary.questions, turn, turn.id, turn.startedAt, turn.start, lastTransitionAt, source, quality, turnOutcome, lastEndedTurn, lastEndedTurn.id, lastEndedTurn.outcome, lastEndedTurn.endedAt, completion, completion.nodeId, completion.sessionId, completion.turnId, completion.outcome, endedTurn, endedTurn.id, endedTurn.startedAt, endedTurn.start, endedTurnOutcome, turnId, deliveryIds, promptIds, outcome, endedAt, persisted, memoryOnlyReason
 
 Projection example:
-  opencove agent wait --node node-123 --until idle --fields nodeId,state
+  eclipse-code agent wait --node node-123 --until idle --fields nodeId,state
   {"until":"idle","mode":"all","agents":[{"nodeId":"node-123","state":"idle"}]}
 
 Examples:
-  opencove agent wait --node node-123 --turn turn-123 --timeout 2m
-  opencove agent wait --node "Reviewer" --until idle --timeout 2m
-  opencove agent wait --node node-123 --node node-456 --until waiting --any --timeout 30s
+  eclipse-code agent wait --node node-123 --turn turn-123 --timeout 2m
+  eclipse-code agent wait --node "Reviewer" --until idle --timeout 2m
+  eclipse-code agent wait --node node-123 --node node-456 --until waiting --any --timeout 30s
 
-Global options: see "opencove --help".
+Global options: see "eclipse-code --help".
 "
 `;
 
 exports[`explains session.not_found and next steps 1`] = `
 {
   "code": "session.not_found",
-  "hint": "Run opencove node list to check the selector, then start or resume its agent session before reading.",
+  "hint": "Run eclipse-code node list to check the selector, then start or resume its agent session before reading.",
   "message": "No agent conversation was found for this node.",
   "retryable": false,
 }
@@ -187,7 +187,7 @@ exports[`explains session.not_found and next steps 1`] = `
 exports[`explains session.transcript_not_ready and next steps 1`] = `
 {
   "code": "session.transcript_not_ready",
-  "hint": "Use "opencove agent wait --node node-123456 --until idle", then read again. Inspect the terminal with "opencove agent read --node node-123456 --screen".",
+  "hint": "Use "eclipse-code agent wait --node node-123456 --until idle", then read again. Inspect the terminal with "eclipse-code agent read --node node-123456 --screen".",
   "message": "No readable final message is available for this session.",
   "retryable": false,
 }

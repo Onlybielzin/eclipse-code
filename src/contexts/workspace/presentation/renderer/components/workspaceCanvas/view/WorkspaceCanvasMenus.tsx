@@ -12,6 +12,7 @@ export function WorkspaceCanvasMenus({
   createPluginNodeFromContextMenu,
   openTaskCreator,
   openRoleCreator,
+  createDefaultTeam,
   openAgentLauncher,
   openAgentLauncherForProvider,
   projectRoles,
@@ -60,6 +61,7 @@ export function WorkspaceCanvasMenus({
   | 'createPluginNodeFromContextMenu'
   | 'openTaskCreator'
   | 'openRoleCreator'
+  | 'createDefaultTeam'
   | 'openAgentLauncher'
   | 'openAgentLauncherForProvider'
   | 'projectRoles'
@@ -118,6 +120,7 @@ export function WorkspaceCanvasMenus({
         websiteWindowsEnabled={agentSettings.websiteWindowPolicy.enabled}
         openTaskCreator={openTaskCreator}
         openRoleCreator={openRoleCreator}
+        createDefaultTeam={createDefaultTeam}
         openAgentLauncher={openAgentLauncher}
         agentProviderOrder={agentSettings.agentProviderOrder}
         agentExecutablePathOverrideByProvider={agentSettings.agentExecutablePathOverrideByProvider}

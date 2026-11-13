@@ -1,8 +1,8 @@
-# OpenCove plugin design system
+# Eclipse Code plugin design system
 
 Read this before designing a plugin view. It is the default visual baseline for
-OpenCove plugins, shipped beside the API guide. It is self-contained: an author
-does not need OpenCove source, internal React components or a separate UI package.
+Eclipse Code plugins, shipped beside the API guide. It is self-contained: an author
+does not need Eclipse Code source, internal React components or a separate UI package.
 
 The goal is a useful window on a shared canvas: recognizable controls, readable
 content and enough room for neighboring windows. Adapt these defaults when the
@@ -13,7 +13,7 @@ and accessibility requirements below intact.
 
 | Level | Responsibility |
 | --- | --- |
-| Host contract | OpenCove owns the outer frame, header, identity, focus, drag, resize, collapse, close and creation effects. Do not draw a second window shell. |
+| Host contract | Eclipse Code owns the outer frame, header, identity, focus, drag, resize, collapse, close and creation effects. Do not draw a second window shell. |
 | Recommended baseline | Follow the typography, density, control states and theme colors below. Deviations should serve a concrete interaction. |
 | Content design | Content and layouts can have their own identity while controls, spacing and interaction states remain consistent. |
 
@@ -26,7 +26,7 @@ Identity artwork is content, not a replacement for host colors.
 Start with the smallest arrangement that supports the main task:
 
 ```text
-┌ Host header: icon · title · collapse · close ┐  ← supplied by OpenCove
+┌ Host header: icon · title · collapse · close ┐  ← supplied by Eclipse Code
 │ Search / view choice              actions  │  ← optional compact toolbar
 │                                            │
 │ Main content                               │  ← gets the available space

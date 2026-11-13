@@ -148,7 +148,7 @@ export async function createTerminalNodeAtFlowPosition({
 
   try {
     spawned = mountId
-      ? await window.opencoveApi.controlSurface.invoke<SpawnTerminalResult>({
+      ? await window.eclipseCodeApi.controlSurface.invoke<SpawnTerminalResult>({
           kind: 'command',
           id: 'pty.spawnInMount',
           payload: {
@@ -182,7 +182,7 @@ export async function createTerminalNodeAtFlowPosition({
                 : {}),
             },
           })
-        : await window.opencoveApi.pty.spawn({
+        : await window.eclipseCodeApi.pty.spawn({
             canvasNodeId,
             spaceId: targetSpace?.id,
             cwd: resolvedCwd,

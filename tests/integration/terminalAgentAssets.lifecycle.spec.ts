@@ -28,7 +28,7 @@ afterEach(async () => {
 })
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-assets-test-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-assets-test-'))
   roots.push(root)
   const options = {
     parentDirectory: root,
@@ -63,7 +63,10 @@ describe('terminal Agent asset lifetime', () => {
       expect(repaired.every(result => result.rootDirectory === assets.rootDirectory)).toBe(true)
       expect(await readFile(assets.shellLauncherPath, 'utf8')).toBe(original)
       expect(await readdir(assets.shimDirectory)).toHaveLength(9)
-      expect((await readdir(assets.cliShimDirectory)).sort()).toEqual(['opencove', 'opencove.cmd'])
+      expect((await readdir(assets.cliShimDirectory)).sort()).toEqual([
+        'eclipse-code',
+        'eclipse-code.cmd',
+      ])
     },
   )
 

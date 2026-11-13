@@ -4,6 +4,7 @@ import {
   FocusIcon,
   FolderPlusIcon,
   PackageIcon,
+  PlusIcon,
   RobotIcon,
   SearchIcon,
   SettingsIcon,
@@ -12,6 +13,7 @@ import {
   SidebarOpenIcon,
 } from '@app/renderer/components/ui/pixelIcons'
 import { useTranslation } from '@app/renderer/i18n'
+import { requestNewTask } from '@contexts/workspace/presentation/renderer/components/workspaceCanvas/tasks/taskEvents'
 import {
   describeKeyChord,
   resolveCommandKeybinding,
@@ -81,7 +83,7 @@ export function useCommandCenterSections({
   )
 
   return useMemo<CommandCenterSection[]>(() => {
-    const platform = window.opencoveApi?.meta?.platform
+    const platform = window.eclipseCodeApi?.meta?.platform
     const shortcutFor = (commandId: AppCommandId) =>
       describeKeyChord(
         platform,
@@ -180,6 +182,17 @@ export function useCommandCenterSections({
     }))
 
     const commands: CommandCenterItem[] = [
+      ...(activeWorkspace
+        ? [
+            {
+              id: 'command:new-task',
+              title: t('commandCenter.commands.newTask'),
+              keywords: t('commandCenter.commands.newTaskHint'),
+              icon: <PlusIcon size={18} />,
+              onSelect: requestNewTask,
+            },
+          ]
+        : []),
       ...(activeWorkspace
         ? [
             {

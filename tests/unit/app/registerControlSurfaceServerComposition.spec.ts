@@ -18,7 +18,7 @@ describe('registerControlSurfaceServer composition', () => {
     }))
 
     vi.doMock('electron', () => ({
-      app: { getPath: vi.fn(() => '/tmp/opencove-user-data') },
+      app: { getPath: vi.fn(() => '/tmp/eclipse-code-user-data') },
       shell: { trashItem: vi.fn() },
       webContents: { getAllWebContents: () => [] },
     }))
@@ -76,7 +76,7 @@ describe('registerControlSurfaceServer composition', () => {
     )
     expect(registerControlSurfaceHttpServer).toHaveBeenCalledWith(
       expect.objectContaining({
-        userDataPath: '/tmp/opencove-user-data',
+        userDataPath: '/tmp/eclipse-code-user-data',
         ptyRuntime,
         ownsPtyRuntime: true,
       }),

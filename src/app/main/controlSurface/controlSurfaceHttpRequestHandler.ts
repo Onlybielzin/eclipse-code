@@ -71,7 +71,7 @@ function requiresPrivateBearer(operationId: string): boolean {
 
 function sendForbidden(res: ServerResponse): void {
   sendJson(res, 403, {
-    __opencoveControlEnvelope: true,
+    __eclipseCodeControlEnvelope: true,
     ok: false,
     error: createAppErrorDescriptor('control_surface.unauthorized'),
   })
@@ -284,13 +284,13 @@ export function createControlSurfaceHttpRequestHandler(
       return
     }
 
-    const clientProtocol = req.headers['x-opencove-protocol']
+    const clientProtocol = req.headers['x-eclipse-code-protocol']
     if (
       clientProtocol !== undefined &&
       clientProtocol !== String(CONTROL_SURFACE_PROTOCOL_VERSION)
     ) {
       sendJson(res, 200, {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: false,
         error: createAppErrorDescriptor('common.protocol_incompatible', {
           params: {
@@ -313,7 +313,7 @@ export function createControlSurfaceHttpRequestHandler(
         !sessionGrantAllowsOperation(request.id, auth.grant.tier)
       ) {
         sendJson(res, 403, {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: sessionGrantDeniedError(request.id, auth.grant.tier),
         })
@@ -357,7 +357,7 @@ export function createControlSurfaceHttpRequestHandler(
       sendJson(res, 200, result)
     } catch (error) {
       sendJson(res, 400, {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: false,
         error: createAppErrorDescriptor('common.invalid_input', {
           debugMessage: error instanceof Error ? error.message : 'Invalid request payload.',

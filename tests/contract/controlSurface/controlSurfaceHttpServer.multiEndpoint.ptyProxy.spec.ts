@@ -27,9 +27,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
   it('proxies remote PTY sessions via the home worker', async () => {
-    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-home-pty-'))
-    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-m6-remote-pty-'))
-    const remoteRootPath = await mkdtemp(join(tmpdir(), 'opencove-m6-remote-root-'))
+    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-home-pty-'))
+    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-remote-pty-'))
+    const remoteRootPath = await mkdtemp(join(tmpdir(), 'eclipse-code-m6-remote-root-'))
 
     const homeConnectionFileName = 'control-surface.m6.home.pty.test.json'
     const remoteConnectionFileName = 'control-surface.m6.remote.pty.test.json'
@@ -184,7 +184,7 @@ describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
       expect(typeof remoteSessionId).toBe('string')
 
       const homeWsUrl = toWsUrl(homeBaseUrl, '/pty', { token: 'home-token' })
-      const ws = new WebSocket(homeWsUrl, 'opencove-pty.v1')
+      const ws = new WebSocket(homeWsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         ws.once('open', resolvePromise)
         ws.once('error', rejectPromise)
@@ -286,7 +286,7 @@ describe('Control Surface HTTP server (multi-endpoint orchestration)', () => {
       })
 
       const remoteWsUrl = toWsUrl(remoteBaseUrl, '/pty', { token: 'remote-token' })
-      const remoteWs = new WebSocket(remoteWsUrl, 'opencove-pty.v1')
+      const remoteWs = new WebSocket(remoteWsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         remoteWs.once('open', resolvePromise)
         remoteWs.once('error', rejectPromise)

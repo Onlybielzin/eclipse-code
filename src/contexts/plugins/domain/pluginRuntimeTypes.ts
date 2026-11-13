@@ -34,7 +34,7 @@ export interface LocalPluginPackage {
     sidebar?: PluginSidebarDeclaration[]
   }
   platforms?: Array<'darwin' | 'linux' | 'win32'>
-  engines?: { opencove: string }
+  engines?: { eclipseCode: string }
 }
 
 export interface PluginDetails extends PluginThemeResources {

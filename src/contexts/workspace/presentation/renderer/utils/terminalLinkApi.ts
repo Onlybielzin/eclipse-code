@@ -10,10 +10,10 @@ import { canOpenSystemPath, getSystemFileOpenCapability, openSystemPath } from '
 export const statTerminalLink: TerminalLinkStatPort = async ({ uri, mountId, endpointId }) => {
   try {
     if (mountId) {
-      if (!window.opencoveApi.controlSurface) {
+      if (!window.eclipseCodeApi.controlSurface) {
         return { reason: 'unavailable' }
       }
-      return await window.opencoveApi.controlSurface.invoke({
+      return await window.eclipseCodeApi.controlSurface.invoke({
         kind: 'query',
         id: 'filesystem.statInMount',
         payload: { mountId, uri },
@@ -22,7 +22,7 @@ export const statTerminalLink: TerminalLinkStatPort = async ({ uri, mountId, end
     if (endpointId && endpointId !== 'local') {
       return { reason: 'unavailable' }
     }
-    return await window.opencoveApi.filesystem.stat({ uri })
+    return await window.eclipseCodeApi.filesystem.stat({ uri })
   } catch (error) {
     const descriptor = toAppErrorDescriptor(error)
     const reason = descriptor.params?.reason
@@ -70,7 +70,7 @@ export async function getTerminalLinkEnvironment(
   endpointId: string,
 ): Promise<{ platform: 'windows' | 'posix'; home: string; hostname?: string } | null> {
   try {
-    const result = await window.opencoveApi.controlSurface.invoke({
+    const result = await window.eclipseCodeApi.controlSurface.invoke({
       kind: 'query',
       id: 'endpoint.homeDirectory',
       payload: { endpointId },

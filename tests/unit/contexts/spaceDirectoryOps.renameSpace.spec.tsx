@@ -24,7 +24,7 @@ describe('useWorkspaceCanvasSpaceDirectoryOps renameSpaceTo', () => {
         rect: null,
       },
     ]
-    const nextDirectoryPath = '/repo/.opencove/worktrees/feat-inbox'
+    const nextDirectoryPath = '/repo/.eclipse-code/worktrees/feat-inbox'
     let directorySeenDuringOnSpacesChange: string | null = null
 
     function Harness() {
@@ -126,7 +126,7 @@ describe('useWorkspaceCanvasSpaceDirectoryOps renameSpaceTo', () => {
           <button
             type="button"
             onClick={() => {
-              updateSpaceDirectory('space-1', '/repo/.opencove/worktrees/feat-inbox', {
+              updateSpaceDirectory('space-1', '/repo/.eclipse-code/worktrees/feat-inbox', {
                 renameSpaceTo: 'feat/inbox',
               })
             }}
@@ -143,7 +143,7 @@ describe('useWorkspaceCanvasSpaceDirectoryOps renameSpaceTo', () => {
 
     expect(screen.getByTestId('space-name')).toHaveTextContent('feat/inbox')
     expect(screen.getByTestId('space-directory')).toHaveTextContent(
-      '/repo/.opencove/worktrees/feat-inbox',
+      '/repo/.eclipse-code/worktrees/feat-inbox',
     )
     expect(closeNode).not.toHaveBeenCalled()
     expect(onRequestPersistFlush).toHaveBeenCalledTimes(1)

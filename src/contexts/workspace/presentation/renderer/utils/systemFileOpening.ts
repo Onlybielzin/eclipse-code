@@ -12,11 +12,11 @@ interface SystemFileSource {
 }
 
 export async function getSystemFileOpenCapability(): Promise<boolean> {
-  if (window.opencoveApi?.meta?.runtime !== 'electron') {
+  if (window.eclipseCodeApi?.meta?.runtime !== 'electron') {
     return false
   }
   try {
-    const config = await window.opencoveApi.workerClient?.getConfig()
+    const config = await window.eclipseCodeApi.workerClient?.getConfig()
     return config?.mode === 'standalone' || config?.mode === 'local'
   } catch {
     return false
@@ -30,8 +30,8 @@ export function canOpenSystemPath(source: SystemFileSource, hasLocalSystemAccess
   return (
     hasLocalSystemAccess &&
     isLocal &&
-    window.opencoveApi?.meta?.runtime === 'electron' &&
-    typeof window.opencoveApi.workspace?.openPath === 'function'
+    window.eclipseCodeApi?.meta?.runtime === 'electron' &&
+    typeof window.eclipseCodeApi.workspace?.openPath === 'function'
   )
 }
 
@@ -44,7 +44,7 @@ export async function openSystemPath(
     return false
   }
   // Main retains the approved-path guard; opening a file grants no new filesystem authority.
-  await window.opencoveApi.workspace.openPath({ path, openerId: 'finder' })
+  await window.eclipseCodeApi.workspace.openPath({ path, openerId: 'finder' })
   return true
 }
 
@@ -56,7 +56,7 @@ async function resolveSystemFilePath(reference: SystemFileReference): Promise<st
       parsed.protocol !== 'file:' ||
       parsed.search ||
       parsed.hash ||
-      (parsed.host && window.opencoveApi?.meta?.platform !== 'win32')
+      (parsed.host && window.eclipseCodeApi?.meta?.platform !== 'win32')
     ) {
       return null
     }
@@ -72,7 +72,7 @@ async function resolveSystemFilePath(reference: SystemFileReference): Promise<st
   }
   if (reference.mountId !== null) {
     try {
-      const target = await window.opencoveApi.controlSurface.invoke<ResolveMountTargetResult>({
+      const target = await window.eclipseCodeApi.controlSurface.invoke<ResolveMountTargetResult>({
         kind: 'query',
         id: 'mountTarget.resolve',
         payload: { mountId: reference.mountId },
@@ -104,12 +104,12 @@ export async function openSystemFile(
   }
   const stat =
     reference.mountId !== null
-      ? await window.opencoveApi.controlSurface.invoke<FileSystemStat>({
+      ? await window.eclipseCodeApi.controlSurface.invoke<FileSystemStat>({
           kind: 'query',
           id: 'filesystem.statInMount',
           payload: reference,
         })
-      : await window.opencoveApi.filesystem.stat({ uri: reference.uri })
+      : await window.eclipseCodeApi.filesystem.stat({ uri: reference.uri })
   if (!isCurrent() || stat.kind !== 'file') {
     return false
   }

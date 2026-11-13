@@ -11,7 +11,7 @@ function bufferToHex(buffer) {
 }
 
 export async function runStdinEchoScenario() {
-  process.stdout.write('[opencove-test-agent] stdin-echo ready\n')
+  process.stdout.write('[eclipse-code-test-agent] stdin-echo ready\n')
 
   process.stdin.on('data', chunk => {
     const hex = bufferToHex(chunk)
@@ -19,7 +19,7 @@ export async function runStdinEchoScenario() {
       return
     }
 
-    process.stdout.write(`[opencove-test-agent] stdin_hex=${hex}\n`)
+    process.stdout.write(`[eclipse-code-test-agent] stdin_hex=${hex}\n`)
   })
 
   // Keep alive long enough for E2E to send a few keystrokes.

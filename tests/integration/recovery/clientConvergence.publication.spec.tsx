@@ -157,7 +157,7 @@ it('accepts a row-only settled fallback after definitive lookup', async () => {
     bindingRevision: 1,
     observedRevision: 1,
   }
-  window.opencoveApi.controlSurface = {
+  window.eclipseCodeApi.controlSurface = {
     invoke: vi.fn(async () => ({
       retired: false,
       managedClaudeBinding: binding,
@@ -177,7 +177,7 @@ it('retains an unknown raw replacement even when its submitted text cannot be pa
     write = vi.fn(async () => {
       throw new Error('Response lost')
     })
-  window.opencoveApi.persistence.writeWorkspaceStateRaw = write
+  window.eclipseCodeApi.persistence.writeWorkspaceStateRaw = write
   const { writeRawPersistedState } =
     await import('@contexts/workspace/presentation/renderer/utils/persistence/write')
   expect(await writeRawPersistedState('unconfirmed import')).toMatchObject({

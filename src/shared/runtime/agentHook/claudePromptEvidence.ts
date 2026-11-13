@@ -52,7 +52,7 @@ export function claudePromptDigest(value: unknown): string | undefined {
   }
   const normalized = trimTrailingAsciiWhitespace(value.replace(/\r\n|\r/g, '\n'))
   return createHash('sha256')
-    .update('opencove-prompt-evidence-claude-code-v1\0', 'utf8')
+    .update('eclipse-code-prompt-evidence-claude-code-v1\0', 'utf8')
     .update(normalized, 'utf8')
     .digest('hex')
 }

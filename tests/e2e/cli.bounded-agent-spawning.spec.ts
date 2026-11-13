@@ -141,7 +141,7 @@ test('a user standalone session keeps non-runtime grants but needs a canvas agen
   test.setTimeout(180_000)
   await boundedWorkspace(async f => {
     // Use the user's real launch route. The mailbox name is only a fixture filename;
-    // OPENCOVE_NODE_ID remains absent and the CLI authenticates its inherited grant.
+    // ECLIPSE_CODE_NODE_ID remains absent and the CLI authenticates its inherited grant.
     const standalone = await invoke<{ sessionId: string }>(f.page(), 'session.launchAgent', {
       workspaceId: projectId,
       cwd: f.workspace,

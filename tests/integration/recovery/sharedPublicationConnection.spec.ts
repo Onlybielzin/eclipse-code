@@ -23,13 +23,13 @@ import { localViewImage, withLocalViews } from '../../support/convergence/localV
 import { installMockStorage } from '../../support/persistenceTestStorage'
 
 const original = {
-  api: window.opencoveApi,
+  api: window.eclipseCodeApi,
   storage: window.localStorage,
   app: useAppStore.getState(),
 }
 afterEach(() => {
   vi.restoreAllMocks()
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original.api })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original.api })
   Object.defineProperty(window, 'localStorage', { configurable: true, value: original.storage })
   useAppStore.setState(original.app, true)
 })
@@ -40,7 +40,7 @@ it.each(['shared', 'ordinary', 'raw'] as const)(
     const initial = withLocalViews(fixture(true))
     persistLocalViewStateFromAppState(initial)
     const write = vi.fn(async () => ({ ok: true as const, bytes: 1, revision: 2 }))
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: { persistence: { writeAppState: write, writeWorkspaceStateRaw: write } },
     })

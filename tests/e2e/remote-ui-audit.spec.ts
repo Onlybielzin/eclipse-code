@@ -13,7 +13,7 @@ import {
   switchSettingsPage,
 } from './m6.endpoints-mounts.integration.helpers'
 
-const auditOutputDir = path.resolve(__dirname, '../../.opencove/ui-audit/remote-dark')
+const auditOutputDir = path.resolve(__dirname, '../../.eclipse-code/ui-audit/remote-dark')
 
 async function ensureAuditDir(): Promise<void> {
   await mkdir(auditOutputDir, { recursive: true })
@@ -29,13 +29,13 @@ test.describe('Remote UI audit', () => {
     const remotePort = await reserveLoopbackPort()
     const remoteHost = '127.0.0.1'
 
-    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-ui-audit-remote-'))
+    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-ui-audit-remote-'))
     const remoteProjectDir = path.join(remoteBaseDir, 'Design Review Project')
     await mkdir(remoteProjectDir, { recursive: true })
     await writeFile(path.join(remoteProjectDir, 'README.md'), '# UI audit\n', 'utf8')
 
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-ui-audit-remote-worker-'),
+      path.join(tmpdir(), 'eclipse-code-ui-audit-remote-worker-'),
     )
 
     const remoteWorker = await startRemoteWorker({
@@ -50,13 +50,13 @@ test.describe('Remote UI audit', () => {
 
     const { electronApp, window } = await launchApp({
       env: {
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
       },
     })
 
     try {
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -137,7 +137,7 @@ test.describe('Remote UI audit', () => {
       })
       await expect(endpointRow).toBeVisible()
       await window.evaluate(async displayName => {
-        const endpoints = await window.opencoveApi.controlSurface.invoke<{
+        const endpoints = await window.eclipseCodeApi.controlSurface.invoke<{
           endpoints: Array<{ endpointId: string; displayName: string }>
         }>({
           kind: 'query',
@@ -152,12 +152,12 @@ test.describe('Remote UI audit', () => {
           throw new Error(`Unable to resolve endpoint for ${displayName}`)
         }
 
-        await window.opencoveApi.controlSurface.invoke({
+        await window.eclipseCodeApi.controlSurface.invoke({
           kind: 'command',
           id: 'endpoint.prepare',
           payload: { endpointId: endpoint.endpointId, reason: 'connect' },
         })
-        window.dispatchEvent(new Event('opencove:endpoint-overviews-changed'))
+        window.dispatchEvent(new Event('eclipse-code:endpoint-overviews-changed'))
       }, endpointDisplayName)
       await expect(endpointRow).toContainText('Connected')
       await window
@@ -167,7 +167,7 @@ test.describe('Remote UI audit', () => {
       const remoteEndpointId = await pollFor(
         async () =>
           await window.evaluate(async displayName => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({
               kind: 'query',

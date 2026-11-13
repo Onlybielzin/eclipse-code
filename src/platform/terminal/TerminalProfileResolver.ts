@@ -133,7 +133,7 @@ function withTerminalCapabilityEnv(
   }
 
   if (!hasMeaningfulEnvValue(nextEnv.TERM_PROGRAM)) {
-    nextEnv.TERM_PROGRAM = 'OpenCove'
+    nextEnv.TERM_PROGRAM = 'Eclipse Code'
   }
 
   if (!hasMeaningfulEnvValue(nextEnv.CLICOLOR) && !hasMeaningfulEnvValue(nextEnv.NO_COLOR)) {

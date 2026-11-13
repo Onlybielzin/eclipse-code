@@ -78,7 +78,7 @@ describe('resolveNodeRoleDefinition', () => {
     async provider => {
       const node = createRoleNode()
       node.data.role!.selectedProvider = provider
-      window.opencoveApi = {
+      window.eclipseCodeApi = {
         agent: {
           launch: vi.fn(async () => ({
             sessionId: 'runtime-role',
@@ -86,7 +86,7 @@ describe('resolveNodeRoleDefinition', () => {
             effectiveModel: null,
           })),
         },
-      } as unknown as typeof window.opencoveApi
+      } as unknown as typeof window.eclipseCodeApi
       const createNodeForSession = vi.fn(async () => null)
       await runRoleNodeAction(node.id, undefined, {
         workspaceId: 'workspace',

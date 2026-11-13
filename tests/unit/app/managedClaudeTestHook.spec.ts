@@ -30,14 +30,14 @@ it.each([
   ['test', '0'],
 ])('has no product hook in %s with flag %s', async (mode, enabled) => {
   vi.stubEnv('NODE_ENV', mode)
-  vi.stubEnv('OPENCOVE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', enabled)
+  vi.stubEnv('ECLIPSE_CODE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', enabled)
   const f = fixture()
   expect(await tryManagedClaudeTestHook({ ...f, privateBearer: true })).toBe(false)
   expect(f.getStore).not.toHaveBeenCalled()
 })
 it('requires private bearer and uses the current store contract', async () => {
   vi.stubEnv('NODE_ENV', 'test')
-  vi.stubEnv('OPENCOVE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', '1')
+  vi.stubEnv('ECLIPSE_CODE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', '1')
   const f = fixture()
   expect(await tryManagedClaudeTestHook({ ...f, privateBearer: false })).toBe(true)
   expect(f.res.statusCode).toBe(403)
@@ -61,8 +61,8 @@ it('requires private bearer and uses the current store contract', async () => {
 
 it('rechecks the freeze after deferred store acquisition before committing a rebind', async () => {
   vi.stubEnv('NODE_ENV', 'test')
-  vi.stubEnv('OPENCOVE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', '1')
-  vi.stubEnv('OPENCOVE_MANAGED_CLAUDE_BINDINGS', '1')
+  vi.stubEnv('ECLIPSE_CODE_TEST_ENABLE_MANAGED_CLAUDE_REBIND', '1')
+  vi.stubEnv('ECLIPSE_CODE_MANAGED_CLAUDE_BINDINGS', '1')
   const f = fixture()
   let release!: () => void
   const barrier = new Promise<void>(resolve => {
@@ -80,7 +80,7 @@ it('rechecks the freeze after deferred store acquisition before committing a reb
   )
   f.req.emit('end')
   await vi.waitFor(() => expect(f.getStore).toHaveBeenCalledOnce())
-  vi.stubEnv('OPENCOVE_MANAGED_CLAUDE_BINDINGS', '0')
+  vi.stubEnv('ECLIPSE_CODE_MANAGED_CLAUDE_BINDINGS', '0')
   release()
   expect(await pending).toBe(true)
   expect(f.commit).not.toHaveBeenCalled()

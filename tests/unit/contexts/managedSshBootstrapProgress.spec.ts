@@ -30,7 +30,7 @@ describe('Managed SSH bootstrap display markers', () => {
     const parser = createManagedSshBootstrapProgressParser(phase => phases.push(phase))
     parser.push(`${marker('unknown')}\n ${marker('starting_runtime')}\n`)
     parser.push(`${marker('starting_runtime')} extra\n`)
-    parser.push('[opencove-bootstrap-progress:v2] starting_runtime\n')
+    parser.push('[eclipse-code-bootstrap-progress:v2] starting_runtime\n')
     parser.push('x'.repeat(1_000_000))
     parser.push(`${marker('starting_runtime')}\n${marker('waiting_for_runtime')}\n`)
     parser.finish()

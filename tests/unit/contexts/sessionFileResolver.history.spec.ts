@@ -6,7 +6,7 @@ import { expect, it, vi } from 'vitest'
 import { resolveSessionFilePath } from '../../../src/contexts/agent/infrastructure/watchers/SessionFileResolver'
 
 it('locates a resumed Codex rollout by its verified identity regardless of date or mtime', async () => {
-  const home = await fs.mkdtemp(join(tmpdir(), 'opencove-rollout-history-'))
+  const home = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-rollout-history-'))
   vi.stubEnv('CODEX_HOME', home)
   const cwd = join(home, 'workspace')
   const file = join(home, 'sessions', '2020', '01', '01', 'rollout-saved.jsonl')

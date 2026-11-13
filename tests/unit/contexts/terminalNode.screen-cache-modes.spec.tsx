@@ -101,7 +101,7 @@ function installResizeObserverMock() {
 }
 
 function installPtyApiMock() {
-  Object.defineProperty(window, 'opencoveApi', {
+  Object.defineProperty(window, 'eclipseCodeApi', {
     configurable: true,
     writable: true,
     value: {
@@ -160,7 +160,7 @@ describe('TerminalNode screen cache serialization', () => {
     )
 
     await waitFor(() => {
-      expect(window.opencoveApi.pty.snapshot).toHaveBeenCalledTimes(1)
+      expect(window.eclipseCodeApi.pty.snapshot).toHaveBeenCalledTimes(1)
     })
 
     view.unmount()

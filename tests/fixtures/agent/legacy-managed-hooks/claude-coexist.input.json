@@ -13,8 +13,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/OpenCove.app/Contents/MacOS/OpenCove legacy-hook",
-            "statusMessage": "OpenCove agent status"
+            "command": "/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code legacy-hook",
+            "statusMessage": "Eclipse Code agent status"
           }
         ]
       },
@@ -42,8 +42,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/OpenCove.app/Contents/MacOS/OpenCove legacy-hook",
-            "statusMessage": "OpenCove agent status"
+            "command": "/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code legacy-hook",
+            "statusMessage": "Eclipse Code agent status"
           }
         ]
       }
@@ -53,8 +53,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/OpenCove.app/Contents/MacOS/OpenCove legacy-hook",
-            "statusMessage": "OpenCove agent status"
+            "command": "/Applications/Eclipse Code.app/Contents/MacOS/Eclipse Code legacy-hook",
+            "statusMessage": "Eclipse Code agent status"
           }
         ]
       }

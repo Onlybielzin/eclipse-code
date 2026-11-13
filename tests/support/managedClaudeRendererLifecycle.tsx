@@ -68,7 +68,7 @@ export function rendererLifecycleFixture(mounted: boolean, persisted = true) {
     },
   }
   const launch = vi.fn(
-    async (_request: Parameters<typeof window.opencoveApi.agent.launch>[0]) => response,
+    async (_request: Parameters<typeof window.eclipseCodeApi.agent.launch>[0]) => response,
   )
   const invoke = vi.fn(async request => {
     if (request.id === 'system.capabilities') {
@@ -107,11 +107,11 @@ export function rendererLifecycleFixture(mounted: boolean, persisted = true) {
     }
     throw new Error(`Unexpected request ${request.id}`)
   })
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     controlSurface: { invoke },
     agent: { launch },
     pty: { kill: vi.fn(async () => {}) },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   const setNodes = (update: (previous: Node<TerminalNodeData>[]) => Node<TerminalNodeData>[]) => {
     nodesRef.current = update(nodesRef.current)
   }

@@ -23,7 +23,7 @@ export function useWebsiteInitialSnapshot({
     if (!url.trim() || isLoading || snapshotDataUrl || requested.current) {
       return
     }
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.captureSnapshot !== 'function') {
       return
     }

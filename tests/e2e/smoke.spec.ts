@@ -37,7 +37,7 @@ test.describe('Application Startup', () => {
       const appName = await electronApp.evaluate(async ({ app }) => {
         return app.getName()
       })
-      expect(appName).toBe('OpenCove')
+      expect(appName).toBe('Eclipse Code')
     } finally {
       await electronApp.close()
     }

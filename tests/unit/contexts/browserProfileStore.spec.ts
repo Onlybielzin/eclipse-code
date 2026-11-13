@@ -276,11 +276,11 @@ class MockDatabase {
 }
 
 async function createStore() {
-  const dir = await mkdtemp(join(tmpdir(), 'opencove-browser-profile-'))
+  const dir = await mkdtemp(join(tmpdir(), 'eclipse-code-browser-profile-'))
   tempDirs.push(dir)
   const { createBrowserProfileStore } =
     await import('../../../src/contexts/browser/infrastructure/main/BrowserProfileStore')
-  return await createBrowserProfileStore({ dbPath: join(dir, 'opencove.db') })
+  return await createBrowserProfileStore({ dbPath: join(dir, 'eclipse-code.db') })
 }
 
 afterEach(async () => {
@@ -297,10 +297,10 @@ describe('BrowserProfileStore', () => {
       isDefault: true,
     })
 
-    store.setHomepage(sharedScope, 'https://opencove.local/start')
+    store.setHomepage(sharedScope, 'https://eclipse-code.local/start')
     store.setHomepage(profileScope, 'https://docs.example.test/')
 
-    expect(store.getHomepage(sharedScope).url).toBe('https://opencove.local/start')
+    expect(store.getHomepage(sharedScope).url).toBe('https://eclipse-code.local/start')
     expect(store.getHomepage(profileScope).url).toBe('https://docs.example.test/')
     store.dispose()
   })

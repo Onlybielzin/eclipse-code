@@ -56,7 +56,7 @@ function summarizeReport(reportToSummarize) {
 }
 
 const resultFilenamesByRule = new Map([
-  ['architecture.windowOpenCoveApiBoundary', 'window-opencove-api.jsonl'],
+  ['architecture.windowEclipseCodeApiBoundary', 'window-eclipse-code-api.jsonl'],
   ['architecture.layerDependency', 'layer-dependency.jsonl'],
 ])
 

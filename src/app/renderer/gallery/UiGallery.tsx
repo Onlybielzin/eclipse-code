@@ -40,7 +40,7 @@ import './ui-gallery.css'
 
 declare global {
   interface Window {
-    __opencoveUiGalleryTestApi?: { setTheme: (theme: UiTheme) => void }
+    __eclipseCodeUiGalleryTestApi?: { setTheme: (theme: UiTheme) => void }
   }
 }
 
@@ -106,9 +106,9 @@ export default function UiGallery(): React.JSX.Element {
   useApplyWindowAppearance(GALLERY_WINDOW_APPEARANCE)
 
   useEffect(() => {
-    window.__opencoveUiGalleryTestApi = { setTheme }
+    window.__eclipseCodeUiGalleryTestApi = { setTheme }
     return () => {
-      delete window.__opencoveUiGalleryTestApi
+      delete window.__eclipseCodeUiGalleryTestApi
     }
   }, [])
 
@@ -288,7 +288,7 @@ export default function UiGallery(): React.JSX.Element {
             placeholder="What did you try, and what happened?"
             onChange={event => setFields(current => ({ ...current, notes: event.target.value }))}
           />
-          <TextField label="Workspace path" value="~/Development/opencove" disabled readOnly />
+          <TextField label="Workspace path" value="~/Development/eclipse-code" disabled readOnly />
         </div>
       </Section>
 

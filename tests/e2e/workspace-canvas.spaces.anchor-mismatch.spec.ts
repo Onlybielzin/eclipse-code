@@ -74,7 +74,7 @@ test.describe('Workspace Canvas - Spaces (Anchors & Directory Guards)', () => {
         async ({ key, spaceId }) => {
           void key
 
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           if (!raw) {
             return null
           }
@@ -114,7 +114,7 @@ test.describe('Workspace Canvas - Spaces (Anchors & Directory Guards)', () => {
     const { electronApp, window } = await launchApp()
 
     try {
-      const worktreePath = `${testWorkspacePath}/.opencove/worktrees/wt-ownership`
+      const worktreePath = `${testWorkspacePath}/.eclipse-code/worktrees/wt-ownership`
 
       await clearAndSeedWorkspace(
         window,
@@ -227,7 +227,7 @@ test.describe('Workspace Canvas - Spaces (Anchors & Directory Guards)', () => {
             async ({ key, nodeId, spaceId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -270,7 +270,7 @@ test.describe('Workspace Canvas - Spaces (Anchors & Directory Guards)', () => {
     const { electronApp, window } = await launchApp()
 
     try {
-      const worktreePath = `${testWorkspacePath}/.opencove/worktrees/wt-root-warning`
+      const worktreePath = `${testWorkspacePath}/.eclipse-code/worktrees/wt-root-warning`
 
       await clearAndSeedWorkspace(
         window,
@@ -353,7 +353,7 @@ test.describe('Workspace Canvas - Spaces (Anchors & Directory Guards)', () => {
             async ({ key, nodeId, spaceId }) => {
               void key
 
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }

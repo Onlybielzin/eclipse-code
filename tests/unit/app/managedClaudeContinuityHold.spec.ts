@@ -3,12 +3,12 @@ import type { Page } from '@playwright/test'
 import { holdPrepare, releasePrepare } from '../../e2e/managedClaudePreparationHold'
 
 beforeEach(() => vi.stubGlobal('fetch', globalThis.fetch))
-const originalApi = Object.getOwnPropertyDescriptor(window, 'opencoveApi')
+const originalApi = Object.getOwnPropertyDescriptor(window, 'eclipseCodeApi')
 afterEach(() => {
   if (originalApi) {
-    Object.defineProperty(window, 'opencoveApi', originalApi)
+    Object.defineProperty(window, 'eclipseCodeApi', originalApi)
   } else {
-    Reflect.deleteProperty(window, 'opencoveApi')
+    Reflect.deleteProperty(window, 'eclipseCodeApi')
   }
   Reflect.deleteProperty(window, '__heldManagedPrepare')
   Reflect.deleteProperty(window, '__releaseManagedPrepare')
@@ -38,17 +38,17 @@ it('passes a terminal-first response and holds only the target agent with bindin
     },
   }
   const terminal = { nodeId: 'terminal', kind: 'terminal' }
-  window.opencoveApi = {
+  window.eclipseCodeApi = {
     persistence: { readAppState: vi.fn(), writeAppState: vi.fn() },
     controlSurface: {
       invoke: vi.fn(async request => ({
         nodes: [request.payload.nodeIds[0] === 'terminal' ? terminal : agent],
       })),
     },
-  } as unknown as typeof window.opencoveApi
+  } as unknown as typeof window.eclipseCodeApi
   const returned = vi.fn()
   const invoke = (nodeId: string) =>
-    window.opencoveApi.controlSurface.invoke({
+    window.eclipseCodeApi.controlSurface.invoke({
       kind: 'command',
       id: 'session.prepareOrRevive',
       payload: { workspaceId: 'workspace', nodeIds: [nodeId] },
@@ -123,14 +123,14 @@ it.each(['corrected', 'merged'] as const)(
       revision: 2,
       [kind]: true,
     }))
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       meta: { isTest: false, runtime: 'browser' },
       persistence: { readAppState: read, writeAppState: write },
       controlSurface: { invoke: vi.fn() },
-    } as unknown as typeof window.opencoveApi
-    expect(await window.opencoveApi.persistence.readAppState()).toEqual(canonical)
+    } as unknown as typeof window.eclipseCodeApi
+    expect(await window.eclipseCodeApi.persistence.readAppState()).toEqual(canonical)
     pause = true
-    const pendingRead = window.opencoveApi.persistence.readAppState()
+    const pendingRead = window.eclipseCodeApi.persistence.readAppState()
     try {
       await reading
       canonical = { state: { tuple: 'B' }, revision: 2 }
@@ -139,9 +139,9 @@ it.each(['corrected', 'merged'] as const)(
       expect(await pendingRead).toEqual({ state: { tuple: 'A' }, revision: 1 })
       pause = false
       expect(
-        await window.opencoveApi.persistence.writeAppState({ state: { tuple: 'A', x: 1200 } }),
+        await window.eclipseCodeApi.persistence.writeAppState({ state: { tuple: 'A', x: 1200 } }),
       ).toMatchObject({ ok: true, [kind]: true })
-      expect(await window.opencoveApi.persistence.readAppState()).toEqual(canonical)
+      expect(await window.eclipseCodeApi.persistence.readAppState()).toEqual(canonical)
       expect(write).toHaveBeenCalledOnce()
       expect((window as unknown as { __dropManagedSync: boolean }).__dropManagedSync).toBe(true)
     } finally {

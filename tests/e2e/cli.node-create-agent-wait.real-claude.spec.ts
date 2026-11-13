@@ -4,7 +4,10 @@ import { cli, launchRealClaude } from './agent.prompt.real-claude.helpers'
 test('create agent returns the real Claude initial reply from the mock API', async ({
   browserName: _browserName,
 }, testInfo) => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Claude CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Claude CLI',
+  )
   test.skip(process.platform === 'win32', 'POSIX acceptance')
   test.setTimeout(180_000)
   const real = await launchRealClaude(testInfo)

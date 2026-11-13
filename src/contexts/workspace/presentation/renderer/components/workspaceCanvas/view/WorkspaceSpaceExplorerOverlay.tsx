@@ -107,8 +107,8 @@ export function WorkspaceSpaceExplorerOverlay({
     }
 
     const controlSurfaceInvoke = (
-      window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } }
-    ).opencoveApi?.controlSurface?.invoke
+      window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+    ).eclipseCodeApi?.controlSurface?.invoke
 
     if (typeof controlSurfaceInvoke !== 'function') {
       setResolvedMountRootUri(null)
@@ -120,7 +120,7 @@ export function WorkspaceSpaceExplorerOverlay({
 
     void (async () => {
       try {
-        const result = await window.opencoveApi.controlSurface.invoke<ResolveMountTargetResult>({
+        const result = await window.eclipseCodeApi.controlSurface.invoke<ResolveMountTargetResult>({
           kind: 'query',
           id: 'mountTarget.resolve',
           payload: { mountId: targetMountId },

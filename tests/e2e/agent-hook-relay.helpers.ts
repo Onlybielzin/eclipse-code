@@ -9,7 +9,7 @@ export function registerAgentHookRelayTests() {
   for (const provider of ['codex', 'claude-code'] as const) {
     const fileMode = provider === 'codex' && process.platform === 'win32'
     test(`${provider} executes ${fileMode ? 'session file observation' : 'Electron hooks'} through the real launch path and retains keyboard input`, async () => {
-      const root = await mkdtemp(join(tmpdir(), 'OpenCove hook 路径 '))
+      const root = await mkdtemp(join(tmpdir(), 'Eclipse Code hook 路径 '))
       const fixture = resolve('tests/e2e/fixtures/agent-hook-provider.mjs')
       const quote = (value: string) => `'${value.replaceAll("'", `'"'"'`)}'`
       const executable =
@@ -26,10 +26,10 @@ export function registerAgentHookRelayTests() {
       const { electronApp, window } = await launchApp({
         env: {
           CODEX_HOME: join(root, 'codex-home'),
-          OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: fileMode ? '1' : '0',
-          OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-          OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
-          OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: fileMode ? '1' : '0',
+          ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+          ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+          ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
         },
       })
       try {

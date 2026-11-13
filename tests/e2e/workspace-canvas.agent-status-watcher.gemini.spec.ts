@@ -133,7 +133,7 @@ test.describe('Workspace Canvas - Agent Status Watcher (Gemini)', () => {
       windowMode: 'offscreen',
       userDataDir,
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       },
     })
 
@@ -245,7 +245,7 @@ test.describe('Workspace Canvas - Agent Status Watcher (Gemini)', () => {
       windowMode: 'offscreen',
       userDataDir,
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
       },
     })
 

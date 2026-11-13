@@ -16,7 +16,7 @@ function post(
       headers: {
         'content-type': 'application/json',
         'content-length': Buffer.byteLength(body),
-        'x-opencove-terminal-agent-token': token,
+        'x-eclipse-code-terminal-agent-token': token,
       },
     })
     outgoing.once('error', reject)

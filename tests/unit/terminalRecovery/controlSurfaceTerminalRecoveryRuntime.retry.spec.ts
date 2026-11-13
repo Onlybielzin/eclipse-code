@@ -149,7 +149,7 @@ describe('Control Surface remote terminal recovery retry', () => {
     } as unknown as PtyStreamService
     const runtime = createControlSurfaceTerminalRecoveryRuntime({
       enabled: true,
-      userDataPath: '/tmp/opencove-recovery-retry',
+      userDataPath: '/tmp/eclipse-code-recovery-retry',
       getPersistenceStore: vi.fn(async () => ({}) as never),
       ptyRuntime,
       ptyStreamService,
@@ -207,7 +207,7 @@ describe('Control Surface remote terminal recovery retry', () => {
     } as unknown as PtyStreamService
     const runtime = createControlSurfaceTerminalRecoveryRuntime({
       enabled: true,
-      userDataPath: '/tmp/opencove-recovery-cutoff',
+      userDataPath: '/tmp/eclipse-code-recovery-cutoff',
       getPersistenceStore: vi.fn(async () => ({}) as never),
       ptyRuntime: {} as MultiEndpointPtyRuntime,
       ptyStreamService,

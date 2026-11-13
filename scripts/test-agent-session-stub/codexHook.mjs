@@ -23,8 +23,8 @@ const SIGNALS = {
 }
 
 async function postHook(envelope) {
-  const endpoint = process.env.OPENCOVE_CODEX_HOOK_ENDPOINT
-  const token = process.env.OPENCOVE_CODEX_HOOK_TOKEN
+  const endpoint = process.env.ECLIPSE_CODE_CODEX_HOOK_ENDPOINT
+  const token = process.env.ECLIPSE_CODE_CODEX_HOOK_TOKEN
   if (!endpoint || !token) {
     throw new Error('Codex hook stub did not receive its correlation environment.')
   }
@@ -32,7 +32,7 @@ async function postHook(envelope) {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-opencove-hook-token': token,
+      'x-eclipse-code-hook-token': token,
     },
     body: JSON.stringify(envelope),
   })
@@ -42,7 +42,7 @@ async function postHook(envelope) {
 }
 
 export async function runCodexHookLifecycleScenario() {
-  process.stdout.write('[opencove-test-codex-hook] ready\n')
+  process.stdout.write('[eclipse-code-test-codex-hook] ready\n')
   await new Promise((resolveRun, reject) => {
     let input = ''
     let operation = Promise.resolve()
@@ -63,7 +63,7 @@ export async function runCodexHookLifecycleScenario() {
           input = ''
           operation = operation.then(async () => {
             await postHook(matched[1])
-            process.stdout.write(`[opencove-test-codex-hook] ${matched[1].state}\n`)
+            process.stdout.write(`[eclipse-code-test-codex-hook] ${matched[1].state}\n`)
           })
         } else if (input.length > 64) {
           input = input.slice(-64)
@@ -81,11 +81,11 @@ export async function runCodexHookFallbackScenario(cwd) {
     type: 'event_msg',
     payload: {
       type: 'task_complete',
-      turn_id: 'opencove-test-codex-hook-fallback',
+      turn_id: 'eclipse-code-test-codex-hook-fallback',
       last_agent_message: 'Fallback ready.',
     },
   })
-  process.stdout.write('[opencove-test-codex-hook-fallback] ready\n')
+  process.stdout.write('[eclipse-code-test-codex-hook-fallback] ready\n')
   await new Promise(resolveRun => {
     process.stdin.on('data', chunk => {
       if (Buffer.from(chunk).includes(0x03)) {

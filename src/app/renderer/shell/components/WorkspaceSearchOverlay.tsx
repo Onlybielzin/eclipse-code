@@ -62,7 +62,7 @@ export function WorkspaceSearchOverlay({
       return
     }
 
-    const listWorktrees = window.opencoveApi?.worktree?.listWorktrees
+    const listWorktrees = window.eclipseCodeApi?.worktree?.listWorktrees
     if (typeof listWorktrees !== 'function') {
       setWorktreeInfoByPath(new Map())
       return
@@ -134,7 +134,7 @@ export function WorkspaceSearchOverlay({
       return
     }
 
-    const resolvePullRequests = window.opencoveApi?.integration?.github?.resolvePullRequests
+    const resolvePullRequests = window.eclipseCodeApi?.integration?.github?.resolvePullRequests
     if (typeof resolvePullRequests !== 'function') {
       setPullRequestsByBranch({})
       return

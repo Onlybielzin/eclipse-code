@@ -25,7 +25,7 @@ vi.mock('@app/renderer/shell/hooks/useHydrateAppState.helpers', async importOrig
 }))
 
 const original = {
-  api: window.opencoveApi,
+  api: window.eclipseCodeApi,
   app: useAppStore.getState(),
   storage: window.localStorage,
 }
@@ -33,7 +33,7 @@ afterEach(async () => {
   cleanup()
   await flushScheduledPersistedStateWriteAsync()
   useAppStore.setState(original.app, true)
-  Object.defineProperty(window, 'opencoveApi', { configurable: true, value: original.api })
+  Object.defineProperty(window, 'eclipseCodeApi', { configurable: true, value: original.api })
   Object.defineProperty(window, 'localStorage', { configurable: true, value: original.storage })
   vi.unstubAllGlobals()
 })
@@ -107,7 +107,7 @@ function setup() {
   const server = new Server(state, 'committed')
   let quit!: () => Promise<void>
   const boot = () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         meta: { isTest: true, runtime: 'browser' },

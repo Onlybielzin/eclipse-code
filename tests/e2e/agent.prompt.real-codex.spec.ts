@@ -11,17 +11,20 @@ import { resolveFirstAgentSessionId } from './workspace-canvas.agent-status-watc
 
 // Opt-in local acceptance with the installed Codex CLI, an isolated CODEX_HOME and a local
 // Responses API stand-in (no credentials, no model calls). Run with
-// OPENCOVE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-codex.spec.ts
+// ECLIPSE_CODE_TEST_USE_REAL_AGENTS=1 pnpm exec playwright test tests/e2e/agent.prompt.real-codex.spec.ts
 
 test.describe('agent.prompt with the real Codex CLI', () => {
-  test.skip(process.env.OPENCOVE_TEST_USE_REAL_AGENTS !== '1', 'Requires installed real Codex CLI')
+  test.skip(
+    process.env.ECLIPSE_CODE_TEST_USE_REAL_AGENTS !== '1',
+    'Requires installed real Codex CLI',
+  )
   test.skip(process.platform === 'win32', 'Codex lifecycle hooks are not used on Windows')
 
   test('submits one multi-line message and refuses an open approval request', async ({
     browserName: _browserName,
   }, testInfo) => {
     test.setTimeout(180_000)
-    const root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-real-codex-')))
+    const root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-real-codex-')))
     const workspace = join(root, 'workspace')
     const codexHome = join(root, 'codex-home')
     const userDataDir = join(root, 'user-data')
@@ -43,9 +46,9 @@ test.describe('agent.prompt with the real Codex CLI', () => {
       userDataDir,
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-        OPENCOVE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
-        OPENCOVE_TEST_MOCK_API_KEY: 'opencove-local-diagnostic-not-a-real-key',
+        ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+        ECLIPSE_CODE_TEST_CODEX_HOOK_INSTALL_FAILURE: '0',
+        ECLIPSE_CODE_TEST_MOCK_API_KEY: 'eclipse-code-local-diagnostic-not-a-real-key',
         CODEX_HOME: codexHome,
       },
     })
@@ -90,7 +93,7 @@ test.describe('agent.prompt with the real Codex CLI', () => {
       const snapshot = () =>
         page.evaluate(
           id =>
-            window.opencoveApi.controlSurface.invoke<AgentRunSnapshot>({
+            window.eclipseCodeApi.controlSurface.invoke<AgentRunSnapshot>({
               kind: 'query',
               id: 'agent.get',
               payload: { sessionId: id },

@@ -6,7 +6,7 @@ Status: Implemented for the Space lifecycle and Space Worktree slice. Runtime be
 
 ## Problem Class
 
-这是成熟的 workspace organization 与 Git worktree lifecycle 问题。主流编辑器会把多个工程根组织在同一个 workspace 里，让用户按项目和文件夹工作；Git worktree 则把同一 repository 的多个 working tree 建模为独立目录。OpenCove 的本地约束是：Space 同时承担画布组织、节点归属、执行目录和 Git worktree 入口，如果不拆开这些语义，就会在 child-space、归档、恢复和工作树删除之间制造隐式副作用。
+这是成熟的 workspace organization 与 Git worktree lifecycle 问题。主流编辑器会把多个工程根组织在同一个 workspace 里，让用户按项目和文件夹工作；Git worktree 则把同一 repository 的多个 working tree 建模为独立目录。Eclipse Code 的本地约束是：Space 同时承担画布组织、节点归属、执行目录和 Git worktree 入口，如果不拆开这些语义，就会在 child-space、归档、恢复和工作树删除之间制造隐式副作用。
 
 ## External References
 

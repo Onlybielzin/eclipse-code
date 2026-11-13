@@ -43,7 +43,9 @@ let pending: PendingPublication | null = null
 const retired = new Set<string>()
 export function persistenceScope(): number {
   const current =
-    typeof window === 'undefined' ? null : (window.opencoveApi?.persistence ?? window.localStorage)
+    typeof window === 'undefined'
+      ? null
+      : (window.eclipseCodeApi?.persistence ?? window.localStorage)
   if (current !== scope) {
     scope = current
     scopeGeneration++

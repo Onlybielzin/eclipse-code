@@ -26,7 +26,7 @@ describe('Claude comparison profile v1', () => {
   it('pins UTF-8, domain separation, newline order and the trailing ASCII character set', () => {
     expect(claudePromptDigest('  中\r\nB\rC \t\r\n')).toBe(
       createHash('sha256')
-        .update('opencove-prompt-evidence-claude-code-v1\0  中\nB\nC', 'utf8')
+        .update('eclipse-code-prompt-evidence-claude-code-v1\0  中\nB\nC', 'utf8')
         .digest('hex'),
     )
   })

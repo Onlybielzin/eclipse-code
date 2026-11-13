@@ -46,7 +46,7 @@ function expectWorkflow(result: FileWorkflowResult, directory: string) {
 
 test('uses scoped filesystem mutations and observations through installed backend and window SDKs', async () => {
   test.setTimeout(120_000)
-  const root = await mkdtemp(join(tmpdir(), 'opencove-plugin-filesystem-e2e-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-plugin-filesystem-e2e-'))
   const source = join(root, 'plugin')
   const project = join(root, 'project')
   const projectId = 'plugin-filesystem-project'
@@ -57,7 +57,7 @@ test('uses scoped filesystem mutations and observations through installed backen
   const workflow = `async function workflow(host, target, directory) {
     const path = directory + '/large.txt';
     const renamedPath = directory + '/renamed.txt';
-    const content = 'OpenCove 文件系统 ✨\\n'.repeat(6000);
+    const content = 'Eclipse Code 文件系统 ✨\\n'.repeat(6000);
     await host.filesystem.mkdir({ target, path: directory });
     const watch = await host.filesystem.watch({ target, path: directory });
     await host.filesystem.writeText({ target, path, content, overwrite: false });
@@ -92,7 +92,7 @@ test('uses scoped filesystem mutations and observations through installed backen
     };
   }`
   const files = {
-    'opencove.plugin.json': JSON.stringify({
+    'eclipse-code.plugin.json': JSON.stringify({
       apiVersion: 1,
       id,
       version: '1.0.0',
@@ -121,7 +121,7 @@ test('uses scoped filesystem mutations and observations through installed backen
       <script src="view.js" defer></script></head><body>
       <button id="run" disabled>Verify filesystem</button><pre id="result"></pre></body></html>`,
     'view.js': `${workflow}
-      const api = window.opencovePlugin;
+      const api = window.eclipseCodePlugin;
       api.ready.then(context => {
         const button = document.querySelector('#run');
         const result = document.querySelector('#result');

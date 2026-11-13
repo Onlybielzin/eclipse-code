@@ -34,7 +34,7 @@ function fixture(value: unknown) {
         err += s
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     fetch,
     now: Date.now,
     readStdinText: vi.fn(),

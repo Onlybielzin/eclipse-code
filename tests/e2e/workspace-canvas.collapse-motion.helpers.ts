@@ -38,7 +38,7 @@ interface MotionSampleResult {
 }
 
 type MotionWindow = Window & {
-  __opencoveCollapseMotion?: {
+  __eclipseCodeCollapseMotion?: {
     result: Promise<MotionSampleResult>
     completeAction: () => void
     stop: () => void
@@ -196,7 +196,7 @@ export async function samplePresentation(
           `[data-id="${terminalId}"] .terminal-node__terminal`,
         )
         const viewport = document.querySelector('.react-flow__viewport')
-        const api = window.__opencoveTerminalSelectionTestApi
+        const api = window.__eclipseCodeTerminalSelectionTestApi
         if (!shell || !viewport) {
           throw new Error('Collapse motion shell or viewport is missing')
         }
@@ -266,7 +266,7 @@ export async function samplePresentation(
         }
       }
       samples.push(read(startedAt))
-      ;(window as MotionWindow).__opencoveCollapseMotion = {
+      ;(window as MotionWindow).__eclipseCodeCollapseMotion = {
         result,
         completeAction: () => {
           actionCompletedAt = performance.now() - startedAt
@@ -286,7 +286,7 @@ export async function samplePresentation(
   try {
     const sampling = page
       .evaluate(async () => {
-        const state = (window as MotionWindow).__opencoveCollapseMotion
+        const state = (window as MotionWindow).__eclipseCodeCollapseMotion
         if (!state) {
           throw new Error('Collapse motion samples are missing')
         }
@@ -304,7 +304,7 @@ export async function samplePresentation(
         .then(action)
         .then(() =>
           page.evaluate(() => {
-            ;(window as MotionWindow).__opencoveCollapseMotion?.completeAction()
+            ;(window as MotionWindow).__eclipseCodeCollapseMotion?.completeAction()
           }),
         ),
     ])
@@ -312,13 +312,13 @@ export async function samplePresentation(
   } finally {
     const diagnostics = await page
       .evaluate(() => {
-        const state = (window as MotionWindow).__opencoveCollapseMotion
+        const state = (window as MotionWindow).__eclipseCodeCollapseMotion
         if (!state) {
           return null
         }
         const snapshot = state.snapshot()
         state.stop()
-        delete (window as MotionWindow).__opencoveCollapseMotion
+        delete (window as MotionWindow).__eclipseCodeCollapseMotion
         return snapshot
       })
       .catch(cause => ({ error: String(cause) }))

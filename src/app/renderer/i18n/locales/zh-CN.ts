@@ -20,6 +20,7 @@ import { zhCNWebsiteNode } from './zh-CN.websiteNode'
 import { zhCNIssueReport } from './zh-CN.issueReport'
 import { zhCNPerformanceMonitor } from './zh-CN.performanceMonitor'
 import { zhCNRole } from './zh-CN.role'
+import { zhCNTasks } from './zh-CN.tasks'
 import { zhCNWorkspaceCanvas } from './zh-CN.workspaceCanvas'
 
 export const zhCN = {
@@ -44,7 +45,7 @@ export const zhCN = {
   ...zhCNSpaceCollapse,
   common: {
     workerStopNotOwned:
-      '这个 Worker 不是由 OpenCove Desktop 启动的，请在启动它的地方停止，例如运行 opencove worker stop。',
+      '这个 Worker 不是由 Eclipse Code Desktop 启动的，请在启动它的地方停止，例如运行 eclipse-code worker stop。',
     workerExternalOwnerUnreachable:
       '另一个 Worker 正在使用这个数据目录，但无法连接或版本不兼容。请先停止那个 Worker，再重试。',
     actions: '操作',
@@ -358,7 +359,7 @@ export const zhCN = {
     imageUnsupportedMessage: '无法预览此图片，文件可能已损坏或使用了不支持的格式。',
     mediaUnsupportedTitle: '无法播放媒体',
     mediaUnsupportedMessage:
-      '这个音频或视频文件当前无法在这里播放。OpenCove 目前会在运行环境支持时预览 MP3、WAV/WAVE、OGG/OGA、MP4 和 WebM。',
+      '这个音频或视频文件当前无法在这里播放。Eclipse Code 目前会在运行环境支持时预览 MP3、WAV/WAVE、OGG/OGA、MP4 和 WebM。',
     externalChangeTitle: '文件已在磁盘上变更。',
     externalChangeMessage: '重新加载可获取最新版本，或用你的修改覆盖文件。',
     reloadFromDisk: '重新加载',
@@ -462,6 +463,7 @@ export const zhCN = {
     hideAdvanced: '隐藏高级设置',
   },
   ...zhCNRole,
+  ...zhCNTasks,
   taskPromptTemplates: {
     openMenu: '提示词模板',
     globalSection: '全局模板',

@@ -52,7 +52,7 @@ export function createControlSurface(
         !sessionGrantAllowsOperation(request.id, ctx.requestAuth.grant.tier)
       ) {
         return {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: sessionGrantDeniedError(request.id, ctx.requestAuth.grant.tier),
         }
@@ -60,7 +60,7 @@ export function createControlSurface(
       const handler = handlers.get(request.id)
       if (!handler || handler.kind !== request.kind) {
         return {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: toAppErrorDescriptor(
             new Error(`Unknown control surface ${request.kind}: ${request.id}`),
@@ -95,13 +95,13 @@ export function createControlSurface(
           : await execute()
 
         return {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value,
         }
       } catch (error) {
         return {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: toAppErrorDescriptor(error, handler.defaultErrorCode),
         }

@@ -1,7 +1,7 @@
 # Host API map
 
 Use this inventory before choosing an API. The view receives
-`window.opencovePlugin.host`; a Node backend receives `context.host` in
+`window.eclipseCodePlugin.host`; a Node backend receives `context.host` in
 `activate(context)`. Both expose the same method names. A backend runs on its
 installed Worker: direct Node APIs do not follow a selected remote project.
 

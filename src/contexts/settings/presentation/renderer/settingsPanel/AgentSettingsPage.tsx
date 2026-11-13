@@ -69,7 +69,7 @@ export function AgentSettingsPage({
   const [installErrorByProvider, setInstallErrorByProvider] = useState<Record<string, string>>({})
 
   const refreshAvailability = useCallback(() => {
-    const listInstalledProviders = window.opencoveApi?.agent?.listInstalledProviders
+    const listInstalledProviders = window.eclipseCodeApi?.agent?.listInstalledProviders
     if (typeof listInstalledProviders !== 'function') {
       setAvailabilityByProvider({})
       setIsRefreshingAvailability(false)
@@ -98,7 +98,7 @@ export function AgentSettingsPage({
 
   const installProvider = useCallback(
     async (provider: AgentProvider): Promise<void> => {
-      const install = window.opencoveApi?.agent?.installProvider
+      const install = window.eclipseCodeApi?.agent?.installProvider
       if (typeof install !== 'function') {
         setInstallErrorByProvider(previous => ({
           ...previous,

@@ -5,8 +5,9 @@ export type ControlSurfaceInvoke = <TResult>(
 ) => Promise<TResult>
 
 export function resolveControlSurfaceInvoke(): ControlSurfaceInvoke | null {
-  const invoke = (window as unknown as { opencoveApi?: { controlSurface?: { invoke?: unknown } } })
-    .opencoveApi?.controlSurface?.invoke
+  const invoke = (
+    window as unknown as { eclipseCodeApi?: { controlSurface?: { invoke?: unknown } } }
+  ).eclipseCodeApi?.controlSurface?.invoke
 
   return typeof invoke === 'function' ? (invoke as ControlSurfaceInvoke) : null
 }

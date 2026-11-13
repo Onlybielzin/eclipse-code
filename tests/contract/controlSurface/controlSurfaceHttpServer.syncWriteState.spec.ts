@@ -15,7 +15,7 @@ import {
 
 describe('Control Surface HTTP server (sync.writeState)', () => {
   async function createSyncWriteStateServer() {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-sync-write-state-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-sync-write-state-'))
     const connectionFileName = 'control-surface.sync-write-state.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
     const workspacePath = resolve(userDataPath, 'workspace')

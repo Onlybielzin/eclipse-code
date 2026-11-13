@@ -16,7 +16,7 @@ for (const theme of ['dark', 'light']) {
     const workspacePath = await createWorkspaceDir(`sidebar-${theme}`)
     const state = buildAppState({
       workspaceId: 'mobile-project',
-      workspaceName: 'OpenCove',
+      workspaceName: 'Eclipse Code',
       workspacePath,
       spaces: [
         {
@@ -85,8 +85,8 @@ for (const theme of ['dark', 'light']) {
     await projectButton.click()
     await expect(drawer).toBeVisible()
     await expect(page.locator('.workspace-item--active')).toContainText('Design system')
-    await page.locator('.workspace-item').filter({ hasText: 'OpenCove' }).click()
-    await expect(page.locator('.workspace-item--active')).toContainText('OpenCove')
+    await page.locator('.workspace-item').filter({ hasText: 'Eclipse Code' }).click()
+    await expect(page.locator('.workspace-item--active')).toContainText('Eclipse Code')
     const icon = drawer.locator('.workspace-agent-item [data-cove-node-kind-icon="agent"]')
     await expect(icon).toBeVisible()
     await expect(icon).toHaveAttribute('data-agent-provider', 'codex')

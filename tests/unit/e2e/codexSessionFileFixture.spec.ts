@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { expect, it, vi } from 'vitest'
 
 it('records the history read by the ready resumed provider and accepts a fresh turn', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-file-fixture-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-file-fixture-'))
   const log = join(root, 'invocations.jsonl')
   const fixture = resolve('tests/e2e/fixtures/codex-session-file-provider.mjs')
   const children: Array<ReturnType<typeof start>> = []
@@ -27,7 +27,7 @@ it('records the history read by the ready resumed provider and accepts a fresh t
         env: {
           ...process.env,
           CODEX_HOME: join(root, 'codex-home'),
-          OPENCOVE_SESSION_FILE_FIXTURE_LOG: log,
+          ECLIPSE_CODE_SESSION_FILE_FIXTURE_LOG: log,
         },
         stdio: 'pipe',
       },

@@ -7,7 +7,7 @@ import { publishRuntime } from '../../../src/app/cli/publishRuntime.mjs'
 
 describe('immutable runtime publication', () => {
   it('reuses verified content and repairs corruption without overwriting the active directory', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-publisher-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-publisher-'))
     const identity = {
       build: { buildId: 'a'.repeat(64) },
       platform: process.platform,

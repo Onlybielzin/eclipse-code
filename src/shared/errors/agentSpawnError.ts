@@ -10,11 +10,11 @@ export const agentSpawnPresentations = {
   },
   agentSpawnRoute: {
     message: 'Agent sessions cannot start runtimes through this operation.',
-    hint: 'Use "opencove node create agent" or "opencove node create terminal".',
+    hint: 'Use "eclipse-code node create agent" or "eclipse-code node create terminal".',
   },
   agentSpawnCaller: {
     message: 'This session has no canvas node and cannot create agent or terminal runtimes.',
-    hint: 'Ask the user to start an agent on the canvas, then use "opencove node create" from that agent.',
+    hint: 'Ask the user to start an agent on the canvas, then use "eclipse-code node create" from that agent.',
   },
   agentSpawnBinding: {
     message: 'This session is no longer the active runtime of its canvas node.',
@@ -25,7 +25,7 @@ export const agentSpawnPresentations = {
     hint: 'Ask the user to start the agent on the target Worker.',
   },
   agentSpawnAccounting: {
-    message: 'OpenCove could not verify this agent tree’s running runtimes.',
+    message: 'Eclipse Code could not verify this agent tree’s running runtimes.',
     hint: 'Ask the user to check the affected runtimes and start a new agent on the canvas for further delegation.',
   },
   agentSpawnCapability: {

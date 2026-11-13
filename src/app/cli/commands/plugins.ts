@@ -74,7 +74,7 @@ export const pluginCommands: Command[] = [
       summary: summaries[name as keyof typeof summaries],
       description:
         name === 'run'
-          ? 'Inside OpenCove, window commands without an explicit node or project default to your own project. Plugin-wide commands receive no default target.'
+          ? 'Inside Eclipse Code, window commands without an explicit node or project default to your own project. Plugin-wide commands receive no default target.'
           : undefined,
       connect: true,
       operation,
@@ -181,7 +181,7 @@ export const pluginCommands: Command[] = [
         ) {
           usage(
             'Invalid plugin or contribution ID',
-            `Run "opencove plugin ${name} --help" to see its arguments.`,
+            `Run "eclipse-code plugin ${name} --help" to see its arguments.`,
           )
         }
         if (name === 'run' && Buffer.byteLength(JSON.stringify(o.params ?? null)) > 1024 * 1024) {
@@ -208,7 +208,7 @@ export const pluginCommands: Command[] = [
       async execute({ invoke, input, options, io, self }) {
         if (
           name === 'run' &&
-          io.env.OPENCOVE_ENV === '1' &&
+          io.env.ECLIPSE_CODE_ENV === '1' &&
           options.project === undefined &&
           options.node === undefined
         ) {

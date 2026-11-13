@@ -93,7 +93,7 @@ export const QUICK_E2E_GROUPS = {
       e2e('recovery.managed-claude-convergence'),
     ],
     matches: path =>
-      /\/persistence\/|\/sync\/|workersync|syncnodeguards|remotepersistencestore|browseropencoveapi\.persistence/.test(
+      /\/persistence\/|\/sync\/|workersync|syncnodeguards|remotepersistencestore|browsereclipsecodeapi\.persistence/.test(
         path,
       ),
   },

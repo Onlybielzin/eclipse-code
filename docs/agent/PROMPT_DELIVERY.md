@@ -1,29 +1,29 @@
 # Sending a prompt to Claude Code or Codex
 
-`opencove agent prompt` pastes text into a local agent window OpenCove launched
+`eclipse-code agent prompt` pastes text into a local agent window Eclipse Code launched
 (Claude Code or Codex with lifecycle hooks) and attempts to press Enter once. It never retries automatically.
 
 ```sh
-opencove agent prompt --node node-123 --text "Review the changes"
-opencove agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s
-cat prompt.txt | opencove agent prompt --node node-123 --text-file -
+eclipse-code agent prompt --node node-123 --text "Review the changes"
+eclipse-code agent prompt --node node-123 --text-file ./prompt.txt --timeout 20s
+cat prompt.txt | eclipse-code agent prompt --node node-123 --text-file -
 ```
 
 Use exactly one of `--text` or `--text-file`. Idle agents must have finished a turn
-that OpenCove observed; authoritative working agents accept steering in the current turn. A newly opened or resumed session may need a turn completed
+that Eclipse Code observed; authoritative working agents accept steering in the current turn. A newly opened or resumed session may need a turn completed
 in its terminal before this command can be used.
 
 The command attempts one bracketed paste into the current editor. If the paste reaches the editor and Enter submits it, any existing draft is
 submitted too. Check for drafts and dialogs with
-`opencove agent read --node <selector> --screen` before sending a prompt.
-After a successful prompt, save its `turnId` and use `opencove agent wait --node <selector> --turn <turnId>`,
+`eclipse-code agent read --node <selector> --screen` before sending a prompt.
+After a successful prompt, save its `turnId` and use `eclipse-code agent wait --node <selector> --turn <turnId>`,
 then read its final message.
 
 ## Supported agent windows
 
-Only agent windows OpenCove launched from a task, the agent launcher, or
-`opencove node create agent` are promptable. Their PTY was spawned for the agent
-process; agent exit ends that PTY and OpenCove generates its full argument vector.
+Only agent windows Eclipse Code launched from a task, the agent launcher, or
+`eclipse-code node create agent` are promptable. Their PTY was spawned for the agent
+process; agent exit ends that PTY and Eclipse Code generates its full argument vector.
 Agents typed into terminal shells, including terminal shim/launcher invocations,
 refuse for both providers with `agent.prompt_unsupported` / `terminal_agent_unsupported`.
 A Stop, reliable idle, or installed lifecycle hooks cannot change that launch kind.
@@ -32,7 +32,7 @@ supports observation and session identity; it grants no prompt capability.
 
 Managed launches with a custom executable path (Settings → agent executable) report
 `hookCoverage: unverified_executable` for both Claude Code and Codex and refuse with
-`agent.prompt_unsupported` / `executable_override_unverified`. OpenCove cannot verify
+`agent.prompt_unsupported` / `executable_override_unverified`. Eclipse Code cannot verify
 that a custom executable keeps the hooks required for prompting. This includes overrides
 that happen to name a direct provider binary. Remove the override and launch a new agent
 window with the required lifecycle hooks to make it promptable; changing the setting
@@ -41,7 +41,7 @@ observations are unchanged.
 
 Option-like model/resume values also have no verified lifecycle coverage: Codex reports
 conservative `notify_only` coverage and Claude reports `none`.
-The default provider executable must honor the generated argv; OpenCove cannot attest
+The default provider executable must honor the generated argv; Eclipse Code cannot attest
 arbitrary code substituted on PATH. Generated Codex hook configuration takes precedence
 over lower config defaults, while disabled matching handlers fail trust resolution.
 Requested environment, including CODEX_HOME, is included in the trust probe. No user
@@ -88,7 +88,7 @@ A successful result contains:
 }
 ```
 
-OpenCove received a token-authenticated UserPromptSubmit with a range-checked,
+Eclipse Code received a token-authenticated UserPromptSubmit with a range-checked,
 caller-supplied relay timestamp at or after the pre-Enter boundary, and matching
 source/sequence/identity checks described below.
 `phase` is `submission_observed` for a receipt, or `dispatched` for a Codex steer awaiting consumption. `textComparison` describes only the
@@ -115,7 +115,7 @@ wrappers, images and multimodal payloads are not attested by this text compariso
 The provider's optional `promptId` is returned on any comparison outcome when valid.
 For Claude Code, matching session and prompt IDs also bind retained Stop/StopFailure
 messages to the observed start. `agent.finalMessage` can select that provider ID;
-the CLI uses the OpenCove `turnId` returned by `agent prompt`. Codex has no comparison
+the CLI uses the Eclipse Code `turnId` returned by `agent prompt`. Codex has no comparison
 profile; lifecycle replies match the private session/turn pair.
 
 Equality is not proof of causation or model processing: another qualifying submission
@@ -126,7 +126,7 @@ The Worker retains volatile delivery records; the CLI ID is a lookup key, never 
 
 On `different`, **stop automatic orchestration**, retain the delivery, session, turn
 and optional prompt identifiers, and inspect the terminal/conversation with
-`opencove agent read --node <nodeId> --screen`. Decide explicitly whether to continue,
+`eclipse-code agent read --node <nodeId> --screen`. Decide explicitly whether to continue,
 correct or cancel. **Never resend, clear the editor, press Enter again or cancel a
 running turn automatically because of the comparison.** The CLI notice is:
 
@@ -139,12 +139,12 @@ running turn automatically because of the comparison.** The CLI notice is:
 | The agent is waiting for input, even when the reason is unknown | `agent.blocked`                                               | Resolve the dialog in the terminal.                                                                    |
 | The agent is working and whenBusy is absent/refuse              | `agent.busy` / `working`                                      | Wait for the turn to finish.                                                                           |
 | Another delivery is in progress                                 | `agent.busy` / `delivery_in_progress`                         | Wait for that delivery's result before deciding whether another is needed.                             |
-| OpenCove has not observed a completed turn                      | `agent.state_unknown` / `readiness_unobserved`                | Complete a turn in the terminal first.                                                                 |
+| Eclipse Code has not observed a completed turn                      | `agent.state_unknown` / `readiness_unobserved`                | Complete a turn in the terminal first.                                                                 |
 | Hook observations are unavailable or unreliable                 | `agent.state_unknown` / `observation_degraded`                | Check the hook setup and wait for a reliably observed turn end.                                        |
 | No running agent exists at the target                           | `agent.not_running`                                           | Check the node and start or resume its session.                                                        |
 | The agent window uses a custom executable path                  | `agent.prompt_unsupported` / `executable_override_unverified` | Remove the override in Settings → agent executable and launch a new agent window with lifecycle hooks. |
 | The target is an agent typed into a terminal                    | `agent.prompt_unsupported` / `terminal_agent_unsupported`     | Launch an agent window from a task, the agent launcher, or `node create agent`.                        |
-| The target is remote or uses another provider                   | `agent.prompt_unsupported`                                    | Select a local agent window OpenCove launched.                                                         |
+| The target is remote or uses another provider                   | `agent.prompt_unsupported`                                    | Select a local agent window Eclipse Code launched.                                                         |
 | The terminal has not enabled bracketed paste                    | `agent.prompt_unsupported` / `bracketed_paste_off`            | Check that the agent is at its prompt.                                                                 |
 | The timeout expires before the paste attempt                    | `agent.prompt_timeout`                                        | Check the target, then retry if appropriate.                                                           |
 
@@ -157,7 +157,7 @@ revocation, shutdown or a changed target; check `details.reason`.
 - `agent.prompt_interrupted`: a paste was attempted, but this command did not
   attempt Enter. Text may be in the editor. Inspect it and resolve any dialog
   before continuing; do not paste the same text again if it is already there.
-- `agent.prompt_stalled`: Enter was attempted, but OpenCove could not confirm
+- `agent.prompt_stalled`: Enter was attempted, but Eclipse Code could not confirm
   a matching submission event. **Do not resend.** Inspect the terminal and conversation to determine
   whether the prompt was submitted.
 - A lost connection, interrupted CLI, invalid response or Worker restart can leave
@@ -178,10 +178,10 @@ unless the overall deadline has also expired.
 
 ## Known risk: dialogs that hooks do not report
 
-OpenCove cannot detect every dialog from hook events. In the maintainer's local
+Eclipse Code cannot detect every dialog from hook events. In the maintainer's local
 acceptance with Claude Code 2.1.319 and a local Messages API stand-in, a one-time
 settings notice consumed the paste and Enter without a hook reporting the modal.
-No qualifying submission event arrived. OpenCove returned `agent.prompt_stalled`
+No qualifying submission event arrived. Eclipse Code returned `agent.prompt_stalled`
 with the instruction not to resend.
 
 This is a concrete limit of the observation model: an apparently ready session
@@ -212,12 +212,12 @@ trailing newlines are removed. The entire text is sent as one bracketed paste.
 
 A qualifying event must be an incarnation-matched, non-degraded `claude_hook` (Claude Code) or `codex_hook` (Codex)
 `UserPromptSubmit` for the same Worker lifetime, agent incarnation and target
-binding, with a source sequence newer than the one captured before Enter and a correlated turn identity (retained for late steer evidence). Its `x-opencove-hook-emitted-at` value must be finite, within
+binding, with a source sequence newer than the one captured before Enter and a correlated turn identity (retained for late steer evidence). Its `x-eclipse-code-hook-emitted-at` value must be finite, within
 60 seconds before to 2 seconds after the receiver's current wall clock, and no
 earlier numerically than the timestamp captured immediately before the Enter write.
 
 The shipped relay records `Date.now()` before reading stdin or argv. Codex lifecycle
-hooks use stdin; legacy notify uses argv. Both carry `x-opencove-hook-emitted-at`,
+hooks use stdin; legacy notify uses argv. Both carry `x-eclipse-code-hook-emitted-at`,
 but notify can never serve as a submission receipt. However, the receiver
 authenticates possession of the session's hook token; it does not authenticate the
 relay executable or independently verify when the event occurred. Any holder of
@@ -239,7 +239,7 @@ characters. It hashes only full, well-formed string `prompt` values bounded by t
 existing 256 KiB hook envelope budget; it never truncates before hashing. Optional
 malformed fields are dropped without discarding valid lifecycle evidence. No trimming
 string helper is used on prompt content. The digest is SHA-256 over UTF-8 of
-`"opencove-prompt-evidence-claude-code-v1\0" + normalizedText` (the separator is a NUL).
+`"eclipse-code-prompt-evidence-claude-code-v1\0" + normalizedText` (the separator is a NUL).
 Raw hook prompt text is discarded during normalization; prompt correlation stores no prompt content beyond transient parsing/delivery buffers and never logs it. A relay-truncated prompt has no digest.
 
 The digest and prompt ID travel only through private, same-process channel metadata,
@@ -289,14 +289,14 @@ queue. There is no automatic resend, raw-typing fallback or wait-until-idle queu
 Retain `deliveryId` and `turnId` from prompt; confirm delivery before waiting:
 
 ```sh
-opencove agent prompt --node node-123 --text "Review the changes"
-opencove agent delivery delivery-123 --wait --timeout 2m
-opencove agent wait --node node-123 --turn turn-123 --timeout 60s
-opencove agent read --node node-123 --turn turn-123
+eclipse-code agent prompt --node node-123 --text "Review the changes"
+eclipse-code agent delivery delivery-123 --wait --timeout 2m
+eclipse-code agent wait --node node-123 --turn turn-123 --timeout 60s
+eclipse-code agent read --node node-123 --turn turn-123
 ```
 
 Replace `delivery-123` and `turn-123` with prompt's saved IDs. `wait --turn` waits for that exact
-OpenCove turn, including continuations, even if another turn has started. Matching waiting
+Eclipse Code turn, including continuations, even if another turn has started. Matching waiting
 now stops with 10 by default; `--through-waiting` continues. See [wait recovery](WAIT.md).
 It returns `{ nodeId, sessionId, turnId, outcome, endedAt?, state }` and exits 0 for
 every ended outcome (`completed`, `failed`, `aborted`, `unknown`); inspect `outcome`.
@@ -325,12 +325,12 @@ Unavailable results use `agent.final_message_unavailable` with `details.reason`:
 An unqualified `agent read --node …` tries this query first. Only `no_ended_turn`
 or `provider_sent_no_message` permits fallback to `session.finalMessage`, labelled
 `source: 'transcript'`. That reply is the latest provider transcript message and
-is **uncorrelated** with an OpenCove turn. Authorization, transport and other errors
+is **uncorrelated** with an Eclipse Code turn. Authorization, transport and other errors
 are returned directly. `--screen` reads buffered terminal output for inspection.
 
-This is the message at an **observed OpenCove turn end**, not proof of irrevocable
+This is the message at an **observed Eclipse Code turn end**, not proof of irrevocable
 provider completion: another Stop hook may continue processing. Claude messages
-humans submit mid-turn continue the same OpenCove turn, whether consumed at a tool
+humans submit mid-turn continue the same Eclipse Code turn, whether consumed at a tool
 boundary or dequeued into a new provider prompt without a start hook. While queue
 evidence is unresolved the first Stop is intermediate: no idle/readiness, completion
 event or final read. `wait --turn` includes provider continuations; `read --turn`
@@ -421,7 +421,7 @@ reopening an ended turn, clearing waiting, or granting readiness. A turn deliver
 uses a new prompt ID when a prior ID is known; any mapping to a turn already ended
 at the pre-Enter fence is rejected. Post-fence turn identity remains available for
 genuinely late receipts after that turn ends. S1 provider-segment changes retain
-the OpenCove turn; the pre-Enter identity is captured afresh.
+the Eclipse Code turn; the pre-Enter identity is captured afresh.
 
 Codex steering returns `phase: dispatched`, `mode: steer`, exit 0. This means input
 was attempted, not consumed. Multiple outstanding steers are allowed. Consumption
@@ -434,9 +434,9 @@ immediately after CR; human input remains available. An uncertain CR write failu
 is unknown, never FIFO-eligible, and blocks further deliveries.
 
 ```sh
-opencove agent prompt --node node-123 --text 'Focus on lifecycle cleanup'
-opencove agent delivery <deliveryId>
-opencove agent delivery <deliveryId> --wait --timeout 2m
+eclipse-code agent prompt --node node-123 --text 'Focus on lifecycle cleanup'
+eclipse-code agent delivery <deliveryId>
+eclipse-code agent delivery <deliveryId> --wait --timeout 2m
 ```
 
 The CLI generates and prints its UUID before sending. A lost HTTP response can be
@@ -488,12 +488,12 @@ without relaunching the agent, and return the original node/session IDs. JSON in
 `archive_unavailable` is distinct from a history miss; never resend to recover it.
 The executing Worker stores replies (≤64 KiB UTF-8), outcome, IDs, timestamps and
 truncation/intermediate metadata, never prompt text, hook evidence or delivery records. S1 provider continuations archive once at
-the final OpenCove end; uncertainty stays `unknown`/`messageKind: intermediate` and
+the final Eclipse Code end; uncertainty stays `unknown`/`messageKind: intermediate` and
 never grants readiness or proves steering consumption. Retention upper bounds are
 60 turns/node, 30 days, 20,000 global records and 128 MiB of message text; metadata-only
 ends count. Smaller memory caches may evict earlier. Oversized purges leave new turns
 memory-only (`retention_backlog`) while bounded cleanup makes room for future records.
 
-Deleting the node removes queryable OpenCove history, including caches; it does not
+Deleting the node removes queryable Eclipse Code history, including caches; it does not
 erase provider transcripts, existing backups or forensic remnants.
-`opencove agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and transcript fallback keep current-incarnation semantics; remote history stays on its executing Worker.
+`eclipse-code agent history clear --node <selector>` (`agent.history.clear`, interact scope) deletes the node’s archived and in-memory replies across retained incarnations, leaving the node, provider transcripts, backups, run state, active turns and delivery records unchanged; later ends store normally, and archive unavailability clears memory but exits 1. Unqualified reads, prompt-ID selectors and transcript fallback keep current-incarnation semantics; remote history stays on its executing Worker.

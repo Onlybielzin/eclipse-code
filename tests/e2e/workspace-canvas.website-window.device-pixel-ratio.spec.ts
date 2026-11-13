@@ -19,7 +19,7 @@ async function readWebsiteRuntimeState(
 ): Promise<WebsiteRuntimeState | null> {
   return await electronApp.evaluate(async ({ BrowserWindow }, targetNodeId) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const manager = win.__opencoveWebsiteWindowManager
+    const manager = win.__eclipseCodeWebsiteWindowManager
     const runtime = manager?.runtimeByNodeId.get(targetNodeId) ?? null
     if (!runtime) {
       return null
@@ -38,7 +38,7 @@ async function readWebsiteDevicePixelRatio(
 ): Promise<number | null> {
   return await electronApp.evaluate(async ({ BrowserWindow }, targetNodeId) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const manager = win.__opencoveWebsiteWindowManager
+    const manager = win.__eclipseCodeWebsiteWindowManager
     const runtime = manager?.runtimeByNodeId.get(targetNodeId) ?? null
     const view = runtime?.view ?? null
     if (!view) {

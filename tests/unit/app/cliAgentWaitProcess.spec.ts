@@ -14,13 +14,13 @@ it.each(['waiting', 'exited'] as const)(
       ...snapshot('a', state),
       blockedReason: state === 'waiting' ? 'permission' : null,
     })
-    const root = await mkdtemp(join(tmpdir(), 'opencove-wait-cli-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-wait-cli-'))
     try {
       const endpoint = await f.start()
       const result = await runCommand(
         process.execPath,
         [
-          resolve('out/cli/opencove.mjs'),
+          resolve('out/cli/eclipse-code.mjs'),
           'agent',
           'wait',
           '--node',
@@ -35,7 +35,7 @@ it.each(['waiting', 'exited'] as const)(
           'json',
         ],
         root,
-        { timeoutMs: 5000, env: { ...process.env, OPENCOVE_USER_DATA_DIR: root } },
+        { timeoutMs: 5000, env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: root } },
       )
       expect(result.exitCode, result.stderr).toBe(state === 'waiting' ? 10 : 11)
       expect(result.stdout).toBe('')

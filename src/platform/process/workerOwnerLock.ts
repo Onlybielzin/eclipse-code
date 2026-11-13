@@ -7,7 +7,9 @@ export type WorkerOwnerLock = { status: 'acquired'; release: () => void } | { st
 /** This file is permanent: unlinking it would create a second locking domain. */
 export function acquireWorkerOwnerLock(userDataPath: string): WorkerOwnerLock {
   mkdirSync(userDataPath, { recursive: true })
-  const db = new Database(resolve(userDataPath, 'opencove-worker-owner.lock.db'), { timeout: 0 })
+  const db = new Database(resolve(userDataPath, 'eclipse-code-worker-owner.lock.db'), {
+    timeout: 0,
+  })
   try {
     db.pragma('busy_timeout = 0')
     db.pragma('locking_mode = EXCLUSIVE')

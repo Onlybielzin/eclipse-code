@@ -9,20 +9,20 @@ import {
 const modifier = process.platform === 'darwin' ? 'Meta' : 'Control'
 const actionsSelector = '[data-testid="terminal-link-actions"][role="dialog"]'
 
-type LinkCaptureGlobal = typeof globalThis & { __opencoveLinkOpenCalls?: string[] }
+type LinkCaptureGlobal = typeof globalThis & { __eclipseCodeLinkOpenCalls?: string[] }
 
 async function captureExternalLinks(app: ElectronApplication): Promise<void> {
   await app.evaluate(({ shell }) => {
     const state = globalThis as LinkCaptureGlobal
-    state.__opencoveLinkOpenCalls = []
+    state.__eclipseCodeLinkOpenCalls = []
     shell.openExternal = async uri => {
-      state.__opencoveLinkOpenCalls?.push(uri)
+      state.__eclipseCodeLinkOpenCalls?.push(uri)
     }
   })
 }
 
 async function readExternalLinks(app: ElectronApplication): Promise<string[]> {
-  return app.evaluate(() => (globalThis as LinkCaptureGlobal).__opencoveLinkOpenCalls ?? [])
+  return app.evaluate(() => (globalThis as LinkCaptureGlobal).__eclipseCodeLinkOpenCalls ?? [])
 }
 
 test.describe('Workspace Canvas - Terminal Links', () => {
@@ -109,7 +109,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
           .poll(() =>
             window.evaluate(
               id =>
-                window.__opencoveTerminalSelectionTestApi?.getBufferText(id, 'OTHER_ROW_OUTPUT')
+                window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, 'OTHER_ROW_OUTPUT')
                   ?.viewportLines[2],
               nodeId,
             ),
@@ -132,7 +132,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
         await expect
           .poll(() =>
             window.evaluate(
-              id => window.__opencoveTerminalSelectionTestApi?.hasSelection(id) ?? false,
+              id => window.__eclipseCodeTerminalSelectionTestApi?.hasSelection(id) ?? false,
               nodeId,
             ),
           )
@@ -169,13 +169,13 @@ test.describe('Workspace Canvas - Terminal Links', () => {
       await expect
         .poll(() =>
           window.evaluate(
-            id => window.__opencoveTerminalSelectionTestApi?.getSize(id)?.cols ?? 0,
+            id => window.__eclipseCodeTerminalSelectionTestApi?.getSize(id)?.cols ?? 0,
             nodeId,
           ),
         )
         .toBeGreaterThan(20)
       const cols = await window.evaluate(
-        id => window.__opencoveTerminalSelectionTestApi!.getSize(id)!.cols,
+        id => window.__eclipseCodeTerminalSelectionTestApi!.getSize(id)!.cols,
         nodeId,
       )
       const uri = `https://example.com/${'a'.repeat(cols * 4)}/end`
@@ -209,7 +209,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
       await expect
         .poll(() =>
           window.evaluate(
-            id => window.__opencoveTerminalSelectionTestApi?.hasSelection(id) ?? false,
+            id => window.__eclipseCodeTerminalSelectionTestApi?.hasSelection(id) ?? false,
             nodeId,
           ),
         )
@@ -223,7 +223,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
       await expect
         .poll(() =>
           window.evaluate(
-            id => window.__opencoveTerminalSelectionTestApi?.hasSelection(id) ?? false,
+            id => window.__eclipseCodeTerminalSelectionTestApi?.hasSelection(id) ?? false,
             nodeId,
           ),
         )
@@ -285,7 +285,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
         .poll(() =>
           window.evaluate(
             id =>
-              window.__opencoveTerminalSelectionTestApi?.getBufferText(id, 'UNRELATED_OUTPUT')
+              window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, 'UNRELATED_OUTPUT')
                 ?.viewportLines[2],
             nodeId,
           ),
@@ -359,7 +359,7 @@ test.describe('Workspace Canvas - Terminal Links', () => {
       const receivedMouseInput = () =>
         window.evaluate(
           id =>
-            window.__opencoveTerminalSelectionTestApi?.getBufferText(id, 'PTY_MOUSE_INPUT')
+            window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, 'PTY_MOUSE_INPUT')
               ?.markerAbsoluteLine ?? null,
           nodeId,
         )

@@ -49,13 +49,13 @@ function httpHarness() {
               cwd: '/tmp/workspace',
               executablePath: '/tmp/test-codex',
               arguments: [],
-              environment: { CODEX_HOME: '/tmp/opencove-terminal-codex-unit' },
+              environment: { CODEX_HOME: '/tmp/eclipse-code-terminal-codex-unit' },
             }),
           ]),
           {
             method: 'POST',
             url: '/terminal-agent/activity',
-            headers: { 'x-opencove-terminal-agent-token': token },
+            headers: { 'x-eclipse-code-terminal-agent-token': token },
           },
         )
         const response = {

@@ -2,12 +2,12 @@
 
 ![Clock icon](icon.svg)
 
-A dependency-free example of a real, independently installed OpenCove plugin.
+A dependency-free example of a real, independently installed Eclipse Code plugin.
 Copy this entire folder to your own writable location before editing it.
 
 ```sh
-opencove plugin install /absolute/path/to/hello-clock
-opencove plugin details hello-clock --pretty
+eclipse-code plugin install /absolute/path/to/hello-clock
+eclipse-code plugin details hello-clock --pretty
 ```
 
 Create **Hello Clock** using the canvas action bar or right-click menu. Click
@@ -19,27 +19,27 @@ the lifetime of this UI instance and continues when its window is collapsed.
 
 The settings preview uses a sample timestamp and temporary storage. It cannot
 change the real saved label. Theme colors follow the host. Resize, collapse and
-close come from OpenCove's standard window, not duplicated plugin controls.
+close come from Eclipse Code's standard window, not duplicated plugin controls.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `opencove.plugin.json` | Identity, API version, view, backend and preview declarations |
+| `eclipse-code.plugin.json` | Identity, API version, view, backend and preview declarations |
 | `main.mjs` | Node backend exporting `activate`, `invoke` and `dispose` |
 | `index.html`, `view.js`, `style.css` | Responsive body using the injected browser SDK |
 | `icon.svg` | Shared icon for settings and canvas |
 | `README.md` | This detail-page documentation |
 
 No package installation or development server is needed. Change source, then run
-`opencove plugin reload hello-clock`; the application itself is not rebuilt.
+`eclipse-code plugin reload hello-clock`; the application itself is not rebuilt.
 Read `../../API.md` in the guide directory before extending the example. Backend
 code has trusted Node access, while the view is browser code.
 
 ```sh
-opencove plugin disable hello-clock
-opencove plugin enable hello-clock
-opencove plugin uninstall hello-clock
+eclipse-code plugin disable hello-clock
+eclipse-code plugin enable hello-clock
+eclipse-code plugin uninstall hello-clock
 ```
 
 Uninstall retains your source and private data. To build a different plugin,

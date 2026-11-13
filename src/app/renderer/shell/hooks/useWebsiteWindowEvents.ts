@@ -5,7 +5,7 @@ import { WEBSITE_WINDOW_OPEN_URL_EVENT_NAME } from '@shared/contracts/websiteWin
 
 export function useWebsiteWindowEvents(): void {
   useEffect(() => {
-    const api = window.opencoveApi?.websiteWindow
+    const api = window.eclipseCodeApi?.websiteWindow
     if (!api || typeof api.onEvent !== 'function') {
       return
     }

@@ -94,7 +94,7 @@ function identity(node: {
 describeWithElectronNativeModules('managed Claude lifecycle renderer snapshot round trip', () => {
   let root: string, f: SnapshotFixture, ipc: ReturnType<typeof registerPersistenceIpcHandlers>
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-snapshot-roundtrip-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-snapshot-roundtrip-'))
   })
   afterEach(async () => {
     ipc?.dispose()
@@ -121,14 +121,14 @@ describeWithElectronNativeModules('managed Claude lifecycle renderer snapshot ro
     const write = vi.fn(async (payload: unknown) =>
       invokeHandledIpc(handlers.get(IPC_CHANNELS.persistenceWriteAppState), null, payload),
     )
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       controlSurface: { invoke: f.invoke },
       agent: {
         launch: async (payload: object) => f.launch(payload) as Promise<LaunchAgentSessionResult>,
       },
       pty: { kill: vi.fn(async () => {}) },
       persistence: { writeAppState: write },
-    } as unknown as typeof window.opencoveApi
+    } as unknown as typeof window.eclipseCodeApi
     return write
   }
   it.each(cases)(

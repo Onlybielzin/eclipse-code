@@ -310,7 +310,7 @@ export const WorkspacePixelWall = memo(function WorkspacePixelWall({
       attributeFilter: ['data-cove-kind-colors'],
     })
     // Output only brightens a light; without a PTY bridge there is nothing to observe.
-    const unsubscribeOutput = window.opencoveApi?.pty
+    const unsubscribeOutput = window.eclipseCodeApi?.pty
       ? getPtyEventHub().onData(event => {
           if (reducedMotion || !signalsRef.current || !event.data) {
             return
@@ -373,7 +373,7 @@ export const WorkspacePixelWall = memo(function WorkspacePixelWall({
       activeScheduler.setVisible(visible)
     }
     const syncFocus = () => activeScheduler.setFocused(document.hasFocus())
-    window.addEventListener('opencove-theme-changed', onThemeChange)
+    window.addEventListener('eclipse-code-theme-changed', onThemeChange)
     media.addEventListener('change', onMotionChange)
     document.addEventListener('visibilitychange', syncVisibility)
     window.addEventListener('focus', syncFocus)
@@ -399,7 +399,7 @@ export const WorkspacePixelWall = memo(function WorkspacePixelWall({
       unsubscribeSignals()
       kindColors?.disconnect()
       resizeObserver?.disconnect()
-      window.removeEventListener('opencove-theme-changed', onThemeChange)
+      window.removeEventListener('eclipse-code-theme-changed', onThemeChange)
       media.removeEventListener('change', onMotionChange)
       document.removeEventListener('visibilitychange', syncVisibility)
       window.removeEventListener('focus', syncFocus)

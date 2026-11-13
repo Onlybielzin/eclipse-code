@@ -30,6 +30,7 @@ export interface WorkspaceContextMenuProps {
   websiteWindowsEnabled: boolean
   openTaskCreator: () => void
   openRoleCreator: () => void
+  createDefaultTeam: () => void
   openAgentLauncher: () => void
   agentProviderOrder: AgentProvider[]
   agentExecutablePathOverrideByProvider: AgentExecutablePathOverrideByProvider<AgentProvider>

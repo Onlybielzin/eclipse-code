@@ -41,7 +41,7 @@ const keys = [
   'S1A_TEST_BASE_URL',
   'S1A_TEST_DISABLED',
   'S1A_TEST_OVERLAP',
-  'OPENCOVE_S1A_TEST_RESERVED',
+  'ECLIPSE_CODE_S1A_TEST_RESERVED',
 ]
 function relevant(env?: Readonly<NodeJS.ProcessEnv> | null) {
   return Object.fromEntries(keys.map(key => [key, env?.[key]]))
@@ -67,7 +67,7 @@ async function fixture(route: Route, assertActive?: () => void) {
         { id: 'disabled', key: 'S1A_TEST_DISABLED', value: 'must-not-apply', enabled: false },
         {
           id: 'reserved',
-          key: 'OPENCOVE_S1A_TEST_RESERVED',
+          key: 'ECLIPSE_CODE_S1A_TEST_RESERVED',
           value: 'must-not-apply',
           enabled: true,
         },
@@ -248,7 +248,7 @@ for (const route of routes) {
         S1A_TEST_BASE_URL: selected === 'codex' ? 'https://provider.example.invalid' : undefined,
         S1A_TEST_DISABLED: undefined,
         S1A_TEST_OVERLAP: selected === 'codex' ? 'saved-overlap' : undefined,
-        OPENCOVE_S1A_TEST_RESERVED: undefined,
+        ECLIPSE_CODE_S1A_TEST_RESERVED: undefined,
       }
 
       expect(f.plans[selected]).toHaveBeenCalledOnce()

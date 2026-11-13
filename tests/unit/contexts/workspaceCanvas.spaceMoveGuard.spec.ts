@@ -8,7 +8,7 @@ import type {
 } from '../../../src/contexts/workspace/presentation/renderer/types'
 
 const workspacePath = '/tmp/repo'
-const worktreePath = `${workspacePath}/.opencove/worktrees/demo`
+const worktreePath = `${workspacePath}/.eclipse-code/worktrees/demo`
 
 function createNode(
   id: string,

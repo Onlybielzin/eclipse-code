@@ -66,7 +66,7 @@ function buildReleaseSection(nextVersion, releaseDate, includeHighlights) {
   const section = [
     `## [${nextVersion}] - ${releaseDate}`,
     '',
-    `Welcome to OpenCove ${nextVersion}! This release focuses on...`,
+    `Welcome to Eclipse Code ${nextVersion}! This release focuses on...`,
     '',
   ]
 
@@ -166,7 +166,7 @@ if (!rawTarget) {
         "1. Fill in the changelog and curated user-facing What's New manifest.",
         '2. Run `pnpm pre-commit`, commit, and merge the release prep.',
         '3. Run the Release workflow dry-run against the exact accepted main SHA.',
-        `4. Create an annotated tag with \`git tag -a v${nextVersion} -m "OpenCove v${nextVersion}"\`.`,
+        `4. Create an annotated tag with \`git tag -a v${nextVersion} -m "Eclipse Code v${nextVersion}"\`.`,
         `5. Push \`v${nextVersion}\`, then verify the published assets and standalone Worker smoke.`,
         '',
       ].join('\n'),

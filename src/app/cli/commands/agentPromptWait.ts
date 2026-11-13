@@ -42,7 +42,7 @@ export async function promptAndWait(ctx: CommandContext): Promise<unknown> {
     ...(delivery.comparisonProfile ? { comparisonProfile: delivery.comparisonProfile } : {}),
     ...(delivery.promptId ? { promptId: delivery.promptId } : {}),
   }
-  const recovery = `Never resend. Check opencove agent delivery ${shellWord(deliveryId)}; once confirmed, ${turnContinuation({ nodeId, turnId })}`
+  const recovery = `Never resend. Check eclipse-code agent delivery ${shellWord(deliveryId)}; once confirmed, ${turnContinuation({ nodeId, turnId })}`
   ctx.io.stderr.write(turnWaitProgress({ nodeId, turnId }))
   // The send operation has its own short budget; this deadline is shared by both observers.
   const deadline = ctx.io.now() + Number(ctx.options.timeout ?? 20000)
@@ -58,7 +58,7 @@ export async function promptAndWait(ctx: CommandContext): Promise<unknown> {
         'agent.prompt_stalled',
         1,
         'Prompt submission is unconfirmed. Never resend.',
-        `Check opencove agent delivery ${shellWord(deliveryId)} or inspect the agent screen.`,
+        `Check eclipse-code agent delivery ${shellWord(deliveryId)} or inspect the agent screen.`,
         { lastKnown: confirmed },
       )
     }

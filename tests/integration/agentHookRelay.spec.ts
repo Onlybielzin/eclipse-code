@@ -14,7 +14,7 @@ import { TerminalProfileResolver } from '../../src/platform/terminal/TerminalPro
 
 const cleanups: Array<() => Promise<unknown>> = []
 beforeEach(async () => {
-  const testHome = await mkdtemp(join(tmpdir(), 'opencove-relay-home-'))
+  const testHome = await mkdtemp(join(tmpdir(), 'eclipse-code-relay-home-'))
   cleanups.push(() => rm(testHome, { recursive: true, force: true }))
   // Exercise generated hook commands regardless of the developer's Codex daemon.
   vi.stubEnv('HOME', testHome)
@@ -39,7 +39,7 @@ async function prepare(provider: 'codex' | 'claude', notify = false) {
   cleanups.push(() => artifacts.dispose())
   let runtimeExecutable = process.execPath
   if (process.platform !== 'win32') {
-    const root = await mkdtemp(join(tmpdir(), "OpenCove hook ' 路径 $test "))
+    const root = await mkdtemp(join(tmpdir(), "Eclipse Code hook ' 路径 $test "))
     cleanups.push(() => rm(root, { recursive: true, force: true }))
     runtimeExecutable = join(root, 'runtime')
     // Model Electron's mode switch without opening a GUI on a red run.
@@ -224,7 +224,7 @@ describe('provider Hook relay through sanitized launch environments', () => {
       throw new Error('Missing receiver port')
     }
     const invocation = await prepare('claude')
-    invocation.env.OPENCOVE_CLAUDE_HOOK_ENDPOINT = `http://127.0.0.1:${address.port}/hooks/claude`
+    invocation.env.ECLIPSE_CODE_CLAUDE_HOOK_ENDPOINT = `http://127.0.0.1:${address.port}/hooks/claude`
     expect(await run(invocation, '{}')).toEqual({
       code: 0,
       stdout: '',

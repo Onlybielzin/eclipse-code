@@ -12,9 +12,9 @@ const describeOnWindows = process.platform === 'win32' ? describe : describe.ski
 
 describeOnWindows('Claude project paths on Windows', () => {
   it('matches Claude Code drive-letter project directory encoding', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-claude-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-claude-home-'))
     const previousHome = process.env.HOME
-    const cwd = 'D:\\Development\\opencove\\docs'
+    const cwd = 'D:\\Development\\eclipse-code\\docs'
     const startedAtMs = Date.now()
     const sessionId = 'claude-windows-session'
     const encodedProjectPath = encodeClaudeProjectPath(cwd)
@@ -35,7 +35,7 @@ describeOnWindows('Claude project paths on Windows', () => {
         'utf8',
       )
 
-      expect(encodedProjectPath).toBe('D--Development-opencove-docs')
+      expect(encodedProjectPath).toBe('D--Development-eclipse-code-docs')
       await expect(
         locateAgentResumeSessionId({
           provider: 'claude-code',
@@ -63,9 +63,10 @@ describeOnWindows('Claude project paths on Windows', () => {
   })
 
   it('matches Claude Code hidden worktree project directory encoding', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-claude-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-claude-home-'))
     const previousHome = process.env.HOME
-    const cwd = 'D:\\Development\\opencove\\.opencove\\worktrees\\fix-resume-claude-agent--f8fd20ab'
+    const cwd =
+      'D:\\Development\\eclipse-code\\.eclipse-code\\worktrees\\fix-resume-claude-agent--f8fd20ab'
     const startedAtMs = Date.now()
     const sessionId = 'claude-hidden-worktree-session'
     const encodedProjectPath = encodeClaudeProjectPath(cwd)
@@ -87,7 +88,7 @@ describeOnWindows('Claude project paths on Windows', () => {
       )
 
       expect(encodedProjectPath).toBe(
-        'D--Development-opencove--opencove-worktrees-fix-resume-claude-agent--f8fd20ab',
+        'D--Development-eclipse-code--eclipse-code-worktrees-fix-resume-claude-agent--f8fd20ab',
       )
       await expect(
         locateAgentResumeSessionId({
@@ -116,12 +117,12 @@ describeOnWindows('Claude project paths on Windows', () => {
   })
 
   it('keeps resolving legacy dot-preserving Claude project directories', async () => {
-    const tempHome = await fs.mkdtemp(join(tmpdir(), 'opencove-claude-home-'))
+    const tempHome = await fs.mkdtemp(join(tmpdir(), 'eclipse-code-claude-home-'))
     const previousHome = process.env.HOME
-    const cwd = 'D:\\Development\\opencove\\.opencove\\worktrees\\legacy'
+    const cwd = 'D:\\Development\\eclipse-code\\.eclipse-code\\worktrees\\legacy'
     const startedAtMs = Date.now()
     const sessionId = 'claude-legacy-session'
-    const legacyEncodedProjectPath = 'D--Development-opencove-.opencove-worktrees-legacy'
+    const legacyEncodedProjectPath = 'D--Development-eclipse-code-.eclipse-code-worktrees-legacy'
     const sessionFilePath = join(
       tempHome,
       '.claude',

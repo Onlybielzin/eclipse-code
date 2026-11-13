@@ -9,6 +9,7 @@ import { enWebsiteNode } from './en.websiteNode'
 import { enIssueReport } from './en.issueReport'
 import { enPerformanceMonitor } from './en.performanceMonitor'
 import { enRole } from './en.role'
+import { enTasks } from './en.tasks'
 import { enWorkspaceCanvas } from './en.workspaceCanvas'
 import { enSidebarView } from './en.sidebarView'
 import { enSidebarRail } from './en.sidebarRail'
@@ -44,7 +45,7 @@ export const en = {
   ...enSpaceCollapse,
   common: {
     workerStopNotOwned:
-      'This Worker was started outside OpenCove Desktop. Stop it where it was started, for example with opencove worker stop.',
+      'This Worker was started outside Eclipse Code Desktop. Stop it where it was started, for example with eclipse-code worker stop.',
     workerExternalOwnerUnreachable:
       'Another Worker owns this data directory but is unreachable or incompatible. Stop it explicitly before retrying.',
     actions: 'Actions',
@@ -364,7 +365,7 @@ export const en = {
       'This image could not be previewed. It may be damaged or use an unsupported format.',
     mediaUnsupportedTitle: 'Media playback unavailable',
     mediaUnsupportedMessage:
-      'This audio or video file cannot be played here. OpenCove currently previews MP3, WAV/WAVE, OGG/OGA, MP4, and WebM when the runtime supports them.',
+      'This audio or video file cannot be played here. Eclipse Code currently previews MP3, WAV/WAVE, OGG/OGA, MP4, and WebM when the runtime supports them.',
     externalChangeTitle: 'File changed on disk.',
     externalChangeMessage:
       'Reload to get the latest version, or overwrite the file with your edits.',
@@ -473,6 +474,7 @@ export const en = {
     hideAdvanced: 'Hide Advanced',
   },
   ...enRole,
+  ...enTasks,
   taskPromptTemplates: {
     openMenu: 'Prompt templates',
     globalSection: 'Global Templates',

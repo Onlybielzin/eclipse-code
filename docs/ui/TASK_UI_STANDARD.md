@@ -3,7 +3,7 @@
 > 关联全局 UI 规范：`docs/ui/README.md`
 > 关联全局窗口规范：`docs/ui/WINDOW_UI_STANDARD.md`
 
-本规范约束 OpenCove 中 Task 卡片与 Task 编辑体验的交互与视觉，目标是：
+本规范约束 Eclipse Code 中 Task 卡片与 Task 编辑体验的交互与视觉，目标是：
 
 1. 让用户在画布内快速改任务（最少点击）；
 2. 让复杂配置仍有完整编辑入口（可发现、可回退）；

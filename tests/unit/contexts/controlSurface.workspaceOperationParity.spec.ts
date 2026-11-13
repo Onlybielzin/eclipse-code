@@ -8,7 +8,7 @@ import * as space from '../../support/controlSurfaceLegacyOracles/spaceQueries'
 import * as worktree from '../../support/controlSurfaceLegacyOracles/worktree'
 import { normalizeProjectListPayload } from '../../support/controlSurfaceLegacyOracles/project'
 import { workspaceOperationCorpus } from '../../support/controlSurfaceLegacyOracles/workspaceOperationCorpus'
-import { OpenCoveAppError } from '../../../src/shared/errors/appError'
+import { EclipseCodeAppError } from '../../../src/shared/errors/appError'
 
 const oracles: Record<string, (payload: unknown) => unknown> = {
   'canvas.focus': node.normalizeFocusPayload,
@@ -46,7 +46,7 @@ function attempt(parse: (payload: unknown) => unknown, payload: unknown) {
   try {
     return { ok: true, value: parse(payload) }
   } catch (error) {
-    if (!(error instanceof OpenCoveAppError)) {
+    if (!(error instanceof EclipseCodeAppError)) {
       throw error
     }
     return { ok: false, error: error.toDescriptor() }

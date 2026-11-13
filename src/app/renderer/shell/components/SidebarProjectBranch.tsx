@@ -5,7 +5,7 @@ import type { WorkspaceState } from '@contexts/workspace/presentation/renderer/t
 import { resolveProjectBranch } from '@contexts/workspace/presentation/renderer/worktreeInfo/spaceBranch'
 import { useProjectWorktrees } from '@contexts/workspace/presentation/renderer/worktreeInfo/useProjectWorktrees'
 
-/** The branch the project's checkout is on, beside its name (Tide prototype: "opencove feat/jwt"). */
+/** The branch the project's checkout is on, beside its name (Tide prototype: "eclipse-code feat/jwt"). */
 export function SidebarProjectBranch({
   workspace,
 }: {

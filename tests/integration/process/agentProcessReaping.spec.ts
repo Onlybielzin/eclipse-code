@@ -32,7 +32,7 @@ beforeAll(async () => {
   if (!canReadProcessTable) {
     return
   }
-  root = await mkdtemp(join(tmpdir(), 'opencove-agent-reap-'))
+  root = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-reap-'))
   hostEntry = join(root, 'host.cjs')
   await build({
     configFile: false,

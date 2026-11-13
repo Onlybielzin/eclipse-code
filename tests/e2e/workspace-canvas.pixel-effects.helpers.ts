@@ -57,7 +57,7 @@ export async function changePixelAppearance(page: Page, change: () => Promise<vo
   // uncovered, so a check of the wall reads the canvas and not the sheet that just left.
   if ((await page.getByTestId('workspace-pixel-wall').count()) > 0) {
     await expect
-      .poll(() => page.evaluate(() => window.__opencovePixelWallTestApi?.isCovered() ?? false))
+      .poll(() => page.evaluate(() => window.__eclipseCodePixelWallTestApi?.isCovered() ?? false))
       .toBe(false)
   }
 }
@@ -102,7 +102,7 @@ export async function setPixelEffects(page: Page, effects: PixelEffectSettings) 
 
 export async function readPixelEffects(page: Page) {
   return await page.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = raw ? (JSON.parse(raw) as { settings?: Partial<PixelEffectSettings> }) : null
     return {
       agentWorkingPixelEffectEnabled: state?.settings?.agentWorkingPixelEffectEnabled,

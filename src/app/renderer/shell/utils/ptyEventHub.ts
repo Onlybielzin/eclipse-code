@@ -405,7 +405,7 @@ let singleton: {
 } | null = null
 
 export function getPtyEventHub(): PtyEventHub {
-  const source = window.opencoveApi.pty
+  const source = window.eclipseCodeApi.pty
   if (!singleton || singleton.source !== source) {
     singleton?.hub.dispose()
     singleton = { source, hub: createPtyEventHub(source) }

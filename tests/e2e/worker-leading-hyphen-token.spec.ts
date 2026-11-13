@@ -10,7 +10,7 @@ import {
 } from './m6.endpoints-mounts.integration.helpers'
 
 test('Worker authenticates an opaque bearer token that starts with hyphens', async () => {
-  const root = await mkdtemp(path.join(tmpdir(), 'opencove-e2e-worker-token-'))
+  const root = await mkdtemp(path.join(tmpdir(), 'eclipse-code-e2e-worker-token-'))
   const userDataDir = path.join(root, 'user-data')
   const homeDir = path.join(root, 'home')
   const token = '--opaque-leading-token'
@@ -36,7 +36,7 @@ test('Worker authenticates an opaque bearer token that starts with hyphens', asy
       body: JSON.stringify({ kind: 'query', id: 'system.ping', payload: null }),
     })
     await expect(response.json()).resolves.toMatchObject({
-      __opencoveControlEnvelope: true,
+      __eclipseCodeControlEnvelope: true,
       ok: true,
     })
   } finally {

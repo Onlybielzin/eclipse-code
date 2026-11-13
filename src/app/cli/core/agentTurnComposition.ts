@@ -46,15 +46,15 @@ export function turnContinuation({
 }: Pick<TurnIdentity, 'nodeId'> & Partial<TurnIdentity>): string {
   const node = shellWord(nodeId)
   return turnId
-    ? `Resume with opencove agent wait --node ${node} --turn ${shellWord(turnId)}, or read with opencove agent read --node ${node} --turn ${shellWord(turnId)} -o json.`
-    : `Inspect with opencove agent get --node ${node} and opencove agent read --node ${node} --screen.`
+    ? `Resume with eclipse-code agent wait --node ${node} --turn ${shellWord(turnId)}, or read with eclipse-code agent read --node ${node} --turn ${shellWord(turnId)} -o json.`
+    : `Inspect with eclipse-code agent get --node ${node} and eclipse-code agent read --node ${node} --screen.`
 }
 /** Print before a long observer so interruption leaves a concrete continuation. */
 export function turnWaitProgress({
   nodeId,
   turnId,
 }: Pick<TurnIdentity, 'nodeId' | 'turnId'>): string {
-  return `Waiting for turn ${turnId} of node ${nodeId}. If interrupted, continue with: opencove agent wait --node ${shellWord(nodeId)} --turn ${shellWord(turnId)} (do not resend).\n`
+  return `Waiting for turn ${turnId} of node ${nodeId}. If interrupted, continue with: eclipse-code agent wait --node ${shellWord(nodeId)} --turn ${shellWord(turnId)} (do not resend).\n`
 }
 /** Keep recovery evidence even for unexpected failures after a mutation. */
 export function retainTurnError(error: unknown, ids: object, recovery: string): CliError {

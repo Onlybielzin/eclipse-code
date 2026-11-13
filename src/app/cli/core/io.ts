@@ -82,7 +82,7 @@ export function createNodeCliIo(): CliIo {
           : process.platform === 'win32'
             ? process.env.APPDATA || path.join(home, 'AppData', 'Roaming')
             : process.env.XDG_CONFIG_HOME || path.join(home, '.config')
-      return ['opencove-dev', 'opencove'].map(name => path.join(root, name))
+      return ['eclipse-code-dev', 'eclipse-code'].map(name => path.join(root, name))
     },
     isProcessAlive(pid) {
       if (!Number.isInteger(pid) || pid <= 0) {

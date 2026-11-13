@@ -71,7 +71,7 @@ test.describe('Workspace Canvas - Sidebar Drag Reorder', () => {
         .poll(
           async () => {
             const raw = await window.evaluate(async () => {
-              return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             })
             const parsed = raw
               ? (JSON.parse(raw) as { workspaces?: Array<{ iconId?: string }> })
@@ -164,7 +164,7 @@ test.describe('Workspace Canvas - Sidebar Drag Reorder', () => {
         .poll(
           async () => {
             const raw = await window.evaluate(async () => {
-              return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             })
             if (!raw) {
               return null
@@ -261,7 +261,7 @@ test.describe('Workspace Canvas - Sidebar Drag Reorder', () => {
         .poll(
           async () => {
             const raw = await window.evaluate(async () => {
-              return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             })
             const parsed = raw
               ? (JSON.parse(raw) as {
@@ -335,7 +335,7 @@ test.describe('Workspace Canvas - Sidebar Drag Reorder', () => {
         .poll(
           async () => {
             const raw = await window.evaluate(async () => {
-              return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             })
             const parsed = raw
               ? (JSON.parse(raw) as {

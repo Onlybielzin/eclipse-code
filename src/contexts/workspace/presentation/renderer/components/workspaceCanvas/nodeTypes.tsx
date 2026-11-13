@@ -13,6 +13,7 @@ import { WorkspaceCanvasTaskNodeType } from './nodeTypes.task'
 import { WorkspaceCanvasTerminalNodeType } from './nodeTypes.terminal'
 import { WorkspaceCanvasWebsiteNodeType } from './nodeTypes.website'
 import { WorkspaceCanvasPluginNodeType } from './nodeTypes.plugin'
+import { WorkspaceCanvasCardNodeType } from './nodeTypes.cards'
 import { useNodePosition } from './nodePosition'
 import type { WorkspaceCanvasNodeTypeProps } from './nodeTypes.types'
 import { useTerminalDisplayAlignment } from './TerminalDisplayAlignmentContext'
@@ -145,6 +146,23 @@ function createNodeTypes(): Record<string, FunctionComponent<WorkspaceCanvasNode
     )
   }
 
+  const CardNodeType = ({ data, id }: WorkspaceCanvasNodeTypeProps) => {
+    const parameters = useWorkspaceCanvasNodeTypeParameters()
+    return (
+      <WorkspaceCanvasCardNodeType
+        data={data}
+        id={id}
+        spacesRef={parameters.spacesRef}
+        selectNode={parameters.selectNode}
+        closeNodeRef={parameters.closeNodeRef}
+        resizeNodeRef={parameters.resizeNodeRef}
+        normalizeViewportForTerminalInteractionRef={
+          parameters.normalizeViewportForTerminalInteractionRef
+        }
+      />
+    )
+  }
+
   const nodeTypes = {
     terminalNode: TerminalNodeType,
     noteNode: function NoteNodeType({ data, id }: WorkspaceCanvasNodeTypeProps) {
@@ -208,6 +226,8 @@ function createNodeTypes(): Record<string, FunctionComponent<WorkspaceCanvasNode
       )
     },
     taskNode: TaskNodeType,
+    questionNode: CardNodeType,
+    todosNode: CardNodeType,
   }
   return Object.fromEntries(
     Object.entries(nodeTypes).map(([type, NodeComponent]) => [

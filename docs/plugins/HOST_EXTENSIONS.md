@@ -1,6 +1,6 @@
 # Host extensions
 
-Plugins declare commands, preferences and themes in `opencove.plugin.json`.
+Plugins declare commands, preferences and themes in `eclipse-code.plugin.json`.
 These features do not require a canvas window. A theme or preferences package may
 omit both `main` and `view`; plugin commands require a `main` command backend.
 All contributions follow installed revision and enablement. No stylesheet,
@@ -114,7 +114,7 @@ These use the same validated owner as `plugin.preferences.get` and
 lease, not a caller-supplied ID. Closed/disabled/uninstalled view leases cannot
 write. Settings previews have isolated in-memory preferences initialized from
 schema defaults. The generic storage API rejects the reserved
-`opencove.host.preferences` key. Backends receive a current preference snapshot
+`eclipse-code.host.preferences` key. Backends receive a current preference snapshot
 on each command; they should not edit the host preference storage file directly.
 The shared `host.preferences` facade is also available to backend commands.
 [Lifecycle subscriptions](./EVENTS.md) can sample preference changes; callers then
@@ -179,7 +179,7 @@ The design follows declarative contribution ownership and shared command routing
 from [VS Code contribution points](https://code.visualstudio.com/api/references/contribution-points),
 and explicit theme identity/base appearance from its
 [color theme guide](https://code.visualstudio.com/api/extension-guides/color-theme).
-OpenCove uses explicit Worker/project/node/view identities instead of inferring the
+Eclipse Code uses explicit Worker/project/node/view identities instead of inferring the
 active editor or introducing arbitrary condition expressions.
 
 Regression coverage includes declaration rejection, disabled/stale dispatch,

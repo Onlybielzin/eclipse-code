@@ -15,7 +15,7 @@ test.describe('Workspace Canvas - Terminal Paste Raw TUI (Windows)', () => {
 
   for (const providerCase of providerCases) {
     test(`${providerCase.label} pastes clipboard text into a raw TUI process`, async () => {
-      const pastedToken = `OPENCOVE_RAW_TUI_PASTE_${providerCase.provider.replace(/[^a-z0-9]/gi, '_')}`
+      const pastedToken = `ECLIPSE_CODE_RAW_TUI_PASTE_${providerCase.provider.replace(/[^a-z0-9]/gi, '_')}`
       const { electronApp, window } = await launchApp({ cleanupUserDataDir: false })
 
       try {
@@ -47,14 +47,14 @@ test.describe('Workspace Canvas - Terminal Paste Raw TUI (Windows)', () => {
         await window.keyboard.press('Enter')
 
         await expect(terminal).toContainText(
-          `[opencove-test-agent] ${providerCase.provider} new default-model`,
+          `[eclipse-code-test-agent] ${providerCase.provider} new default-model`,
         )
-        await expect(terminal).toContainText('[opencove-test-paste] ready')
+        await expect(terminal).toContainText('[eclipse-code-test-paste] ready')
 
         await window.keyboard.press('Control+V')
 
-        await expect(terminal).toContainText(`[opencove-test-paste] ${pastedToken}`)
-        await expect(terminal).not.toContainText('[opencove-test-paste] ctrl-v')
+        await expect(terminal).toContainText(`[eclipse-code-test-paste] ${pastedToken}`)
+        await expect(terminal).not.toContainText('[eclipse-code-test-paste] ctrl-v')
       } finally {
         await electronApp.close()
       }

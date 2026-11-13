@@ -11,8 +11,8 @@ const stableSourceDir = resolve(rootDir, 'build', 'release-notes', 'stable')
 const nightlyOverrideDir = resolve(rootDir, 'build', 'release-notes', 'nightly')
 const outputDir = resolve(rootDir, 'release')
 const outputPath = resolve(outputDir, 'release-manifest.json')
-const OWNER = 'DeadWaveWave'
-const REPO = 'opencove'
+const OWNER = 'Onlybielzin'
+const REPO = 'eclipse-code'
 const MAX_ITEMS = 12
 
 function normalizeVersionTag(version) {
@@ -242,7 +242,7 @@ function collectNightlyItems(previousTag, currentTag) {
 
 function buildNightlySummary(itemCount) {
   if (itemCount === 0) {
-    return 'Nightly preview build with the latest OpenCove changes.'
+    return 'Nightly preview build with the latest Eclipse Code changes.'
   }
 
   return `Nightly preview build covering ${itemCount} recent user-facing changes.`

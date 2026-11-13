@@ -28,7 +28,7 @@ let commandIds = new Set<string>()
 let pluginId: string | null = null
 const hostClient = new PluginBackendHostClient((message, failed) => {
   if (!process.connected || !process.send) {
-    failed(new Error('OpenCove plugin host connection closed.'))
+    failed(new Error('Eclipse Code plugin host connection closed.'))
     return
   }
   process.send(message, failed)

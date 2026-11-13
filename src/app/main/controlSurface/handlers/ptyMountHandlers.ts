@@ -4,7 +4,7 @@ import { ptySpawnInMountOperation } from '../../../../shared/contracts/controlSu
 import { registerOperation } from '../registerOperation'
 import { fromFileUri } from '../../../../contexts/filesystem/domain/fileUri'
 import type { ApprovedWorkspaceStore } from '../../../../contexts/workspace/infrastructure/approval/ApprovedWorkspaceStore'
-import { createAppError, OpenCoveAppError } from '../../../../shared/errors/appError'
+import { createAppError, EclipseCodeAppError } from '../../../../shared/errors/appError'
 import type { SpawnTerminalInput, SpawnTerminalResult } from '../../../../shared/contracts/dto'
 import { TerminalProfileResolver } from '../../../../platform/terminal/TerminalProfileResolver'
 import type { ControlSurface } from '../controlSurface'
@@ -65,7 +65,7 @@ async function invokeRemoteValue<TResult>(options: {
 
     return result.value as TResult
   } catch (error) {
-    if (error instanceof OpenCoveAppError) {
+    if (error instanceof EclipseCodeAppError) {
       throw error
     }
 

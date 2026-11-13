@@ -1,0 +1,104 @@
+/* Project team (Eclipse Code): one card per role, lead highlighted with the accent. */
+.settings-team {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--cove-spacing-2);
+  width: 100%;
+}
+
+.settings-team__role {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--cove-spacing-3);
+  padding: var(--cove-spacing-3);
+  border: 1px solid var(--cove-border-subtle);
+  border-radius: var(--cove-radius-md);
+  background: var(--cove-field);
+}
+
+.settings-team__role--lead {
+  border-color: color-mix(in srgb, var(--cove-accent) 55%, transparent);
+}
+
+.settings-team__row {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cove-spacing-3);
+}
+
+.settings-team__identity {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 220px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--cove-spacing-1) var(--cove-spacing-2);
+}
+
+.settings-team__name {
+  color: var(--cove-text);
+  font-weight: 600;
+}
+
+.settings-team__badge {
+  padding: 0 var(--cove-spacing-2);
+  border-radius: var(--cove-radius-xl);
+  background: var(--cove-accent);
+  color: var(--cove-accent-foreground);
+  font-size: var(--cove-font-size-caption);
+  font-weight: 600;
+}
+
+.settings-team__description {
+  flex-basis: 100%;
+  color: var(--cove-text-muted);
+  font-size: var(--cove-font-size-secondary);
+}
+
+.settings-team__controls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--cove-spacing-2);
+}
+
+.settings-team__model {
+  width: 170px;
+  min-width: 110px;
+  flex: 0 1 170px;
+}
+
+.settings-team__editor {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--cove-spacing-3);
+  padding-top: var(--cove-spacing-3);
+  border-top: 1px solid var(--cove-border-subtle);
+}
+
+.settings-team__editor-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cove-spacing-3);
+}
+
+.settings-team__warning {
+  margin: 0;
+  color: var(--cove-status-waiting);
+  font-size: var(--cove-font-size-secondary);
+}
+
+.settings-team__help {
+  margin: var(--cove-spacing-1) 0 0;
+  color: var(--cove-text-muted);
+  font-size: var(--cove-font-size-secondary);
+}

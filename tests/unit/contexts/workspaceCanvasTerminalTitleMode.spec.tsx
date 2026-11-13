@@ -141,7 +141,7 @@ describe('WorkspaceCanvas terminal title mode', () => {
     const kill = vi.fn(async () => undefined)
     const onExit = vi.fn(() => () => undefined)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -265,7 +265,7 @@ describe('WorkspaceCanvas terminal title mode', () => {
     const kill = vi.fn(async () => undefined)
     const onExit = vi.fn(() => () => undefined)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -379,7 +379,7 @@ describe('WorkspaceCanvas terminal title mode', () => {
     const kill = vi.fn(async () => undefined)
     const onExit = vi.fn(() => () => undefined)
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

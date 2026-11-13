@@ -9,7 +9,7 @@ import {
 import type { PtySize } from './terminalGeometryTypes'
 
 function isTerminalDiagnosticsEnabled(): boolean {
-  return window.opencoveApi?.meta?.enableTerminalDiagnostics === true
+  return window.eclipseCodeApi?.meta?.enableTerminalDiagnostics === true
 }
 
 export function logTerminalGeometryDiagnostics({
@@ -43,7 +43,7 @@ export function logTerminalGeometryDiagnostics({
 
   const logger = createTerminalDiagnosticsLogger({
     enabled: true,
-    emit: window.opencoveApi?.debug?.logTerminalDiagnostics ?? (() => undefined),
+    emit: window.eclipseCodeApi?.debug?.logTerminalDiagnostics ?? (() => undefined),
     base: {
       source: 'renderer-terminal',
       nodeId: 'unknown',

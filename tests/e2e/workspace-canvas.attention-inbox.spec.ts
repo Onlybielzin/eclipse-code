@@ -17,9 +17,9 @@ test('the needs-you inbox reaches a waiting agent in another project', async () 
   const { electronApp, window } = await launchApp({
     windowMode: 'inactive',
     env: {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
-      OPENCOVE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'claude-hook-lifecycle',
+      ECLIPSE_CODE_TEST_CLAUDE_HOOK_INSTALL_FAILURE: '0',
     },
   })
   try {
@@ -61,7 +61,7 @@ test('the needs-you inbox reaches a waiting agent in another project', async () 
     await installPtySessionCapture(window)
     await window.locator('.task-node [data-testid="task-node-run-agent"]').click()
     const agentNode = window.locator('.terminal-node').first()
-    await expect(agentNode).toContainText('[opencove-test-hook] ready')
+    await expect(agentNode).toContainText('[eclipse-code-test-hook] ready')
     await expect.poll(async () => await resolveFirstAgentSessionId(window)).not.toBeNull()
     const sessionId = (await resolveFirstAgentSessionId(window))!
     const agentId = await window

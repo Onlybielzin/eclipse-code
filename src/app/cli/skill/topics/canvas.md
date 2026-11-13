@@ -3,7 +3,7 @@
 ## Select targets explicitly
 Node, space and project selectors accept a full ID, exact case-sensitive name, or a unique ID prefix
 (6+ characters). Ambiguity exits 6: use a full ID. `@self` uses your authenticated terminal
-identity, not your working directory. Inside OpenCove, `node create` and `node list` read your
+identity, not your working directory. Inside Eclipse Code, `node create` and `node list` read your
 current container: your Space, or the root canvas when you are outside every Space. There, `node
 list` lists the whole project; use `node list --root-canvas` for only root nodes. Explicit
 `--project` selects project scope for lists; creation also needs a Space target or `--root-canvas`.
@@ -12,9 +12,9 @@ overridden. Terminal nodes can report observed agents; agent windows and termina
 Resolve targets from the agent list before prompting.
 
 ```sh
-opencove node list -o table
-opencove agent list --space @self -o table
-opencove agent get --node "Reviewer" --pretty
+eclipse-code node list -o table
+eclipse-code agent list --space @self -o table
+eclipse-code agent get --node "Reviewer" --pretty
 ```
 
 `node list` and `agent list` return at most 50 rows by default; JSON then has `truncated: true`
@@ -29,34 +29,34 @@ Grant-created agents and terminals share six live or starting descendant slots p
 The user root is depth 1; runtime delegation stops at depth 3. A slot frees when a session exits
 or is stopped, not when a turn finishes or a node disappears. User, task Run and recovery launches
 remain available. Creating a runtime across Workers requires the user to start it there.
-If OpenCove cannot verify a historical tree after restart, ask the user to check its runtimes
+If Eclipse Code cannot verify a historical tree after restart, ask the user to check its runtimes
 and start a new canvas agent for further delegation.
 
-To put a node on the canvas outside any Space: `opencove node create note --root-canvas --text …`.
-Outside OpenCove, add `--project <id>`. Placement searches next to you when run inside OpenCove, or
+To put a node on the canvas outside any Space: `eclipse-code node create note --root-canvas --text …`.
+Outside Eclipse Code, add `--project <id>`. Placement searches next to you when run inside Eclipse Code, or
 from the origin if your node belongs to another project. Use `--focus` to reveal it.
 
-`opencove space create --name "Review"` creates a top-level Space in your terminal’s current
-project; outside OpenCove, add `--project <selector>`. Top-level --directory must be an existing
+`eclipse-code space create --name "Review"` creates a top-level Space in your terminal’s current
+project; outside Eclipse Code, add `--project <selector>`. Top-level --directory must be an existing
 absolute local directory within the default mount (symlinks cannot escape); children inherit the
 parent directory. --frame and --move require --in; output includes the applied rect
-({x,y,width,height} in canvas coordinates) and movedNodeIds. `opencove space create --name "Review
+({x,y,width,height} in canvas coordinates) and movedNodeIds. `eclipse-code space create --name "Review
 notes" --in @self --move "Brief"` creates a child and moves direct members of the parent; repeat
 --move. Without --frame, the server encloses moved nodes or centers a 420×300 boundary in the
 parent, then fits it inside while keeping room for the moved nodes.
 A node created in a full Space is placed right of, then below, its members; the Space and its
 ancestors grow to contain it. `space get` and `space list` return the current geometry as `rect`;
-`boundary` describes access scope, not geometry. `opencove project add
+`boundary` describes access scope, not geometry. `eclipse-code project add
 --path /workspace/app [--name "App"]` requires a human decision: agents cannot add projects. Ask the
-user to add the project in OpenCove; do not retry the refusal.
+user to add the project in Eclipse Code; do not retry the refusal.
 
-Rename with `opencove space update --space @self --name "Review"`. Adjust its boundary with
-`opencove space update --space space-123 --frame '{"x":100,"width":1200}'`.
+Rename with `eclipse-code space update --space @self --name "Review"`. Adjust its boundary with
+`eclipse-code space update --space space-123 --frame '{"x":100,"width":1200}'`.
 All frame fields change only the boundary: member nodes and child Spaces stay where they are.
 The requested frame expands to enclose them with padding (24 around direct nodes using their
 displayed sizes, 12 around child Spaces); ancestors grow as needed. Requested x/y may be adjusted.
 Frame updates return appliedFrame/frameAdjusted and print a notice when adjusted. movedNodeIds is
-always empty. To move a Space together with its contents, drag it in OpenCove.
+always empty. To move a Space together with its contents, drag it in Eclipse Code.
 Names are trimmed and cannot be blank. Directory and worktree bindings stay unchanged.
 
 ## Give a delegated agent its own worktree
@@ -67,9 +67,9 @@ is the project's repository root. For a child Space, choose a parent rooted ther
 its directory, and worktree creation refuses a Space already bound to another directory.
 
 ```sh
-opencove space create --name "Review work"
-opencove worktree create --space space-123 --name review-work
-opencove node create agent --space space-123 --title "Reviewer" --prompt "Review the implementation" --wait --read --timeout 2m
+eclipse-code space create --name "Review work"
+eclipse-code worktree create --space space-123 --name review-work
+eclipse-code node create agent --space space-123 --title "Reviewer" --prompt "Review the implementation" --wait --read --timeout 2m
 ```
 
 For one-shot delegation, --wait --read returns the initial exact reply; check outcome and reply.
@@ -79,10 +79,10 @@ The agent remains created on timeout, attention or read failure. No observed fir
 unavailable lifecycle telemetry, even if the agent is running or has finished; inspect the existing
 session without recreating the node or resending the prompt. Use the known node/session/turn IDs
 and continuation commands. To keep working meanwhile, omit
---wait and follow the split get → exact wait → exact read loop in `opencove skill coordinate`.
+--wait and follow the split get → exact wait → exact read loop in `eclipse-code skill coordinate`.
 
 Replace space-123 with the first command's returned id before continuing. To create a child instead,
-use `opencove space create --name "Review work" --in <parent>` for the first step. For worktree creation,
+use `eclipse-code space create --name "Review work" --in <parent>` for the first step. For worktree creation,
 --name is optional; omit it to derive the branch name from the Space name. Worktree creation updates
 the Space's directory and name; keep using its ID when launching the agent.
 
@@ -98,15 +98,15 @@ replaces the provided tag list, so preserve existing tags or use a requirement n
 `ai_done`; reserve `done` for human acceptance.
 
 ```sh
-opencove node list --kind note
-opencove node list --kind task
-opencove node get --node task-123
-opencove node create note --title "Progress" --text "Review started"
-opencove node update note --node note-123 --text-file ./progress.txt
-opencove node create task --title "Review" --requirement "Review the implementation"
-opencove node update task --node task-123 --status doing --requirement "Original requirement; claimed by node-123"
-opencove node get --node task-123
-opencove node update task --node task-123 --status ai_done
+eclipse-code node list --kind note
+eclipse-code node list --kind task
+eclipse-code node get --node task-123
+eclipse-code node create note --title "Progress" --text "Review started"
+eclipse-code node update note --node note-123 --text-file ./progress.txt
+eclipse-code node create task --title "Review" --requirement "Review the implementation"
+eclipse-code node update task --node task-123 --status doing --requirement "Original requirement; claimed by node-123"
+eclipse-code node get --node task-123
+eclipse-code node update task --node task-123 --status ai_done
 ```
 
 Long text accepts `--text-file` or `--requirement-file` and `-` for stdin. Use either inline or file
@@ -122,10 +122,10 @@ update agent or node update terminal. Only stop nodes you own or were explicitly
 Stopping an agent hosted in a terminal stops the entire terminal session, including its shell.
 
 ```sh
-opencove node create agent --title "Reviewer" --prompt "Review the implementation"
-opencove node update agent --node "Reviewer" --title "Lead"
-opencove node update terminal --node terminal-123 --title "Build"
-opencove agent stop --node "Lead"
+eclipse-code node create agent --title "Reviewer" --prompt "Review the implementation"
+eclipse-code node update agent --node "Reviewer" --title "Lead"
+eclipse-code node update terminal --node terminal-123 --title "Build"
+eclipse-code agent stop --node "Lead"
 ```
 
 Stop keeps the canvas node; an already exited session returns not_running, exit 0. An exited
@@ -134,7 +134,7 @@ remote agent-stop targets are refused; inspect before choosing another action.
 
 ## Creation lineage and parent selectors
 
-`@parent` selects the node that created your node through an OpenCove session grant.
+`@parent` selects the node that created your node through an Eclipse Code session grant.
 The Worker resolves it from your authenticated identity. It can be a terminal or another node
 kind; each command still checks whether the target supports that action. A root has no parent,
 and a deleted parent cannot be addressed. A node literally named `@parent` must be selected by ID.

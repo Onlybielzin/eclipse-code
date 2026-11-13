@@ -34,7 +34,7 @@ async function readShellPid(page: Page, marker: string): Promise<string> {
 
 async function readBackground(page: Page) {
   const xterm = await page.evaluate(
-    id => window.__opencoveTerminalSelectionTestApi?.getBackground(id) ?? null,
+    id => window.__eclipseCodeTerminalSelectionTestApi?.getBackground(id) ?? null,
     nodeId,
   )
   const dom = await page

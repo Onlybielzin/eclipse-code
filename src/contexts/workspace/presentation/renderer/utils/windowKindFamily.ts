@@ -16,6 +16,8 @@ export function resolveWindowKindFamily(data: TerminalNodeData): WindowKindFamil
     case 'terminal':
       return 'shell'
     case 'task':
+    case 'question':
+    case 'todos':
       return 'plan'
     case 'note':
     case 'document':

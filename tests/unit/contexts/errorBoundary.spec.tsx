@@ -12,11 +12,11 @@ describe('ErrorBoundary', () => {
   const logRuntimeDiagnostics = vi.fn()
 
   beforeEach(() => {
-    window.opencoveApi = {
+    window.eclipseCodeApi = {
       debug: {
         logRuntimeDiagnostics,
       },
-    } as typeof window.opencoveApi
+    } as typeof window.eclipseCodeApi
   })
 
   afterEach(async () => {

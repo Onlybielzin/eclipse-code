@@ -1,4 +1,4 @@
-const MAIN_PROCESS_PID_ARG_PREFIX = '--opencove-main-process-pid='
+const MAIN_PROCESS_PID_ARG_PREFIX = '--eclipse-code-main-process-pid='
 
 export function resolveMainProcessPid(
   argv: string[] = process.argv,

@@ -11,7 +11,7 @@ describe('runtime build identity in the Vite development server', () => {
   it('serves the identity and invalidates its real module graph entry after a source update', async () => {
     // Exercise production fingerprinting without hashing the entire checkout.
     // Canonicalize macOS /var aliases just as Vite canonicalizes module paths.
-    const root = await realpath(await mkdtemp(join(tmpdir(), 'opencove-runtime-dev-')))
+    const root = await realpath(await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-dev-')))
     let server: ViteDevServer | undefined
     try {
       await Promise.all(

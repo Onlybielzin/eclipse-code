@@ -15,7 +15,7 @@ const briefId = 'cli-spaces-brief'
 const checklistId = 'cli-spaces-checklist'
 
 test('a terminal grant creates top-level and child spaces and leaves project decisions to the user', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove-cli-spaces-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code-cli-spaces-'))
   const workspace = join(root, 'project')
   let app: ElectronApplication | undefined
   try {
@@ -24,9 +24,9 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
       userDataDir: join(root, 'profile'),
       cleanupUserDataDir: false,
       env: {
-        OPENCOVE_TEST_WORKSPACE: workspace,
-        OPENCOVE_WORKER_CLIENT: '0',
-        OPENCOVE_E2E_DISABLE_CRASH_FALLBACK: '1',
+        ECLIPSE_CODE_TEST_WORKSPACE: workspace,
+        ECLIPSE_CODE_WORKER_CLIENT: '0',
+        ECLIPSE_CODE_E2E_DISABLE_CRASH_FALLBACK: '1',
       },
     })
     app = launched.electronApp
@@ -73,7 +73,7 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
     })
     // Creation issues a real session grant; do not seed a session or identity variables.
     const binding = await createTerminalInSpace(page, parentId)
-    const who = jsonOutput(await terminalCommand(page, binding, 'opencove whoami', 'IDENTITY'))
+    const who = jsonOutput(await terminalCommand(page, binding, 'eclipse-code whoami', 'IDENTITY'))
     expect(who).toMatchObject({
       caller: 'session-grant',
       projectId,
@@ -82,7 +82,12 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
     })
 
     const top = jsonOutput(
-      await terminalCommand(page, binding, 'opencove space create --name "Migration"', 'TOP_SPACE'),
+      await terminalCommand(
+        page,
+        binding,
+        'eclipse-code space create --name "Migration"',
+        'TOP_SPACE',
+      ),
     )
     expect(top).toMatchObject({
       name: 'Migration',
@@ -107,7 +112,7 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
       await terminalCommand(
         page,
         binding,
-        'opencove space create --name "Review notes" --in @self --move "Brief" --move "Checklist"',
+        'eclipse-code space create --name "Review notes" --in @self --move "Brief" --move "Checklist"',
         'CHILD_SPACE',
       ),
     )
@@ -122,7 +127,7 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
     const queried = await page.evaluate(
       async ids => {
         const get = (spaceId: string) =>
-          window.opencoveApi.controlSurface.invoke<GetSpaceResult>({
+          window.eclipseCodeApi.controlSurface.invoke<GetSpaceResult>({
             kind: 'query',
             id: 'space.get',
             payload: { spaceId },
@@ -164,19 +169,19 @@ test('a terminal grant creates top-level and child spaces and leaves project dec
       await terminalCommand(
         page,
         binding,
-        'opencove project add --path /agent-request -o json',
+        'eclipse-code project add --path /agent-request -o json',
         'PROJECT_DENIED',
       )
     ).replaceAll('\n', '')
     expect(denied).toMatch(/\bexit=4\b/)
     expect(denied).toContain('common.forbidden')
     expect(denied).toContain('operation_denied')
-    expect(denied).toContain('requires a human decision in OpenCove')
-    expect(denied).toContain('Ask the user to add the project in OpenCove')
+    expect(denied).toContain('requires a human decision in Eclipse Code')
+    expect(denied).toContain('Ask the user to add the project in Eclipse Code')
     // retryable:false is the envelope field; the message and hint must not suggest retrying.
     expect(denied.replace(/"retryable":false/g, '')).not.toMatch(/retry/i)
     const projects = await page.evaluate(async () =>
-      window.opencoveApi.controlSurface.invoke<ListProjectsResult>({
+      window.eclipseCodeApi.controlSurface.invoke<ListProjectsResult>({
         kind: 'query',
         id: 'project.list',
         payload: null,

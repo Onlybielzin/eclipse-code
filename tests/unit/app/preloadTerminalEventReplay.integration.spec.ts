@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IPC_CHANNELS } from '../../../src/shared/contracts/ipc'
-import type { OpenCoveApi } from '../../../src/app/preload/index.d'
+import type { EclipseCodeApi } from '../../../src/app/preload/index.d'
 
 type IpcListener = (event: unknown, payload: never) => void
 
 describe('preload terminal event replay', () => {
   beforeEach(() => {
     vi.resetModules()
-    Reflect.deleteProperty(window, 'opencoveApi')
+    Reflect.deleteProperty(window, 'eclipseCodeApi')
   })
 
   it('replays every raw source with original time and clears state plus metadata on exit', async () => {
@@ -29,7 +29,7 @@ describe('preload terminal event replay', () => {
       webUtils: { getPathForFile: vi.fn(() => '') },
     }))
     await import('../../../src/app/preload/index')
-    const api = window.opencoveApi as OpenCoveApi
+    const api = window.eclipseCodeApi as EclipseCodeApi
     const emit = (channel: string, payload: unknown): void => {
       listeners.get(channel)?.forEach(listener => listener({}, payload as never))
     }

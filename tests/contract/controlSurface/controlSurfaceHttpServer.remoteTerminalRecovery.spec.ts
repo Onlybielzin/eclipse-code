@@ -23,10 +23,10 @@ import {
 
 describeWithElectronNativeModules('Control Surface remote terminal recovery durability', () => {
   it('keeps one remote epoch and exactly-once presentation across two Home restarts', async () => {
-    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-home-remote-recovery-'))
-    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'opencove-remote-recovery-'))
-    const remoteRootPath = await mkdtemp(join(tmpdir(), 'opencove-remote-recovery-root-'))
-    const homeDbPath = resolve(homeUserDataPath, 'opencove.db')
+    const homeUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-home-remote-recovery-'))
+    const remoteUserDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-remote-recovery-'))
+    const remoteRootPath = await mkdtemp(join(tmpdir(), 'eclipse-code-remote-recovery-root-'))
+    const homeDbPath = resolve(homeUserDataPath, 'eclipse-code.db')
     const homeConnectionFileName = 'control-surface.remote-recovery.home.test.json'
     const remoteConnectionFileName = 'control-surface.remote-recovery.target.test.json'
     const homeApproved = createApprovedWorkspaceStoreForPath(

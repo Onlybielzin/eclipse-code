@@ -102,7 +102,7 @@ function parseCookiePair(headerValue: string | null): string | null {
 
 describe('Control Surface HTTP server (web session auth)', () => {
   it('exchanges bearer token for a one-time ticket and then cookie (origin guarded)', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.web-auth.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -177,7 +177,7 @@ describe('Control Surface HTTP server (web session auth)', () => {
 
       expect(claimRes.status).toBe(302)
       const cookiePair = parseCookiePair(claimRes.headers.get('set-cookie'))
-      expect(cookiePair).toMatch(/opencove_session_[a-f0-9]{16}=/)
+      expect(cookiePair).toMatch(/eclipse_code_session_[a-f0-9]{16}=/)
       expect(claimRes.headers.get('location')).toBe('/')
 
       const cookiePing = await fetch(`${baseUrl}/invoke`, {
@@ -225,7 +225,7 @@ describe('Control Surface HTTP server (web session auth)', () => {
   })
 
   it('supports password login and gates the Web UI', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-control-surface-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-control-surface-'))
     const connectionFileName = 'control-surface.web-password.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
 
@@ -284,7 +284,7 @@ describe('Control Surface HTTP server (web session auth)', () => {
       expect(okPassword.status).toBe(302)
 
       const cookiePair = parseCookiePair(okPassword.headers.get('set-cookie'))
-      expect(cookiePair).toMatch(/opencove_session_[a-f0-9]{16}=/)
+      expect(cookiePair).toMatch(/eclipse_code_session_[a-f0-9]{16}=/)
       expect(okPassword.headers.get('location')).toBe('/')
 
       const cookiePing = await fetch(`${baseUrl}/invoke`, {

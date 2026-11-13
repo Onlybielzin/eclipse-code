@@ -19,7 +19,7 @@
 这类问题常依赖“恢复后的真实负载”（多节点、多 agent、持续输出），优先用共享 userData 复现：
 
 ```bash
-OPENCOVE_DEV_USE_SHARED_USER_DATA=1 pnpm dev
+ECLIPSE_CODE_DEV_USE_SHARED_USER_DATA=1 pnpm dev
 ```
 
 ## Investigation

@@ -196,7 +196,7 @@ describe('WorkspaceCanvas agent session actions', () => {
     const kill = vi.fn(async () => undefined)
     const launch = vi.fn(async () => createLaunchResult('session-reloaded', 'resume-current'))
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -291,7 +291,7 @@ describe('WorkspaceCanvas agent session actions', () => {
       throw new Error('reload failed')
     })
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {

@@ -118,13 +118,13 @@ describe('local worker manager spawn args', () => {
 
     expect(
       resolveForwardedLocalWorkerDiagnosticsEnv({
-        OPENCOVE_AGENT_LAUNCH_DIAGNOSTICS: 'true',
-        OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
-        OPENCOVE_TERMINAL_INPUT_DIAGNOSTICS: '0',
+        ECLIPSE_CODE_AGENT_LAUNCH_DIAGNOSTICS: 'true',
+        ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
+        ECLIPSE_CODE_TERMINAL_INPUT_DIAGNOSTICS: '0',
       }),
     ).toEqual({
-      OPENCOVE_AGENT_LAUNCH_DIAGNOSTICS: '1',
-      OPENCOVE_TERMINAL_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_AGENT_LAUNCH_DIAGNOSTICS: '1',
+      ECLIPSE_CODE_TERMINAL_DIAGNOSTICS: '1',
     })
   })
 })

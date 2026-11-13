@@ -55,7 +55,7 @@ it.each([false, true])(
     })
   },
 )
-it('keeps self null outside OpenCove', async () => {
+it('keeps self null outside Eclipse Code', async () => {
   const f = identityFixture(false)
   expect(await run(['context', '--project', project.id], f.io)).toBe(0)
   expect(JSON.parse(f.out()).self).toBeNull()
@@ -113,7 +113,7 @@ it.each(['space-moved', null])(
       const grant = grants.verify(issued.token)!
       expect(grant.spaceId).toBe(who.spaceId)
       const f = identityFixture()
-      f.io.env.OPENCOVE_CONTROL_TOKEN = issued.token
+      f.io.env.ECLIPSE_CODE_CONTROL_TOKEN = issued.token
       f.values['system.whoami'] = { ...who, ...grant }
       f.values['node.list'] = { nodes: [] }
       f.values['node.get'] = {
@@ -165,7 +165,7 @@ it.each([
     f.values['node.get'] = {
       node: { ...node, kind: 'agent', spaceId: null, sessionId: who.sessionId },
     }
-    f.io.env.OPENCOVE_SPACE_ID = ''
+    f.io.env.ECLIPSE_CODE_SPACE_ID = ''
     const controller = new AbortController()
     f.io.signal = controller.signal
     let lookupStarted!: () => void
@@ -225,7 +225,7 @@ it.each([
     f.values['node.get'] = {
       node: { ...node, kind: 'agent', spaceId: null, sessionId: who.sessionId },
     }
-    f.io.env.OPENCOVE_SPACE_ID = ''
+    f.io.env.ECLIPSE_CODE_SPACE_ID = ''
     const stderr: string[] = []
     f.io.stderr.write = text => {
       stderr.push(text)

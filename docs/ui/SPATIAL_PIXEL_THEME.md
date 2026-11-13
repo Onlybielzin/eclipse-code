@@ -1,6 +1,6 @@
 # Spatial Pixel Theme
 
-Pixel is OpenCove's main tone, not a theme to opt into (owner, 2026-11-08): Cove's own dark and
+Pixel is Eclipse Code's main tone, not a theme to opt into (owner, 2026-11-08): Cove's own dark and
 light appearances carry it through the pixel wall, window frames, pixel icons and the pixel
 control center. Both appearances share clear node boundaries, solid Space corner brackets and
 bounded output activity feedback. The pixel background, creation and close effects can be switched
@@ -206,7 +206,7 @@ world, under every window and the effects layer.
   strip, panel, navigation and content transparent. While it covers the canvas it tells the shell
   (`useCoverShellWall`), and the wall frosts and caps all of itself and draws no window glass; the
   focus-zoom preview uncovers the canvas and keeps its own transparent look.
-- E2E reads `window.__opencovePixelWallTestApi` (frame counts, a cell checksum, mean colour, the
+- E2E reads `window.__eclipseCodePixelWallTestApi` (frame counts, a cell checksum, mean colour, the
   glass and chrome rects) and the host's `data-cove-wall-renderer` / `data-cove-wall-state` /
   `data-cove-wall-cell`.
 

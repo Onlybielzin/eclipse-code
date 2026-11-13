@@ -5,7 +5,7 @@ const windowsOnly = process.platform !== 'win32'
 
 async function resetWorkspaceState(window: Awaited<ReturnType<typeof launchApp>>['window']) {
   const resetResult = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+    return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
       raw: JSON.stringify({
         formatVersion: 1,
         activeWorkspaceId: null,
@@ -28,7 +28,7 @@ async function readPersistedTerminalProfileId(
   window: Awaited<ReturnType<typeof launchApp>>['window'],
 ): Promise<string | null> {
   return await window.evaluate(async () => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     if (!raw) {
       return null
     }
@@ -52,7 +52,7 @@ async function readAvailableTerminalProfiles(
   window: Awaited<ReturnType<typeof launchApp>>['window'],
 ) {
   return await window.evaluate(async () => {
-    return await window.opencoveApi.pty.listProfiles()
+    return await window.eclipseCodeApi.pty.listProfiles()
   })
 }
 

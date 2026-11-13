@@ -18,7 +18,7 @@ export function renderWorkerWebShellPage(params: { host: string }): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OpenCove Worker Shell</title>
+    <title>Eclipse Code Worker Shell</title>
     <style>
       :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
       body { margin: 20px; }
@@ -36,7 +36,7 @@ export function renderWorkerWebShellPage(params: { host: string }): string {
     </style>
   </head>
   <body>
-    <h1>OpenCove Worker Shell</h1>
+    <h1>Eclipse Code Worker Shell</h1>
     <div class="grid">
       <div class="row muted">
         <div>POST <code>/invoke</code></div>
@@ -77,7 +77,7 @@ export function renderWorkerWebShellPage(params: { host: string }): string {
 
       <div class="row">
         <h2 style="margin:0">PTY Streaming</h2>
-        <span class="badge muted">WS <code>/pty</code> (<code>opencove-pty.v1</code>)</span>
+        <span class="badge muted">WS <code>/pty</code> (<code>eclipse-code-pty.v1</code>)</span>
       </div>
 
       <div class="row">

@@ -144,9 +144,9 @@ export class GitPluginSources implements PluginDistributionPort {
     try {
       await git(location.directory, [
         '-c',
-        'user.name=OpenCove',
+        'user.name=Eclipse Code',
         '-c',
-        'user.email=plugins@opencove.local',
+        'user.email=plugins@eclipse-code.local',
         'merge',
         '--no-edit',
         '--no-autostash',
@@ -240,9 +240,9 @@ export class GitPluginSources implements PluginDistributionPort {
     return inspectGithubPluginRepository(repository)
   }
   async discover(query: string) {
-    const search = pluginString(query || 'opencove', 'search', 200)
+    const search = pluginString(query || 'eclipse-code', 'search', 200)
     const body = await githubJson(
-      `search/repositories?q=${encodeURIComponent(`topic:opencove-plugin ${search === 'opencove' ? '' : search}`)}&per_page=20`,
+      `search/repositories?q=${encodeURIComponent(`topic:eclipse-code-plugin ${search === 'eclipse-code' ? '' : search}`)}&per_page=20`,
     )
     if (!body) {
       throw new Error('GitHub plugin search was not found.')

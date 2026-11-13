@@ -35,7 +35,7 @@ export function spawnAccountingUnavailable(): never {
   throw createAppError('common.unavailable', {
     details: { reason: 'spawn_accounting_unavailable', retryable: false },
     debugMessage:
-      'OpenCove could not verify this agent tree’s running runtimes. Ask the user to check the affected runtimes and start a new agent on the canvas for further delegation.',
+      'Eclipse Code could not verify this agent tree’s running runtimes. Ask the user to check the affected runtimes and start a new agent on the canvas for further delegation.',
   })
 }
 export function spawnTargetKey(

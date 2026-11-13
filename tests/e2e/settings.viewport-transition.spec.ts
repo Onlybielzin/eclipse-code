@@ -45,7 +45,7 @@ test('restores the viewport preference after restart and exposes localized, sear
     await expect
       .poll(async () =>
         window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           return raw ? JSON.parse(raw).settings?.viewportTransition : null
         }),
       )

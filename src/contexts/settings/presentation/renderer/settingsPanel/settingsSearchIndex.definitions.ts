@@ -29,7 +29,7 @@ export const CORE_SEARCH_ENTRY_DEFINITIONS: Array<CoreSettingsSearchEntryDefinit
     titleKey: 'settingsPanel.plugins.guideTitle',
     descriptionKey: 'settingsPanel.plugins.guideHelp',
     anchorId: 'settings-section-plugin-guide',
-    keywords: ['opencove plugin guide', 'readme', 'development', '开发', '指南'],
+    keywords: ['eclipse-code plugin guide', 'readme', 'development', '开发', '指南'],
   },
   {
     id: 'general.language',
@@ -201,7 +201,7 @@ export const CORE_SEARCH_ENTRY_DEFINITIONS: Array<CoreSettingsSearchEntryDefinit
     descriptionKey: 'settingsPanel.worker.cli.help',
     anchorId: 'settings-section-worker-cli',
     keywordKeys: ['settingsPanel.worker.cli.install', 'settingsPanel.worker.cli.uninstall'],
-    keywords: ['opencove', 'path', 'command line', '命令行'],
+    keywords: ['eclipse-code', 'path', 'command line', '命令行'],
   },
   {
     id: 'worker.local',

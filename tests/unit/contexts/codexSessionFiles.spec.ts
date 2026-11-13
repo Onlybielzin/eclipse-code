@@ -7,7 +7,7 @@ import { resolveCodexInvocationArguments } from '../../../src/contexts/agent/inf
 
 describe('Codex file identity inputs', () => {
   it('finds and verifies an exact old resume file without relying on recent dates or mtime', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-codex-resume-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-codex-resume-'))
     const directory = join(root, 'sessions', '2024', '01', '02')
     try {
       await mkdir(directory, { recursive: true })

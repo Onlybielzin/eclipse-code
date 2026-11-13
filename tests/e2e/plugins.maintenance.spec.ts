@@ -39,7 +39,7 @@ test('retains conflicting source, displays recovery, and applies the explicitly 
     await expect(page.getByTestId('settings-plugin-install-panel')).toHaveCount(0)
     await page.getByTestId('settings-plugin-details-hello-clock').click()
     const source = await page.evaluate(() =>
-      window.opencoveApi.controlSurface.invoke<{ sourceDirectory: string }>({
+      window.eclipseCodeApi.controlSurface.invoke<{ sourceDirectory: string }>({
         kind: 'query',
         id: 'plugin.source',
         payload: { pluginId: 'hello-clock' },
@@ -52,7 +52,7 @@ test('retains conflicting source, displays recovery, and applies the explicitly 
     await page.getByTestId('settings-plugin-apply-update').click()
     await expect(page.getByTestId('settings-plugin-candidates')).toBeVisible()
     const inspected = await page.evaluate(() =>
-      window.opencoveApi.controlSurface.invoke<{
+      window.eclipseCodeApi.controlSurface.invoke<{
         sourceDirectory: string
         candidates: Array<{ id: string; directory: string; stale: string | null }>
       }>({ kind: 'query', id: 'plugin.source', payload: { pluginId: 'hello-clock' } }),
@@ -72,7 +72,7 @@ test('retains conflicting source, displays recovery, and applies the explicitly 
     await expect(page.getByTestId('settings-plugin-candidates')).toHaveCount(0)
     await expect(page.getByRole('alert')).toHaveCount(0)
     const current = await page.evaluate(() =>
-      window.opencoveApi.controlSurface.invoke<{ sourceDirectory: string }>({
+      window.eclipseCodeApi.controlSurface.invoke<{ sourceDirectory: string }>({
         kind: 'query',
         id: 'plugin.source',
         payload: { pluginId: 'hello-clock' },

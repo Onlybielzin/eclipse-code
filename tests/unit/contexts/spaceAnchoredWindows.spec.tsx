@@ -7,7 +7,7 @@ import { WorkspaceSpaceExplorerOverlayWindows } from '../../../src/contexts/work
 
 describe('anchored Space operation windows', () => {
   it('renders the mount picker at its operation anchor without an app backdrop', () => {
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       value: {
         controlSurface: {

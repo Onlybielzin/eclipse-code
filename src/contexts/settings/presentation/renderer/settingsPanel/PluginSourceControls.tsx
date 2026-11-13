@@ -46,7 +46,7 @@ export function PluginSourceControls({ plugin }: { plugin: PluginManifest }): JS
     busyRef.current = false
     setError(null)
     setMessage(null)
-    void window.opencoveApi.controlSurface
+    void window.eclipseCodeApi.controlSurface
       .invoke<SourceInfo>({ kind: 'query', id: 'plugin.source', payload: { pluginId: plugin.id } })
       .then(value => {
         if (generation.current === request) {
@@ -78,7 +78,7 @@ export function PluginSourceControls({ plugin }: { plugin: PluginManifest }): JS
     setMessage(null)
     try {
       if (action === 'check') {
-        const result = await window.opencoveApi.controlSurface.invoke<UpdateInfo>({
+        const result = await window.eclipseCodeApi.controlSurface.invoke<UpdateInfo>({
           kind: 'command',
           id: 'plugin.git.check',
           payload: {
@@ -107,7 +107,7 @@ export function PluginSourceControls({ plugin }: { plugin: PluginManifest }): JS
                   : {}),
               },
         )
-        const fresh = await window.opencoveApi.controlSurface.invoke<SourceInfo>({
+        const fresh = await window.eclipseCodeApi.controlSurface.invoke<SourceInfo>({
           kind: 'query',
           id: 'plugin.source',
           payload: { pluginId: plugin.id },

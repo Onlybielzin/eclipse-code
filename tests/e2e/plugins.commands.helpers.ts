@@ -21,12 +21,12 @@ export interface PluginWindowList {
 async function cli(userDataDir: string, args: string[]) {
   const execution = await runCommand(
     process.execPath,
-    [resolve(__dirname, '../../out/cli/opencove.mjs'), 'plugin', ...args],
+    [resolve(__dirname, '../../out/cli/eclipse-code.mjs'), 'plugin', ...args],
     resolve(__dirname, '../..'),
     {
       timeoutMs: 45_000,
       captureMaxBytes: 4 * 1024 * 1024,
-      env: { ...process.env, OPENCOVE_USER_DATA_DIR: userDataDir },
+      env: { ...process.env, ECLIPSE_CODE_USER_DATA_DIR: userDataDir },
     },
   )
   return execution
@@ -35,7 +35,7 @@ async function cli(userDataDir: string, args: string[]) {
 export async function pluginCli<T>(userDataDir: string, args: string[]): Promise<T> {
   const execution = await cli(userDataDir, args)
   expect(execution.exitCode, execution.stderr).toBe(0)
-  expect(execution.stdout).not.toContain('__opencoveControlEnvelope')
+  expect(execution.stdout).not.toContain('__eclipseCodeControlEnvelope')
   return JSON.parse(execution.stdout) as T
 }
 
@@ -47,11 +47,11 @@ export async function pluginCliFailure(userDataDir: string, args: string[]): Pro
 }
 
 export async function createCommandPlugin(instances: 'single' | 'multiple') {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-command-plugin-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-command-plugin-'))
   const id = `command-fixture-${instances}`
   await mkdir(join(directory, 'skills', 'commands'), { recursive: true })
   const files = {
-    'opencove.plugin.json': JSON.stringify({
+    'eclipse-code.plugin.json': JSON.stringify({
       apiVersion: 1,
       id,
       version: '1.0.0',
@@ -104,7 +104,7 @@ export async function createCommandPlugin(instances: 'single' | 'multiple') {
       <link rel="stylesheet" href="style.css"><script src="view.js" defer></script></head>
       <body><main><h2>Window command</h2><output id="label">Starting</output>
       <p id="ready">Connecting</p><p id="executions">0</p></main></body></html>`,
-    'view.js': `const api = window.opencovePlugin;
+    'view.js': `const api = window.eclipseCodePlugin;
       api.ready.then(async context => {
         const output = document.querySelector('#label');
         output.textContent = (await api.storage.get('label')) ?? 'Idle';
@@ -122,7 +122,7 @@ export async function createCommandPlugin(instances: 'single' | 'multiple') {
       body { margin: 0; padding: 16px; } h2 { font-size: 14px; margin: 0 0 12px; }
       output { display: block; overflow-wrap: anywhere; } p { color: var(--cove-text-muted); }`,
     'README.md': '# Command fixture\nIndependently installed command delivery fixture.\n',
-    'skills/commands/SKILL.md': `---\nname: command-fixture\ndescription: Operate the installed command fixture.\n---\nUse opencove plugin windows ${id} before choosing a window command target.\n`,
+    'skills/commands/SKILL.md': `---\nname: command-fixture\ndescription: Operate the installed command fixture.\n---\nUse eclipse-code plugin windows ${id} before choosing a window command target.\n`,
   }
   await Promise.all(
     Object.entries(files).map(([name, text]) => writeFile(join(directory, name), text)),
@@ -142,7 +142,7 @@ export async function expectCommandReady(node: Locator): Promise<void> {
 
 export async function savedCommandNodes(page: Page, pluginId: string) {
   return await page.evaluate(async id => {
-    const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
     const state = JSON.parse(raw ?? '{}') as {
       workspaces?: Array<{
         id: string

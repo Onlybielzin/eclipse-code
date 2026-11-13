@@ -15,10 +15,10 @@ it.skipIf(process.platform !== 'win32').each(['grouped', 'ungrouped', 'help'])(
         .out()
         .split('\n')
         .map(line => line.trim())
-        .filter(line => line.startsWith('opencove ') && line.includes('@self'))
+        .filter(line => line.startsWith('eclipse-code ') && line.includes('@self'))
     } else {
       if (mode === 'ungrouped') {
-        f.io.env.OPENCOVE_SPACE_ID = ''
+        f.io.env.ECLIPSE_CODE_SPACE_ID = ''
         f.values['system.whoami'] = { ...who, spaceId: '' }
       } else {
         f.values['node.list'] = {
@@ -31,7 +31,7 @@ it.skipIf(process.platform !== 'win32').each(['grouped', 'ungrouped', 'help'])(
     const script = [
       // A bare @self would splat this trap into the invocation arguments.
       '$self = @("WRONG-TARGET")',
-      'function opencove { ConvertTo-Json -Compress -InputObject @($args) }',
+      'function eclipse-code { ConvertTo-Json -Compress -InputObject @($args) }',
       ...examples,
     ].join('\n')
     const result = spawnSync(

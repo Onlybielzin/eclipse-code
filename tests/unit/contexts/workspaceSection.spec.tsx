@@ -11,7 +11,7 @@ describe('WorkspaceSection', () => {
       <WorkspaceSection
         workspaceName="Demo Project"
         workspacePath="/repo/demo"
-        worktreesRoot=".opencove/worktrees"
+        worktreesRoot=".eclipse-code/worktrees"
         onChangeWorktreesRoot={onChangeWorktreesRoot}
         pullRequestBaseBranchOptions={[]}
         onChangePullRequestBaseBranchOptions={() => undefined}
@@ -26,14 +26,14 @@ describe('WorkspaceSection', () => {
       'title',
       '/repo/demo',
     )
-    expect(screen.getByTestId('settings-worktree-root')).toHaveValue('.opencove/worktrees')
+    expect(screen.getByTestId('settings-worktree-root')).toHaveValue('.eclipse-code/worktrees')
     expect(screen.getByText(/Relative path is based on project root/i)).toBeVisible()
     expect(screen.getByTestId('settings-resolved-worktree-path-display')).toHaveTextContent(
-      '.../.opencove/worktrees',
+      '.../.eclipse-code/worktrees',
     )
     expect(screen.getByTestId('settings-resolved-worktree-path-display')).toHaveAttribute(
       'title',
-      '/repo/demo/.opencove/worktrees',
+      '/repo/demo/.eclipse-code/worktrees',
     )
 
     fireEvent.change(screen.getByTestId('settings-worktree-root'), {

@@ -9,7 +9,7 @@ import { createInMemoryPersistenceStore } from '../../contract/controlSurface/co
 import { context } from '../contexts/managedClaudeLaunchCompatibility.helpers'
 
 it('keeps nonstrict startup available with spawn admission closed when ownership warmup cannot read storage', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'opencove-runtime-storage-'))
+  const directory = await mkdtemp(join(tmpdir(), 'eclipse-code-runtime-storage-'))
   const store = createInMemoryPersistenceStore()
   store.readAppState = async () => {
     throw createAppError('persistence.unavailable')

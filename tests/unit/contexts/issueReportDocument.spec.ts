@@ -54,7 +54,7 @@ describe('issue report document', () => {
         'Cookie: session=abc123',
         `https://alice:${urlCredential}@example.com/repo.git`,
         '"token": "secret-token"',
-        '/Users/alice/OpenCove/logs/runtime.log',
+        '/Users/alice/Eclipse Code/logs/runtime.log',
       ].join('\n'),
       { knownPaths: ['/Users/alice'] },
     )
@@ -64,7 +64,7 @@ describe('issue report document', () => {
     expect(redacted).toContain('Cookie: [redacted]')
     expect(redacted).toContain('https://[redacted]@example.com/repo.git')
     expect(redacted).toContain('"token":"[redacted]"')
-    expect(redacted).toContain('[local-path]/OpenCove')
+    expect(redacted).toContain('[local-path]/Eclipse Code')
   })
 
   it('truncates large text with an explicit marker', () => {
@@ -75,7 +75,7 @@ describe('issue report document', () => {
   })
 
   it('builds markdown that hides local paths by default', () => {
-    const workspacePath = 'D:\\Development\\client\\opencove'
+    const workspacePath = 'D:\\Development\\client\\eclipse-code'
     const markdown = buildIssueReportMarkdown({
       reportId: 'report-1',
       createdAt: '2026-05-07T00:00:00.000Z',
@@ -85,7 +85,7 @@ describe('issue report document', () => {
         description: 'After updating, Run Agent does not start.',
         includeLocalPaths: false,
         context: {
-          activeWorkspaceName: 'OpenCove',
+          activeWorkspaceName: 'Eclipse Code',
           activeWorkspacePath: workspacePath,
         },
       },
@@ -129,7 +129,7 @@ describe('issue report document', () => {
         description: 'details '.repeat(120),
         includeLocalPaths: false,
         context: {
-          activeWorkspaceName: 'OpenCove',
+          activeWorkspaceName: 'Eclipse Code',
           activeWorkspacePath: '/Users/alice/project',
         },
       },
@@ -138,7 +138,7 @@ describe('issue report document', () => {
         createJsonIssueReportSection('app_runtime', 'App Runtime', { version: '0.2.0' }),
         createLogSection({
           fileName: 'runtime-diagnostics.log',
-          path: '/Users/alice/Library/Application Support/OpenCove/logs/runtime-diagnostics.log',
+          path: '/Users/alice/Library/Application Support/Eclipse Code/logs/runtime-diagnostics.log',
           status: 'available',
           content: 'authorization: Bearer abc.def\ncrash after agent launch\n'.repeat(80),
           originalBytes: 10_000,
@@ -164,7 +164,7 @@ describe('issue report document', () => {
       body: 'details '.repeat(2_000),
     })
 
-    expect(url).toContain('https://github.com/DeadWaveWave/opencove/issues/new?')
+    expect(url).toContain('https://github.com/Onlybielzin/eclipse-code/issues/new?')
     expect(url.length).toBeLessThan(8_000)
   })
 })

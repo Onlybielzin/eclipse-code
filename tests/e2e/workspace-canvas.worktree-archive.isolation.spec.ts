@@ -79,15 +79,15 @@ for (const theme of ['light', 'dark'] as const) {
     test(`isolates the archive overlay in ${theme} theme through ${outcome}`, async () => {
       const testInfo = test.info()
       const repoPath = await realpath(
-        await mkdtemp(path.join(resolveE2ETmpDir(), 'opencove-archive-isolation-')),
+        await mkdtemp(path.join(resolveE2ETmpDir(), 'eclipse-code-archive-isolation-')),
       )
       try {
         await createRepo(repoPath)
-        const worktreePath = path.join(repoPath, '.opencove', 'worktrees', 'archive')
+        const worktreePath = path.join(repoPath, '.eclipse-code', 'worktrees', 'archive')
         await mkdir(path.dirname(worktreePath), { recursive: true })
         await runGit(['worktree', 'add', '-b', 'feature/archive', worktreePath, 'HEAD'], repoPath)
         const { electronApp, window } = await launchApp({
-          env: { OPENCOVE_TEST_WORKSPACE: repoPath },
+          env: { ECLIPSE_CODE_TEST_WORKSPACE: repoPath },
         })
         try {
           await seedWorkspaceState(window, {
@@ -146,7 +146,8 @@ for (const theme of ['light', 'dark'] as const) {
                       ]
                     : []),
                 ],
-                activeSpaceId: 'archive-space',
+                // No open task, so the other Space's note stays on screen as the baseline.
+                activeSpaceId: null,
               },
             ],
           })
@@ -170,7 +171,7 @@ for (const theme of ['light', 'dark'] as const) {
               throw new Error('Missing control-surface IPC handler')
             }
             const released = new Promise<string>(resolve => {
-              ipcMain.once('opencove-test:release-archive', resolve)
+              ipcMain.once('eclipse-code-test:release-archive', resolve)
             })
             ipcMain.removeHandler(channel)
             ipcMain.handle(channel, async (event, request: { id?: string }) => {
@@ -178,7 +179,7 @@ for (const theme of ['light', 'dark'] as const) {
                 const result = await released
                 if (result === 'failure') {
                   return {
-                    __opencoveIpcEnvelope: true,
+                    __eclipseCodeIpcEnvelope: true,
                     ok: false,
                     error: { code: 'worktree.remove_failed' },
                   }
@@ -214,7 +215,7 @@ for (const theme of ['light', 'dark'] as const) {
           await window.locator('.react-flow__controls-zoomout').click()
           await expectOverlayAboveNode(target, overlayId)
           await electronApp.evaluate(({ ipcMain }, result) => {
-            ipcMain.emit('opencove-test:release-archive', result)
+            ipcMain.emit('eclipse-code-test:release-archive', result)
           }, outcome)
           await expect(window.getByTestId(overlayId)).toHaveCount(0)
           if (outcome === 'success') {

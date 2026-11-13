@@ -109,9 +109,9 @@ export async function copyPersonalSource(source: string, candidate: string): Pro
   if (await git(candidate, ['diff', '--cached', '--name-only'])) {
     await git(candidate, [
       '-c',
-      'user.name=OpenCove',
+      'user.name=Eclipse Code',
       '-c',
-      'user.email=plugins@opencove.local',
+      'user.email=plugins@eclipse-code.local',
       'commit',
       '-m',
       'Preserve personal plugin source for update',

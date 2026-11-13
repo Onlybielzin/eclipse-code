@@ -23,8 +23,8 @@ import {
 
 describe('Control Surface terminal Agent re-exec stream operation', () => {
   it('keeps command construction Worker-owned and enforces the controller lease', async () => {
-    const userDataPath = await mkdtemp(join(tmpdir(), 'opencove-agent-reexec-'))
-    const workspacePath = await mkdtemp(join(tmpdir(), 'opencove-agent-reexec-workspace-'))
+    const userDataPath = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-reexec-'))
+    const workspacePath = await mkdtemp(join(tmpdir(), 'eclipse-code-agent-reexec-workspace-'))
     const connectionFileName = 'control-surface.agent-reexec.test.json'
     const connectionFilePath = resolve(userDataPath, connectionFileName)
     const approvedWorkspaces = createApprovedWorkspaceStoreForPath(
@@ -90,7 +90,7 @@ describe('Control Surface terminal Agent re-exec stream operation', () => {
       )
 
       const wsUrl = toWsUrl(baseUrl, '/pty', { token: 'test-token' })
-      const controller = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const controller = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         controller.once('open', resolvePromise)
         controller.once('error', rejectPromise)
@@ -140,7 +140,7 @@ describe('Control Surface terminal Agent re-exec stream operation', () => {
       expect(missingEpoch.status).toBe('rejected_stale_authority')
       expect(writes).toHaveLength(2)
 
-      const viewer = new WebSocket(wsUrl, 'opencove-pty.v1')
+      const viewer = new WebSocket(wsUrl, 'eclipse-code-pty.v1')
       await new Promise<void>((resolvePromise, rejectPromise) => {
         viewer.once('open', resolvePromise)
         viewer.once('error', rejectPromise)

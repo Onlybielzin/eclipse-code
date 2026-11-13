@@ -69,8 +69,8 @@ export function CanvasSection(props: {
     onFocusNodeTargetZoomPreviewChange,
   } = props
   const platform =
-    typeof window !== 'undefined' && window.opencoveApi?.meta?.platform
-      ? window.opencoveApi.meta.platform
+    typeof window !== 'undefined' && window.eclipseCodeApi?.meta?.platform
+      ? window.eclipseCodeApi.meta.platform
       : undefined
   const isMac = platform === 'darwin'
   const wheelZoomModifierHelpLabel = (() => {

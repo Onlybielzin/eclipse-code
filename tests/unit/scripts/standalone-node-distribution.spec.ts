@@ -21,18 +21,18 @@ describe('standalone Node distribution contracts', () => {
 
     expect(builder).toContain("electronBuilderRequire.resolve('node-gyp/bin/node-gyp.js')")
     expect(builder).toContain('native modules loaded with Node ABI')
-    expect(builder).toContain('OPENCOVE_NODE_MODULE_VERSION=')
+    expect(builder).toContain('ECLIPSE_CODE_NODE_MODULE_VERSION=')
     expect(STANDALONE_NATIVE_MODULE_NAMES).toEqual(['better-sqlite3', 'node-pty'])
   })
 
   it('writes launchers that invoke Node without Electron compatibility mode', async () => {
     const [shellInstaller, powershellInstaller] = await Promise.all([
-      readFile(resolve(rootDir, 'scripts/release-assets/opencove-install.sh'), 'utf8'),
-      readFile(resolve(rootDir, 'scripts/release-assets/opencove-install.ps1'), 'utf8'),
+      readFile(resolve(rootDir, 'scripts/release-assets/eclipse-code-install.sh'), 'utf8'),
+      readFile(resolve(rootDir, 'scripts/release-assets/eclipse-code-install.ps1'), 'utf8'),
     ])
 
     for (const installer of [shellInstaller, powershellInstaller]) {
-      expect(installer).toContain('OPENCOVE_NODE_BIN')
+      expect(installer).toContain('ECLIPSE_CODE_NODE_BIN')
       expect(installer).toContain('SHA256SUMS.txt')
       expect(installer).toContain('Verified SHA256')
       expect(installer).not.toContain('ELECTRON_RUN_AS_NODE')
@@ -40,7 +40,7 @@ describe('standalone Node distribution contracts', () => {
     expect(shellInstaller).toContain('sha256sum')
     expect(shellInstaller).toContain('shasum -a 256')
     expect(powershellInstaller).toContain('[Security.Cryptography.SHA256]::Create()')
-    expect(powershellInstaller).toContain('OPENCOVE_STANDALONE_CHECKSUMS_FILE')
+    expect(powershellInstaller).toContain('ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE')
     expect(powershellInstaller).not.toContain('Get-FileHash')
   })
 
@@ -52,7 +52,7 @@ describe('standalone Node distribution contracts', () => {
 
     expect(workflow).toContain('debian:bookworm-slim')
     expect(workflow).toContain('smoke-standalone-node-runtime.sh')
-    expect(workflow).toContain('$env:OPENCOVE_STANDALONE_CHECKSUMS_FILE = $checksumFile')
+    expect(workflow).toContain('$env:ECLIPSE_CODE_STANDALONE_CHECKSUMS_FILE = $checksumFile')
     expect(smoke).toContain('/proc/${LAUNCHER_PID}/exe')
     expect(smoke).toContain('/proc/${WORKER_PID}/exe')
     expect(smoke).toContain('connection.appVersion !== packageJson.version')
@@ -94,7 +94,7 @@ describe('standalone Node distribution contracts', () => {
     expect(workflow).toContain('  promote-stable:')
     expect(workflow).toContain('needs: [publish, verify-published-standalone]')
     expect(workflow).toContain(
-      'gh release edit "$OPENCOVE_RELEASE_TAG" --prerelease=false --latest',
+      'gh release edit "$ECLIPSE_CODE_RELEASE_TAG" --prerelease=false --latest',
     )
     expect(workflow).toContain('  verify-latest-stable:')
     expect(workflow).toContain('--installer-source=latest')

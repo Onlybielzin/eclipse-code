@@ -32,7 +32,7 @@ for (const scenario of [
       await page.getByTestId('settings-plugins-documentation').click()
       const library = page.getByTestId('plugin-documentation-library')
       await expect(library.getByRole('heading', { name: scenario.title })).toBeFocused()
-      const indexScreenshot = `/tmp/opencove-plugin-library-review/library-${scenario.theme}.png`
+      const indexScreenshot = `/tmp/eclipse-code-plugin-library-review/library-${scenario.theme}.png`
       await page.screenshot({ path: indexScreenshot })
       await testInfo.attach(`library-${scenario.theme}`, {
         path: indexScreenshot,
@@ -40,9 +40,9 @@ for (const scenario of [
       })
       await page.getByTestId('plugin-library-build').click()
       await expect(library.getByRole('heading', { name: scenario.article })).toBeVisible()
-      await expect(library.getByTestId('plugin-readme')).toContainText('opencove plugin guide')
+      await expect(library.getByTestId('plugin-readme')).toContainText('eclipse-code plugin guide')
       await library.getByRole('link', { name: scenario.link, exact: true }).click()
-      await expect(library.getByTestId('plugin-readme')).toContainText('window.opencovePlugin')
+      await expect(library.getByTestId('plugin-readme')).toContainText('window.eclipseCodePlugin')
       await page.getByTestId('plugin-library-back').click()
       await expect(page.getByTestId('plugin-library-build')).toBeFocused()
       await page.setViewportSize({ width: 320, height: 800 })
@@ -54,7 +54,7 @@ for (const scenario of [
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         320,
       )
-      const narrowScreenshot = `/tmp/opencove-plugin-library-review/library-320-${scenario.theme}.png`
+      const narrowScreenshot = `/tmp/eclipse-code-plugin-library-review/library-320-${scenario.theme}.png`
       await page.screenshot({ path: narrowScreenshot })
       await testInfo.attach(`library-320-${scenario.theme}`, {
         path: narrowScreenshot,

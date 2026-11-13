@@ -1,13 +1,13 @@
 # UI Standard
 
-本规范定义 OpenCove 的 **统一 UI 语言** 与 **实现约束**，用于保证：
+本规范定义 Eclipse Code 的 **统一 UI 语言** 与 **实现约束**，用于保证：
 
 - Light / Dark / System 三种主题下都可读、克制、层级清晰；
 - 组件风格一致（像同一个“系统”）；
 - 开发和改动可持续（可复用、可测试、可演进）。
 
 命名约定：
-- 产品/对外接口统一使用 `OpenCove` / `opencove`。
+- 产品/对外接口统一使用 `Eclipse Code` / `eclipse-code`。
 - UI 设计系统与样式命名空间保留 `cove` 前缀（例如 `--cove-*`、`data-cove-*`、`.cove-window`），作为稳定的内部约定，不随产品命名调整而变更。
 
 > 关联专项规范：
@@ -98,7 +98,7 @@
 - 生成器只把依赖运行时 token 的混色（如玻璃透明度）写成 `color-mix()`，常量混色直接输出计算结果。
 - 插件主题可以只声明生成器输入（主题 API v2 的 `palette`，见 [插件主题契约](../plugins/THEMES.md)）：
   `useApplyUiTheme` 在运行时用同一条管线（`renderPaletteStylesheet`）生成样式，作用域是
-  `:root[data-cove-family='cove'][data-cove-theme-id="<id>"]`，放在 `opencove` 层里，所以比主题族更具体，
+  `:root[data-cove-family='cove'][data-cove-theme-id="<id>"]`，放在 `eclipse-code` 层里，所以比主题族更具体，
   又仍然低于作者样式表和 manifest token。`tests/unit/shared/design/themePalette.spec.ts` 在 manifest
   允许的输入范围内逐一断言对比度规则。
 
@@ -172,7 +172,7 @@
 
 - 共享组件（`src/app/renderer/components/ui/`）的每种状态都放进测试专用的组件图库
   `src/app/renderer/gallery/UiGallery.tsx`。图库只在 `NODE_ENV=test` 且
-  `OPENCOVE_TEST_UI_GALLERY=1` 时代替应用外壳渲染，并按需加载，不进入正常启动路径。
+  `ECLIPSE_CODE_TEST_UI_GALLERY=1` 时代替应用外壳渲染，并按需加载，不进入正常启动路径。
 - `tests/e2e/ui-gallery.probes.spec.ts` 在 Cove 的深色与浅色下扫描图库、
   对话框和浮层：文字对比度不低于 4.5:1（大字 3:1，禁用控件除外），点击区不小于 24×24
   CSS px（WCAG 2.5.8）。探针在 `tests/e2e/ui-accessibility.probe.ts`，测量前等待有限动画结束。
@@ -347,7 +347,7 @@
 
 - 桌面 Sidebar 由固定宽度项目栏与单个项目导航组成。收起仅保留项目图标，不把 Space / Agent
   压缩成图标树；展开导航显示 Space 与各自的 Agent，不增加独立的“项目画布”条目。
-- 项目栏宽 72px：顶部是 OpenCove 标志，中间是项目列表，底部依次是固定 / 关闭、添加项目与设置，
+- 项目栏宽 72px：顶部是 Eclipse Code 标志，中间是项目列表，底部依次是固定 / 关闭、添加项目与设置，
   它们不随项目列表滚动；展开、收起与移动抽屉共用同一入口。
   移动抽屉交接到设置后关闭，设置退出返回导航按钮，不恢复已卸载的抽屉按钮焦点。
 - 每个项目是一个带项目颜色的瓦片，下面是项目名（过长省略，完整名称在提示里）。颜色由项目 ID

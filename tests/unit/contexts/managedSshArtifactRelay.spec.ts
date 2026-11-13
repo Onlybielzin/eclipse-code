@@ -18,8 +18,8 @@ it('relays only pinned assets and removes partial files after downstream failure
     await expect(
       withManagedSshArtifactRelay(
         {
-          installerUrl: `http://127.0.0.1:${port}/v0.3.1/opencove-install-v0.3.1.sh`,
-          assetName: 'opencove-server-linux-x64.tar.gz',
+          installerUrl: `http://127.0.0.1:${port}/v0.3.1/eclipse-code-install-v0.3.1.sh`,
+          assetName: 'eclipse-code-server-linux-x64.tar.gz',
           windows: false,
         },
         async path => {
@@ -33,8 +33,8 @@ it('relays only pinned assets and removes partial files after downstream failure
     ).rejects.toThrow('SSH disconnected')
     expect(requests).toEqual([
       '/v0.3.1/SHA256SUMS.txt',
-      '/v0.3.1/opencove-install-v0.3.1.sh',
-      '/v0.3.1/opencove-server-linux-x64.tar.gz',
+      '/v0.3.1/eclipse-code-install-v0.3.1.sh',
+      '/v0.3.1/eclipse-code-server-linux-x64.tar.gz',
     ])
     expect(directory).not.toBeNull()
     await expect(access(directory!)).rejects.toMatchObject({ code: 'ENOENT' })

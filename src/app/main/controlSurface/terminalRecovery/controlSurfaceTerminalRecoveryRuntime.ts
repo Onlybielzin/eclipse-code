@@ -117,14 +117,14 @@ export function createControlSurfaceTerminalRecoveryRuntime(options: {
         .getPersistenceStore()
         .then(async () => {
           const repository = await createSqliteTerminalRecoveryRepository({
-            dbPath: options.dbPath ?? resolve(options.userDataPath, 'opencove.db'),
+            dbPath: options.dbPath ?? resolve(options.userDataPath, 'eclipse-code.db'),
           })
           const owner = new TerminalRecoveryOwner({
             persistence: repository,
             // Quit-flush E2E keeps output pending until the explicit shutdown drain.
             checkpointDelayMs:
               process.env.NODE_ENV === 'test' &&
-              process.env['OPENCOVE_TEST_DEFER_TERMINAL_CHECKPOINTS'] === '1'
+              process.env['ECLIPSE_CODE_TEST_DEFER_TERMINAL_CHECKPOINTS'] === '1'
                 ? 3_600_000
                 : undefined,
             presentation: {
@@ -163,7 +163,9 @@ export function createControlSurfaceTerminalRecoveryRuntime(options: {
         })
         .catch(error => {
           const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-          process.stderr.write(`[opencove] terminal recovery initialization degraded: ${detail}\n`)
+          process.stderr.write(
+            `[eclipse-code] terminal recovery initialization degraded: ${detail}\n`,
+          )
           return null
         })
     : Promise.resolve(null)
@@ -327,7 +329,7 @@ export function createControlSurfaceTerminalRecoveryRuntime(options: {
     }))
     if (flushResult.status === 'degraded') {
       process.stderr.write(
-        `[opencove] terminal recovery shutdown flush degraded: ${JSON.stringify(flushResult.failures)}\n`,
+        `[eclipse-code] terminal recovery shutdown flush degraded: ${JSON.stringify(flushResult.failures)}\n`,
       )
     }
   }

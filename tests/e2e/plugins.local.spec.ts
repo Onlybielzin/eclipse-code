@@ -145,17 +145,17 @@ test.describe('Independently installed plugins', () => {
       await expect(frame.locator('#count')).toHaveText('2')
       const replacementStartup = await invokeClock(node)
       const replacementUrl = await node.locator('iframe').getAttribute('src')
-      const manifestPath = join(source, 'opencove.plugin.json')
+      const manifestPath = join(source, 'eclipse-code.plugin.json')
       const originalManifest = await readFile(manifestPath, 'utf8')
       await writeFile(
         manifestPath,
-        JSON.stringify({ ...JSON.parse(originalManifest), engines: { opencove: '>=999.0.0' } }),
+        JSON.stringify({ ...JSON.parse(originalManifest), engines: { eclipseCode: '>=999.0.0' } }),
       )
       const compatibilityError = await pluginCommand(page, 'plugin.reload', { pluginId }).then(
         () => '',
         cause => String(cause),
       )
-      expect(compatibilityError).toContain('requires OpenCove >=999.0.0')
+      expect(compatibilityError).toContain('requires Eclipse Code >=999.0.0')
       expect(await invokeClock(node)).toBe(replacementStartup)
       expect(await node.locator('iframe').getAttribute('src')).toBe(replacementUrl)
       await expect(frame.locator('#count')).toHaveText('2')
@@ -215,7 +215,7 @@ test.describe('Independently installed plugins', () => {
       let detail = await openLocalDetails(page)
       await expect(detail).toContainText('Local plugin')
       await expect(detail.getByTestId('plugin-readme')).toContainText(
-        'independently installed OpenCove plugin',
+        'independently installed Eclipse Code plugin',
       )
       const illustration = detail
         .getByTestId('plugin-readme')
@@ -316,7 +316,7 @@ test.describe('Independently installed plugins', () => {
       await clickPluginControl(desktopNode.frameLocator('iframe').locator('#increment'))
       await expect(desktopNode.frameLocator('iframe').locator('#count')).toHaveText('1')
       const webUiUrl = await desktop.evaluate(
-        async () => await window.opencoveApi.worker.getWebUiUrl(),
+        async () => await window.eclipseCodeApi.worker.getWebUiUrl(),
       )
       expect(webUiUrl).toBeTruthy()
       const webContext = await browser.newContext({ viewport: { width: 1400, height: 1000 } })

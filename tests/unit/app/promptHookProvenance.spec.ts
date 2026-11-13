@@ -31,7 +31,7 @@ it.each([
       reservation.commit('s')
       const token =
         reservation.env![
-          provider === 'codex' ? 'OPENCOVE_CODEX_HOOK_TOKEN' : 'OPENCOVE_CLAUDE_HOOK_TOKEN'
+          provider === 'codex' ? 'ECLIPSE_CODE_CODEX_HOOK_TOKEN' : 'ECLIPSE_CODE_CLAUDE_HOOK_TOKEN'
         ]!
       expect(await socket.post(token, 'Stop', '1000')).toBe(204)
       const result = f.deliver()

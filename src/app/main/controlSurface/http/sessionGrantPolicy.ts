@@ -6,6 +6,7 @@ import {
   SESSION_GRANT_LAUNCH_REJECTED_FIELDS,
 } from './sessionGrantLaunchPolicy'
 import type { SessionGrant } from './sessionGrantRegistry'
+import { createAppError } from '../../../../shared/errors/appError'
 export type OperationId = (typeof CONTROL_SURFACE_OPERATIONS)[number]['id']
 export type GrantCheckDeps = {
   readonly grant: SessionGrant
@@ -34,7 +35,7 @@ const launch = {
 const runtime = {
   access: 'constrained',
   reason:
-    'runtime creation requires admitted local node.create; use opencove node create agent or opencove node create terminal',
+    'runtime creation requires admitted local node.create; use eclipse-code node create agent or eclipse-code node create terminal',
   rejectedFields: {},
   check: () => {},
 } as const
@@ -45,6 +46,26 @@ const nodeCreate = {
   rejectedFields: {},
   check: () => {},
 } as const
+/** The calling agent is the asker or the list owner; an agent cannot act for another node. */
+function callerOwnedCard(field: string, reason: string): GrantRule {
+  return {
+    access: 'constrained',
+    reason,
+    rejectedFields: { [field]: 'agent terminals act as themselves; omit it' },
+    check: (_payload, deps) => {
+      const wire = deps.wirePayload
+      if (wire && typeof wire === 'object' && Object.hasOwn(wire, field)) {
+        throw createAppError('common.forbidden', {
+          details: {
+            reason: 'field_denied',
+            operationId: deps.operationId,
+            message: `${field} is the calling agent; omit it.`,
+          },
+        })
+      }
+    },
+  }
+}
 const settingsReason = `only the user can change settings; agent permissions are in ${SESSION_GRANT_FULL_ACCESS_PATH}`
 
 // Each entry is a deliberate authority decision. New operations require explicit review.
@@ -62,20 +83,20 @@ export const SESSION_GRANT_POLICY = {
     rejectedFields: {},
     check: checkSessionGrantPrompt,
   },
-  'auth.issueWebSessionTicket': deny('this action requires a human decision in OpenCove'),
+  'auth.issueWebSessionTicket': deny('this action requires a human decision in Eclipse Code'),
   'canvas.focus': allow,
   'endpoint.homeDirectory': allow,
   'endpoint.list': allow,
   'endpoint.overview.list': allow,
   'endpoint.ping': allow,
-  'endpoint.prepare': deny('this action requires a human decision in OpenCove'),
-  'endpoint.readDirectory': deny('this action requires a human decision in OpenCove'),
-  'endpoint.register': deny('this action requires a human decision in OpenCove'),
-  'endpoint.registerManagedSsh': deny('this action requires a human decision in OpenCove'),
-  'endpoint.remove': deny('this action requires a human decision in OpenCove'),
-  'endpoint.repair': deny('this action requires a human decision in OpenCove'),
+  'endpoint.prepare': deny('this action requires a human decision in Eclipse Code'),
+  'endpoint.readDirectory': deny('this action requires a human decision in Eclipse Code'),
+  'endpoint.register': deny('this action requires a human decision in Eclipse Code'),
+  'endpoint.registerManagedSsh': deny('this action requires a human decision in Eclipse Code'),
+  'endpoint.remove': deny('this action requires a human decision in Eclipse Code'),
+  'endpoint.repair': deny('this action requires a human decision in Eclipse Code'),
   'endpoint.sshConfigHosts': allow,
-  'endpoint.updateManagedSsh': deny('this action requires a human decision in OpenCove'),
+  'endpoint.updateManagedSsh': deny('this action requires a human decision in Eclipse Code'),
   'filesystem.copyEntry': allow,
   'filesystem.copyEntryInMount': allow,
   'filesystem.createDirectory': allow,
@@ -116,10 +137,10 @@ export const SESSION_GRANT_POLICY = {
   'gitWorktree.suggestNames': allow,
   'integration.github.resolvePullRequests': allow,
   'integration.github.resolvePullRequestsInMount': allow,
-  'mount.create': deny('this action requires a human decision in OpenCove'),
+  'mount.create': deny('this action requires a human decision in Eclipse Code'),
   'mount.list': allow,
-  'mount.promote': deny('this action requires a human decision in OpenCove'),
-  'mount.remove': deny('this action requires a human decision in OpenCove'),
+  'mount.promote': deny('this action requires a human decision in Eclipse Code'),
+  'mount.remove': deny('this action requires a human decision in Eclipse Code'),
   'mountTarget.resolve': allow,
   'node.create': nodeCreate,
   'node.delete': allow,
@@ -133,23 +154,23 @@ export const SESSION_GRANT_POLICY = {
     'plugin code runs with plugin authority and requires a human decision',
   ),
   'plugin.details': allow,
-  'plugin.discover': deny('this action requires a human decision in OpenCove'),
-  'plugin.git.apply': deny('this action requires a human decision in OpenCove'),
-  'plugin.git.check': deny('this action requires a human decision in OpenCove'),
-  'plugin.git.install': deny('this action requires a human decision in OpenCove'),
-  'plugin.git.update': deny('this action requires a human decision in OpenCove'),
+  'plugin.discover': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.git.apply': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.git.check': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.git.install': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.git.update': deny('this action requires a human decision in Eclipse Code'),
   'plugin.host.request': deny(
     'plugin code runs with plugin authority and requires a human decision',
   ),
-  'plugin.install': deny('this action requires a human decision in OpenCove'),
+  'plugin.install': deny('this action requires a human decision in Eclipse Code'),
   'plugin.invoke': deny('plugin code runs with plugin authority and requires a human decision'),
   'plugin.list': allow,
   'plugin.preferences.get': allow,
   'plugin.preferences.set': deny('installation-wide plugin settings belong to the user'),
-  'plugin.reload': deny('this action requires a human decision in OpenCove'),
-  'plugin.repository.details': deny('this action requires a human decision in OpenCove'),
-  'plugin.rollback': deny('this action requires a human decision in OpenCove'),
-  'plugin.setEnabled': deny('this action requires a human decision in OpenCove'),
+  'plugin.reload': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.repository.details': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.rollback': deny('this action requires a human decision in Eclipse Code'),
+  'plugin.setEnabled': deny('this action requires a human decision in Eclipse Code'),
   'plugin.sidebar.items': deny(
     'plugin code runs with plugin authority and requires a human decision',
   ),
@@ -157,7 +178,7 @@ export const SESSION_GRANT_POLICY = {
   'plugin.source': allow,
   'plugin.storage.get': allow,
   'plugin.storage.set': deny('installation-wide plugin settings belong to the user'),
-  'plugin.uninstall': deny('this action requires a human decision in OpenCove'),
+  'plugin.uninstall': deny('this action requires a human decision in Eclipse Code'),
   'plugin.view.close': allow,
   'plugin.view.open': deny('opening a plugin view can execute plugin code with plugin authority'),
   'plugin.view.preferences.get': allow,
@@ -167,32 +188,42 @@ export const SESSION_GRANT_POLICY = {
   'plugin.window.open': deny(
     'opening a plugin window can execute plugin code with plugin authority',
   ),
-  'project.add': deny('this action requires a human decision in OpenCove'),
+  'project.add': deny('this action requires a human decision in Eclipse Code'),
   'project.list': allow,
-  'pty.debugCrashHost': deny('this action requires a human decision in OpenCove'),
+  'pty.debugCrashHost': deny('this action requires a human decision in Eclipse Code'),
   'pty.listProfiles': allow,
   'pty.spawn': runtime,
   'pty.spawnInMount': runtime,
-  'session.attachAgentStateWatcher': deny('agent observation is managed by OpenCove'),
-  'session.detachAgentStateWatcher': deny('agent observation is managed by OpenCove'),
+  'session.attachAgentStateWatcher': deny('agent observation is managed by Eclipse Code'),
+  'session.detachAgentStateWatcher': deny('agent observation is managed by Eclipse Code'),
   'session.finalMessage': allow,
   'session.finalMessageForNode': allow,
-  'session.cleanupUnreferenced': deny('this action requires a human decision in OpenCove'),
+  'question.answer': deny('only the user answers questions, in Eclipse Code'),
+  'question.create': callerOwnedCard(
+    'askedByNodeId',
+    'only an agent the user started asks the user; the answer comes back to the caller',
+  ),
+  'question.history': allow,
+  'role.delete': deny('only the user edits the project team, in Eclipse Code'),
+  'role.list': allow,
+  'role.set': deny('only the user edits the project team, in Eclipse Code'),
+  'session.cleanupUnreferenced': deny('this action requires a human decision in Eclipse Code'),
   'session.get': allow,
   'session.kill': allow,
   'session.launchAgent': launch,
   'session.launchAgentInMount': launch,
   'session.list': allow,
-  'session.prepareOrRevive': deny('session recovery is managed by OpenCove'),
+  'session.prepareOrRevive': deny('session recovery is managed by Eclipse Code'),
   'session.presentationSnapshot': allow,
   'session.snapshot': allow,
   'session.spawnTerminal': runtime,
   'session.stopNode': allow,
   'session.terminalAgentActivity.list': allow,
   'session.writeNode': deny(
-    'send messages with opencove agent prompt; only the user can answer permission prompts and dialogs in OpenCove',
+    'send messages with eclipse-code agent prompt; only the user can answer permission prompts and dialogs in Eclipse Code',
   ),
   'space.create': allow,
+  'space.delete': allow,
   'space.createChild': allow,
   'space.get': allow,
   'space.list': allow,
@@ -201,8 +232,10 @@ export const SESSION_GRANT_POLICY = {
   'sync.readNodeScrollback': allow,
   'sync.readWorkspaceStateRaw': deny('it exposes private settings and credentials'),
   'sync.state': deny('it exposes private settings and credentials'),
-  'sync.writeAgentNodePlaceholderScrollback': deny('saved agent history is managed by OpenCove'),
-  'sync.writeNodeScrollback': deny('saved terminal history is managed by OpenCove'),
+  'sync.writeAgentNodePlaceholderScrollback': deny(
+    'saved agent history is managed by Eclipse Code',
+  ),
+  'sync.writeNodeScrollback': deny('saved terminal history is managed by Eclipse Code'),
   'sync.writeState': deny(settingsReason),
   'sync.writeWorkspaceStateRaw': deny(settingsReason),
   'system.capabilities': allow,
@@ -211,21 +244,22 @@ export const SESSION_GRANT_POLICY = {
   'system.operations': allow,
   'system.ping': allow,
   'system.whoami': allow,
-  'worker.config.get': deny('this action requires a human decision in OpenCove'),
-  'worker.config.set': deny('this action requires a human decision in OpenCove'),
-  'worker.maintenance.acquire': deny('this action requires a human decision in OpenCove'),
-  'worker.maintenance.activate': deny('this action requires a human decision in OpenCove'),
-  'worker.maintenance.release': deny('this action requires a human decision in OpenCove'),
-  'worker.maintenance.status': deny('this action requires a human decision in OpenCove'),
-  'worker.maintenance.stop': deny('this action requires a human decision in OpenCove'),
-  'worker.webAccess.setSecurity': deny('this action requires a human decision in OpenCove'),
-  'worker.webAccess.setSettings': deny('this action requires a human decision in OpenCove'),
+  'todos.sync': callerOwnedCard('ownerNodeId', 'an agent mirrors only its own task list'),
+  'worker.config.get': deny('this action requires a human decision in Eclipse Code'),
+  'worker.config.set': deny('this action requires a human decision in Eclipse Code'),
+  'worker.maintenance.acquire': deny('this action requires a human decision in Eclipse Code'),
+  'worker.maintenance.activate': deny('this action requires a human decision in Eclipse Code'),
+  'worker.maintenance.release': deny('this action requires a human decision in Eclipse Code'),
+  'worker.maintenance.status': deny('this action requires a human decision in Eclipse Code'),
+  'worker.maintenance.stop': deny('this action requires a human decision in Eclipse Code'),
+  'worker.webAccess.setSecurity': deny('this action requires a human decision in Eclipse Code'),
+  'worker.webAccess.setSettings': deny('this action requires a human decision in Eclipse Code'),
   'workspace.allocateProjectPlaceholder': deny(
     'approving new project roots requires a human decision',
   ),
-  'workspace.approveRoot': deny('this action requires a human decision in OpenCove'),
+  'workspace.approveRoot': deny('this action requires a human decision in Eclipse Code'),
   'workspace.ensureDirectory': deny(
-    'project directory setup is managed by OpenCove; use opencove fs for approved files',
+    'project directory setup is managed by Eclipse Code; use eclipse-code fs for approved files',
   ),
   'worktree.archive': allow,
   'worktree.create': allow,
@@ -235,5 +269,5 @@ export const SESSION_GRANT_POLICY = {
 export function sessionGrantRule(id: string): GrantRule {
   return Object.hasOwn(SESSION_GRANT_POLICY, id)
     ? SESSION_GRANT_POLICY[id as OperationId]
-    : deny('use opencove api ops to find an available operation')
+    : deny('use eclipse-code api ops to find an available operation')
 }

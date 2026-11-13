@@ -44,7 +44,9 @@ test.describe('Workspace Canvas - Spaces (Terminal Overflow Outside)', () => {
 
       const created = await window.evaluate(
         point => {
-          return window.__opencoveWorkspaceCanvasTestApi?.createTerminalAtFlowPoint(point) ?? false
+          return (
+            window.__eclipseCodeWorkspaceCanvasTestApi?.createTerminalAtFlowPoint(point) ?? false
+          )
         },
         { x: 220, y: 220 },
       )
@@ -57,7 +59,7 @@ test.describe('Workspace Canvas - Spaces (Terminal Overflow Outside)', () => {
           const snapshot = await window.evaluate(async key => {
             void key
 
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }

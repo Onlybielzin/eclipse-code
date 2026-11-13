@@ -121,11 +121,12 @@ export function RemoteDirectoryPickerWindow({
       setError(null)
 
       try {
-        const result = await window.opencoveApi.controlSurface.invoke<ReadEndpointDirectoryResult>({
-          kind: 'query',
-          id: 'endpoint.readDirectory',
-          payload: { endpointId, path: trimmed },
-        })
+        const result =
+          await window.eclipseCodeApi.controlSurface.invoke<ReadEndpointDirectoryResult>({
+            kind: 'query',
+            id: 'endpoint.readDirectory',
+            payload: { endpointId, path: trimmed },
+          })
 
         if (requestCounterRef.current !== requestId) {
           return
@@ -161,7 +162,7 @@ export function RemoteDirectoryPickerWindow({
     setIsLoadingDirectory(true)
     try {
       const resolved =
-        await window.opencoveApi.controlSurface.invoke<GetEndpointHomeDirectoryResult>({
+        await window.eclipseCodeApi.controlSurface.invoke<GetEndpointHomeDirectoryResult>({
           kind: 'query',
           id: 'endpoint.homeDirectory',
           payload: { endpointId },

@@ -53,7 +53,7 @@ describe('Pi launch-scoped hook injection', () => {
       expect(plan.args.slice(2)).toEqual(['--session', '/custom/session.jsonl'])
       expect(await readFile(plan.args[1], 'utf8')).toBe(piAgentStatusExtensionSource)
       expect((await stat(plan.args[1])).mode & 0o777).toBe(0o600)
-      expect(plan.env.OPENCOVE_PI_HOOK_TOKEN).toBeTruthy()
+      expect(plan.env.ECLIPSE_CODE_PI_HOOK_TOKEN).toBeTruthy()
       expect(plan.hookInstallState).toBe('installed')
       plan.onStarted?.('pty')
       artifacts.seal()

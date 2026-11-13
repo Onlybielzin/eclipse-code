@@ -17,7 +17,7 @@ export function unknownOperation(id: string): never {
     `Unknown operation: ${id}`,
     [
       nearest.length ? `Closest IDs: ${nearest.join(', ')}.` : '',
-      `Run "opencove api ops --prefix ${domain}" to explore this domain.`,
+      `Run "eclipse-code api ops --prefix ${domain}" to explore this domain.`,
     ]
       .filter(Boolean)
       .join(' '),

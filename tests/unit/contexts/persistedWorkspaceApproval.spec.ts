@@ -19,7 +19,7 @@ describe('PersistedWorkspaceApproval', () => {
               {
                 id: 'space-1',
                 name: 'Feature',
-                directoryPath: '/tmp/one/.opencove/worktrees/feature-a',
+                directoryPath: '/tmp/one/.eclipse-code/worktrees/feature-a',
                 nodeIds: [],
               },
               {
@@ -37,7 +37,7 @@ describe('PersistedWorkspaceApproval', () => {
       }),
     ).toEqual([
       '/tmp/one',
-      '/tmp/one/.opencove/worktrees/feature-a',
+      '/tmp/one/.eclipse-code/worktrees/feature-a',
       '/Users/me/.codex/worktrees/1234/project',
       '/tmp/two',
     ])

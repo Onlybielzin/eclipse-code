@@ -141,7 +141,7 @@ test.describe('Workspace Canvas - Tasks (Prompt Templates)', () => {
 
       const persisted = await window.evaluate(
         async ({ workspaceId }) => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           if (!raw) {
             return null
           }

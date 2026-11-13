@@ -7,8 +7,8 @@ import {
 } from './workspace-canvas.helpers'
 
 const restoredAgentTestEnv = {
-  OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-  OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
+  ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+  ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'jsonl-stdin-submit-driven-turn',
 } as const
 
 const restoredAgentSettings = {
@@ -32,7 +32,7 @@ async function resolveSingleAgentBinding(window: Page): Promise<{
   sessionId: string | null
 }> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -73,9 +73,9 @@ async function sampleTranscript(
       const mirroredText = await window.evaluate(nodeId => {
         const reader = (
           window as Window & {
-            __OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__?: (currentNodeId: string) => string
+            __ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__?: (currentNodeId: string) => string
           }
-        ).__OPENCOVE_TEST_READ_TERMINAL_TRANSCRIPT__
+        ).__ECLIPSE_CODE_TEST_READ_TERMINAL_TRANSCRIPT__
         return typeof reader === 'function' ? reader(nodeId) : ''
       }, options.nodeId)
       if (mirroredText.trim().length > 0) {
@@ -175,8 +175,8 @@ async function prepareRestorableAgent(
 
     const snapshot = await window.evaluate(
       async payload => {
-        const result = await window.opencoveApi.pty.snapshot({ sessionId: payload.sessionId })
-        await window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback({
+        const result = await window.eclipseCodeApi.pty.snapshot({ sessionId: payload.sessionId })
+        await window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback({
           nodeId: payload.nodeId,
           scrollback: result.data,
         })
@@ -252,8 +252,8 @@ test.describe('Recovery - Agent placeholder handoff interaction', () => {
   test('forwards the very first typed input even when the user types during the placeholder phase', async () => {
     const userDataDir = await createTestUserDataDir()
     const stdinEchoEnv = {
-      OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-      OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
+      ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+      ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'stdin-echo',
     }
 
     try {

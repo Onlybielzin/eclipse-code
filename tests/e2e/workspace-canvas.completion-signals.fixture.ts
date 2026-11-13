@@ -20,7 +20,7 @@ process.stdin.on('data', onData)
 try {
   await import(${JSON.stringify(pathToFileURL(stubScriptPath).href)})
 } catch (error) {
-  process.stderr.write('\\n[opencove-completion-stub] failed: ' + (error?.stack ?? error) + '\\n')
+  process.stderr.write('\\n[eclipse-code-completion-stub] failed: ' + (error?.stack ?? error) + '\\n')
   process.exitCode = 1
 } finally {
   clearInterval(repaintTimer)

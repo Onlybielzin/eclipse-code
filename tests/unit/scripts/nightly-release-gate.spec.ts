@@ -27,12 +27,12 @@ function runGit(args: string[], cwd: string): string {
 }
 
 function createRepository(): string {
-  const repoPath = mkdtempSync(join(tmpdir(), 'opencove-nightly-release-gate-'))
+  const repoPath = mkdtempSync(join(tmpdir(), 'eclipse-code-nightly-release-gate-'))
   temporaryRepositories.push(repoPath)
 
   runGit(['init'], repoPath)
   runGit(['config', 'user.email', 'test@example.com'], repoPath)
-  runGit(['config', 'user.name', 'OpenCove Test'], repoPath)
+  runGit(['config', 'user.name', 'Eclipse Code Test'], repoPath)
   runGit(['config', 'core.autocrlf', 'false'], repoPath)
   runGit(['config', 'core.safecrlf', 'false'], repoPath)
 

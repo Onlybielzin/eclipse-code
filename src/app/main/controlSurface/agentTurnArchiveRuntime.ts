@@ -153,7 +153,7 @@ export function createWorkerAgentTurnArchiveRuntime(options: {
       } catch {
         members = null
         archive.dispose()
-        process.stderr.write('[opencove] ended-turn archive sweep unavailable.\n')
+        process.stderr.write('[eclipse-code] ended-turn archive sweep unavailable.\n')
       }
     })().finally(() => {
       sweeping = undefined
@@ -242,7 +242,7 @@ export function createWorkerAgentTurnArchiveRuntime(options: {
         } catch {
           members = null
           archive.dispose()
-          process.stderr.write('[opencove] ended-turn archive startup unavailable.\n')
+          process.stderr.write('[eclipse-code] ended-turn archive startup unavailable.\n')
         }
       })()),
     stop,

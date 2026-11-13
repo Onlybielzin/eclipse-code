@@ -346,7 +346,7 @@ describe('PersistenceStore sort order migration', () => {
     'repairs the workspaces schema and backfills sort_order in legacy rowid order',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-sort-order-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [
           dbPath,
@@ -385,7 +385,7 @@ describe('PersistenceStore sort order migration', () => {
     'does not backfill workspace sort_order when the column already exists',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-sort-order-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [
           dbPath,
@@ -422,7 +422,7 @@ describe('PersistenceStore sort order migration', () => {
     'backfills workspace sort_order after migrating legacy v1 kv state',
     async () => {
       tempDir = await mkdtemp(join(tmpdir(), 'cove-persist-sort-order-'))
-      const dbPath = join(tempDir, 'opencove.db')
+      const dbPath = join(tempDir, 'eclipse-code.db')
       const mockDbByPath = new Map<string, MockDbState>([
         [
           dbPath,

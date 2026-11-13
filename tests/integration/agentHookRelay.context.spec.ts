@@ -16,7 +16,7 @@ function endpointWithCredentials(provider: string): string {
   return url.href
 }
 
-const context = 'OpenCove 中文 "context"\nRun `opencove whoami`.'
+const context = 'Eclipse Code 中文 "context"\nRun `eclipse-code whoami`.'
 const output =
   JSON.stringify({
     hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: context },
@@ -50,7 +50,7 @@ it.each(
 )(
   'generated %s relay handles %s with bounded SessionStart output',
   async (provider, mode) => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-relay-context-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-relay-context-'))
     const artifacts = new AgentLaunchArtifactScope()
     const relay = await createAgentHookRelay({
       provider,
@@ -95,7 +95,7 @@ globalThis.fetch = async (_url, options) => {
               ...process.env,
               NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
               REPLY_CASE: mode,
-              [`OPENCOVE_${provider.toUpperCase()}_HOOK_ENDPOINT`]:
+              [`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_ENDPOINT`]:
                 mode === 'endpoint-query'
                   ? `http://127.0.0.1:1234/hooks/${provider}?q=1`
                   : mode === 'endpoint-credentials'
@@ -107,7 +107,7 @@ globalThis.fetch = async (_url, options) => {
                         : mode === 'bad-endpoint'
                           ? 'http://example.com/hooks/' + provider
                           : 'http://127.0.0.1:1234/hooks/' + provider,
-              [`OPENCOVE_${provider.toUpperCase()}_HOOK_TOKEN`]: 'test',
+              [`ECLIPSE_CODE_${provider.toUpperCase()}_HOOK_TOKEN`]: 'test',
             },
             stdio: ['pipe', 'pipe', 'pipe'],
           })

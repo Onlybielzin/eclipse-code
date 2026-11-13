@@ -9,7 +9,7 @@ import { stateWithAgent, tupleA } from './managedClaudeResumeBindingFixtures'
 
 describeWithElectronNativeModules('managed Claude ownership snapshot', () => {
   it('derives markers from the ledger, corrects first-save markers, and strips forgery without adoption', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'opencove-ownership-'))
+    const root = await mkdtemp(join(tmpdir(), 'eclipse-code-ownership-'))
     const store = await createPersistenceStore({
       dbPath: join(root, 'state.db'),
       strictRecovery: true,

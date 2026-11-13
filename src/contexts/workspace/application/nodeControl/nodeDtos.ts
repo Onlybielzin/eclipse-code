@@ -30,7 +30,7 @@ export function isManagedNodeKind(value: unknown): value is ManagedCanvasNodeKin
 export function isReadableNodeKind(value: unknown): value is ReadableCanvasNodeKind {
   return (
     isManagedNodeKind(value) ||
-    ['plugin', 'document', 'folder', 'image', 'role'].includes(String(value))
+    ['plugin', 'document', 'folder', 'image', 'role', 'question', 'todos'].includes(String(value))
   )
 }
 
@@ -132,7 +132,9 @@ function toNodeData(node: NodeControlNode): CanvasNodeDetailDataDto {
     node.kind === 'document' ||
     node.kind === 'folder' ||
     node.kind === 'image' ||
-    node.kind === 'role'
+    node.kind === 'role' ||
+    node.kind === 'question' ||
+    node.kind === 'todos'
   ) {
     return { kind: node.kind, content: node.task }
   }

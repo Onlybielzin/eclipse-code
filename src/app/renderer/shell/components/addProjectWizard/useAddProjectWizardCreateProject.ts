@@ -141,7 +141,7 @@ export function useAddProjectWizardCreateProject(options: {
         const workspacePath = firstLocalMount
           ? firstLocalMount.rootPath
           : (
-              await window.opencoveApi.controlSurface.invoke<AllocateProjectPlaceholderResult>({
+              await window.eclipseCodeApi.controlSurface.invoke<AllocateProjectPlaceholderResult>({
                 kind: 'command',
                 id: 'workspace.allocateProjectPlaceholder',
                 payload: { projectId },
@@ -150,7 +150,7 @@ export function useAddProjectWizardCreateProject(options: {
 
         await mountsToCreate.reduce<Promise<void>>((acc, mount) => {
           return acc.then(async () => {
-            const created = await window.opencoveApi.controlSurface.invoke<CreateMountResult>({
+            const created = await window.eclipseCodeApi.controlSurface.invoke<CreateMountResult>({
               kind: 'command',
               id: 'mount.create',
               payload: {
@@ -180,7 +180,7 @@ export function useAddProjectWizardCreateProject(options: {
       } catch (caughtError) {
         await Promise.all(
           createdMountIds.map(mountId =>
-            window.opencoveApi.controlSurface
+            window.eclipseCodeApi.controlSurface
               .invoke({
                 kind: 'command',
                 id: 'mount.remove',

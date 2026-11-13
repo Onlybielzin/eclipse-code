@@ -74,7 +74,7 @@ test.describe('Workspace Canvas - Windows terminal raster geometry', () => {
       await expect
         .poll(async () => {
           return await window.evaluate(id => {
-            const api = window.__opencoveTerminalSelectionTestApi
+            const api = window.__eclipseCodeTerminalSelectionTestApi
             api?.selectAll(id)
             const selection = api?.getSelection(id) ?? ''
             api?.clearSelection(id)
@@ -93,9 +93,9 @@ test.describe('Workspace Canvas - Windows terminal raster geometry', () => {
         .toBe(1.25)
 
       const projection = await window.evaluate(id => {
-        const api = window.__opencoveTerminalSelectionTestApi
+        const api = window.__eclipseCodeTerminalSelectionTestApi
         return {
-          platform: window.opencoveApi.meta?.platform ?? null,
+          platform: window.eclipseCodeApi.meta?.platform ?? null,
           devicePixelRatio: window.devicePixelRatio,
           size: api?.getSize(id) ?? null,
           metrics: api?.getRenderMetrics(id) ?? null,
@@ -125,7 +125,7 @@ test.describe('Workspace Canvas - Windows terminal raster geometry', () => {
       const readContextLossDiagnostics = async () => {
         return await window.evaluate(
           ({ glyphRow, id, marker }) => {
-            const api = window.__opencoveTerminalSelectionTestApi
+            const api = window.__eclipseCodeTerminalSelectionTestApi
             const renderMetrics = api?.getRenderMetrics(id) ?? null
             const bufferText = api?.getBufferText(id, marker) ?? null
             const glyphBufferText = api?.getBufferText(id, glyphRow) ?? null
@@ -214,7 +214,7 @@ test.describe('Workspace Canvas - Windows terminal raster geometry', () => {
 
       const fallbackProjection = await window.evaluate(
         ({ glyphRow, id }) => {
-          const api = window.__opencoveTerminalSelectionTestApi
+          const api = window.__eclipseCodeTerminalSelectionTestApi
           const terminalElement = document.querySelector(
             `.react-flow__node[data-id="${id}"] .terminal-node__terminal`,
           )

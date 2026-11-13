@@ -152,7 +152,7 @@ export class LocalPluginFiles implements PluginFilesPort {
     }
     // Prevent a source containing the destination tree from recursively capturing runtime artifacts.
     if (this.root === sourceDirectory || this.root.startsWith(`${sourceDirectory}${sep}`)) {
-      throw new Error('Plugin source cannot contain the OpenCove plugin data directory.')
+      throw new Error('Plugin source cannot contain the Eclipse Code plugin data directory.')
     }
     const temporary = join(this.root, 'candidates', randomUUID())
     await mkdir(temporary, { recursive: true })
@@ -200,7 +200,7 @@ export class LocalPluginFiles implements PluginFilesPort {
     try {
       await copy('')
       const pkg = normalizeLocalPluginPackage(
-        JSON.parse(await readFile(join(temporary, 'opencove.plugin.json'), 'utf8')),
+        JSON.parse(await readFile(join(temporary, 'eclipse-code.plugin.json'), 'utf8')),
       )
       assertPluginCompatibility(pkg, { version: this.hostVersion, platform: this.platform })
       const required = [
@@ -248,7 +248,7 @@ export class LocalPluginFiles implements PluginFilesPort {
     })
     const directory = join(this.root, 'artifacts', record.revision)
     const artifact = normalizeLocalPluginPackage(
-      JSON.parse(await readFile(join(directory, 'opencove.plugin.json'), 'utf8')),
+      JSON.parse(await readFile(join(directory, 'eclipse-code.plugin.json'), 'utf8')),
     )
     if (JSON.stringify(artifact) !== JSON.stringify(record.package)) {
       throw new Error('Plugin artifact manifest does not match its installed record.')

@@ -14,7 +14,7 @@ it.each([
   ['', false],
   [['2', '2'], false],
 ] as const)('checks protocol %j before dispatch', async (header, compatible) => {
-  const envelope = { __opencoveControlEnvelope: true, ok: true, value: 'unchanged' }
+  const envelope = { __eclipseCodeControlEnvelope: true, ok: true, value: 'unchanged' }
   const invoke = vi.fn(async () => envelope)
   const getPersistenceStore = vi.fn()
   const handler = createControlSurfaceHttpRequestHandler({
@@ -31,7 +31,7 @@ it.each([
       url: '/invoke',
       headers: {
         authorization: 'Bearer test-token',
-        ...(header === undefined ? {} : { 'x-opencove-protocol': header }),
+        ...(header === undefined ? {} : { 'x-eclipse-code-protocol': header }),
       },
     },
   ) as IncomingMessage
@@ -59,7 +59,7 @@ it.each([
       expect(invoke).toHaveBeenCalledTimes(1)
     } else {
       expect(result).toMatchObject({
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: false,
         error: {
           code: 'common.protocol_incompatible',

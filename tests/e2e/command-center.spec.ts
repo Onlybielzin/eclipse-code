@@ -91,7 +91,7 @@ test.describe('Command Center', () => {
         workspaces: [
           {
             id: 'commands-design',
-            name: 'OpenCove',
+            name: 'Eclipse Code',
             path: testWorkspacePath,
             nodes: [],
             spaces: [
@@ -147,7 +147,7 @@ test.describe('Command Center', () => {
         body: await center.screenshot(),
         contentType: 'image/png',
       })
-      await input.fill('OpenCove')
+      await input.fill('Eclipse Code')
       await window.keyboard.press('ArrowDown')
       await expect(input).toBeFocused()
       await window.keyboard.press('Enter')
@@ -168,7 +168,7 @@ test.describe('Command Center', () => {
         workspaces: [
           {
             id: 'commands-mobile',
-            name: 'OpenCove mobile workspace',
+            name: 'Eclipse Code mobile workspace',
             path: testWorkspacePath,
             nodes: [],
           },

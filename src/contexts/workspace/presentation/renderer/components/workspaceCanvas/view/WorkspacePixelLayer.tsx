@@ -418,7 +418,7 @@ function WorkspacePixelLayerComponent({
     window.addEventListener('blur', syncFocus)
     const stopRevealOnInput = listenRevealOnInput(canvas, revealAll)
     media.addEventListener('change', onMotionChange)
-    window.addEventListener('opencove-theme-changed', onThemeChange)
+    window.addEventListener('eclipse-code-theme-changed', onThemeChange)
     window.addEventListener('resize', refresh)
     onMotionChange()
     syncFocus()
@@ -450,7 +450,7 @@ function WorkspacePixelLayerComponent({
       window.removeEventListener('blur', syncFocus)
       stopRevealOnInput()
       media.removeEventListener('change', onMotionChange)
-      window.removeEventListener('opencove-theme-changed', onThemeChange)
+      window.removeEventListener('eclipse-code-theme-changed', onThemeChange)
       window.removeEventListener('resize', refresh)
     }
   }, [store])

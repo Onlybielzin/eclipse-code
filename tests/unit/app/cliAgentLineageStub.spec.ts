@@ -7,7 +7,7 @@ import { expect, it, vi } from 'vitest'
 import { writeLineageAgentStub } from '../../e2e/cli.agent-lineage.helpers'
 
 it('generates a file URL for the provider ESM import on every platform', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'opencove lineage #esm-'))
+  const root = await mkdtemp(join(tmpdir(), 'eclipse-code lineage #esm-'))
   const cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
   try {
     const script = await readFile(await writeLineageAgentStub(root), 'utf8')

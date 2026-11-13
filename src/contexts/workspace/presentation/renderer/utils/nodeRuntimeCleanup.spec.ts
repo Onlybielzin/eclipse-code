@@ -13,7 +13,7 @@ describe('cleanupNodeRuntimeArtifacts', () => {
     clearCachedTerminalScreenStates()
     useScrollbackStore.getState().clearAllScrollbacks()
 
-    Object.defineProperty(window, 'opencoveApi', {
+    Object.defineProperty(window, 'eclipseCodeApi', {
       configurable: true,
       writable: true,
       value: {
@@ -43,15 +43,15 @@ describe('cleanupNodeRuntimeArtifacts', () => {
 
     expect(useScrollbackStore.getState().scrollbackByNodeId['node-1']).toBeUndefined()
     expect(getCachedTerminalScreenState('node-1', 'session-1')).toBeNull()
-    expect(window.opencoveApi.persistence.writeNodeScrollback).toHaveBeenCalledWith({
+    expect(window.eclipseCodeApi.persistence.writeNodeScrollback).toHaveBeenCalledWith({
       nodeId: 'node-1',
       scrollback: null,
     })
-    expect(window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback).toHaveBeenCalledWith(
-      {
-        nodeId: 'node-1',
-        scrollback: null,
-      },
-    )
+    expect(
+      window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback,
+    ).toHaveBeenCalledWith({
+      nodeId: 'node-1',
+      scrollback: null,
+    })
   })
 })

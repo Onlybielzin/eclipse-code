@@ -53,7 +53,7 @@ test('waits for fixture output when the old prompt contains the same path prefix
     await window.keyboard.press('Enter')
     const firstRow = () =>
       window.evaluate(
-        id => window.__opencoveTerminalSelectionTestApi?.getBufferText(id, '')?.viewportLines[0],
+        id => window.__eclipseCodeTerminalSelectionTestApi?.getBufferText(id, '')?.viewportLines[0],
         nodeId,
       )
     await expect.poll(firstRow).toBe(oldPrompt)

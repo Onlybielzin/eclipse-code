@@ -21,7 +21,7 @@ export function createMainTerminalProcessEngine(): TerminalProcessEnginePort {
       createElectronUtilityPtyHostProcess(
         utilityProcess.fork(modulePath, [], {
           stdio: 'pipe',
-          serviceName: 'OpenCove PTY Host',
+          serviceName: 'Eclipse Code PTY Host',
         }),
       ),
   })

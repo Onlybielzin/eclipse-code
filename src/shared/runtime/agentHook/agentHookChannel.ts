@@ -254,7 +254,7 @@ export function createAgentHookChannel<TEnvelope extends AgentHookEnvelope>(opti
               return
             }
             request.setTimeout(5_000, () => request.destroy())
-            const tokenHeader = request.headers['x-opencove-hook-token']
+            const tokenHeader = request.headers['x-eclipse-code-hook-token']
             const token = typeof tokenHeader === 'string' ? tokenHeader.trim() : ''
             if (!credentials.has(token)) {
               response.statusCode = 401
@@ -270,7 +270,7 @@ export function createAgentHookChannel<TEnvelope extends AgentHookEnvelope>(opti
               }
               if (options.source === 'claude_hook' || options.source === 'codex_hook') {
                 envelope.emittedAtMs = parseHookEmittedAt(
-                  request.headers['x-opencove-hook-emitted-at'],
+                  request.headers['x-eclipse-code-hook-emitted-at'],
                   Date.now(),
                 )
               }

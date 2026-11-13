@@ -8,7 +8,7 @@ import { TerminalAgentTelemetryAssetStore } from '../../src/contexts/agent/infra
 
 test('Windows interactive shim waits for the Electron GUI executable to publish and clean its plan', async () => {
   test.skip(process.platform !== 'win32', 'Windows PowerShell GUI process semantics')
-  const root = await mkdtemp(join(tmpdir(), "opencove-shim-electron 用户's 路径 🌊 "))
+  const root = await mkdtemp(join(tmpdir(), "eclipse-code-shim-electron 用户's 路径 🌊 "))
   const realBin = join(root, 'provider 路径 with spaces')
   await mkdir(realBin)
   await writeFile(
@@ -34,11 +34,11 @@ test('Windows interactive shim waits for the Electron GUI executable to publish 
       HOME: root,
       USERPROFILE: root,
       PATH: [published.shimDirectory, realBin, process.env.PATH ?? ''].join(delimiter),
-      OPENCOVE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
+      ECLIPSE_CODE_TERMINAL_AGENT_SHIM_DIRECTORY: published.shimDirectory,
     }
     delete env.ELECTRON_RUN_AS_NODE
-    delete env.OPENCOVE_TERMINAL_AGENT_ENDPOINT
-    delete env.OPENCOVE_TERMINAL_AGENT_TOKEN
+    delete env.ECLIPSE_CODE_TERMINAL_AGENT_ENDPOINT
+    delete env.ECLIPSE_CODE_TERMINAL_AGENT_TOKEN
     for (const key of Object.keys(env)) {
       if (key.toLowerCase() === 'path' && key !== 'PATH') {
         delete env[key]

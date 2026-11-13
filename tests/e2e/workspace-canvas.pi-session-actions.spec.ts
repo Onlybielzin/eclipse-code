@@ -74,8 +74,8 @@ async function launchPiSessionActions() {
     userDataDir,
     windowMode: 'offscreen',
     env: {
-      OPENCOVE_TEST_USE_REAL_AGENTS: '1',
-      OPENCOVE_TEST_PI_SESSION_DIR: sessionDirectory,
+      ECLIPSE_CODE_TEST_USE_REAL_AGENTS: '1',
+      ECLIPSE_CODE_TEST_PI_SESSION_DIR: sessionDirectory,
       PI_CODING_AGENT_DIR: agentDirectory,
       PI_CODING_AGENT_SESSION_DIR: path.join(agentDirectory, 'sessions'),
     },
@@ -158,7 +158,7 @@ test.describe('Pi saved session actions', () => {
       await window.evaluate(() => {
         const state = window as typeof window & { __piExitedPtySessionIds?: string[] }
         state.__piExitedPtySessionIds = []
-        window.opencoveApi.pty.onExit(event => {
+        window.eclipseCodeApi.pty.onExit(event => {
           state.__piExitedPtySessionIds?.push(event.sessionId)
         })
       })

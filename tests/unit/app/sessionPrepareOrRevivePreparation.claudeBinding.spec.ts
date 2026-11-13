@@ -21,7 +21,7 @@ let home: string
 let cwd: string
 
 beforeEach(async () => {
-  root = await mkdtemp(join(os.tmpdir(), 'opencove-claude-recovery-'))
+  root = await mkdtemp(join(os.tmpdir(), 'eclipse-code-claude-recovery-'))
   home = join(root, 'home')
   cwd = join(root, 'workspace')
   await Promise.all([mkdir(home), mkdir(cwd)])

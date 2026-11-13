@@ -23,11 +23,11 @@ it('Codex SessionStart publishes identity without inventing work or resetting an
   const reservation = await channel.reserveSpawn()
   reservation.commit('runtime')
   const send = async (name: string) => {
-    const response = await fetch(reservation.env!.OPENCOVE_CODEX_HOOK_ENDPOINT!, {
+    const response = await fetch(reservation.env!.ECLIPSE_CODE_CODEX_HOOK_ENDPOINT!, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-opencove-hook-token': reservation.env!.OPENCOVE_CODEX_HOOK_TOKEN!,
+        'x-eclipse-code-hook-token': reservation.env!.ECLIPSE_CODE_CODEX_HOOK_TOKEN!,
       },
       body: JSON.stringify({
         session_id: 'provider',

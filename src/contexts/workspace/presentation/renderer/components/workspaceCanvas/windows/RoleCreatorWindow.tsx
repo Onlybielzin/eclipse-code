@@ -5,6 +5,10 @@ import type { RoleCreatorState } from '../types'
 import { Dialog } from '@app/renderer/components/ui/Dialog'
 import { WindowHeading } from '@app/renderer/components/WindowHeading'
 import { UserIcon } from '@app/renderer/components/ui/pixelIcons'
+import { SegmentedControl } from '@app/renderer/components/ui/SegmentedControl'
+import { Checkbox } from '@app/renderer/components/ui/Checkbox'
+
+type RoleProviderChoice = 'default' | 'claude-code' | 'codex'
 
 interface RoleCreatorWindowProps {
   roleCreator: RoleCreatorState | null
@@ -113,6 +117,55 @@ export function RoleCreatorWindow({
             setRoleCreator(prev => (prev ? { ...prev, outputFormat, error: null } : prev))
           }}
         />
+
+        <div className="cove-text-field" data-testid="workspace-role-provider">
+          <div className="cove-text-field__label-row">
+            <span className="cove-text-field__label">{t('roleCreator.provider')}</span>
+          </div>
+          <SegmentedControl<RoleProviderChoice>
+            label={t('roleCreator.provider')}
+            value={
+              roleCreator.provider === 'claude-code' || roleCreator.provider === 'codex'
+                ? roleCreator.provider
+                : 'default'
+            }
+            disabled={isDisabled}
+            options={[
+              { value: 'default', label: t('roleCreator.providerDefault') },
+              { value: 'claude-code', label: 'Claude' },
+              { value: 'codex', label: 'Codex' },
+            ]}
+            onValueChange={choice => {
+              const provider = choice === 'default' ? null : choice
+              setRoleCreator(prev => (prev ? { ...prev, provider, error: null } : prev))
+            }}
+          />
+        </div>
+
+        <TextField
+          label={t('roleCreator.model')}
+          id="workspace-role-model"
+          data-testid="workspace-role-model-input"
+          value={roleCreator.model}
+          disabled={isDisabled}
+          placeholder={t('roleCreator.modelPlaceholder')}
+          onChange={event => {
+            const model = event.target.value
+            setRoleCreator(prev => (prev ? { ...prev, model, error: null } : prev))
+          }}
+        />
+
+        <Checkbox
+          checked={roleCreator.isLead}
+          disabled={isDisabled}
+          data-testid="workspace-role-lead"
+          description={t('roleCreator.leadHelp')}
+          onCheckedChange={isLead => {
+            setRoleCreator(prev => (prev ? { ...prev, isLead, error: null } : prev))
+          }}
+        >
+          {t('roleCreator.lead')}
+        </Checkbox>
       </div>
 
       {roleCreator.error ? <p className="cove-window__error">{roleCreator.error}</p> : null}

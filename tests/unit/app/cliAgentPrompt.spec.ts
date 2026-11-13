@@ -39,7 +39,7 @@ function fixture(error?: unknown, result: Record<string, unknown> = {}) {
         err += text
       },
     },
-    env: { OPENCOVE_CONTROL_URL: 'http://fake', OPENCOVE_CONTROL_TOKEN: 'fake' },
+    env: { ECLIPSE_CODE_CONTROL_URL: 'http://fake', ECLIPSE_CODE_CONTROL_TOKEN: 'fake' },
     fetch,
     now: Date.now,
     readTextFile: vi.fn(async () => 'one\ntwo'),
@@ -101,7 +101,7 @@ it('documents promise and non-guarantees in help', async () => {
     'does not prove the model read exactly this text',
   )
   expect(f.out()).toContain('Never resend')
-  expect(f.out()).toContain('opencove skill')
+  expect(f.out()).toContain('eclipse-code skill')
   expect(f.out()).toMatchSnapshot()
 })
 
@@ -114,7 +114,7 @@ it.each([
   [
     'agent.prompt_stalled',
     true,
-    'OpenCove attempted to press Enter but did not observe a matching submission event.',
+    'Eclipse Code attempted to press Enter but did not observe a matching submission event.',
   ],
 ] as const)(
   'renders exact recovery text for %s in TTY and JSON',
@@ -129,8 +129,8 @@ it.each([
     const json = fixture(error)
     expect(await run(['agent', 'prompt', '--node', 'n', '--text', 'hello'], json.io)).toBe(1)
     const hint = submitted
-      ? 'Do not resend. Inspect "opencove agent read --node <selector> --screen" and the conversation to determine whether the prompt was submitted.'
-      : 'Inspect the editor with "opencove agent read --node <selector> --screen" and have the human resolve any dialog before continuing. Do not paste the text again if it is already there.'
+      ? 'Do not resend. Inspect "eclipse-code agent read --node <selector> --screen" and the conversation to determine whether the prompt was submitted.'
+      : 'Inspect the editor with "eclipse-code agent read --node <selector> --screen" and have the human resolve any dialog before continuing. Do not paste the text again if it is already there.'
     expect(json.err()).toEqual({ code, message, hint, details, retryable: false })
     const tty = fixture(error)
     tty.io.stderr.isTTY = true
@@ -211,8 +211,8 @@ it.each([false, true])(
     expect(f.rawError()).toContain('shell would receive the input after the agent stops')
     expect(f.rawError()).toContain('lead agent other agents report to')
     expect(f.rawError()).toContain('Run Agent on a task')
-    expect(f.rawError()).toContain('opencove node create agent --space <space> --prompt <text>')
-    expect(f.rawError()).toContain('can still use the opencove CLI')
+    expect(f.rawError()).toContain('eclipse-code node create agent --space <space> --prompt <text>')
+    expect(f.rawError()).toContain('can still use the eclipse-code CLI')
     if (!tty) {
       expect(f.err().details).toEqual(details)
     }

@@ -48,7 +48,7 @@ it.each([space.id, null])(
 
 it('uses grant identity when the caller node environment is absent', async () => {
   const f = fixture()
-  delete f.io.env.OPENCOVE_NODE_ID
+  delete f.io.env.ECLIPSE_CODE_NODE_ID
   expect(await run(['space', 'create', '--name', 'Review'], f.io)).toBe(0)
   expect(f.requests.map(r => r.id)).toEqual(['system.whoami', 'node.get', 'space.create'])
 })
@@ -71,20 +71,20 @@ it.each([undefined, ''])(
   'requires --project for a bearer with a terminal marker but node ID %j',
   async nodeId => {
     const f = fixture(false)
-    f.io.env.OPENCOVE_ENV = '1'
-    f.io.env.OPENCOVE_NODE_ID = nodeId
+    f.io.env.ECLIPSE_CODE_ENV = '1'
+    f.io.env.ECLIPSE_CODE_NODE_ID = nodeId
     expect(await run(['space', 'create', '--name', 'Review'], f.io)).toBe(2)
     expect(f.error()).toMatchObject({
       code: 'cli.usage',
       message:
-        'Creating a top-level space requires --project <selector> outside an OpenCove terminal',
+        'Creating a top-level space requires --project <selector> outside an Eclipse Code terminal',
     })
     expect(f.requests.map(r => r.id)).toEqual(['system.whoami'])
     expect(f.out()).toBe('')
   },
 )
 
-it.each([{}, { OPENCOVE_PROJECT_ID: 'stale-project' }, { OPENCOVE_ENV: '1' }])(
+it.each([{}, { ECLIPSE_CODE_PROJECT_ID: 'stale-project' }, { ECLIPSE_CODE_ENV: '1' }])(
   'requires --project before offline profile discovery without identity: %j',
   async env => {
     const f = fixture(false)
@@ -104,7 +104,7 @@ it.each([{}, { OPENCOVE_PROJECT_ID: 'stale-project' }, { OPENCOVE_ENV: '1' }])(
 
 it('resolves a token-only grant with an explicit token and no project identity', async () => {
   const f = fixture(false)
-  delete f.io.env.OPENCOVE_CONTROL_TOKEN
+  delete f.io.env.ECLIPSE_CODE_CONTROL_TOKEN
   f.values['system.whoami'] = { kind: 'session-grant', scopeTier: 'interact', nodeId: node.id }
   expect(await run(['space', 'create', '--name', 'Review', '--token', 'session-token'], f.io)).toBe(
     0,
@@ -114,7 +114,7 @@ it('resolves a token-only grant with an explicit token and no project identity',
 
 it('gives --in guidance for a root-canvas terminal without a parent Space', async () => {
   const f = fixture()
-  delete f.io.env.OPENCOVE_SPACE_ID
+  delete f.io.env.ECLIPSE_CODE_SPACE_ID
   f.values['system.whoami'] = {
     kind: 'session-grant',
     scopeTier: 'interact',
@@ -123,7 +123,7 @@ it('gives --in guidance for a root-canvas terminal without a parent Space', asyn
     spaceId: null,
   }
   expect(await run(['space', 'create', '--name', 'Review', '--in', '@self'], f.io)).toBe(2)
-  expect(f.error().message).toBe('This OpenCove terminal does not belong to a space.')
+  expect(f.error().message).toBe('This Eclipse Code terminal does not belong to a space.')
   expect(f.error().hint).toContain('--in <space selector>')
   expect(f.error().hint).toContain('omit --in')
   expect(f.error().hint).not.toContain('--space')

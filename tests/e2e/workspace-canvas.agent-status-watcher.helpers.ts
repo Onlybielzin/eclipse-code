@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test'
 
 async function readWorkspaceStateRaw(window: Page): Promise<unknown | null> {
   const raw = await window.evaluate(async () => {
-    return await window.opencoveApi.persistence.readWorkspaceStateRaw()
+    return await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
   })
 
   if (!raw) {
@@ -21,12 +21,12 @@ async function readWorkspaceStateRaw(window: Page): Promise<unknown | null> {
 async function readFirstHarnessAgentSessionId(window: Page): Promise<string | null> {
   return await window.evaluate(() => {
     const currentWindow = window as typeof window & {
-      __opencoveWorkspaceCanvasTestApi?: {
+      __eclipseCodeWorkspaceCanvasTestApi?: {
         getFirstAgentSessionId: () => string | null
       }
     }
 
-    return currentWindow.__opencoveWorkspaceCanvasTestApi?.getFirstAgentSessionId() ?? null
+    return currentWindow.__eclipseCodeWorkspaceCanvasTestApi?.getFirstAgentSessionId() ?? null
   })
 }
 
@@ -36,14 +36,15 @@ async function readHarnessResumeSessionId(
 ): Promise<string | null> {
   return await window.evaluate(sessionId => {
     const currentWindow = window as typeof window & {
-      __opencoveWorkspaceCanvasTestApi?: {
+      __eclipseCodeWorkspaceCanvasTestApi?: {
         getResumeSessionIdByPtySessionId: (ptySessionId: string) => string | null
       }
     }
 
     return (
-      currentWindow.__opencoveWorkspaceCanvasTestApi?.getResumeSessionIdByPtySessionId(sessionId) ??
-      null
+      currentWindow.__eclipseCodeWorkspaceCanvasTestApi?.getResumeSessionIdByPtySessionId(
+        sessionId,
+      ) ?? null
     )
   }, ptySessionId)
 }
@@ -68,33 +69,33 @@ async function readFirstPersistedAgentSessionId(window: Page): Promise<string | 
 export async function installPtySessionCapture(window: Page): Promise<void> {
   await window.evaluate(() => {
     const captureWindow = window as typeof window & {
-      __opencoveSeenSessionIds?: string[]
-      __opencovePtyCaptureInstalled?: boolean
-      __opencoveResumeSessionIdByPtySessionId?: Record<string, string | null>
+      __eclipseCodeSeenSessionIds?: string[]
+      __eclipseCodePtyCaptureInstalled?: boolean
+      __eclipseCodeResumeSessionIdByPtySessionId?: Record<string, string | null>
     }
 
-    if (captureWindow.__opencovePtyCaptureInstalled) {
+    if (captureWindow.__eclipseCodePtyCaptureInstalled) {
       return
     }
 
-    captureWindow.__opencoveSeenSessionIds = []
-    captureWindow.__opencoveResumeSessionIdByPtySessionId = {}
-    const seenSessionIds = captureWindow.__opencoveSeenSessionIds
+    captureWindow.__eclipseCodeSeenSessionIds = []
+    captureWindow.__eclipseCodeResumeSessionIdByPtySessionId = {}
+    const seenSessionIds = captureWindow.__eclipseCodeSeenSessionIds
     const rememberSessionId = (sessionId: string) => {
       if (!seenSessionIds.includes(sessionId)) {
         seenSessionIds.push(sessionId)
       }
     }
 
-    window.opencoveApi.pty.onData(event => {
+    window.eclipseCodeApi.pty.onData(event => {
       rememberSessionId(event.sessionId)
     })
-    window.opencoveApi.pty.onMetadata(event => {
+    window.eclipseCodeApi.pty.onMetadata(event => {
       rememberSessionId(event.sessionId)
-      captureWindow.__opencoveResumeSessionIdByPtySessionId![event.sessionId] =
+      captureWindow.__eclipseCodeResumeSessionIdByPtySessionId![event.sessionId] =
         event.resumeSessionId
     })
-    captureWindow.__opencovePtyCaptureInstalled = true
+    captureWindow.__eclipseCodePtyCaptureInstalled = true
   })
 }
 
@@ -106,9 +107,9 @@ async function readFirstObservedAgentSessionId(window: Page): Promise<string | n
 
   return await window.evaluate(() => {
     const captureWindow = window as typeof window & {
-      __opencoveSeenSessionIds?: string[]
+      __eclipseCodeSeenSessionIds?: string[]
     }
-    const sessionId = captureWindow.__opencoveSeenSessionIds?.[0]?.trim() ?? ''
+    const sessionId = captureWindow.__eclipseCodeSeenSessionIds?.[0]?.trim() ?? ''
     return sessionId.length > 0 ? sessionId : null
   })
 }
@@ -131,9 +132,9 @@ export async function readObservedResumeSessionId(
 
   return await window.evaluate(sessionId => {
     const captureWindow = window as typeof window & {
-      __opencoveResumeSessionIdByPtySessionId?: Record<string, string | null>
+      __eclipseCodeResumeSessionIdByPtySessionId?: Record<string, string | null>
     }
-    const resumeSessionId = captureWindow.__opencoveResumeSessionIdByPtySessionId?.[sessionId]
+    const resumeSessionId = captureWindow.__eclipseCodeResumeSessionIdByPtySessionId?.[sessionId]
     return typeof resumeSessionId === 'string' && resumeSessionId.trim().length > 0
       ? resumeSessionId
       : null
@@ -148,7 +149,7 @@ export async function writeToPty(
   },
 ): Promise<void> {
   await window.evaluate(async ({ sessionId, data }) => {
-    await window.opencoveApi.pty.write({ sessionId, data })
+    await window.eclipseCodeApi.pty.write({ sessionId, data })
   }, payload)
 }
 
@@ -215,7 +216,7 @@ export async function writeGeminiSessionFile({
     JSON.stringify(
       {
         sessionId,
-        projectHash: 'opencove-test-project-hash',
+        projectHash: 'eclipse-code-test-project-hash',
         startTime: createGeminiTimestamp(startedAtMs),
         lastUpdated: createGeminiTimestamp(messages.at(-1)?.timestampMs ?? startedAtMs),
         kind: 'main',

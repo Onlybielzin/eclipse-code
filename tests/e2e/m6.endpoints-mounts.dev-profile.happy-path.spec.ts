@@ -37,7 +37,7 @@ async function createRepo(repoDir: string): Promise<string> {
   await mkdir(repoDir, { recursive: true })
   await runGit(['init'], repoDir)
   await runGit(['config', 'user.email', 'dev-profile@example.com'], repoDir)
-  await runGit(['config', 'user.name', 'OpenCove Dev Profile'], repoDir)
+  await runGit(['config', 'user.name', 'Eclipse Code Dev Profile'], repoDir)
   await runGit(['config', 'core.autocrlf', 'false'], repoDir)
   await runGit(['config', 'core.safecrlf', 'false'], repoDir)
   await writeFile(path.join(repoDir, 'README.md'), '# temp\n', 'utf8')
@@ -66,19 +66,19 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
 
   test('registers endpoint, creates remote project, creates space worktree, runs terminal, and opens files', async () => {
     test.skip(
-      process.env['OPENCOVE_E2E_DEV_PROFILE'] !== '1',
-      'Set OPENCOVE_E2E_DEV_PROFILE=1 to run this local dev-profile smoke test.',
+      process.env['ECLIPSE_CODE_E2E_DEV_PROFILE'] !== '1',
+      'Set ECLIPSE_CODE_E2E_DEV_PROFILE=1 to run this local dev-profile smoke test.',
     )
 
     const remoteToken = `m6-dev-${randomUUID()}`
     const remotePort = await reserveLoopbackPort()
     const remoteHost = '127.0.0.1'
 
-    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'opencove-dev-profile-m6-remote-'))
+    const remoteBaseDir = await mkdtemp(path.join(tmpdir(), 'eclipse-code-dev-profile-m6-remote-'))
     const remoteRepoDir = await createRepo(path.join(remoteBaseDir, 'repo'))
     const remoteRepoDirCanonical = await realpath(remoteRepoDir).catch(() => remoteRepoDir)
     const remoteWorkerUserDataDir = await mkdtemp(
-      path.join(tmpdir(), 'opencove-dev-profile-m6-remote-worker-'),
+      path.join(tmpdir(), 'eclipse-code-dev-profile-m6-remote-worker-'),
     )
 
     const remoteWorker = await startRemoteWorker({
@@ -101,7 +101,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
         NODE_ENV: 'development',
         HOME: realHomeDir,
         USERPROFILE: realHomeDir,
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-standby-only',
       },
       cleanupUserDataDir: true,
     })
@@ -133,7 +133,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
       const remoteEndpointId = await pollFor(
         async () =>
           await window.evaluate(async displayName => {
-            const result = await window.opencoveApi.controlSurface.invoke<{
+            const result = await window.eclipseCodeApi.controlSurface.invoke<{
               endpoints: Array<{ endpointId: string; displayName: string }>
             }>({
               kind: 'query',
@@ -168,7 +168,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
       const workspaceId = await pollFor(
         async () =>
           await window.evaluate(async projectNameInput => {
-            const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+            const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
             if (!raw) {
               return null
             }
@@ -206,7 +206,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
           await window.evaluate(
             async ({ projectId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -283,7 +283,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
           await window.evaluate(
             async ({ projectId, spaceId, repoRoots }) => {
               const normalize = (value: string): string => value.trim().replace(/[\\/]+$/, '')
-              const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+              const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
               if (!raw) {
                 return null
               }
@@ -315,7 +315,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
                   return null
                 }
 
-                if (!/[\\/][.]opencove[\\/]worktrees[\\/]/.test(directoryPath)) {
+                if (!/[\\/][.]eclipse-code[\\/]worktrees[\\/]/.test(directoryPath)) {
                   return null
                 }
 
@@ -432,7 +432,7 @@ test.describe('M6 - Dev profile happy path (manual)', () => {
       await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
       await window.waitForTimeout(250)
 
-      const cwdToken = `OPENCOVE_M6_DEV_PROFILE_WORKTREE_CWD_SHA_${Date.now()}:`
+      const cwdToken = `ECLIPSE_CODE_M6_DEV_PROFILE_WORKTREE_CWD_SHA_${Date.now()}:`
       await window.keyboard.type(
         buildNodeEvalCommand(
           `const crypto = require('crypto')\n` +

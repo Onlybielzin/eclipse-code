@@ -191,7 +191,7 @@ export function installTerminalGeometrySyncTestWindow(): void {
       callback()
       return 1
     },
-    opencoveApi: {
+    eclipseCodeApi: {
       pty: {
         resize: ptyResize,
       },

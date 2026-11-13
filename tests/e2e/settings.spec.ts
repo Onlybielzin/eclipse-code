@@ -40,7 +40,7 @@ test.describe('Settings', () => {
     try {
       void browserName
       const resetResult = await window.evaluate(async () => {
-        return await window.opencoveApi.persistence.writeWorkspaceStateRaw({
+        return await window.eclipseCodeApi.persistence.writeWorkspaceStateRaw({
           raw: JSON.stringify({
             formatVersion: 1,
             activeWorkspaceId: null,
@@ -279,7 +279,7 @@ test.describe('Settings', () => {
 
       const readPersistedSettings = async () =>
         await window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           if (!raw) {
             return null
           }

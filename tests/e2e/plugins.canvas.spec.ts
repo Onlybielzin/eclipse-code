@@ -14,11 +14,11 @@ import { clickPluginControl } from './plugins.local.helpers'
 
 test('uses canvas and terminal APIs from a real backend and window and retires observation leases', async () => {
   test.setTimeout(90_000)
-  const source = await mkdtemp(join(tmpdir(), 'opencove-canvas-plugin-'))
+  const source = await mkdtemp(join(tmpdir(), 'eclipse-code-canvas-plugin-'))
   const userDataDir = await createTestUserDataDir()
   const id = 'canvas-workflow'
   await writeFile(
-    join(source, 'opencove.plugin.json'),
+    join(source, 'eclipse-code.plugin.json'),
     JSON.stringify({
       apiVersion: 1,
       id,
@@ -64,7 +64,7 @@ test('uses canvas and terminal APIs from a real backend and window and retires o
   )
   await writeFile(
     join(source, 'app.js'),
-    `${shared}\n(async()=>{const api=window.opencovePlugin; const context=await api.ready;document.querySelector('#run').disabled=false;document.querySelector('#run').onclick=async()=>{try{document.querySelector('#result').textContent=JSON.stringify(await workflow(api.host,{projectId:context.workspaceId||'${seededWorkspaceId}'}))}catch(e){document.querySelector('#result').textContent=e.message}}})()`,
+    `${shared}\n(async()=>{const api=window.eclipseCodePlugin; const context=await api.ready;document.querySelector('#run').disabled=false;document.querySelector('#run').onclick=async()=>{try{document.querySelector('#result').textContent=JSON.stringify(await workflow(api.host,{projectId:context.workspaceId||'${seededWorkspaceId}'}))}catch(e){document.querySelector('#result').textContent=e.message}}})()`,
   )
   const { electronApp, window: page } = await launchApp({ userDataDir, cleanupUserDataDir: false })
   try {

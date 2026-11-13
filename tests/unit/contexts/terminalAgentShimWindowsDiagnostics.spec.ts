@@ -17,7 +17,7 @@ afterEach(async () => {
 
 describe('Windows terminal Agent shim failure diagnostics', () => {
   it('logs bounded process evidence and lists plan names without reading plan contents', async () => {
-    root = await mkdtemp(join(tmpdir(), 'opencove-shim-diagnostics-'))
+    root = await mkdtemp(join(tmpdir(), 'eclipse-code-shim-diagnostics-'))
     const shimDirectory = join(root, 'bin')
     const planDirectory = join(root, 'plans')
     await Promise.all([mkdir(shimDirectory), mkdir(planDirectory)])

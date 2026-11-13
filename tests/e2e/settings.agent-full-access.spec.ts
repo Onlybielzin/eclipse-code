@@ -28,7 +28,7 @@ test('a new install starts with full access off and explains both states', async
     await expect
       .poll(async () =>
         window.evaluate(async () => {
-          const raw = await window.opencoveApi.persistence.readWorkspaceStateRaw()
+          const raw = await window.eclipseCodeApi.persistence.readWorkspaceStateRaw()
           return raw ? JSON.parse(raw).settings?.agentFullAccess : null
         }),
       )

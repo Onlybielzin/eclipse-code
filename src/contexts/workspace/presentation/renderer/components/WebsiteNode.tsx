@@ -66,7 +66,7 @@ export function WebsiteNode({
   )
   const lifecycle = runtime?.lifecycle ?? 'cold'
   const isOccluded = runtime?.isOccluded === true
-  const nativeApiAvailable = typeof window.opencoveApi?.websiteWindow?.activate === 'function'
+  const nativeApiAvailable = typeof window.eclipseCodeApi?.websiteWindow?.activate === 'function'
   const effectiveBrowserMode = nativeApiAvailable ? browserDefaultMode : browserMode
   const hasPageUrl = url.trim().length > 0
   const nativeRuntimeAvailable = effectiveBrowserMode === 'native' && nativeApiAvailable
@@ -149,7 +149,7 @@ export function WebsiteNode({
       return
     }
 
-    void window.opencoveApi?.websiteWindow?.close?.({ nodeId }).catch(() => undefined)
+    void window.eclipseCodeApi?.websiteWindow?.close?.({ nodeId }).catch(() => undefined)
   }, [nativeViewEnabled, nodeId])
 
   useEffect(() => {
@@ -180,7 +180,7 @@ export function WebsiteNode({
   const togglePinned = useCallback(() => {
     const nextPinned = pinned !== true
     onPinnedChange(nextPinned)
-    void window.opencoveApi?.websiteWindow
+    void window.eclipseCodeApi?.websiteWindow
       ?.setPinned?.({ nodeId, pinned: nextPinned })
       .catch(() => undefined)
   }, [nodeId, onPinnedChange, pinned])
@@ -188,7 +188,7 @@ export function WebsiteNode({
   const handleSessionChange = useCallback(
     (nextMode: WebsiteWindowSessionMode, nextProfileId: string | null) => {
       onSessionChange(nextMode, nextProfileId)
-      void window.opencoveApi?.websiteWindow
+      void window.eclipseCodeApi?.websiteWindow
         ?.setSession?.({
           nodeId,
           sessionMode: nextMode,
@@ -316,7 +316,7 @@ export function WebsiteNode({
                 className="website-node__tool-button"
                 onClick={event => {
                   event.stopPropagation()
-                  void window.opencoveApi?.websiteWindow
+                  void window.eclipseCodeApi?.websiteWindow
                     ?.goBack?.({ nodeId })
                     .catch(() => undefined)
                 }}
@@ -332,7 +332,7 @@ export function WebsiteNode({
                 className="website-node__tool-button"
                 onClick={event => {
                   event.stopPropagation()
-                  void window.opencoveApi?.websiteWindow
+                  void window.eclipseCodeApi?.websiteWindow
                     ?.goForward?.({ nodeId })
                     .catch(() => undefined)
                 }}
@@ -348,7 +348,7 @@ export function WebsiteNode({
                 className="website-node__tool-button"
                 onClick={event => {
                   event.stopPropagation()
-                  const api = window.opencoveApi?.websiteWindow
+                  const api = window.eclipseCodeApi?.websiteWindow
                   if (isLoading) {
                     void api?.stop?.({ nodeId }).catch(() => undefined)
                     return

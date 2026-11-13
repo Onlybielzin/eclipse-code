@@ -51,8 +51,8 @@ test.describe('Workspace Canvas - Agent Last Message Copy (Working Disabled)', (
     const { electronApp, window } = await launchApp({
       windowMode: 'offscreen',
       env: {
-        OPENCOVE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
-        OPENCOVE_TEST_AGENT_SESSION_SCENARIO: 'codex-commentary-then-final',
+        ECLIPSE_CODE_TEST_ENABLE_SESSION_STATE_WATCHER: '1',
+        ECLIPSE_CODE_TEST_AGENT_SESSION_SCENARIO: 'codex-commentary-then-final',
       },
     })
 

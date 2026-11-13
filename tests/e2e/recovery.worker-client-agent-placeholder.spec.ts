@@ -10,7 +10,7 @@ import { startWorker, stopWorker } from './worker-client.helpers'
 async function writeAgentPlaceholder(window: Page, nodeId: string, scrollback: string) {
   const result = await window.evaluate(
     async payload => {
-      return await window.opencoveApi.persistence.writeAgentNodePlaceholderScrollback(payload)
+      return await window.eclipseCodeApi.persistence.writeAgentNodePlaceholderScrollback(payload)
     },
     { nodeId, scrollback },
   )
@@ -32,7 +32,7 @@ test.describe('Recovery - Worker client agent renderer restore', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_WORKER_CLIENT: '1',
+          ECLIPSE_CODE_WORKER_CLIENT: '1',
         },
       })
 
@@ -61,7 +61,7 @@ test.describe('Recovery - Worker client agent renderer restore', () => {
         userDataDir,
         cleanupUserDataDir: false,
         env: {
-          OPENCOVE_WORKER_CLIENT: '1',
+          ECLIPSE_CODE_WORKER_CLIENT: '1',
         },
       })
 

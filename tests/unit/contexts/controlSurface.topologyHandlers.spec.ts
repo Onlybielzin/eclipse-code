@@ -141,7 +141,7 @@ describe('control surface topology handlers', () => {
       .mockResolvedValueOnce({
         httpStatus: 200,
         result: {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: {
             code: 'common.invalid_input',
@@ -152,7 +152,7 @@ describe('control surface topology handlers', () => {
       .mockResolvedValueOnce({
         httpStatus: 200,
         result: {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: {
             entries: [
@@ -193,7 +193,7 @@ describe('control surface topology handlers', () => {
       .mockResolvedValueOnce({
         httpStatus: 200,
         result: {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: false,
           error: {
             code: 'common.invalid_input',
@@ -204,7 +204,7 @@ describe('control surface topology handlers', () => {
       .mockResolvedValueOnce({
         httpStatus: 200,
         result: {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: {
             activeProjectId: null,
@@ -233,7 +233,7 @@ describe('control surface topology handlers', () => {
     invokeControlSurfaceMock.mockResolvedValueOnce({
       httpStatus: 200,
       result: {
-        __opencoveControlEnvelope: true,
+        __eclipseCodeControlEnvelope: true,
         ok: false,
         error: {
           code: 'common.invalid_input',
@@ -266,7 +266,7 @@ describe('control surface topology handlers', () => {
       invokeControlSurfaceMock.mockResolvedValueOnce({
         httpStatus: 200,
         result: {
-          __opencoveControlEnvelope: true,
+          __eclipseCodeControlEnvelope: true,
           ok: true,
           value: { platform: 'linux', homeDirectory: '/home/worker', hostname },
         },

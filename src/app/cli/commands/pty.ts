@@ -15,7 +15,7 @@ export const ptyAttach = defineCommand({
     if (io.signal?.aborted) {
       throw new CliError('cli.interrupted', 130, 'Detached')
     }
-    const ws = new WebSocket(url, 'opencove-pty.v1', {
+    const ws = new WebSocket(url, 'eclipse-code-pty.v1', {
       headers: { authorization: `Bearer ${connection!.token}` },
     })
     return new Promise<number>((done, reject) => {

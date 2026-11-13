@@ -366,7 +366,7 @@ describe('useTerminalRuntimeSession support', () => {
     const commitInitialGeometry = vi.fn(async () => ({ cols: 90, rows: 30, changed: true }))
 
     vi.stubGlobal('window', {
-      opencoveApi: { pty: { presentationSnapshot } },
+      eclipseCodeApi: { pty: { presentationSnapshot } },
     })
     const { attachPromise, presentationSnapshotPromise } = prepareRuntimePresentationAttach({
       ptyApi: { attach } as never,
@@ -387,7 +387,7 @@ describe('useTerminalRuntimeSession support', () => {
     const commitInitialGeometry = vi.fn(async () => ({ cols: 64, rows: 44, changed: false }))
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           presentationSnapshot,
         },
@@ -428,7 +428,7 @@ describe('useTerminalRuntimeSession support', () => {
     const commitInitialGeometry = vi.fn(async () => ({ cols: 104, rows: 41, changed: true }))
 
     vi.stubGlobal('window', {
-      opencoveApi: {
+      eclipseCodeApi: {
         pty: {
           presentationSnapshot,
         },
