@@ -26,6 +26,7 @@ import type {
   IpcCommandChannel,
   IpcCommandOutput,
   IpcCommandRequest,
+  PickedFolder,
   SubtaskDetail,
 } from '@shared/ipc'
 import { upsertById } from './format'
@@ -217,9 +218,17 @@ export class AppStore {
     })
   }
 
-  async addProject(rootPath: string): Promise<void> {
+  /** Abre o explorador de pastas do sistema. Cancelar devolve null. */
+  async pickProjectFolder(): Promise<PickedFolder | null> {
+    return (await this.guard(() => this.call('projects.pickFolder', {}))) ?? null
+  }
+
+  async addProject(rootPath: string, name?: string): Promise<void> {
     await this.guard(async () => {
-      const project = await this.call('projects.add', { rootPath })
+      const project = await this.call(
+        'projects.add',
+        name && name.trim() ? { rootPath, name: name.trim() } : { rootPath },
+      )
       this.set((s) => ({ projects: upsertById(s.projects, project) }))
       await this.openProject(project.id)
     })

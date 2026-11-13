@@ -1,7 +1,9 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
-import { join } from 'node:path'
+import { app, BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from 'electron'
+import { existsSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { basename, join } from 'node:path'
 import { APP_ID, APP_PRODUCT_NAME, ENV } from '@shared/app'
-import { IPC_EVENT_CHANNEL, IPC_INVOKE_CHANNEL, type AppInfo } from '@shared/ipc'
+import { IPC_EVENT_CHANNEL, IPC_INVOKE_CHANNEL, type AppInfo, type PickedFolder } from '@shared/ipc'
 import {
   createIpcHandlers,
   createIpcRouter,
@@ -68,10 +70,40 @@ async function boot(): Promise<AppServices> {
     paths,
     // Dentro do app.asar no app empacotado: o Electron com ELECTRON_RUN_AS_NODE le o asar.
     mcpServerScript: join(__dirname, 'mcp-server.js'),
+    // Primeira partida: projetos e times do app antigo (produção, depois o perfil de dev).
+    // O smoke e os testes partem de um banco vazio de verdade.
+    legacyDatabases:
+      isSmokeRun || process.env.ECLIPSE_CODE_ENV === 'test'
+        ? []
+        : [
+            join(homedir(), '.config', 'eclipse-code', 'eclipse-code.db'),
+            join(homedir(), '.config', 'eclipse-code-dev', 'eclipse-code.db'),
+          ],
     log,
   })
   const route = createIpcRouter({
     ...createIpcHandlers(services),
+    'projects.pickFolder': async (): Promise<PickedFolder | null> => {
+      const parent = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+      const options: OpenDialogOptions = {
+        title: 'Escolha a pasta do projeto',
+        buttonLabel: 'Escolher pasta',
+        defaultPath: homedir(),
+        properties: ['openDirectory', 'createDirectory'],
+      }
+      const result = parent
+        ? await dialog.showOpenDialog(parent, options)
+        : await dialog.showOpenDialog(options)
+      const picked = result.canceled ? undefined : result.filePaths[0]
+      if (!picked) return null
+      const root = picked.length > 1 ? picked.replace(/\/+$/, '') : picked
+      return {
+        path: root,
+        name: basename(root) || root,
+        isGitRepo: existsSync(join(root, '.git')),
+        alreadyAdded: services.tasks.listProjects().some((p) => p.rootPath === root),
+      }
+    },
     'app.info': async (): Promise<AppInfo> => ({
       version: app.getVersion(),
       appId: APP_ID,

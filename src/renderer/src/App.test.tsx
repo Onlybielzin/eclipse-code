@@ -290,3 +290,61 @@ describe('status da tarefa na lista', () => {
     expect(within(screen.getByTestId('group-lancado')).getByText('2')).toBeTruthy()
   })
 })
+
+describe('modal Adicionar projeto', () => {
+  it('abre o explorador, mostra a pasta e adiciona com o nome editado', async () => {
+    await renderApp()
+    fireEvent.click(screen.getByRole('button', { name: '+ projeto' }))
+    const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
+    const submit = within(dialog).getByRole('button', { name: 'Adicionar projeto' })
+    expect((submit as HTMLButtonElement).disabled).toBe(true)
+
+    api.nextPickedFolder = {
+      path: '/data/Projects/vingsdev',
+      name: 'vingsdev',
+      isGitRepo: true,
+      alreadyAdded: false,
+    }
+    fireEvent.click(within(dialog).getByRole('button', { name: /Escolher pasta/ }))
+    await within(dialog).findByText('/data/Projects/vingsdev')
+    expect(within(dialog).getByText('Repositório git encontrado.')).toBeTruthy()
+    expect(api.callsTo('projects.pickFolder')).toHaveLength(1)
+
+    fireEvent.change(within(dialog).getByLabelText('Nome do projeto'), {
+      target: { value: 'vings.dev' },
+    })
+    fireEvent.click(submit)
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.callsTo('projects.add')).toEqual([
+      { rootPath: '/data/Projects/vingsdev', name: 'vings.dev' },
+    ])
+  })
+
+  it('cancelar o explorador não muda nada; pasta repetida bloqueia; Esc fecha', async () => {
+    await renderApp()
+    fireEvent.click(screen.getByRole('button', { name: '+ projeto' }))
+    const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
+
+    api.nextPickedFolder = null
+    fireEvent.click(within(dialog).getByRole('button', { name: /Escolher pasta/ }))
+    await waitFor(() => expect(api.callsTo('projects.pickFolder')).toHaveLength(1))
+    expect(within(dialog).queryByLabelText('Nome do projeto')).toBeNull()
+
+    api.nextPickedFolder = {
+      path: '/repo/ereemby',
+      name: 'ereemby',
+      isGitRepo: true,
+      alreadyAdded: true,
+    }
+    fireEvent.click(within(dialog).getByRole('button', { name: /Escolher pasta/ }))
+    await within(dialog).findByText('Essa pasta já é um projeto.')
+    expect(
+      (within(dialog).getByRole('button', { name: 'Adicionar projeto' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(api.callsTo('projects.add')).toHaveLength(0)
+  })
+})

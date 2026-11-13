@@ -63,6 +63,17 @@ const emptyInput = z.object({}).strict()
 // Visoes de leitura
 // ---------------------------------------------------------------------------
 
+/** Pasta escolhida no explorador do sistema. Cancelar devolve null. */
+export interface PickedFolder {
+  path: string
+  /** Nome sugerido: o nome da pasta. */
+  name: string
+  /** A pasta tem .git (tarefas precisam de repositorio para criar worktree). */
+  isGitRepo: boolean
+  /** Ja existe projeto com essa pasta. */
+  alreadyAdded: boolean
+}
+
 export interface AppInfo {
   version: string
   appId: string
@@ -114,6 +125,7 @@ export const ipcCommands = {
   'app.info': command<AppInfo>()(emptyInput),
 
   'projects.list': command<Project[]>()(emptyInput),
+  'projects.pickFolder': command<PickedFolder | null>()(emptyInput),
   'projects.add': command<Project>()(
     z.object({ rootPath: absolutePathSchema, name: titleSchema.optional() }).strict(),
   ),

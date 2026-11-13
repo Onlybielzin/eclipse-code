@@ -8,7 +8,7 @@ import type { AppServices } from './services'
 
 export function createIpcHandlers(
   services: Pick<AppServices, 'tasks' | 'coordinator'>,
-): Omit<IpcCommandHandlers, 'app.info'> {
+): Omit<IpcCommandHandlers, 'app.info' | 'projects.pickFolder'> {
   const { tasks, coordinator } = services
   return {
     'projects.list': async () => tasks.listProjects(),

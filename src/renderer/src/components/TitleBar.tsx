@@ -1,4 +1,5 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState } from 'react'
+import { AddProjectModal } from './AddProjectModal'
 import { openQuestions } from '../store/format'
 import { useAppState, useStore } from '../store/context'
 
@@ -11,22 +12,12 @@ export function TitleBar() {
   const tasks = useAppState((s) => s.tasks)
   const open = useMemo(() => openQuestions(questions), [questions])
   const [adding, setAdding] = useState(false)
-  const [path, setPath] = useState('')
 
   const goToQuestion = () => {
     const q = open[0]
     if (!q) return
     if (q.subtaskId) void store.selectSubtask(q.subtaskId)
     else if (tasks.some((t) => t.id === q.taskId)) store.selectTask(q.taskId)
-  }
-
-  const submit = async (e: FormEvent) => {
-    e.preventDefault()
-    const value = path.trim()
-    if (!value) return
-    await store.addProject(value)
-    setPath('')
-    setAdding(false)
   }
 
   return (
@@ -46,28 +37,10 @@ export function TitleBar() {
           ))}
         </select>
       )}
-      {adding ? (
-        <form className="addproj" onSubmit={(e) => void submit(e)}>
-          <input
-            className="field"
-            autoFocus
-            aria-label="Pasta do projeto"
-            placeholder="/caminho/do/repositorio"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-          />
-          <button type="submit" className="primary">
-            Adicionar
-          </button>
-          <button type="button" className="ghost" onClick={() => setAdding(false)}>
-            Cancelar
-          </button>
-        </form>
-      ) : (
-        <button type="button" className="linkish" onClick={() => setAdding(true)}>
-          + projeto
-        </button>
-      )}
+      <button type="button" className="linkish" onClick={() => setAdding(true)}>
+        + projeto
+      </button>
+      {adding && <AddProjectModal onClose={() => setAdding(false)} />}
       <button
         type="button"
         className={`need ${open.length === 0 ? 'none' : ''}`}

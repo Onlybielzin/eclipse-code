@@ -25,6 +25,8 @@ import { createMcpBridgeServer, startTeamTurnRelay, type TeamTurnRelay } from '.
 import {
   createTaskService,
   openSqliteTaskStore,
+  importLegacyProjects,
+  readLegacyProjects,
   systemClock,
   type RecoveryReport,
   type SqliteTaskService,
@@ -36,6 +38,12 @@ import type { McpBridgeServer, PtyHost } from '@shared/ports'
 
 export interface AppServicesOptions {
   paths: Pick<AppPaths, 'database' | 'runtime' | 'worktrees' | 'userData'>
+  /**
+   * Bancos do app antigo (com canvas) lidos SOMENTE LEITURA na primeira partida:
+   * se o app novo ainda nao tem projeto, importa projetos e papeis deles, em ordem.
+   * Ausente ou vazio: nao importa.
+   */
+  legacyDatabases?: readonly string[]
   /** Script do servidor MCP stdio (out/main/mcp-server.js; dentro do asar no app empacotado). */
   mcpServerScript: string
   /** Executavel que roda o script com ELECTRON_RUN_AS_NODE=1. Padrao: process.execPath. */
@@ -151,6 +159,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     store.close()
     throw error
   }
+  importLegacyOnFirstRun(tasks, options.legacyDatabases ?? [], log)
   const recovery = await coordinator.recover()
   log.info('recuperação da partida', {
     lostSessions: recovery.lostSessions.length,
@@ -214,5 +223,30 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
       })()
       return disposed
     },
+  }
+}
+
+/** Primeira partida: sem nenhum projeto, traz projetos e times do app antigo. */
+export function importLegacyOnFirstRun(
+  tasks: SqliteTaskService,
+  databases: readonly string[],
+  log: AppLogger,
+): void {
+  if (databases.length === 0 || tasks.listProjects().length > 0) return
+  for (const database of databases) {
+    try {
+      const report = importLegacyProjects(tasks, readLegacyProjects(database))
+      log.info('importação do app antigo', {
+        database,
+        projectsCreated: report.projectsCreated.map((p) => p.name),
+        rolesCreated: report.rolesCreated.length,
+        rolesSkipped: report.rolesSkipped.length,
+      })
+    } catch (error) {
+      log.warn('importação do app antigo falhou', {
+        database,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
   }
 }

@@ -19,6 +19,7 @@ import type {
   IpcEventChannel,
   IpcEvents,
   IpcResult,
+  PickedFolder,
 } from '@shared/ipc'
 
 const T0 = 1_700_000_000_000
@@ -138,6 +139,9 @@ export class FakeApi implements EclipseApi {
   /** Respostas fixas que sobrescrevem a logica padrao. */
   readonly overrides = new Map<string, (input: unknown) => IpcResult<unknown>>()
 
+  /** Resposta do explorador de pastas no proximo projects.pickFolder (null = cancelou). */
+  nextPickedFolder: PickedFolder | null = null
+
   constructor(readonly data: FakeData) {}
 
   invoke: EclipseApi['invoke'] = async (channel, input) => {
@@ -176,6 +180,20 @@ export class FakeApi implements EclipseApi {
     switch (channel) {
       case 'projects.list':
         return d.projects
+      case 'projects.pickFolder':
+        return this.nextPickedFolder
+      case 'projects.add': {
+        const rootPath = String(input.rootPath)
+        const project: Project = {
+          id: `p-new-${d.projects.length + 1}`,
+          rootPath,
+          name: (input.name as string | undefined) ?? rootPath.split('/').pop() ?? rootPath,
+          createdAt: T0,
+          updatedAt: T0,
+        }
+        d.projects.push(project)
+        return project
+      }
       case 'roles.list':
         return d.roles
       case 'tasks.list':
