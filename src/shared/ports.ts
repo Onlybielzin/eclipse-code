@@ -2,7 +2,8 @@
  * Interfaces que os modulos do main implementam em paralelo.
  *
  * Dono de cada porta (pasta em src/main):
- *   TaskStore, TaskService, TeamCoordinator -> tasks/
+ *   TaskStore, TaskService                  -> tasks/
+ *   TeamCoordinator                         -> app/ (teamCoordinator.ts; liga todos os modulos)
  *   PtyHost                                 -> terminal/
  *   LeaderLauncher, LeaderRelay             -> leader/
  *   MemberRuntime                           -> acp/
@@ -526,7 +527,7 @@ export interface CreateWorktreeRequest {
   worktreesRoot: string
   /** Base para o nome da pasta e da branch (slug do titulo da tarefa). */
   name: string
-  /** Branch nova. Se omitida, derivada de name com prefixo 'eclipse/'. */
+  /** Branch nova. Se omitida, derivada de name com prefixo 'feat/'. */
   branch?: string | undefined
   /** De onde sair. Se omitida, a branch padrao do repositorio. */
   baseBranch?: string | undefined

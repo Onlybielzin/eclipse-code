@@ -9,6 +9,8 @@
 //   calado         nunca responde ao session/prompt nem manda evento; ignora session/cancel
 //   gotejando      manda um pedaco a cada 30 ms ate receber session/cancel (responde cancelled)
 //   permissao      pede permissao para um arquivo dentro do cwd e outro fora; conta o resultado
+//   mcp            chama de verdade a ferramenta `entregar` no servidor MCP recebido em
+//                  session/new (mcpServers), como o claude-agent-acp faria, e termina com end_turn
 //
 // FAKE_ACP_RECORD=<arquivo>: grava uma linha JSON por chamada de partida (initialize,
 // session/new, session/load) com cwd e algumas variaveis de ambiente.
@@ -16,6 +18,8 @@ import { appendFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Readable, Writable } from 'node:stream'
 import { AgentSideConnection, PROTOCOL_VERSION, ndJsonStream } from '@agentclientprotocol/sdk'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const mode = process.env.FAKE_ACP_MODE ?? 'normal'
 const recordFile = process.env.FAKE_ACP_RECORD
@@ -37,6 +41,24 @@ class FakeAgent {
     this.turn = 0
     this.cancelled = new Set()
     this.sessionCounter = 0
+    /** sessionId -> mcpServers do session/new */
+    this.mcpServers = new Map()
+  }
+
+  /** Chama uma ferramenta no servidor MCP do app, como o adaptador ACP real faria. */
+  async callAppTool(sessionId, name, args) {
+    const server = (this.mcpServers.get(sessionId) ?? [])[0]
+    if (!server) throw new Error('sessao sem servidor MCP')
+    const env = { ...process.env }
+    for (const { name: key, value } of server.env ?? []) env[key] = value
+    const transport = new StdioClientTransport({ command: server.command, args: server.args, env })
+    const client = new Client({ name: 'fake-acp-agent', version: '0.0.0' })
+    await client.connect(transport)
+    try {
+      return await client.callTool({ name, arguments: args })
+    } finally {
+      await client.close()
+    }
   }
 
   async initialize(params) {
@@ -51,7 +73,9 @@ class FakeAgent {
   async newSession(params) {
     record('session/new', params)
     this.sessionCounter += 1
-    return { sessionId: `fake-${process.pid}-${this.sessionCounter}` }
+    const sessionId = `fake-${process.pid}-${this.sessionCounter}`
+    this.mcpServers.set(sessionId, params.mcpServers ?? [])
+    return { sessionId }
   }
 
   async loadSession(params) {
@@ -178,6 +202,20 @@ class FakeAgent {
         const terminal =
           noPath.outcome.outcome === 'selected' ? noPath.outcome.optionId : 'cancelado'
         await this.say(sessionId, `dentro=${inside} fora=${outside} terminal=${terminal}`)
+        return { stopReason: 'end_turn' }
+      }
+      case 'mcp': {
+        const firstLine = promptText.split('\n')[0] ?? ''
+        await this.say(sessionId, `Trabalhando em: ${firstLine}\n`)
+        const result = await this.callAppTool(sessionId, 'entregar', {
+          estado: 'pronto',
+          resumo: `feito pelo membro falso: ${firstLine}`,
+          arquivos: [{ path: 'src/falso.ts', change: 'modified' }],
+          testes: [{ command: 'pnpm test', result: 'ok', passed: true }],
+        })
+        const text = (result.content ?? []).map((c) => c.text ?? '').join(' ')
+        record('entregar', { isError: result.isError ?? false, text })
+        await this.say(sessionId, `Entreguei. STATUS: PRONTO`)
         return { stopReason: 'end_turn' }
       }
       default:

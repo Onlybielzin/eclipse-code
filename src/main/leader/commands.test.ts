@@ -154,6 +154,8 @@ describe('buildLeaderCommand (Codex)', () => {
       'mcp_servers.eclipse.args=["/opt/eclipse/out/mcp/server.js"]',
       '-c',
       'mcp_servers.eclipse.env={"ELECTRON_RUN_AS_NODE"="1","ECLIPSE_NEXT_MCP_TOKEN"="tok\\"en"}',
+      '-c',
+      'mcp_servers.eclipse.tool_timeout_sec=1860',
     ])
     expect(codexMcpServerKey('eclipse code.v2')).toBe('eclipse_code_v2')
   })

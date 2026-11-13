@@ -58,6 +58,7 @@ import {
   toAcpMcpServer,
   type AgentCommand,
 } from './agentCommand'
+import { PARENT_AGENT_SESSION_ENV_KEYS } from '../terminal/spawnEnv'
 import { decidePermission } from './permissionPolicy'
 import { TurnActivity } from './turnActivity'
 
@@ -176,6 +177,8 @@ export class AcpMemberRuntime implements MemberRuntime {
     for (const [key, value] of Object.entries(process.env)) {
       if (value !== undefined) env[key] = value
     }
+    // Marcas da sessao Claude que abriu o app: o membro nao e sessao aninhada dela.
+    for (const key of PARENT_AGENT_SESSION_ENV_KEYS) delete env[key]
     Object.assign(env, command.env, request.env, { [ENV.marker]: '1' })
 
     let child: ChildProcess

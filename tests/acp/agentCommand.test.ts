@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -14,13 +14,40 @@ describe('buildAgentCommand', () => {
   it('Claude: roda o claude-agent-acp no Node do Electron com ANTHROPIC_MODEL', () => {
     const cmd = buildAgentCommand(
       { provider: 'claude', model: 'claude-haiku-4-5', systemPrompt: 'x' },
-      { nodeBinary: '/bin/electron', scriptPath: '/s.js' },
+      { nodeBinary: '/bin/electron', scriptPath: '/s.js', baseEnv: { PATH: '' } },
     )
     expect(cmd).toEqual({
       command: '/bin/electron',
       args: ['/s.js'],
       env: { ELECTRON_RUN_AS_NODE: '1', ANTHROPIC_MODEL: 'claude-haiku-4-5' },
     })
+  })
+
+  it('usa o primeiro claude/codex do PATH (wrapper de rodízio) e respeita o valor do usuário', () => {
+    const bin = mkdtempSync(join(tmpdir(), 'acp-bin-'))
+    try {
+      for (const name of ['claude', 'codex']) {
+        writeFileSync(join(bin, name), '#!/bin/sh\n', { mode: 0o755 })
+      }
+      const base = { PATH: `${bin}:/usr/bin` }
+      const claude = buildAgentCommand(
+        { provider: 'claude', model: null, systemPrompt: '' },
+        { nodeBinary: 'n', scriptPath: 's', baseEnv: base },
+      )
+      expect(claude.env.CLAUDE_CODE_EXECUTABLE).toBe(join(bin, 'claude'))
+      const codex = buildAgentCommand(
+        { provider: 'codex', model: null, systemPrompt: '' },
+        { nodeBinary: 'n', scriptPath: 's', baseEnv: base },
+      )
+      expect(codex.env.CODEX_PATH).toBe(join(bin, 'codex'))
+      const own = buildAgentCommand(
+        { provider: 'claude', model: null, systemPrompt: '' },
+        { nodeBinary: 'n', scriptPath: 's', baseEnv: { ...base, CLAUDE_CODE_EXECUTABLE: '/x' } },
+      )
+      expect(own.env.CLAUDE_CODE_EXECUTABLE).toBeUndefined()
+    } finally {
+      rmSync(bin, { recursive: true, force: true })
+    }
   })
 
   it('Codex: modelo e prompt do papel em CODEX_CONFIG, sem perder o que o usuário já tinha', () => {

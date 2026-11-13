@@ -10,9 +10,13 @@
  *   - Prompt do papel: _meta.systemPrompt = { append }, que mantem o preset claude_code.
  *   - Modelo: ANTHROPIC_MODEL na partida (como o Paperclip), porque set_config_option
  *     recusa ids que nao estao na lista anunciada.
+ *   - CLI: CLAUDE_CODE_EXECUTABLE aponta para o primeiro `claude` do PATH (o wrapper de
+ *     rodizio de contas, quando existe). Sem isso o adaptador usaria o binario embutido no
+ *     claude-agent-sdk e pularia o rodizio. Valor ja definido pelo usuario e mantido.
  *
  * Codex (codex-acp 1.6.2):
  *   - Le ~/.codex/config.toml sozinho (MCPs e preferencias do usuario).
+ *   - CLI: CODEX_PATH aponta para o primeiro `codex` do PATH, como o Lider usa.
  *   - CODEX_CONFIG (JSON) sobrepoe chaves: model e developer_instructions (prompt do papel).
  *   - Modo padrao "agent": sandbox workspace-write e aprovacao on-request, que chega aqui
  *     como session/request_permission e passa pela politica da worktree.
@@ -21,6 +25,7 @@ import { createRequire } from 'node:module'
 import type { McpServer } from '@agentclientprotocol/sdk'
 import type { Provider } from '@shared/domain'
 import type { McpServerLaunch, MemberSessionStart } from '@shared/ports'
+import { resolveExecutableOnPath } from '../leader/executable'
 
 export interface AgentCommand {
   command: string
@@ -58,11 +63,17 @@ export function buildAgentCommand(
 ): AgentCommand {
   const nodeBinary = options.nodeBinary ?? process.execPath
   const scriptPath = options.scriptPath ?? resolveAcpAgentScript(request.provider)
+  const baseEnv = options.baseEnv ?? process.env
   const env: Record<string, string> = { ELECTRON_RUN_AS_NODE: '1' }
+  const cliVariable = request.provider === 'claude' ? 'CLAUDE_CODE_EXECUTABLE' : 'CODEX_PATH'
+  if (!baseEnv[cliVariable]) {
+    const cli = resolveExecutableOnPath(request.provider, baseEnv.PATH)
+    if (cli) env[cliVariable] = cli
+  }
   if (request.provider === 'claude') {
     if (request.model) env.ANTHROPIC_MODEL = request.model
   } else {
-    const existing = parseJsonObject(options.baseEnv?.CODEX_CONFIG ?? process.env.CODEX_CONFIG)
+    const existing = parseJsonObject(baseEnv.CODEX_CONFIG)
     const config: Record<string, unknown> = { ...existing }
     if (request.model) config.model = request.model
     if (request.systemPrompt.trim()) config.developer_instructions = request.systemPrompt

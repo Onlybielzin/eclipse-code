@@ -6,10 +6,17 @@
  */
 import { createHash } from 'node:crypto'
 import { ENV } from '@shared/app'
+import { MCP_WAIT_MAX_SECONDS } from '@shared/mcp'
 import type { LeaderCommand, LeaderLaunchRequest, McpServerLaunch } from '@shared/ports'
 
 /** Liga as ferramentas de lista de tarefas do Claude (TaskCreate/TaskUpdate), como o app antigo. */
 export const LEADER_CLAUDE_ENV = { CLAUDE_CODE_ENABLE_TODO_TOOLS: '1' } as const
+
+/**
+ * Prazo das ferramentas MCP do app no cliente. subtarefas_esperar segura a chamada ate
+ * MCP_WAIT_MAX_SECONDS; o padrao do Codex (60 s) e do Claude Code cortariam antes.
+ */
+export const MCP_TOOL_TIMEOUT_SECONDS = MCP_WAIT_MAX_SECONDS + 60
 
 export const PROVIDER_COMMANDS = { claude: 'claude', codex: 'codex' } as const
 
@@ -69,6 +76,7 @@ export function buildCodexMcpConfigArgs(server: McpServerLaunch): string[] {
       .join(',')
     args.push('-c', `${prefix}.env={${table}}`)
   }
+  args.push('-c', `${prefix}.tool_timeout_sec=${MCP_TOOL_TIMEOUT_SECONDS}`)
   return args
 }
 
@@ -88,7 +96,11 @@ export function composeLeaderEnv(
   }
   Object.assign(env, request.env)
   env[ENV.marker] = '1'
-  if (request.provider === 'claude') Object.assign(env, LEADER_CLAUDE_ENV)
+  if (request.provider === 'claude') {
+    Object.assign(env, LEADER_CLAUDE_ENV)
+    // Prazo de ferramenta MCP do Claude Code, em ms (ver MCP_TOOL_TIMEOUT_SECONDS).
+    env['MCP_TOOL_TIMEOUT'] ??= String(MCP_TOOL_TIMEOUT_SECONDS * 1000)
+  }
   return env
 }
 
