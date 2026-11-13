@@ -6,9 +6,16 @@ import './styles.css'
 
 const container = document.getElementById('root')
 if (!container) throw new Error('elemento #root ausente')
-const store = new AppStore(window.eclipse)
-createRoot(container).render(
-  <StrictMode>
-    <App store={store} />
-  </StrictMode>,
-)
+// Sem a ponte do preload a tela ficaria presa em "Carregando...". Mostra o erro.
+const bridge = (window as { eclipse?: typeof window.eclipse }).eclipse
+if (!bridge) {
+  container.innerHTML =
+    '<div class="empty">A ponte com o app não carregou (preload). Veja o log do app.</div>'
+} else {
+  const store = new AppStore(bridge)
+  createRoot(container).render(
+    <StrictMode>
+      <App store={store} />
+    </StrictMode>,
+  )
+}

@@ -101,8 +101,35 @@ async function runSmoke(services: AppServices, window: BrowserWindow): Promise<v
   const renderer = await new Promise<{ ok: boolean; detail: string }>((resolve) => {
     const timer = setTimeout(() => resolve({ ok: false, detail: 'timeout' }), 20_000)
     window.webContents.once('did-finish-load', () => {
-      clearTimeout(timer)
-      resolve({ ok: true, detail: window.webContents.getURL() })
+      // Página carregada não basta: o preload precisa ter exposto a ponte e a
+      // tela precisa sair de "Carregando...". Espera até 10 s pelos dois.
+      const probe = `new Promise((ok) => {
+        const end = Date.now() + 10000
+        const tick = () => {
+          const bridge = typeof window.eclipse === 'object' && window.eclipse !== null
+          const loading = document.body.innerText.includes('Carregando...')
+          if (bridge && !loading) return ok({ bridge, loading })
+          if (Date.now() > end) return ok({ bridge, loading })
+          setTimeout(tick, 100)
+        }
+        tick()
+      })`
+      void window.webContents
+        .executeJavaScript(probe)
+        .then((state: { bridge: boolean; loading: boolean }) => {
+          clearTimeout(timer)
+          const ok = state.bridge && !state.loading
+          resolve({
+            ok,
+            detail: ok
+              ? window.webContents.getURL()
+              : `ponte=${state.bridge} carregando=${state.loading}`,
+          })
+        })
+        .catch((error: unknown) => {
+          clearTimeout(timer)
+          resolve({ ok: false, detail: String(error) })
+        })
     })
     window.webContents.once('did-fail-load', (_event, code, description) => {
       clearTimeout(timer)

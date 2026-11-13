@@ -20,7 +20,9 @@ export default defineConfig({
   preload: {
     resolve: { alias: { '@shared': shared } },
     build: {
-      externalizeDeps: true,
+      // O preload roda com sandbox: true e só pode dar require em 'electron'.
+      // Tudo o mais (zod, @shared) precisa ir dentro do bundle.
+      externalizeDeps: { exclude: ['zod'] },
       rollupOptions: {
         input: { index: resolve(__dirname, 'src/preload/index.ts') },
       },
