@@ -2,12 +2,10 @@
  * terminal/: hospedeiro de pty. Implementa PtyHost (src/shared/ports.ts).
  *
  * Origem: /data/Projects/eclipse-code/src/platform/process/ptyHost e pty
- * (copiar sem worker remoto, sem Windows console observer).
- *
- * TODO(terminal):
- *  - createPtyHost(): PtyHost sobre node-pty (de preferencia num utilityProcess).
- *  - Ring buffer de saida por pty (scrollback) com limite fixo.
- *  - liveCount() conta so processos vivos (fonte do limite de agentes).
- *  - Testes vitest com /bin/sh, sem Electron de janela.
+ * (sem worker remoto, sem utilityProcess, sem Windows console observer).
  */
-export {}
+export { createPtyHost, toPtyExit, waitForPtyExit } from './ptyHost'
+export type { PtyHostOptions, PtyProcessLike, SpawnPty } from './ptyHost'
+export { ScrollbackBuffer, DEFAULT_SCROLLBACK_CHARS } from './scrollback'
+export { resolvePtySpawnEnv, PARENT_AGENT_SESSION_ENV_KEYS } from './spawnEnv'
+export { ensureNodePtySpawnHelperExecutable } from './spawnHelperPermissions'
