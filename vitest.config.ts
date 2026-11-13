@@ -5,11 +5,13 @@ import { defineConfig } from 'vitest/config'
 // scripts/vitest-electron.mjs) para que node-pty e better-sqlite3, compilados
 // para a ABI do Electron, carreguem sem segundo build. Nenhuma janela abre.
 export default defineConfig({
+  // JSX da tela nos testes .tsx (ambiente jsdom declarado no proprio arquivo).
+  esbuild: { jsx: 'automatic' },
   resolve: { alias: { '@shared': resolve(__dirname, 'src/shared') } },
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.ts'],
     pool: 'forks',
     testTimeout: 20_000,
   },

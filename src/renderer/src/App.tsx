@@ -1,29 +1,58 @@
-import { useEffect, useState } from 'react'
-import type { AppInfo } from '@shared/ipc'
+import { useEffect } from 'react'
+import { MiddlePane } from './components/MiddlePane'
+import { SubtaskPanel } from './components/SubtaskPanel'
+import { TaskList } from './components/TaskList'
+import { TitleBar } from './components/TitleBar'
+import type { AppStore } from './store/appStore'
+import { StoreProvider, useAppState, useStore } from './store/context'
 
-/**
- * TODO(renderer): tres colunas da maquete (sem-canvas-lista-de-tarefas.html):
- * tarefas a esquerda, terminal do Lider ou entrega no meio, subtarefas a direita,
- * e "Precisa de você" no topo.
- */
-export function App() {
-  const [info, setInfo] = useState<AppInfo | null>(null)
-
-  useEffect(() => {
-    void window.eclipse.invoke('app.info', {}).then((result) => {
-      if (result.ok) setInfo(result.value)
-    })
-  }, [])
-
+function ErrorBar() {
+  const store = useStore()
+  const error = useAppState((s) => s.error)
+  if (!error) return null
   return (
-    <main className="shell">
-      <h1>Eclipse Code</h1>
-      <p>Esqueleto do app novo. Nenhuma tarefa ainda.</p>
-      {info && (
-        <p className="muted">
-          Electron {info.electron} · dados em {info.userDataPath}
-        </p>
+    <div className="errorbar" role="alert">
+      {error}
+      <button type="button" className="ghost" onClick={() => store.clearError()}>
+        Fechar
+      </button>
+    </div>
+  )
+}
+
+function Shell() {
+  const status = useAppState((s) => s.status)
+  const hasProject = useAppState((s) => s.projectId !== null)
+  return (
+    <div className="app">
+      <TitleBar />
+      <ErrorBar />
+      {status === 'loading' ? (
+        <div className="empty">Carregando...</div>
+      ) : !hasProject ? (
+        <div className="empty">
+          Nenhum projeto ainda. Use "+ projeto" e informe a pasta do repositório.
+        </div>
+      ) : (
+        <div className="cols">
+          <TaskList />
+          <MiddlePane />
+          <SubtaskPanel />
+        </div>
       )}
-    </main>
+    </div>
+  )
+}
+
+/** Tela de 3 colunas da maquete: tarefas, Líder ou entrega, subtarefas. */
+export function App({ store }: { store: AppStore }) {
+  useEffect(() => {
+    void store.start()
+    return () => store.stop()
+  }, [store])
+  return (
+    <StoreProvider store={store}>
+      <Shell />
+    </StoreProvider>
   )
 }
