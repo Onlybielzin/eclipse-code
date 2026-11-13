@@ -265,6 +265,7 @@ test.describe('Workspace Canvas - question and to-do cards', () => {
           },
         },
       ])
+      /* eslint-disable no-await-in-loop -- Each window is measured after it is visible. */
       for (const selector of [
         '[data-testid="question-node"]',
         '[data-cove-part="window"]:has([data-testid="task-node-run-agent"])',
@@ -277,6 +278,7 @@ test.describe('Workspace Canvas - question and to-do cards', () => {
         const controls = (await close.boundingBox())!
         expect(controls.x + controls.width).toBeLessThanOrEqual(frame.x + frame.width + 1)
       }
+      /* eslint-enable no-await-in-loop */
       if (process.env['CARDS_SHOT_LONG']) {
         await window.screenshot({ path: process.env['CARDS_SHOT_LONG'] })
       }

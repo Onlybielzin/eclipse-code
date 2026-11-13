@@ -1,4 +1,5 @@
 import type { NodeLineageRecord } from '../../domain/nodeLineage'
+import { collapseSpawnedAgentOnCreate } from '../../domain/spawnedAgentDisclosure'
 import { projectNodeLineages } from '../nodeLineage/NodeLineageOwner'
 import type { CreateNodeInput, CreateNodeResult } from '../../../../shared/contracts/dto'
 import { createAppError, toAppErrorDescriptor } from '../../../../shared/errors/appError'
@@ -79,7 +80,11 @@ export async function commitCreatedNode(options: {
       height: frame.height,
     }
     const spaceId = current.space?.id ?? null
-    const workspace = workspaceWithNode(current.workspace, node, spaceId)
+    const workspace = collapseSpawnedAgentOnCreate(
+      workspaceWithNode(current.workspace, node, spaceId),
+      node,
+      options.lineage,
+    )
     options.runtime.assertActive?.()
     const nextState = replaceNodeControlWorkspace(state, workspace)
     const result = options.lineage
