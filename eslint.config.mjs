@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import globals from 'globals'
 
 export default tseslint.config(
-  { ignores: ['out/**', 'release/**', 'node_modules/**'] },
+  { ignores: ['out/**', 'release/**', 'node_modules/**', '.claude/**'] },
   js.configs.recommended,
   {
     files: ['scripts/**/*.{js,mjs}', '*.config.{js,mjs}'],

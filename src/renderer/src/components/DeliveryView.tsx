@@ -198,7 +198,7 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
   }
 
   return (
-    <div className="box box-warn" data-testid="question" onKeyDown={onKeyDown}>
+    <div className="box box-warn question-card" data-testid="question" onKeyDown={onKeyDown}>
       <h4>Pergunta para você</h4>
       {question.items.map((item) => (
         <div key={item.id} className="q-item">

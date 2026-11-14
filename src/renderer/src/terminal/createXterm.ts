@@ -19,22 +19,22 @@ export interface XtermHandle {
 export function createXterm(container: HTMLElement): XtermHandle {
   const term = new Terminal({
     cursorBlink: true,
-    fontFamily: '"IBM Plex Mono", ui-monospace, Menlo, monospace',
+    fontFamily: '"Geist Mono Variable", ui-monospace, Menlo, monospace',
     fontSize: 13,
     lineHeight: 1.25,
     scrollback: 10_000,
     allowProposedApi: false,
     theme: {
-      background: '#0b0e0d',
-      foreground: '#d4ddd8',
-      cursor: '#4cc79a',
-      selectionBackground: '#2b4a3d',
-      black: '#111513',
-      green: '#4cc79a',
-      yellow: '#e8a94a',
-      red: '#f08a80',
-      blue: '#7fb2f0',
-      magenta: '#a99cf5',
+      background: '#0a0d14',
+      foreground: '#c9d1dd',
+      cursor: '#5ab9fc',
+      selectionBackground: '#264a6b',
+      black: '#131824',
+      green: '#4ade80',
+      yellow: '#f2b84b',
+      red: '#f87171',
+      blue: '#5ab9fc',
+      magenta: '#a78bfa',
     },
   })
   const fitAddon = new FitAddon()
