@@ -60,7 +60,7 @@ import {
   type UserQuestion,
   type UserQuestionStatus,
 } from '@shared/domain'
-import type { ActivityPage, SubtaskDetail } from '@shared/ipc'
+import type { ActivityPage, ProjectSummary, SubtaskDetail } from '@shared/ipc'
 import type {
   Clock,
   CreateSubtaskRecord,
@@ -222,6 +222,14 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
 
   listProjects(): Project[] {
     return this.store.listProjects()
+  }
+
+  summarizeProjects(): ProjectSummary[] {
+    return this.store.listProjects().map((project) => ({
+      projectId: project.id,
+      openTasks: this.store.listTasks(project.id, { includeArchived: false }).length,
+      needsYou: this.store.listOpenQuestions(project.id).length,
+    }))
   }
 
   getProject(id: ProjectId): Project {

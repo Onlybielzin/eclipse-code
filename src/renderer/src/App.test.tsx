@@ -3,7 +3,14 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { AppStore } from './store/appStore'
-import { FakeApi, makeActivity, makeSubtask, mockupData, type FakeData } from './test/fakeApi'
+import {
+  FakeApi,
+  makeActivity,
+  makeSubtask,
+  makeTask,
+  mockupData,
+  type FakeData,
+} from './test/fakeApi'
 
 // jsdom nao tem canvas/WebGL: o xterm vira um <pre> que acumula o que foi escrito.
 const xtermInputs: ((data: string) => void)[] = []
@@ -37,6 +44,13 @@ async function renderApp(data: FakeData = mockupData()) {
   const view = render(<App store={store} />)
   await screen.findByText('feat-orfer-e-up')
   return { store, view }
+}
+
+/** O "Adicionar projeto" fica no rodapé do seletor de projeto do topo. */
+function openAddProject() {
+  fireEvent.click(screen.getByRole('button', { name: /^Projeto: / }))
+  const picker = screen.getByRole('dialog', { name: 'Trocar projeto' })
+  fireEvent.click(within(picker).getByRole('button', { name: '+ Adicionar projeto' }))
 }
 
 function middle() {
@@ -292,10 +306,193 @@ describe('status da tarefa na lista', () => {
   })
 })
 
+/** Três projetos: o da maquete (p1), um com acento na home (p2) e um vazio fora dela (p3). */
+function threeProjects(): FakeData {
+  const d = mockupData()
+  const q1 = d.questions[0]!
+  d.projects.push(
+    {
+      id: 'p2',
+      name: 'Árvore Genealógica',
+      rootPath: '/home/vings/Projetos/arvore',
+      createdAt: 1,
+      updatedAt: 1,
+    },
+    { id: 'p3', name: 'zeta', rootPath: '/data/zeta', createdAt: 1, updatedAt: 1 },
+  )
+  d.tasks.push(
+    makeTask('a1', 'raiz da árvore', { projectId: 'p2' }),
+    makeTask('a2', 'galhos', { projectId: 'p2' }),
+  )
+  d.questions.push(
+    { ...q1, id: 'qa1', taskId: 'a1', subtaskId: null },
+    { ...q1, id: 'qa2', taskId: 'a2', subtaskId: null },
+  )
+  return d
+}
+
+function picker() {
+  return screen.getByRole('dialog', { name: 'Trocar projeto' })
+}
+
+function search() {
+  return within(picker()).getByRole('combobox', { name: 'Buscar projeto' })
+}
+
+function optionIds(): string[] {
+  return within(picker())
+    .queryAllByRole('option')
+    .map((o) => o.getAttribute('data-testid') ?? '')
+}
+
+function highlighted(): string | null {
+  const active = within(picker())
+    .queryAllByRole('option')
+    .find((o) => o.getAttribute('aria-selected') === 'true')
+  return active?.getAttribute('data-testid') ?? null
+}
+
+describe('seletor de projeto do topo', () => {
+  it('abre com a busca focada; Esc fecha e devolve o foco; clique fora fecha', async () => {
+    await renderApp(threeProjects())
+    const button = screen.getByRole('button', { name: 'Projeto: ereemby' })
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(button)
+    expect(document.activeElement).toBe(search())
+    expect(button.getAttribute('aria-expanded')).toBe('true')
+    expect(optionIds()).toEqual(['project-option-p1', 'project-option-p2', 'project-option-p3'])
+
+    fireEvent.keyDown(search(), { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+    expect(document.activeElement).toBe(button)
+
+    fireEvent.click(button)
+    expect(picker()).toBeTruthy()
+    fireEvent.mouseDown(document.body)
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+  })
+
+  it('mostra caminho com ~, check no atual, tarefas abertas e o badge "precisa de você"', async () => {
+    await renderApp(threeProjects())
+    fireEvent.click(screen.getByRole('button', { name: 'Projeto: ereemby' }))
+    await within(picker()).findByTestId('project-open-p1')
+    expect(api.callsTo('projects.summary')).toHaveLength(1)
+
+    const p1 = within(picker()).getByTestId('project-option-p1')
+    expect(p1.getAttribute('aria-current')).toBe('true')
+    expect(p1.querySelector('.proj-check svg')).not.toBeNull()
+    expect(within(p1).getByText('/repo/ereemby')).toBeTruthy()
+    // t1 e solo1 abertas; old1 arquivada fica fora.
+    expect(within(picker()).getByTestId('project-open-p1').textContent).toBe('2')
+    expect(within(picker()).getByTestId('project-need-p1').textContent).toBe('1 precisa de você')
+
+    const p2 = within(picker()).getByTestId('project-option-p2')
+    expect(p2.getAttribute('aria-current')).toBeNull()
+    expect(within(p2).getByText('~/Projetos/arvore')).toBeTruthy()
+    expect(within(picker()).getByTestId('project-need-p2').textContent).toBe('2 precisam de você')
+
+    expect(within(picker()).getByTestId('project-open-p3').textContent).toBe('0')
+    expect(within(picker()).queryByTestId('project-need-p3')).toBeNull()
+  })
+
+  it('busca por nome e caminho sem diferenciar maiúsculas e acentos', async () => {
+    await renderApp(threeProjects())
+    fireEvent.click(screen.getByRole('button', { name: 'Projeto: ereemby' }))
+
+    fireEvent.change(search(), { target: { value: 'ARVORE genealogica' } })
+    expect(optionIds()).toEqual(['project-option-p2'])
+    expect(highlighted()).toBe('project-option-p2')
+
+    fireEvent.change(search(), { target: { value: 'data/ZE' } })
+    expect(optionIds()).toEqual(['project-option-p3'])
+
+    fireEvent.change(search(), { target: { value: 'nada disso' } })
+    expect(optionIds()).toEqual([])
+    expect(within(picker()).getByText('Nenhum projeto encontrado.')).toBeTruthy()
+  })
+
+  it('↑/↓ movem o destaque a partir do atual e Enter abre o projeto', async () => {
+    const { store } = await renderApp(threeProjects())
+    const button = screen.getByRole('button', { name: 'Projeto: ereemby' })
+    fireEvent.click(button)
+    expect(highlighted()).toBe('project-option-p1')
+
+    fireEvent.keyDown(search(), { key: 'ArrowDown' })
+    expect(highlighted()).toBe('project-option-p2')
+    expect(search().getAttribute('aria-activedescendant')).toBe(
+      within(picker()).getByTestId('project-option-p2').id,
+    )
+    fireEvent.keyDown(search(), { key: 'ArrowUp' })
+    fireEvent.keyDown(search(), { key: 'ArrowUp' })
+    expect(highlighted()).toBe('project-option-p3')
+    fireEvent.keyDown(search(), { key: 'ArrowDown' })
+    fireEvent.keyDown(search(), { key: 'ArrowDown' })
+    expect(highlighted()).toBe('project-option-p2')
+
+    fireEvent.keyDown(search(), { key: 'Enter' })
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+    await screen.findByText('raiz da árvore')
+    expect(store.getState().projectId).toBe('p2')
+    expect(api.callsTo('tasks.list')).toContainEqual({ projectId: 'p2', includeArchived: true })
+    expect(screen.queryByText('feat-orfer-e-up')).toBeNull()
+    const renamed = screen.getByRole('button', { name: 'Projeto: Árvore Genealógica' })
+    expect(document.activeElement).toBe(renamed)
+  })
+
+  it('hover destaca e clique abre o projeto', async () => {
+    const { store } = await renderApp(threeProjects())
+    fireEvent.click(screen.getByRole('button', { name: 'Projeto: ereemby' }))
+    const p3 = within(picker()).getByTestId('project-option-p3')
+    fireEvent.mouseMove(p3)
+    expect(highlighted()).toBe('project-option-p3')
+    fireEvent.click(p3)
+    await waitFor(() => expect(store.getState().projectId).toBe('p3'))
+    expect(screen.getByRole('button', { name: 'Projeto: zeta' })).toBeTruthy()
+  })
+
+  it('"+ Adicionar projeto" fecha o seletor e abre o modal', async () => {
+    await renderApp(threeProjects())
+    expect(screen.queryByRole('button', { name: '+ projeto' })).toBeNull()
+    openAddProject()
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+    expect(screen.getByRole('dialog', { name: 'Adicionar projeto' })).toBeTruthy()
+  })
+
+  it('Ctrl+O abre o seletor; no terminal do Líder e com modal aberto não abre', async () => {
+    await renderApp(threeProjects())
+    const term = await within(middle()).findByTestId('xterm')
+    fireEvent.keyDown(term, { key: 'o', ctrlKey: true })
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+
+    fireEvent.keyDown(document.body, { key: 'o', ctrlKey: true })
+    expect(document.activeElement).toBe(search())
+    fireEvent.keyDown(search(), { key: 'Escape' })
+
+    openAddProject()
+    fireEvent.keyDown(document.body, { key: 'o', ctrlKey: true })
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+  })
+
+  it('sem projetos mostra o estado vazio com o botão de adicionar', async () => {
+    const data = mockupData()
+    data.projects = []
+    api = new FakeApi(data)
+    render(<App store={new AppStore(api)} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Escolher projeto' }))
+    expect(within(picker()).getByText('Nenhum projeto ainda')).toBeTruthy()
+    expect(within(picker()).queryByRole('combobox')).toBeNull()
+    const add = within(picker()).getByRole('button', { name: '+ Adicionar projeto' })
+    expect(document.activeElement).toBe(add)
+    fireEvent.click(add)
+    expect(screen.getByRole('dialog', { name: 'Adicionar projeto' })).toBeTruthy()
+  })
+})
+
 describe('modal Adicionar projeto', () => {
   it('abre o explorador, mostra a pasta e adiciona com o nome editado', async () => {
     await renderApp()
-    fireEvent.click(screen.getByRole('button', { name: '+ projeto' }))
+    openAddProject()
     const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
     const submit = within(dialog).getByRole('button', { name: 'Adicionar projeto' })
     expect((submit as HTMLButtonElement).disabled).toBe(true)
@@ -323,7 +520,7 @@ describe('modal Adicionar projeto', () => {
 
   it('cancelar o explorador não muda nada; pasta repetida bloqueia; Esc fecha', async () => {
     await renderApp()
-    fireEvent.click(screen.getByRole('button', { name: '+ projeto' }))
+    openAddProject()
     const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
 
     api.nextPickedFolder = null
@@ -691,6 +888,14 @@ describe('filtros da lista de tarefas', () => {
   it('filtros ficam salvos por projeto', async () => {
     const data = mockupData()
     data.projects.push({ ...data.projects[0]!, id: 'p2', name: 'outro' })
+    data.tasks.push(
+      makeTask('old2', 'outro antigo', {
+        projectId: 'p2',
+        status: 'archived',
+        workflowStatus: 'lancado',
+        archivedAt: 1,
+      }),
+    )
     const { store, view } = await renderApp(data)
     fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
     fireEvent.keyDown(document, { key: 'Escape' })

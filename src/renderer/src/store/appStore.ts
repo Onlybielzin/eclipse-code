@@ -27,6 +27,7 @@ import type {
   IpcCommandOutput,
   IpcCommandRequest,
   PickedFolder,
+  ProjectsSummary,
   SubtaskDetail,
 } from '@shared/ipc'
 import { upsertById } from './format'
@@ -221,6 +222,11 @@ export class AppStore {
   /** Abre o explorador de pastas do sistema. Cancelar devolve null. */
   async pickProjectFolder(): Promise<PickedFolder | null> {
     return (await this.guard(() => this.call('projects.pickFolder', {}))) ?? null
+  }
+
+  /** Contadores de cada projeto para o seletor do topo. Erro vai para a faixa e devolve null. */
+  async loadProjectsSummary(): Promise<ProjectsSummary | null> {
+    return (await this.guard(() => this.call('projects.summary', {}))) ?? null
   }
 
   async addProject(rootPath: string, name?: string): Promise<void> {

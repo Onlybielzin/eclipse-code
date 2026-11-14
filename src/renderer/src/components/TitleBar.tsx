@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react'
 import { AddProjectModal } from './AddProjectModal'
+import { ProjectPicker } from './ProjectPicker'
 import { openQuestions } from '../store/format'
 import { useAppState, useStore } from '../store/context'
 
-/** Topo: projeto aberto e o contador "precisa de você". */
+/** Topo: seletor de projeto (Ctrl+O) e o contador "precisa de você". */
 export function TitleBar() {
   const store = useStore()
-  const projects = useAppState((s) => s.projects)
-  const projectId = useAppState((s) => s.projectId)
   const questions = useAppState((s) => s.questions)
   const tasks = useAppState((s) => s.tasks)
   const open = useMemo(() => openQuestions(questions), [questions])
@@ -23,23 +22,7 @@ export function TitleBar() {
   return (
     <header className="titlebar">
       <b>Eclipse Code</b>
-      {projects.length > 0 && (
-        <select
-          className="proj"
-          aria-label="Projeto"
-          value={projectId ?? ''}
-          onChange={(e) => void store.openProject(e.target.value || null)}
-        >
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-      )}
-      <button type="button" className="linkish" onClick={() => setAdding(true)}>
-        + projeto
-      </button>
+      <ProjectPicker onAddProject={() => setAdding(true)} />
       {adding && <AddProjectModal onClose={() => setAdding(false)} />}
       <button
         type="button"

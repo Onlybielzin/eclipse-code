@@ -74,6 +74,22 @@ export interface PickedFolder {
   alreadyAdded: boolean
 }
 
+/** Contadores de um projeto para o seletor do topo. */
+export interface ProjectSummary {
+  projectId: string
+  /** Tarefas nao arquivadas. */
+  openTasks: number
+  /** Perguntas abertas ("precisa de voce"). */
+  needsYou: number
+}
+
+/** Resposta de projects.summary: contadores de cada projeto e a home do usuario. */
+export interface ProjectsSummary {
+  /** Pasta home do usuario no main, para a tela encurtar caminhos com ~. */
+  homeDir: string
+  projects: ProjectSummary[]
+}
+
 export interface AppInfo {
   version: string
   appId: string
@@ -130,6 +146,8 @@ export const ipcCommands = {
     z.object({ rootPath: absolutePathSchema, name: titleSchema.optional() }).strict(),
   ),
   'projects.remove': command<void>()(z.object({ projectId: idSchema }).strict()),
+  /** Tarefas abertas e perguntas abertas de cada projeto (seletor de projeto do topo). */
+  'projects.summary': command<ProjectsSummary>()(emptyInput),
 
   'roles.list': command<Role[]>()(z.object({ projectId: idSchema }).strict()),
   /** Cria (sem roleId) ou atualiza (com roleId) um papel. */

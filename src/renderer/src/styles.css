@@ -100,17 +100,171 @@ code {
 .titlebar b {
   font-weight: 800;
 }
-.proj {
-  font-family: var(--f-mono);
-  font-size: 12px;
-  color: var(--fg);
+/* Seletor de projeto (quick pick no estilo Linear / VS Code). */
+.proj-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 280px;
+  padding: 3px 8px 3px 10px;
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 6px;
-  padding: 2px 8px;
+  color: var(--muted);
+  cursor: pointer;
 }
-.proj option {
+.proj-btn:hover,
+.proj-btn.open {
+  background: var(--code-bg);
+  color: var(--fg);
+}
+.proj-btn.open {
+  border-color: var(--accent);
+}
+.proj-btn-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--fg);
+}
+.proj-btn-name.none {
+  font-weight: 400;
+  color: var(--muted);
+}
+.proj-pop {
+  position: fixed;
+  z-index: 60;
+  width: 420px;
+  max-width: calc(100vw - 16px);
   background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 50%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 13px;
+  color: var(--fg);
+}
+.proj-search {
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+}
+.proj-search::placeholder {
+  color: var(--muted);
+}
+.proj-search:focus,
+.proj-search:focus-visible {
+  outline: none;
+}
+.proj-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: min(360px, 60vh);
+  overflow-y: auto;
+}
+.proj-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.proj-item.active {
+  background: #223029;
+}
+.proj-check {
+  flex: none;
+  width: 14px;
+  display: inline-flex;
+  color: var(--accent);
+}
+.proj-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.proj-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.proj-path {
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.proj-meta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.proj-need {
+  font-size: 11px;
+  color: var(--st-pink);
+  background: #3a1a2c;
+  border-radius: 99px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.proj-count {
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 0 6px;
+}
+.proj-none {
+  margin: 0;
+  padding: 10px 14px;
+  color: var(--muted);
+}
+.proj-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 14px 12px;
+}
+.proj-empty span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.proj-foot {
+  border-top: 1px solid var(--line);
+  padding: 4px;
+}
+.proj-add {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.proj-add:hover,
+.proj-add:focus-visible {
+  background: var(--accent-soft);
 }
 .need {
   margin-left: auto;

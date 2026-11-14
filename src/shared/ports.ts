@@ -55,7 +55,7 @@ import type {
   TurnResult,
   UserQuestion,
 } from './domain'
-import type { ActivityPage, SubtaskDetail } from './ipc'
+import type { ActivityPage, ProjectSummary, SubtaskDetail } from './ipc'
 import type { McpCaller, McpCallerRole, McpHelloResult, McpToolName, McpToolResult } from './mcp'
 
 export type Unsubscribe = () => void
@@ -235,6 +235,11 @@ export interface TaskService {
   getProject(id: ProjectId): Project
   addProject(input: { rootPath: string; name?: string | undefined }): Project
   removeProject(id: ProjectId): void
+  /**
+   * Contadores de cada projeto, na ordem de listProjects: tarefas nao arquivadas e
+   * perguntas abertas (mesma regra de listOpenQuestions).
+   */
+  summarizeProjects(): ProjectSummary[]
 
   listRoles(projectId: ProjectId): Role[]
   getRole(id: RoleId): Role

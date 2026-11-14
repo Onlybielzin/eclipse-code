@@ -142,6 +142,9 @@ export class FakeApi implements EclipseApi {
   /** Resposta do explorador de pastas no proximo projects.pickFolder (null = cancelou). */
   nextPickedFolder: PickedFolder | null = null
 
+  /** Home devolvida em projects.summary. */
+  homeDir = '/home/vings'
+
   constructor(readonly data: FakeData) {}
 
   invoke: EclipseApi['invoke'] = async (channel, input) => {
@@ -194,12 +197,29 @@ export class FakeApi implements EclipseApi {
         d.projects.push(project)
         return project
       }
+      case 'projects.summary':
+        return {
+          homeDir: this.homeDir,
+          projects: d.projects.map((p) => {
+            const taskIds = new Set(d.tasks.filter((t) => t.projectId === p.id).map((t) => t.id))
+            return {
+              projectId: p.id,
+              openTasks: d.tasks.filter((t) => t.projectId === p.id && t.status === 'open').length,
+              needsYou: d.questions.filter((q) => q.status === 'open' && taskIds.has(q.taskId))
+                .length,
+            }
+          }),
+        }
       case 'roles.list':
         return d.roles
       case 'tasks.list':
-        return d.tasks
-      case 'questions.list':
-        return d.questions.filter((q) => q.status === 'open')
+        return d.tasks.filter((t) => t.projectId === input.projectId)
+      case 'questions.list': {
+        const taskIds = new Set(
+          d.tasks.filter((t) => t.projectId === input.projectId).map((t) => t.id),
+        )
+        return d.questions.filter((q) => q.status === 'open' && taskIds.has(q.taskId))
+      }
       case 'subtasks.list':
         return d.subtasks.filter((s) => s.taskId === input.taskId)
       case 'subtasks.detail': {

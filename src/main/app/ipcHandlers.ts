@@ -3,17 +3,26 @@
  * (schemas de @shared/ipc). Leitura vai ao TaskService; o que abre ou fecha agente vai
  * ao TeamCoordinator.
  */
+import { homedir } from 'node:os'
 import type { IpcCommandHandlers } from '@shared/ipc'
 import type { AppServices } from './services'
 
+export interface IpcHandlerOptions {
+  /** Home do usuario devolvida em projects.summary. Padrao: os.homedir(). */
+  homeDir?: string
+}
+
 export function createIpcHandlers(
   services: Pick<AppServices, 'tasks' | 'coordinator'>,
+  options: IpcHandlerOptions = {},
 ): Omit<IpcCommandHandlers, 'app.info' | 'projects.pickFolder'> {
   const { tasks, coordinator } = services
+  const homeDir = options.homeDir ?? homedir()
   return {
     'projects.list': async () => tasks.listProjects(),
     'projects.add': async (input) => tasks.addProject(input),
     'projects.remove': async (input) => tasks.removeProject(input.projectId),
+    'projects.summary': async () => ({ homeDir, projects: tasks.summarizeProjects() }),
 
     'roles.list': async (input) => tasks.listRoles(input.projectId),
     'roles.save': async (input) => tasks.saveRole(input),
