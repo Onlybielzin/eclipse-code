@@ -1248,3 +1248,44 @@ describe('design C: topo, lista e subtarefas', () => {
     expect(screen.getByTestId('task-t1')).toBeTruthy()
   })
 })
+
+describe('Atualização e novidades', () => {
+  it('mostra o botão quando a versão está pronta e instala só depois de confirmar', async () => {
+    const data = mockupData()
+    api = new FakeApi(data)
+    api.updateState = { status: 'ready', version: '0.2.0' }
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
+    render(<App store={new AppStore(api)} />)
+    const button = await screen.findByRole('button', {
+      name: 'Versão 0.2.0 pronta · Fechar e instalar',
+    })
+    fireEvent.click(button)
+    expect(confirm).toHaveBeenCalledWith(
+      'Fechar o app instala a versão 0.2.0 e para os agentes em andamento. Abra o app de novo depois. Continuar?',
+    )
+    expect(api.callsTo('update.install')).toEqual([])
+    fireEvent.click(button)
+    await waitFor(() => expect(api.callsTo('update.install')).toEqual([{}]))
+    confirm.mockRestore()
+  })
+
+  it('o evento update.state faz o botão aparecer', async () => {
+    await renderApp()
+    expect(screen.queryByTestId('update-ready')).toBeNull()
+    act(() => api.emit('update.state', { status: 'downloading', version: '0.2.0' }))
+    expect(screen.getByText('Baixando atualização')).toBeTruthy()
+    act(() => api.emit('update.state', { status: 'ready', version: '0.2.0' }))
+    expect(screen.getByTestId('update-ready')).toBeTruthy()
+  })
+
+  it('abre as Novidades na partida e "Entendi" grava como vista', async () => {
+    api = new FakeApi(mockupData())
+    api.whatsNew = { version: '0.2.0', notes: '- Auto-update\n- Janela de novidades' }
+    render(<App store={new AppStore(api)} />)
+    const dialog = await screen.findByRole('dialog', { name: 'Novidades da versão 0.2.0' })
+    expect(within(dialog).getByText('• Auto-update')).toBeTruthy()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Entendi' }))
+    await waitFor(() => expect(api.callsTo('app.whatsNewSeen')).toEqual([{}]))
+    expect(screen.queryByRole('dialog', { name: /Novidades/ })).toBeNull()
+  })
+})

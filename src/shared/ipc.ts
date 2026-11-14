@@ -114,6 +114,18 @@ export interface AppInfo {
   electron: string
 }
 
+/** Estado do auto-update. 'ready' = baixada; instala ao fechar ou em update.install. */
+export interface UpdateState {
+  status: 'idle' | 'downloading' | 'ready'
+  version: string | null
+}
+
+/** Notas da versao atual (seção do CHANGELOG.md), mostradas uma vez por versão. */
+export interface WhatsNew {
+  version: string
+  notes: string
+}
+
 /** Tudo que a tela de entrega precisa de uma subtarefa. */
 export interface SubtaskDetail {
   subtask: Subtask
@@ -155,6 +167,12 @@ const roleFields = {
 
 export const ipcCommands = {
   'app.info': command<AppInfo>()(emptyInput),
+  /** Notas da versão atual se ainda não vistas; senão null. */
+  'app.whatsNew': command<WhatsNew | null>()(emptyInput),
+  'app.whatsNewSeen': command<void>()(emptyInput),
+  'update.state': command<UpdateState>()(emptyInput),
+  /** Fecha o app e instala a versão baixada. Erro se não há versão pronta. */
+  'update.install': command<void>()(emptyInput),
 
   'projects.list': command<Project[]>()(emptyInput),
   'projects.pickFolder': command<PickedFolder | null>()(emptyInput),
@@ -167,14 +185,10 @@ export const ipcCommands = {
 
   /** Limites de agentes (null = sem limite). */
   'settings.get': command<AgentLimitSettings>()(emptyInput),
-  'settings.save': command<AgentLimitSettings>()(
-    agentLimitSettingsSchema,
-  ),
+  'settings.save': command<AgentLimitSettings>()(agentLimitSettingsSchema),
 
   /** Plugin Cerebro. A chave sbk_ nunca volta para a tela: so brain.status (final da chave). */
-  'brain.setKey': command<BrainStatus>()(
-    z.object({ key: brainKeySchema.nullable() }).strict(),
-  ),
+  'brain.setKey': command<BrainStatus>()(z.object({ key: brainKeySchema.nullable() }).strict()),
   'brain.status': command<BrainStatus>()(emptyInput),
   'brain.graph': command<BrainGraph>()(emptyInput),
   'brain.memory': command<MemoryDetail>()(z.object({ id: z.string().min(1).max(500) }).strict()),
@@ -343,6 +357,7 @@ export interface IpcEvents {
   'brain.activity': BrainActivityEvent
   /** Historico enviado ao abrir o SSE. */
   'brain.history': BrainActivityEvent[]
+  'update.state': UpdateState
 }
 
 export type IpcEventChannel = keyof IpcEvents
@@ -358,6 +373,7 @@ export const IPC_EVENT_CHANNELS = [
   'terminal.exit',
   'brain.activity',
   'brain.history',
+  'update.state',
 ] as const satisfies readonly IpcEventChannel[]
 
 // ---------------------------------------------------------------------------

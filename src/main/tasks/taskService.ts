@@ -100,6 +100,7 @@ export const systemClock: Clock = { now: () => Date.now() }
 export const uuidIds: IdFactory = { newId: () => randomUUID() }
 
 const AGENT_LIMITS_KEY = 'agentLimits'
+const LAST_SEEN_VERSION_KEY = 'lastSeenVersion'
 
 export interface TaskServiceDeps {
   store: SqliteTaskStore
@@ -252,6 +253,16 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     }
     console.warn('[eclipse] limites de agentes gravados são inválidos; usando sem limite')
     return none
+  }
+
+  /** Ultima versao cujas "Novidades" o usuario fechou; null na primeira instalacao. */
+  getLastSeenVersion(): string | null {
+    const raw = this.store.getSetting(LAST_SEEN_VERSION_KEY)
+    return raw === null ? null : (JSON.parse(raw) as string)
+  }
+
+  saveLastSeenVersion(version: string): void {
+    this.store.setSetting(LAST_SEEN_VERSION_KEY, JSON.stringify(version))
   }
 
   getAgentLimits(): AgentLimits {

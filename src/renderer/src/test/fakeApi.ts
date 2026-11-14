@@ -21,6 +21,8 @@ import type {
   IpcEvents,
   IpcResult,
   PickedFolder,
+  UpdateState,
+  WhatsNew,
 } from '@shared/ipc'
 
 const T0 = 1_700_000_000_000
@@ -163,6 +165,10 @@ export class FakeApi implements EclipseApi {
     backlinks: [],
   }
 
+  /** Estado devolvido por update.state e notas devolvidas por app.whatsNew (ate app.whatsNewSeen). */
+  updateState: UpdateState = { status: 'idle', version: null }
+  whatsNew: WhatsNew | null = null
+
   /** Home devolvida em projects.summary. */
   homeDir = '/home/vings'
 
@@ -218,6 +224,14 @@ export class FakeApi implements EclipseApi {
         d.projects.push(project)
         return project
       }
+      case 'update.state':
+        return this.updateState
+      case 'update.install':
+      case 'app.whatsNewSeen':
+        if (channel === 'app.whatsNewSeen') this.whatsNew = null
+        return undefined
+      case 'app.whatsNew':
+        return this.whatsNew
       case 'settings.get':
         return this.agentLimits
       case 'settings.save':

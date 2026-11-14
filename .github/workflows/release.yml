@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.6.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Conferir a tag com a versão do package.json
+        run: |
+          pkg="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${pkg}" ]; then
+            echo "::error::A tag ${GITHUB_REF_NAME} não bate com a versão ${pkg} do package.json. Suba a versão e crie a tag v${pkg}."
+            exit 1
+          fi
+
+      - name: Extrair as notas do CHANGELOG.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '/^## /{ if (on) exit; on = ($2 == v); next } on' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::O CHANGELOG.md não tem a seção '## ${version} - AAAA-MM-DD' ou ela está vazia."
+            exit 1
+          fi
+
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+      # Sem pnpm test: os testes rodam dentro do Electron e precisam de display. Rode local antes da tag.
+
+      - run: pnpm exec electron-vite build
+
+      - name: Gerar o AppImage e subir para o release
+        run: pnpm exec electron-builder --linux AppImage --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publicar o release com as notas
+        run: gh release edit "$GITHUB_REF_NAME" --notes-file notes.md --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

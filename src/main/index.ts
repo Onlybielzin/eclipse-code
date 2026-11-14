@@ -1,9 +1,15 @@
 import { app, BrowserWindow, dialog, ipcMain, safeStorage, type OpenDialogOptions } from 'electron'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
 import { APP_ID, APP_PRODUCT_NAME, ENV } from '@shared/app'
-import { IPC_EVENT_CHANNEL, IPC_INVOKE_CHANNEL, type AppInfo, type PickedFolder } from '@shared/ipc'
+import {
+  IPC_EVENT_CHANNEL,
+  IPC_INVOKE_CHANNEL,
+  type AppInfo,
+  type IpcEventMessage,
+  type PickedFolder,
+} from '@shared/ipc'
 import {
   createIpcHandlers,
   createIpcRouter,
@@ -13,6 +19,8 @@ import {
   type AppLogger,
   type AppServices,
 } from './app'
+import { autoUpdater } from 'electron-updater'
+import { createUpdater, createWhatsNew } from './app/updater'
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
 
 // Pasta de dados propria: nunca a do app antigo. Precisa vir antes de 'ready'.
@@ -39,6 +47,7 @@ const log: AppLogger = {
 const windows = new Set<number>()
 /** Solta o que a janela assinou no main (ligado em boot). */
 let releaseWindow: (id: number) => void = () => {}
+let updater: ReturnType<typeof createUpdater> | null = null
 
 function createMainWindow(): BrowserWindow {
   const window = new BrowserWindow({
@@ -94,6 +103,32 @@ async function boot(): Promise<AppServices> {
     log,
   })
   releaseWindow = (id) => services.brain.unsubscribe(id)
+  const emitToWindows = (message: IpcEventMessage) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      if (!window.isDestroyed() && windows.has(window.webContents.id)) {
+        window.webContents.send(IPC_EVENT_CHANNEL, message)
+      }
+    }
+  }
+  updater = createUpdater({
+    autoUpdater,
+    enabled: app.isPackaged && !isTestRun,
+    emit: emitToWindows,
+    log,
+  })
+  updater.start()
+  const whatsNew = createWhatsNew({
+    version: () => app.getVersion(),
+    readChangelog: () => {
+      // Empacotado: extraResources; em dev: o da raiz do repo.
+      const file = app.isPackaged
+        ? join(process.resourcesPath, 'CHANGELOG.md')
+        : join(__dirname, '../../CHANGELOG.md')
+      return existsSync(file) ? readFileSync(file, 'utf8') : null
+    },
+    getSeen: () => services.tasks.getLastSeenVersion(),
+    setSeen: (version) => services.tasks.saveLastSeenVersion(version),
+  })
   const route = createIpcRouter({
     ...createIpcHandlers(services),
     'projects.pickFolder': async (): Promise<PickedFolder | null> => {
@@ -117,6 +152,10 @@ async function boot(): Promise<AppServices> {
         alreadyAdded: services.tasks.listProjects().some((p) => p.rootPath === root),
       }
     },
+    'app.whatsNew': async () => whatsNew.get(),
+    'app.whatsNewSeen': async () => whatsNew.markSeen(),
+    'update.state': async () => updater?.state() ?? { status: 'idle', version: null },
+    'update.install': async () => updater?.install(),
     'app.info': async (): Promise<AppInfo> => ({
       version: app.getVersion(),
       appId: APP_ID,
@@ -131,13 +170,7 @@ async function boot(): Promise<AppServices> {
     }
     return route(raw, { senderId: event.sender.id })
   })
-  services.onUiEvent((message) => {
-    for (const window of BrowserWindow.getAllWindows()) {
-      if (!window.isDestroyed() && windows.has(window.webContents.id)) {
-        window.webContents.send(IPC_EVENT_CHANNEL, message)
-      }
-    }
-  })
+  services.onUiEvent(emitToWindows)
   return services
 }
 
@@ -246,6 +279,7 @@ if (!app.requestSingleInstanceLock()) {
     if (quitting || !services) return
     event.preventDefault()
     quitting = true
+    updater?.dispose()
     const current = services
     services = null
     void current

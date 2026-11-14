@@ -31,6 +31,8 @@ import type {
   PickedFolder,
   ProjectsSummary,
   SubtaskDetail,
+  UpdateState,
+  WhatsNew,
 } from '@shared/ipc'
 import { upsertById } from './format'
 import { isMotion, isStyle, type Motion, type Style } from '../brain/looks'
@@ -81,6 +83,9 @@ export interface AppState {
   /** Cerebro grande aberto no painel do meio (so um motor WebGL por vez). */
   brainOpen: boolean
   settingsOpen: boolean
+  update: UpdateState
+  /** Notas da versao atual ainda nao vistas; a janela abre enquanto houver. */
+  whatsNew: WhatsNew | null
   brainLook: BrainLook
   expanded: Record<string, boolean>
   details: Record<string, SubtaskDetail>
@@ -102,6 +107,8 @@ export const initialState: AppState = {
   midTab: 'leader',
   brainOpen: false,
   settingsOpen: false,
+  update: { status: 'idle', version: null },
+  whatsNew: null,
   brainLook: defaultBrainLook,
   expanded: {},
   details: {},
@@ -150,6 +157,7 @@ export class AppStore {
   private state: AppState = initialState
   private readonly listeners = new Set<() => void>()
   private unsubscribe: (() => void) | null = null
+  private unsubscribeUpdate: (() => void) | null = null
 
   constructor(readonly api: EclipseApi) {
     this.state = { ...initialState, brainLook: readBrainLook() }
@@ -201,6 +209,13 @@ export class AppStore {
     if (this.unsubscribe === null) {
       this.unsubscribe = this.api.on('domain.event', (envelope) => this.applyEnvelope(envelope))
     }
+    if (this.unsubscribeUpdate === null) {
+      this.unsubscribeUpdate = this.api.on('update.state', (update) => this.set({ update }))
+    }
+    // Aviso de versao nao pode travar a partida: falha aqui so some em silencio.
+    void Promise.all([this.call('update.state', {}), this.call('app.whatsNew', {})])
+      .then(([update, whatsNew]) => this.set({ update, whatsNew }))
+      .catch(() => undefined)
     await this.guard(async () => {
       const projects = await this.call('projects.list', {})
       const saved = readSavedProject()
@@ -214,6 +229,19 @@ export class AppStore {
   stop(): void {
     this.unsubscribe?.()
     this.unsubscribe = null
+    this.unsubscribeUpdate?.()
+    this.unsubscribeUpdate = null
+  }
+
+  /** Fecha o app e instala a versao baixada (quem confirma com o usuario e a tela). */
+  async installUpdate(): Promise<void> {
+    await this.guard(() => this.call('update.install', {}))
+  }
+
+  /** "Entendi": fecha a janela e grava a versao como vista. */
+  async dismissWhatsNew(): Promise<void> {
+    this.set({ whatsNew: null })
+    await this.guard(() => this.call('app.whatsNewSeen', {}))
   }
 
   async openProject(projectId: string | null): Promise<void> {

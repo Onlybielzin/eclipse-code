@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AddProjectModal } from './AddProjectModal'
 import { SettingsModal } from './SettingsModal'
+import { WhatsNewModal } from './WhatsNewModal'
 import { ProjectPicker } from './ProjectPicker'
 import { openQuestions } from '../store/format'
 import { useAppState, useStore } from '../store/context'
@@ -13,12 +14,21 @@ export function TitleBar() {
   const open = useMemo(() => openQuestions(questions), [questions])
   const [adding, setAdding] = useState(false)
   const settingsOpen = useAppState((s) => s.settingsOpen)
+  const update = useAppState((s) => s.update)
+  const whatsNew = useAppState((s) => s.whatsNew)
 
   const goToQuestion = () => {
     const q = open[0]
     if (!q) return
     if (q.subtaskId) void store.selectSubtask(q.subtaskId)
     else if (tasks.some((t) => t.id === q.taskId)) store.selectTask(q.taskId)
+  }
+
+  const restart = () => {
+    const message = `Fechar o app instala a versão ${update.version} e para os agentes em andamento. Abra o app de novo depois. Continuar?`
+    if (window.confirm(message)) {
+      void store.installUpdate()
+    }
   }
 
   return (
@@ -29,6 +39,12 @@ export function TitleBar() {
       </b>
       <ProjectPicker onAddProject={() => setAdding(true)} />
       {adding && <AddProjectModal onClose={() => setAdding(false)} />}
+      {update.status === 'downloading' && <small className="muted">Baixando atualização</small>}
+      {update.status === 'ready' && (
+        <button type="button" className="ghost" data-testid="update-ready" onClick={restart}>
+          Versão {update.version} pronta · Fechar e instalar
+        </button>
+      )}
       <button
         type="button"
         className={`need ${open.length === 0 ? 'none' : ''}`}
@@ -59,6 +75,7 @@ export function TitleBar() {
           />
         </svg>
       </button>
+      {whatsNew && <WhatsNewModal whatsNew={whatsNew} />}
       {settingsOpen && <SettingsModal onClose={() => store.setSettingsOpen(false)} />}
     </header>
   )

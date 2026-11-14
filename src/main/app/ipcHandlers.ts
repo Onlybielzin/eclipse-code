@@ -15,7 +15,15 @@ export interface IpcHandlerOptions {
 export function createIpcHandlers(
   services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain'>,
   options: IpcHandlerOptions = {},
-): Omit<IpcCommandHandlers, 'app.info' | 'projects.pickFolder'> {
+): Omit<
+  IpcCommandHandlers,
+  | 'app.info'
+  | 'app.whatsNew'
+  | 'app.whatsNewSeen'
+  | 'projects.pickFolder'
+  | 'update.state'
+  | 'update.install'
+> {
   const { tasks, coordinator, brain } = services
   const homeDir = options.homeDir ?? homedir()
   return {

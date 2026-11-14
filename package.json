@@ -9,7 +9,7 @@
   "author": {
     "name": "vings"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "packageManager": "pnpm@9.6.0",
   "engines": {
     "node": ">=22.12.0",
@@ -63,11 +63,21 @@
       "syncDesktopName": true,
       "icon": "build/icon.png"
     },
-    "publish": null,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Onlybielzin",
+        "repo": "eclipse-code"
+      }
+    ],
     "extraResources": [
       {
         "from": "resources/icon.png",
         "to": "icon.png"
+      },
+      {
+        "from": "CHANGELOG.md",
+        "to": "CHANGELOG.md"
       }
     ]
   },
@@ -90,6 +100,7 @@
     "@xterm/addon-webgl": "0.19.0",
     "@xterm/xterm": "6.0.0",
     "better-sqlite3": "^12.11.1",
+    "electron-updater": "^6.8.11",
     "node-pty": "^1.1.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -118,5 +129,6 @@
     "typescript-eslint": "^8",
     "vite": "^6.0.3",
     "vitest": "^4.1.0"
-  }
+  },
+  "repository": "github:Onlybielzin/eclipse-code"
 }
