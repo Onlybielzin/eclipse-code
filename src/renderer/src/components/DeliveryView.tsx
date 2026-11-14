@@ -155,11 +155,11 @@ export function DeliveryView({
 
 export function QuestionBox({ question }: { question: UserQuestion }) {
   const store = useStore()
-  const [picked, setPicked] = useState<Record<string, string[]>>({})
+  // A opcao sugerida pelo Lider ja vem marcada: confirmar e so Responder (ou Ctrl+Enter).
+  const [picked, setPicked] = useState<Record<string, string[]>>(() => suggestedPicks(question))
   const [texts, setTexts] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
 
-  const single = question.items.length === 1 && !question.items[0]?.multiSelect
   const submit = async (override?: Record<string, string[]>) => {
     const choice = override ?? picked
     setBusy(true)
@@ -175,10 +175,6 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
   }
 
   const toggle = (item: QuestionItem, optionId: string) => {
-    if (single) {
-      void submit({ [item.id]: [optionId] })
-      return
-    }
     setPicked((p) => {
       const cur = p[item.id] ?? []
       const next = item.multiSelect
@@ -221,6 +217,13 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
               </button>
             ))}
           </div>
+          {item.options
+            .filter((o) => (picked[item.id] ?? []).includes(o.id) && o.description)
+            .map((o) => (
+              <p key={o.id} className="q-desc">
+                {o.description}
+              </p>
+            ))}
           {(item.allowFreeText || item.options.length === 0) && (
             <input
               className="field"
@@ -232,17 +235,15 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
         </div>
       ))}
       <div className="answer">
-        {(!single || question.items.some((i) => i.allowFreeText || i.options.length === 0)) && (
-          <button
-            type="button"
-            className="primary"
-            disabled={busy || !hasAnswer}
-            title="Ctrl+Enter"
-            onClick={() => void submit()}
-          >
-            Responder <kbd>Ctrl+Enter</kbd>
-          </button>
-        )}
+        <button
+          type="button"
+          className="primary"
+          disabled={busy || !hasAnswer}
+          title="Ctrl+Enter"
+          onClick={() => void submit()}
+        >
+          Responder <kbd>Ctrl+Enter</kbd>
+        </button>
         <button
           type="button"
           className="ghost"
@@ -254,4 +255,18 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
       </div>
     </div>
   )
+}
+
+/** Opcao sugerida: o rotulo diz "recomendado/recomendada/sugerido/sugerida". */
+export function isSuggestedOption(label: string): boolean {
+  return /recomendad|sugerid/i.test(label)
+}
+
+function suggestedPicks(question: UserQuestion): Record<string, string[]> {
+  const picks: Record<string, string[]> = {}
+  for (const item of question.items) {
+    const suggested = item.options.filter((o) => isSuggestedOption(o.label)).map((o) => o.id)
+    if (suggested.length > 0) picks[item.id] = item.multiSelect ? suggested : [suggested[0]!]
+  }
+  return picks
 }

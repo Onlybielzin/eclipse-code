@@ -169,11 +169,15 @@ describe('tela de 3 colunas', () => {
     expect(within(middle()).getByTestId('delivery').textContent).toContain('sem resposta')
   })
 
-  it('responde a dúvida repassada pelo Líder com um clique', async () => {
+  it('responde a dúvida repassada pelo Líder: marca a opção e confirma', async () => {
     await renderApp()
     fireEvent.click(screen.getByTestId('need-you'))
     const question = await within(middle()).findByTestId('question')
-    fireEvent.click(within(question).getByText('Sem origem'))
+    const option = within(question).getByText('Sem origem')
+    fireEvent.click(option)
+    expect(option.getAttribute('aria-pressed')).toBe('true')
+    expect(api.callsTo('questions.answer')).toHaveLength(0)
+    fireEvent.click(within(question).getByRole('button', { name: /Responder/ }))
     await waitFor(() =>
       expect(api.callsTo('questions.answer')).toEqual([
         { questionId: 'q1', answers: [{ itemId: 'i1', optionIds: ['o2'], text: null }] },
@@ -1002,6 +1006,44 @@ describe('trocar o status da tarefa', () => {
     await waitFor(() =>
       expect(api.callsTo('tasks.setStatus')).toEqual([
         expect.objectContaining({ taskId: 't1', status: 'pronto_lancar' }),
+      ]),
+    )
+  })
+})
+
+describe('opção sugerida', () => {
+  it('vem marcada e Ctrl+Enter confirma', async () => {
+    api = new FakeApi(mockupData())
+    const base = api.data.questions[0]!
+    api.data.questions = [
+      {
+        ...base,
+        id: 'q-sug',
+        subtaskId: null,
+        items: [
+          {
+            ...base.items[0]!,
+            options: [
+              { id: 'a', label: 'A + B (Recomendado)', description: 'Todo aviso com ação.' },
+              { id: 'b', label: 'Só A' },
+            ],
+          },
+        ],
+      },
+    ]
+    const store = new AppStore(api)
+    render(<App store={store} />)
+    await screen.findByText('feat-orfer-e-up')
+    fireEvent.click(screen.getByTestId('need-you'))
+    const card = await screen.findByTestId('leader-question')
+    expect(within(card).getByText('A + B (Recomendado)').getAttribute('aria-pressed')).toBe('true')
+    expect(within(card).getByText('Todo aviso com ação.')).toBeTruthy()
+    fireEvent.keyDown(within(card).getByText('Só A'), { key: 'Enter', ctrlKey: true })
+    await waitFor(() =>
+      expect(api.callsTo('questions.answer')).toEqual([
+        expect.objectContaining({
+          answers: [expect.objectContaining({ itemId: base.items[0]!.id, optionIds: ['a'] })],
+        }),
       ]),
     )
   })
