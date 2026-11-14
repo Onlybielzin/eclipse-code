@@ -24,6 +24,7 @@ import type {
   Turn,
   UserQuestion,
 } from './domain'
+import type { AgentLimitSettings } from './ports'
 import {
   absolutePathSchema,
   idSchema,
@@ -58,6 +59,14 @@ function command<TOutput>() {
 }
 
 const emptyInput = z.object({}).strict()
+
+/** Limite de agentes: inteiro de 1 a 100, ou null para sem limite. */
+const agentLimitSchema = z.number().int().min(1).max(100).nullable()
+
+/** Os dois limites gravados; o main também usa para ler o valor do SQLite. */
+export const agentLimitSettingsSchema = z
+  .object({ maxLiveAgents: agentLimitSchema, maxLiveMembersPerTask: agentLimitSchema })
+  .strict()
 
 // ---------------------------------------------------------------------------
 // Visoes de leitura
@@ -148,6 +157,12 @@ export const ipcCommands = {
   'projects.remove': command<void>()(z.object({ projectId: idSchema }).strict()),
   /** Tarefas abertas e perguntas abertas de cada projeto (seletor de projeto do topo). */
   'projects.summary': command<ProjectsSummary>()(emptyInput),
+
+  /** Limites de agentes (null = sem limite). */
+  'settings.get': command<AgentLimitSettings>()(emptyInput),
+  'settings.save': command<AgentLimitSettings>()(
+    agentLimitSettingsSchema,
+  ),
 
   'roles.list': command<Role[]>()(z.object({ projectId: idSchema }).strict()),
   /** Cria (sem roleId) ou atualiza (com roleId) um papel. */

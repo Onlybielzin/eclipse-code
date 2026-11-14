@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   DomainError,
   SUBTASK_STATES,
@@ -17,6 +17,7 @@ import {
   type TeamFixture,
 } from './testing'
 import { SqliteTaskService } from './taskService'
+import { limitsFromSettings } from './agentLimits'
 
 function errorCode(fn: () => unknown): string {
   try {
@@ -645,5 +646,41 @@ describe('TaskService: perguntas ao usuário', () => {
     expect(
       errorCode(() => service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: [] })),
     ).toBe('invalid_input')
+  })
+})
+
+describe('limites de agentes salvos', () => {
+  it('valor corrompido ou fora de 1-100 vira sem limite, sem lançar', () => {
+    const { service, store } = createHarness()
+    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null }
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    store.setSetting('agentLimits', '{nao e json')
+    expect(service.getAgentLimitSettings()).toEqual(none)
+    store.setSetting('agentLimits', JSON.stringify({ maxLiveAgents: 0, maxLiveMembersPerTask: 2 }))
+    expect(service.getAgentLimitSettings()).toEqual(none)
+    expect(service.getAgentLimits().maxLiveAgents).toBe(Number.POSITIVE_INFINITY)
+    expect(warn).toHaveBeenCalledTimes(3)
+    warn.mockRestore()
+  })
+
+  it('ausente = sem limite; grava e lê de volta; null volta a sem limite', () => {
+    const { service } = createHarness()
+    expect(service.getAgentLimitSettings()).toEqual({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+    })
+    expect(service.getAgentLimits().maxLiveAgents).toBe(Number.POSITIVE_INFINITY)
+    service.saveAgentLimitSettings({ maxLiveAgents: 7, maxLiveMembersPerTask: 2 })
+    expect(service.getAgentLimitSettings()).toEqual({ maxLiveAgents: 7, maxLiveMembersPerTask: 2 })
+    expect(service.getAgentLimits()).toEqual({ maxLiveAgents: 7, maxLiveMembersPerTask: 2 })
+    service.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 3 })
+    expect(service.getAgentLimitSettings()).toEqual({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: 3,
+    })
+    expect(limitsFromSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null })).toEqual({
+      maxLiveAgents: Number.POSITIVE_INFINITY,
+      maxLiveMembersPerTask: Number.POSITIVE_INFINITY,
+    })
   })
 })

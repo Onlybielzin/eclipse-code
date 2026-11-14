@@ -63,7 +63,7 @@ import type {
 import { claudeSessionIdFor, type LeaderModule } from '../leader'
 import { createMcpToolHandler, type DisposableMcpToolHandler, type McpTeamActions } from '../mcp'
 import {
-  DEFAULT_AGENT_LIMITS,
+  resolveAgentLimits,
   assertAgentCapacity,
   type RecoveryReport,
   type SqliteTaskService,
@@ -98,7 +98,8 @@ export interface TeamCoordinatorDeps {
   bridge: McpBridgeServer
   /** AppPaths.worktrees: as worktrees de cada projeto ficam em <raiz>/<projectId>. */
   worktreesRoot: string
-  limits?: AgentLimits
+  /** Fixo ou funcao lida a cada checagem (a configuracao vale sem reiniciar). */
+  limits?: AgentLimits | (() => AgentLimits)
   /** Tamanho inicial do terminal do Lider (a tela ajusta com terminal.resize). */
   terminalSize?: { cols: number; rows: number }
   /** Variaveis extras para o Lider e para os membros. */
@@ -141,7 +142,6 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private readonly members: MemberRuntime
   private readonly worktrees: WorktreeService
   private readonly bridge: McpBridgeServer
-  private readonly limits: AgentLimits
   private readonly log: AppLogger
   private readonly toolHandler: DisposableMcpToolHandler
   private readonly unsubscribers: Unsubscribe[] = []
@@ -171,7 +171,6 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     this.members = deps.members
     this.worktrees = deps.worktrees
     this.bridge = deps.bridge
-    this.limits = deps.limits ?? DEFAULT_AGENT_LIMITS
     this.log = deps.log ?? silentLogger
     this.now = deps.now ?? Date.now
     this.resumeFailureWindowMs = deps.resumeFailureWindowMs ?? DEFAULT_RESUME_FAILURE_WINDOW_MS
@@ -340,7 +339,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     }
 
     assertAgentCapacity({
-      limits: this.limits,
+      limits: resolveAgentLimits(this.deps.limits),
       kind: 'leader',
       taskId,
       openSessions: this.tasks.listOpenSessions(),
@@ -583,7 +582,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     this.assertRunning()
     if (caller.role !== 'leader') throw new DomainError('forbidden', 'só o Líder cria subtarefas')
     assertAgentCapacity({
-      limits: this.limits,
+      limits: resolveAgentLimits(this.deps.limits),
       kind: 'member',
       taskId: caller.taskId,
       openSessions: this.tasks.listOpenSessions(),
@@ -636,7 +635,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     }
     // Membro nao esta vivo (ex: o app reiniciou): reabre na mesma subtarefa (C8).
     assertAgentCapacity({
-      limits: this.limits,
+      limits: resolveAgentLimits(this.deps.limits),
       kind: 'member',
       taskId: subtask.taskId,
       openSessions: this.tasks.listOpenSessions(),

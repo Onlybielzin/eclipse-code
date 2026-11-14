@@ -142,6 +142,12 @@ export class FakeApi implements EclipseApi {
   /** Resposta do explorador de pastas no proximo projects.pickFolder (null = cancelou). */
   nextPickedFolder: PickedFolder | null = null
 
+  /** Limites devolvidos por settings.get / gravados por settings.save. */
+  agentLimits: { maxLiveAgents: number | null; maxLiveMembersPerTask: number | null } = {
+    maxLiveAgents: null,
+    maxLiveMembersPerTask: null,
+  }
+
   /** Home devolvida em projects.summary. */
   homeDir = '/home/vings'
 
@@ -197,6 +203,11 @@ export class FakeApi implements EclipseApi {
         d.projects.push(project)
         return project
       }
+      case 'settings.get':
+        return this.agentLimits
+      case 'settings.save':
+        this.agentLimits = input as typeof this.agentLimits
+        return this.agentLimits
       case 'projects.summary':
         return {
           homeDir: this.homeDir,

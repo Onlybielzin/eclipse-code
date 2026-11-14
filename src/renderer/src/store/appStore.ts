@@ -21,6 +21,7 @@ import type {
   TaskWorkflowStatus,
   UserQuestion,
 } from '@shared/domain'
+import type { AgentLimitSettings } from '@shared/ports'
 import type {
   EclipseApi,
   IpcCommandChannel,
@@ -238,6 +239,15 @@ export class AppStore {
         return summary
       })) ?? null
     )
+  }
+
+  /** Limites de agentes. Erro sobe para o modal (nao vai para a faixa global). */
+  loadAgentLimits(): Promise<AgentLimitSettings> {
+    return this.call('settings.get', {})
+  }
+
+  saveAgentLimits(limits: AgentLimitSettings): Promise<AgentLimitSettings> {
+    return this.call('settings.save', limits)
   }
 
   async addProject(rootPath: string, name?: string): Promise<void> {

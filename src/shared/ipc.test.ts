@@ -28,6 +28,21 @@ describe('parseIpcInvokeRequest', () => {
     expect(parseIpcInvokeRequest(null).ok).toBe(false)
   })
 
+  it('settings.save aceita 1 a 100 ou null e recusa o resto', () => {
+    const save = (input: unknown) => parseIpcInvokeRequest({ channel: 'settings.save', input }).ok
+    const ok = { maxLiveAgents: 12, maxLiveMembersPerTask: null }
+    expect(save(ok)).toBe(true)
+    expect(save({ maxLiveAgents: 1, maxLiveMembersPerTask: 100 })).toBe(true)
+    for (const bad of [0, 101, 1.5, '5', Infinity, -1]) {
+      expect(save({ ...ok, maxLiveAgents: bad })).toBe(false)
+      expect(save({ ...ok, maxLiveMembersPerTask: bad })).toBe(false)
+    }
+    expect(save({ ...ok, extra: 1 })).toBe(false)
+    expect(save({ maxLiveAgents: 3 })).toBe(false)
+    expect(parseIpcInvokeRequest({ channel: 'settings.get', input: {} }).ok).toBe(true)
+    expect(parseIpcInvokeRequest({ channel: 'settings.get', input: { x: 1 } }).ok).toBe(false)
+  })
+
   it('tarefa de time exige worktree', () => {
     const r = parseIpcInvokeRequest({
       channel: 'tasks.create',

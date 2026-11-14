@@ -144,7 +144,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     bridge,
     worktreesRoot: options.paths.worktrees,
     leaderNotices: turnRelay,
-    ...(options.limits ? { limits: options.limits } : {}),
+    limits: options.limits ?? (() => tasks.getAgentLimits()),
     ...(options.terminalSize ? { terminalSize: options.terminalSize } : {}),
     ...(options.leaderEnv ? { leaderEnv: options.leaderEnv } : {}),
     ...(options.memberEnv ? { memberEnv: options.memberEnv } : {}),

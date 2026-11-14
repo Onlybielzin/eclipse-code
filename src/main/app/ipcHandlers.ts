@@ -24,6 +24,9 @@ export function createIpcHandlers(
     'projects.remove': async (input) => tasks.removeProject(input.projectId),
     'projects.summary': async () => ({ homeDir, projects: tasks.summarizeProjects() }),
 
+    'settings.get': async () => tasks.getAgentLimitSettings(),
+    'settings.save': async (input) => tasks.saveAgentLimitSettings(input),
+
     'roles.list': async (input) => tasks.listRoles(input.projectId),
     'roles.save': async (input) => tasks.saveRole(input),
     'roles.delete': async (input) => tasks.deleteRole(input.roleId),

@@ -96,6 +96,9 @@ export interface TaskStore {
   insertProject(project: Project): void
   updateProject(project: Project): void
   deleteProject(id: ProjectId): void
+  /** Configuracao do app (chave -> JSON). Ausente = null. */
+  getSetting(key: string): string | null
+  setSetting(key: string, valueJson: string): void
 
   listRoles(projectId: ProjectId): Role[]
   getRole(id: RoleId): Role | null
@@ -240,6 +243,10 @@ export interface TaskService {
    * perguntas abertas (mesma regra de listOpenQuestions).
    */
   summarizeProjects(): ProjectSummary[]
+  /** Limites de agentes configurados na tela; null = sem limite. */
+  getAgentLimitSettings(): AgentLimitSettings
+  getAgentLimits(): AgentLimits
+  saveAgentLimitSettings(settings: AgentLimitSettings): AgentLimitSettings
 
   listRoles(projectId: ProjectId): Role[]
   getRole(id: RoleId): Role
@@ -353,6 +360,12 @@ export interface AgentLimits {
   maxLiveMembersPerTask: number
   /** Agentes vivos no app inteiro (Lideres + membros). */
   maxLiveAgents: number
+}
+
+/** AgentLimits na fronteira (IPC e banco): null = sem limite (Infinity nao passa por JSON). */
+export interface AgentLimitSettings {
+  maxLiveMembersPerTask: number | null
+  maxLiveAgents: number | null
 }
 
 /**

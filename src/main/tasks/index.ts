@@ -19,6 +19,8 @@ export {
 } from './taskService'
 export {
   DEFAULT_AGENT_LIMITS,
+  resolveAgentLimits,
+  limitsFromSettings,
   assertAgentCapacity,
   liveSessions,
   measureCapacity,
