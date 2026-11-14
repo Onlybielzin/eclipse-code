@@ -6,12 +6,19 @@ import {
   type Task,
   type TaskWorkflowStatus,
 } from '@shared/domain'
-import { groupTasks, STATE_ICON_CLASS } from '../store/format'
+import { formatShortElapsed, groupTasks, STATE_ICON_CLASS } from '../store/format'
+import { useNow } from '../store/useNow'
 import { EMPTY_TASK_FILTERS, filterTasks, includeStatus } from '../store/taskFilters'
 import { useAppState, useStore } from '../store/context'
 import { SidePanels } from './SidePanels'
 import { TaskStatusMenu } from './TaskStatusMenu'
-import { TaskFilterButton, TaskFilterChips, TaskSearch, useTaskFilters } from './TaskFilters'
+import {
+  TaskFilterButton,
+  TaskFilterChips,
+  TaskQuickFilters,
+  TaskSearch,
+  useTaskFilters,
+} from './TaskFilters'
 
 /** Grupos recolhidos ao abrir a tela. */
 const COLLAPSED_BY_DEFAULT: Partial<Record<TaskWorkflowStatus, boolean>> = { lancado: true }
@@ -96,23 +103,28 @@ export function TaskList() {
       <section className="col-tasks" aria-label="Tarefas">
         <div className="colhead">
           Tarefas
+          <span className="colhead-n">{tasks.length}</span>
           <button
             type="button"
-            className="sp linkish"
+            className="primary add-task"
             disabled={projectId === null}
             onClick={() => setCreating((v) => !v)}
             aria-expanded={creating}
           >
-            + nova
+            + tarefa
           </button>
-          {projectId !== null && <TaskFilterButton filters={filters} onChange={setFilters} />}
         </div>
         {creating && <NewTaskForm onDone={() => setCreating(false)} />}
-        {projectId !== null && <TaskSearch value={query} onChange={setQuery} />}
+        {projectId !== null && (
+          <TaskSearch value={query} onChange={setQuery}>
+            <TaskFilterButton filters={filters} onChange={setFilters} />
+          </TaskSearch>
+        )}
+        {projectId !== null && <TaskQuickFilters filters={filters} onChange={setFilters} />}
         <TaskFilterChips filters={filters} onChange={setFilters} />
         <div className="scroll" role="tree" aria-label="Lista de tarefas" ref={scrollRef}>
           {tasks.length === 0 && !creating && (
-            <p className="empty">Nenhuma tarefa aberta. Use "+ nova" para criar a primeira.</p>
+            <p className="empty">Nenhuma tarefa aberta. Use "+ tarefa" para criar a primeira.</p>
           )}
           {tasks.length > 0 && groups.length === 0 && (
             <div className="empty filter-empty" data-testid="filter-empty">
@@ -200,7 +212,9 @@ export function TaskList() {
                             openAt={statusMenuAt?.taskId === task.id ? statusMenuAt : null}
                           />
                           <span className="t">{task.title}</span>
-                          <span className="m">{leadMeta(task)}</span>
+                          <span className="m" title={leadMeta(task)}>
+                            <ShortAgo at={task.updatedAt} />
+                          </span>
                         </div>
                         {open &&
                           shown.map((sub) => {
@@ -266,6 +280,11 @@ export function TaskList() {
       <SidePanels onPickStatus={showGroup} />
     </div>
   )
+}
+
+/** Tempo da linha: o relogio de 30 s redesenha so este trecho, nao a lista toda. */
+function ShortAgo({ at }: { at: number }) {
+  return <>{formatShortElapsed(at, useNow())}</>
 }
 
 /** Criar tarefa: nome -> worktree. Avulso pode rodar na raiz do projeto. */

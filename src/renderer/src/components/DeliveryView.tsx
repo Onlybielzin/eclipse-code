@@ -96,7 +96,7 @@ export function DeliveryView({
       )}
 
       {openQuestion ? (
-        <QuestionBox question={openQuestion} />
+        <QuestionBox key={openQuestion.id} question={openQuestion} />
       ) : (
         delivery &&
         delivery.questions.length > 0 && (
@@ -159,6 +159,14 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
   const [picked, setPicked] = useState<Record<string, string[]>>(() => suggestedPicks(question))
   const [texts, setTexts] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
+  const [step, setStep] = useState(0)
+  // Quem pergunta: o membro da subtarefa em duvida ou, sem subtarefa, o Lider.
+  const asker = useAppState((s) => {
+    const sub = question.subtaskId
+      ? s.subtasks[question.taskId]?.find((x) => x.id === question.subtaskId)
+      : undefined
+    return sub ? `${s.roles[sub.roleId]?.name ?? 'Membro'} · ${sub.title}` : 'Líder'
+  })
 
   const submit = async (override?: Record<string, string[]>) => {
     const choice = override ?? picked
@@ -174,75 +182,139 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
     setBusy(false)
   }
 
-  const toggle = (item: QuestionItem, optionId: string) => {
-    setPicked((p) => {
-      const cur = p[item.id] ?? []
-      const next = item.multiSelect
-        ? cur.includes(optionId)
-          ? cur.filter((x) => x !== optionId)
-          : [...cur, optionId]
-        : [optionId]
-      return { ...p, [item.id]: next }
-    })
+  // Item so conta como respondido se o usuario ja o viu: a sugerida pre-marcada nao basta.
+  const [seen, setSeen] = useState<string[]>([])
+  const current = question.items[Math.min(step, question.items.length - 1)]
+  const isAnswered = (it: QuestionItem, picks: Record<string, string[]>) =>
+    (picks[it.id] ?? []).length > 0 || (texts[it.id] ?? '').trim().length > 0
+  /** Proximo item (depois do atual, dando a volta) ainda sem resposta vista; -1 se nao ha. */
+  const nextPending = (picks: Record<string, string[]>): number => {
+    const n = question.items.length
+    for (let k = 1; k < n; k++) {
+      const i = (step + k) % n
+      const it = question.items[i]
+      if (it && !(seen.includes(it.id) && isAnswered(it, picks))) return i
+    }
+    return -1
+  }
+  const goTo = (i: number) => {
+    if (current) setSeen((s) => (s.includes(current.id) ? s : [...s, current.id]))
+    setStep(i)
   }
 
-  const hasAnswer =
-    Object.values(picked).some((ids) => ids.length > 0) ||
-    Object.values(texts).some((t) => t.trim().length > 0)
+  const toggle = (item: QuestionItem, optionId: string) => {
+    const cur = picked[item.id] ?? []
+    const next = item.multiSelect
+      ? cur.includes(optionId)
+        ? cur.filter((x) => x !== optionId)
+        : [...cur, optionId]
+      : [optionId]
+    const picks = { ...picked, [item.id]: next }
+    setPicked(picks)
+    // Escolha unica responde o item: segue para o proximo sem resposta.
+    if (!item.multiSelect) {
+      const to = nextPending(picks)
+      if (to >= 0) goTo(to)
+    }
+  }
 
-  // Ctrl+Enter (ou Cmd+Enter) envia de qualquer campo do cartao, quando ha resposta.
+  const pending = nextPending(picked)
+  const canSend = pending === -1 && !!current && isAnswered(current, picked)
+  const canAct = !busy && (pending >= 0 || canSend)
+
+  // Falta item: avanca para ele. Tudo respondido: envia.
+  const advance = () => {
+    if (pending >= 0) goTo(pending)
+    else if (canSend) void submit()
+  }
+
+  // Ctrl+Enter (ou Cmd+Enter) age de qualquer campo do cartao, com a mesma regra do botao.
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return
     e.preventDefault()
-    if (!busy && hasAnswer) void submit()
+    if (canAct) advance()
   }
+
+  const item = current
 
   return (
     <div className="box box-warn question-card" data-testid="question" onKeyDown={onKeyDown}>
-      <h4>Pergunta para você</h4>
-      {question.items.map((item) => (
+      <h4>
+        Pergunta para você
+        <span className="q-who">{asker}</span>
+        {question.items.length > 1 && (
+          <span className="q-steps">
+            {question.items.map((it, i) => (
+              <button
+                key={it.id}
+                type="button"
+                className={`q-step ${i === step ? 'cur' : ''}`}
+                aria-label={`Pergunta ${i + 1}`}
+                aria-current={i === step}
+                onClick={() => goTo(i)}
+              />
+            ))}
+            <span>
+              {step + 1} de {question.items.length}
+            </span>
+          </span>
+        )}
+      </h4>
+      {item && (
         <div key={item.id} className="q-item">
           <p className="q-prompt">{item.prompt}</p>
           <div className="answer">
-            {item.options.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                disabled={busy}
-                aria-pressed={(picked[item.id] ?? []).includes(o.id)}
-                title={o.description}
-                onClick={() => toggle(item, o.id)}
-              >
-                {o.label}
-              </button>
-            ))}
+            {item.options.map((o) => {
+              const on = (picked[item.id] ?? []).includes(o.id)
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  disabled={busy}
+                  aria-pressed={on}
+                  onClick={() => toggle(item, o.id)}
+                >
+                  <span className={`q-mark ${item.multiSelect ? 'sq' : ''}`} aria-hidden="true" />
+                  <span className="q-opt">
+                    <span className="q-opt-t">
+                      {optionTitle(o.label)}
+                      {isSuggestedOption(o.label) && <span className="q-tag">sugerida</span>}
+                    </span>
+                    {o.description && <span className="q-opt-d">{o.description}</span>}
+                  </span>
+                </button>
+              )
+            })}
           </div>
-          {item.options
-            .filter((o) => (picked[item.id] ?? []).includes(o.id) && o.description)
-            .map((o) => (
-              <p key={o.id} className="q-desc">
-                {o.description}
-              </p>
-            ))}
           {(item.allowFreeText || item.options.length === 0) && (
-            <input
-              className="field"
-              placeholder="Responda com suas palavras"
-              value={texts[item.id] ?? ''}
-              onChange={(e) => setTexts((t) => ({ ...t, [item.id]: e.target.value }))}
-            />
+            <label className="q-other">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 13l.6-2.8L11 2.8a1.2 1.2 0 011.7 0l.5.5a1.2 1.2 0 010 1.7L5.8 12.4 3 13z"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <input
+                className="field"
+                placeholder="Outra: escreva a sua resposta"
+                value={texts[item.id] ?? ''}
+                onChange={(e) => setTexts((t) => ({ ...t, [item.id]: e.target.value }))}
+              />
+            </label>
           )}
         </div>
-      ))}
+      )}
       <div className="answer">
         <button
           type="button"
           className="primary"
-          disabled={busy || !hasAnswer}
+          disabled={!canAct}
           title="Ctrl+Enter"
-          onClick={() => void submit()}
+          onClick={advance}
         >
-          Responder <kbd>Ctrl+Enter</kbd>
+          {pending >= 0 ? 'Próxima' : 'Enviar'} <kbd>Ctrl ↵</kbd>
         </button>
         <button
           type="button"
@@ -255,6 +327,11 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
       </div>
     </div>
   )
+}
+
+/** Titulo da opcao sem o sufixo "(Recomendado)": a etiqueta "sugerida" ocupa o lugar dele. */
+function optionTitle(label: string): string {
+  return label.replace(/\s*\((recomendad|sugerid)[oa]\)\s*$/i, '')
 }
 
 /** Opcao sugerida: o rotulo diz "recomendado/recomendada/sugerido/sugerida". */

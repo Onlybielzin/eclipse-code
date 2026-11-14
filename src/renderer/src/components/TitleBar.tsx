@@ -34,7 +34,10 @@ export function TitleBar() {
         disabled={open.length === 0}
         onClick={goToQuestion}
       >
-        {open.length} precisa{open.length === 1 ? '' : 'm'} de você
+        <span className="need-n">{open.length}</span> precisa{open.length === 1 ? '' : 'm'} de você{' '}
+        <span className="need-go" aria-hidden="true">
+          ›
+        </span>
       </button>
     </header>
   )

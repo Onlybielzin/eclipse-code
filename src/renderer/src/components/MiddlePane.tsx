@@ -45,7 +45,14 @@ export function MiddlePane() {
   return (
     <section className="col" aria-label="Centro">
       <div className="colhead">
-        <span className="mid-title">{subtask ? subtask.title : leaderTitle}</span>
+        <span className="mid-title">
+          {!subtask && (
+            <span className="mid-prompt" aria-hidden="true">
+              ›_
+            </span>
+          )}
+          {subtask ? subtask.title : leaderTitle}
+        </span>
         {!subtask && (
           <span className="mid-status" data-testid="mid-status">
             <TaskStatusMenu
@@ -56,6 +63,7 @@ export function MiddlePane() {
             />
           </span>
         )}
+        {!subtask && <span className="mid-task">{task.title}</span>}
         {subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (

@@ -42,7 +42,7 @@ async function renderApp(data: FakeData = mockupData()) {
   api = new FakeApi(data)
   const store = new AppStore(api)
   const view = render(<App store={store} />)
-  await screen.findByText('feat-orfer-e-up')
+  await screen.findByTestId('task-t1')
   return { store, view }
 }
 
@@ -71,8 +71,10 @@ describe('tela de 3 colunas', () => {
     const list = screen.getByRole('region', { name: 'Tarefas' })
     expect(within(list).getByText('Em andamento')).toBeTruthy()
     expect(within(list).getByText('conversa solta')).toBeTruthy()
-    expect(within(list).getByTestId('task-solo1').textContent).toContain('avulso')
-    expect(screen.getByTestId('need-you').textContent).toBe('1 precisa de você')
+    expect(
+      within(list).getByTestId('task-solo1').querySelector('.m')?.getAttribute('title'),
+    ).toContain('avulso')
+    expect(screen.getByTestId('need-you').textContent).toMatch(/^1 precisa de você/)
 
     const right = screen.getByRole('region', { name: 'Subtarefas' })
     expect(within(right).getByTestId('subtask-count').textContent).toBe('1/3 prontas')
@@ -125,7 +127,7 @@ describe('tela de 3 colunas', () => {
     expect(within(middle()).getByTestId('leader-terminal').closest('[hidden]')).toBeNull()
 
     // Clicar na tarefa volta para o Líder e tira as abas.
-    fireEvent.click(screen.getByText('feat-orfer-e-up'))
+    fireEvent.click(screen.getByTestId('task-t1'))
     expect(screen.queryByRole('tab', { name: 'Entrega' })).toBeNull()
     expect(within(middle()).getByText('Líder · terminal')).toBeTruthy()
     // O xterm nao foi recriado ao trocar de aba: so um leader.ensure para t1.
@@ -173,24 +175,24 @@ describe('tela de 3 colunas', () => {
     await renderApp()
     fireEvent.click(screen.getByTestId('need-you'))
     const question = await within(middle()).findByTestId('question')
-    const option = within(question).getByText('Sem origem')
+    const option = within(question).getByText('Sem origem').closest('button')!
     fireEvent.click(option)
     expect(option.getAttribute('aria-pressed')).toBe('true')
     expect(api.callsTo('questions.answer')).toHaveLength(0)
-    fireEvent.click(within(question).getByRole('button', { name: /Responder/ }))
+    fireEvent.click(within(question).getByRole('button', { name: /Enviar/ }))
     await waitFor(() =>
       expect(api.callsTo('questions.answer')).toEqual([
         { questionId: 'q1', answers: [{ itemId: 'i1', optionIds: ['o2'], text: null }] },
       ]),
     )
     await waitFor(() =>
-      expect(screen.getByTestId('need-you').textContent).toBe('0 precisam de você'),
+      expect(screen.getByTestId('need-you').textContent).toMatch(/^0 precisam de você/),
     )
   })
 
   it('cria tarefa pelo nome e abre o terminal dela', async () => {
     await renderApp()
-    fireEvent.click(screen.getByText('+ nova'))
+    fireEvent.click(screen.getByText('+ tarefa'))
     const form = screen.getByRole('form', { name: 'Nova tarefa' })
     fireEvent.change(within(form).getByLabelText('Nome'), {
       target: { value: 'relatório por oferta' },
@@ -208,7 +210,7 @@ describe('tela de 3 colunas', () => {
 
   it('avulso sem worktree roda na raiz', async () => {
     await renderApp()
-    fireEvent.click(screen.getByText('+ nova'))
+    fireEvent.click(screen.getByText('+ tarefa'))
     const form = screen.getByRole('form', { name: 'Nova tarefa' })
     fireEvent.change(within(form).getByLabelText('Nome'), { target: { value: 'pergunta rápida' } })
     fireEvent.click(within(form).getByLabelText(/Avulso/))
@@ -436,10 +438,10 @@ describe('seletor de projeto do topo', () => {
 
     fireEvent.keyDown(search(), { key: 'Enter' })
     expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
-    await screen.findByText('raiz da árvore')
+    await screen.findByTestId('task-a1')
     expect(store.getState().projectId).toBe('p2')
     expect(api.callsTo('tasks.list')).toContainEqual({ projectId: 'p2', includeArchived: true })
-    expect(screen.queryByText('feat-orfer-e-up')).toBeNull()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
     const renamed = screen.getByRole('button', { name: 'Projeto: Árvore Genealógica' })
     expect(document.activeElement).toBe(renamed)
   })
@@ -554,7 +556,7 @@ describe('modal Adicionar projeto', () => {
 describe('pergunta fechada sem resposta no card', () => {
   it('substituída sai do contador e a entrega mostra o rótulo', async () => {
     await renderApp()
-    expect(screen.getByTestId('need-you').textContent).toBe('1 precisa de você')
+    expect(screen.getByTestId('need-you').textContent).toMatch(/^1 precisa de você/)
     const q1 = api.data.questions[0]!
     act(() =>
       api.emitDomain({
@@ -562,7 +564,7 @@ describe('pergunta fechada sem resposta no card', () => {
         question: { ...q1, status: 'superseded', answeredAt: Date.now() },
       }),
     )
-    expect(screen.getByTestId('need-you').textContent).toBe('0 precisam de você')
+    expect(screen.getByTestId('need-you').textContent).toMatch(/^0 precisam de você/)
     fireEvent.click(screen.getByTestId('subtask-d2'))
     const note = await within(middle()).findByTestId('question-closed')
     expect(note.textContent).toBe('Pergunta ao usuário: substituída.')
@@ -578,7 +580,7 @@ describe('pergunta fechada sem resposta no card', () => {
         question: { ...q1, status: 'answered_in_terminal', answeredAt: Date.now() },
       }),
     )
-    expect(screen.getByTestId('need-you').textContent).toBe('0 precisam de você')
+    expect(screen.getByTestId('need-you').textContent).toMatch(/^0 precisam de você/)
     fireEvent.click(screen.getByTestId('subtask-d2'))
     expect((await within(middle()).findByTestId('question-closed')).textContent).toContain(
       'respondida no terminal',
@@ -726,12 +728,73 @@ describe('pergunta do Líder', () => {
     ]
     const store = new AppStore(api)
     render(<App store={store} />)
-    await screen.findByText('feat-orfer-e-up')
+    await screen.findByTestId('task-t1')
 
     fireEvent.click(screen.getByTestId('need-you'))
     const card = await screen.findByTestId('leader-question')
     expect(within(card).getByText('Quem manda e-mail no chat?')).toBeTruthy()
     expect(within(middle()).getByTestId('leader-terminal')).toBeTruthy()
+  })
+})
+
+describe('cartão de pergunta com 2 itens', () => {
+  async function openTwoItems() {
+    api = new FakeApi(mockupData())
+    const base = api.data.questions[0]!
+    const first = base.items[0]!
+    api.data.questions = [
+      {
+        ...base,
+        id: 'q-two',
+        subtaskId: null,
+        items: [
+          { ...first, id: 'i1', multiSelect: true },
+          { ...first, id: 'i2', prompt: 'Segunda pergunta?', allowFreeText: true },
+        ],
+      },
+    ]
+    render(<App store={new AppStore(api)} />)
+    await screen.findByTestId('task-t1')
+    fireEvent.click(screen.getByTestId('need-you'))
+    return screen.findByTestId('leader-question')
+  }
+
+  it('Enviar no item 1 só avança; envia quando os dois têm resposta', async () => {
+    const card = await openTwoItems()
+    fireEvent.click(within(card).getByText('Sem origem').closest('button')!)
+    fireEvent.click(within(card).getByRole('button', { name: /Próxima/ }))
+    expect(api.callsTo('questions.answer')).toHaveLength(0)
+    expect(within(card).getByText('Segunda pergunta?')).toBeTruthy()
+
+    fireEvent.change(within(card).getByPlaceholderText('Outra: escreva a sua resposta'), {
+      target: { value: 'minha resposta' },
+    })
+    fireEvent.click(within(card).getByRole('button', { name: /Enviar/ }))
+    await waitFor(() =>
+      expect(api.callsTo('questions.answer')).toEqual([
+        {
+          questionId: 'q-two',
+          answers: [
+            { itemId: 'i1', optionIds: ['o2'], text: null },
+            { itemId: 'i2', optionIds: [], text: 'minha resposta' },
+          ],
+        },
+      ]),
+    )
+  })
+
+  it('Ctrl+Enter segue a mesma regra', async () => {
+    const card = await openTwoItems()
+    fireEvent.click(within(card).getByText('Sem origem').closest('button')!)
+    fireEvent.keyDown(within(card).getByTitle('Ctrl+Enter'), { key: 'Enter', ctrlKey: true })
+    expect(api.callsTo('questions.answer')).toHaveLength(0)
+    expect(within(card).getByText('Segunda pergunta?')).toBeTruthy()
+
+    fireEvent.change(within(card).getByPlaceholderText('Outra: escreva a sua resposta'), {
+      target: { value: 'ok' },
+    })
+    fireEvent.keyDown(within(card).getByTitle('Ctrl+Enter'), { key: 'Enter', ctrlKey: true })
+    await waitFor(() => expect(api.callsTo('questions.answer')).toHaveLength(1))
   })
 })
 
@@ -749,10 +812,10 @@ describe('cartão de pergunta: Ctrl+Enter', () => {
     ]
     const store = new AppStore(api)
     render(<App store={store} />)
-    await screen.findByText('feat-orfer-e-up')
+    await screen.findByTestId('task-t1')
     fireEvent.click(screen.getByTestId('need-you'))
     const card = await screen.findByTestId('leader-question')
-    const input = within(card).getByPlaceholderText('Responda com suas palavras')
+    const input = within(card).getByPlaceholderText('Outra: escreva a sua resposta')
 
     fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true })
     expect(api.callsTo('questions.answer')).toHaveLength(0)
@@ -786,7 +849,7 @@ describe('subtarefas bloqueadas e canceladas', () => {
     )
     const store = new AppStore(api)
     render(<App store={store} />)
-    await screen.findByText('feat-orfer-e-up')
+    await screen.findByTestId('task-t1')
     const head = await screen.findByRole('button', { name: /Bloqueadas e canceladas/ })
     expect(screen.queryByTestId('subtask-t')).toBeNull()
     expect(screen.getByTestId('subtask-d1')).toBeTruthy()
@@ -1033,12 +1096,18 @@ describe('opção sugerida', () => {
     ]
     const store = new AppStore(api)
     render(<App store={store} />)
-    await screen.findByText('feat-orfer-e-up')
+    await screen.findByTestId('task-t1')
     fireEvent.click(screen.getByTestId('need-you'))
     const card = await screen.findByTestId('leader-question')
-    expect(within(card).getByText('A + B (Recomendado)').getAttribute('aria-pressed')).toBe('true')
+    expect(within(card).getByText('A + B').closest('button')?.getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+    expect(within(card).getByText('sugerida')).toBeTruthy()
     expect(within(card).getByText('Todo aviso com ação.')).toBeTruthy()
-    fireEvent.keyDown(within(card).getByText('Só A'), { key: 'Enter', ctrlKey: true })
+    fireEvent.keyDown(within(card).getByText('Só A').closest('button')!, {
+      key: 'Enter',
+      ctrlKey: true,
+    })
     await waitFor(() =>
       expect(api.callsTo('questions.answer')).toEqual([
         expect.objectContaining({
@@ -1046,5 +1115,50 @@ describe('opção sugerida', () => {
         }),
       ]),
     )
+  })
+})
+
+describe('design C: topo, lista e subtarefas', () => {
+  it('seletor de projeto mostra a branch da tarefa aberta', async () => {
+    await renderApp()
+    const btn = () => screen.getByRole('button', { name: /^Projeto: / })
+    expect(btn().textContent).toContain('Ctrl O')
+    fireEvent.click(screen.getByTestId('task-t1'))
+    expect(btn().textContent).toContain('ereemby')
+    expect(btn().textContent).toContain('/t1')
+    // tarefa sem branch (avulso sem worktree): so o projeto
+    fireEvent.click(screen.getByTestId('task-solo1'))
+    expect(btn().textContent).not.toContain('/')
+  })
+
+  it('linha de tarefa não mostra papel nem modelo; eles vão para o tooltip', async () => {
+    await renderApp()
+    const row = screen.getByTestId('task-t1')
+    expect(row.textContent).not.toContain('opus')
+    expect(row.textContent).not.toContain('Líder')
+    expect(row.querySelector('.m')?.getAttribute('title')).toBe('Líder · opus')
+    expect(row.querySelector('.m')?.textContent).toMatch(/^(agora|\d+[mhd])$/)
+  })
+
+  it('barra segmentada tem um segmento por subtarefa e a linha de resumo', async () => {
+    await renderApp()
+    const bar = screen.getByTestId('subtask-bar')
+    expect([...bar.children].map((c) => c.getAttribute('data-state'))).toEqual([
+      'completed',
+      'input_required',
+      'working',
+    ])
+    expect(screen.getByTestId('subtask-summary').textContent).toMatch(
+      /^1 pronta · 1 trabalhando · 1 dúvida · /,
+    )
+  })
+
+  it('chips rápidos filtram por status', async () => {
+    await renderApp()
+    const list = screen.getByRole('region', { name: 'Tarefas' })
+    fireEvent.click(within(list).getByRole('button', { name: 'Pergunta' }))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    fireEvent.click(within(list).getByRole('button', { name: 'Pergunta' }))
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
   })
 })

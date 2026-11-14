@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
-import { TASK_KINDS, TASK_WORKFLOW_STATUS_LABELS, TASK_WORKFLOW_STATUSES } from '@shared/domain'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import {
+  TASK_KINDS,
+  TASK_WORKFLOW_STATUS_LABELS,
+  TASK_WORKFLOW_STATUSES,
+  type TaskWorkflowStatus,
+} from '@shared/domain'
 import {
   activePreset,
   activeTaskFilterCount,
@@ -209,25 +214,98 @@ export function TaskFilterButton({
   )
 }
 
-/** Busca por titulo: filtra enquanto digita; Esc limpa. */
-export function TaskSearch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+/** Busca por titulo: filtra enquanto digita; Esc limpa. O funil entra como filho, dentro do campo. */
+export function TaskSearch({
+  value,
+  onChange,
+  children,
+}: {
+  value: string
+  onChange: (v: string) => void
+  children?: ReactNode
+}) {
   return (
     <div className="task-search">
-      <input
-        type="text"
-        className="task-search-input"
-        aria-label="Buscar tarefa por título"
-        placeholder="Buscar tarefa…"
-        value={value}
-        spellCheck={false}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && value !== '') {
-            e.stopPropagation()
-            onChange('')
-          }
-        }}
-      />
+      <div className="task-search-box">
+        <svg
+          className="task-search-ic"
+          width="13"
+          height="13"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M10.5 10.5L14 14"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+        <input
+          type="text"
+          className="task-search-input"
+          aria-label="Buscar tarefa por título"
+          placeholder="Buscar tarefa…"
+          value={value}
+          spellCheck={false}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && value !== '') {
+              e.stopPropagation()
+              onChange('')
+            }
+          }}
+        />
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/** Atalhos de status da maquete; reusam os filtros de status (sem logica nova). */
+const QUICK_FILTERS: readonly {
+  label: string
+  dot: string | null
+  statuses: TaskWorkflowStatus[]
+}[] = [
+  {
+    label: 'Abertas',
+    dot: null,
+    statuses: [...(TASK_FILTER_PRESETS.find((p) => p.id === 'open')?.statuses ?? [])],
+  },
+  { label: 'Pergunta', dot: 'var(--st-pink)', statuses: ['pergunta'] },
+  { label: 'Revisão', dot: 'var(--st-violet)', statuses: ['em_revisao'] },
+]
+
+/** Chips rapidos abaixo da busca: um clique filtra, outro clique limpa os status. */
+export function TaskQuickFilters({
+  filters,
+  onChange,
+}: {
+  filters: TaskFilters
+  onChange: (next: TaskFilters) => void
+}) {
+  const key = (statuses: readonly TaskWorkflowStatus[]) =>
+    normalizeTaskFilters({ ...EMPTY_TASK_FILTERS, statuses: [...statuses] }).statuses.join()
+  return (
+    <div className="quick-chips" role="toolbar" aria-label="Filtros rápidos">
+      {QUICK_FILTERS.map((q) => {
+        const on = key(q.statuses) === key(filters.statuses)
+        return (
+          <button
+            key={q.label}
+            type="button"
+            className={`quick-chip ${on ? 'on' : ''}`}
+            aria-pressed={on}
+            onClick={() => onChange({ ...filters, statuses: on ? [] : q.statuses })}
+          >
+            {q.dot && <i className="quick-dot" style={{ background: q.dot }} />}
+            {q.label}
+          </button>
+        )
+      })}
     </div>
   )
 }
