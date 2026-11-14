@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
 import { BrainView } from '../brain/BrainView'
@@ -36,6 +37,8 @@ export function MiddlePane() {
       s.questions.find((q) => q.taskId === taskId && q.subtaskId === null && q.status === 'open') ??
       null,
   )
+
+  const [terminalError, setTerminalError] = useState<string | null>(null)
 
   const closeBrain = (
     <button
@@ -89,6 +92,20 @@ export function MiddlePane() {
           </span>
         )}
         {!full && !subtask && <span className="mid-task">{task.title}</span>}
+        {!full && !subtask && task.status !== 'archived' && (
+          <button
+            type="button"
+            className="ghost sp"
+            onClick={() => {
+              setTerminalError(null)
+              store.openInExternalTerminal(task.id).catch((e: unknown) =>
+                setTerminalError(e instanceof Error ? e.message : String(e)),
+              )
+            }}
+          >
+            Abrir no terminal
+          </button>
+        )}
         {!full && subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (
@@ -106,6 +123,11 @@ export function MiddlePane() {
           </span>
         )}
       </div>
+      {terminalError && (
+        <p className="modal-note bad" role="alert">
+          {terminalError}
+        </p>
+      )}
       <div className="mid">
         {/* O terminal fica montado enquanto a tarefa nao muda, para nao perder o xterm ao trocar de aba. */}
         {brainOpen && (

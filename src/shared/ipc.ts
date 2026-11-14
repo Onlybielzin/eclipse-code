@@ -31,6 +31,7 @@ import {
   type BrainStatus,
   type MemoryDetail,
 } from './brain'
+import { externalTerminalIdSchema, type ExternalTerminalSettings } from './externalTerminal'
 import type { AgentLimitSettings } from './ports'
 import type { WallSnapshot } from './wall'
 import {
@@ -187,6 +188,13 @@ export const ipcCommands = {
   /** Limites de agentes (null = sem limite). */
   'settings.get': command<AgentLimitSettings>()(emptyInput),
   'settings.save': command<AgentLimitSettings>()(agentLimitSettingsSchema),
+
+  /** Terminal externo: opcoes da plataforma, escolha (null = automatico) e abrir a pasta da tarefa. */
+  'externalTerminal.get': command<ExternalTerminalSettings>()(emptyInput),
+  'externalTerminal.save': command<ExternalTerminalSettings>()(
+    z.object({ id: externalTerminalIdSchema.nullable() }).strict(),
+  ),
+  'externalTerminal.open': command<void>()(z.object({ taskId: idSchema }).strict()),
 
   /** Plugin Cerebro. A chave sbk_ nunca volta para a tela: so brain.status (final da chave). */
   'brain.setKey': command<BrainStatus>()(z.object({ key: brainKeySchema.nullable() }).strict()),

@@ -23,6 +23,7 @@ function handlersFor(service: AppServices['tasks']) {
       tasks: service,
       coordinator: {} as AppServices['coordinator'],
       brain: {} as AppServices['brain'],
+      externalTerminal: {} as AppServices['externalTerminal'],
     },
     { homeDir: '/home/vings' },
   )

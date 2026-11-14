@@ -173,6 +173,32 @@ describe('Configurações', () => {
     expect((await within(page()).findByRole('alert')).textContent).toContain('recusado pelo main')
   })
 
+  it('Terminal: escolhe na lista, não encontrado fica desabilitado, e o botão abre a tarefa', async () => {
+    await renderApp()
+    openSettings()
+    const select = await within(page()).findByLabelText('Terminal externo')
+    await waitFor(() => expect((select as HTMLSelectElement).options.length).toBe(3))
+    expect(within(page()).getByRole('option', { name: 'Konsole (não encontrado)' })).toHaveProperty(
+      'disabled',
+      true,
+    )
+    fireEvent.change(select, { target: { value: 'kitty' } })
+    await waitFor(() => expect(api.callsTo('externalTerminal.save')).toEqual([{ id: 'kitty' }]))
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar ao Líder' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir no terminal' }))
+    await waitFor(() => expect(api.callsTo('externalTerminal.open')).toHaveLength(1))
+  })
+
+  it('Terminal: erro do main aparece perto do botão', async () => {
+    await renderApp()
+    api.overrides.set('externalTerminal.open', () => ({
+      ok: false,
+      error: { code: 'unavailable', message: 'nenhum terminal' },
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir no terminal' }))
+    expect((await screen.findByRole('alert')).textContent).toContain('nenhum terminal')
+  })
+
   it('Second Brain: salva a chave, mostra só o final e remove', async () => {
     await renderApp()
     openSettings()

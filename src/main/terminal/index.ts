@@ -7,5 +7,7 @@
 export { createPtyHost, toPtyExit, waitForPtyExit } from './ptyHost'
 export type { PtyHostOptions, PtyProcessLike, SpawnPty } from './ptyHost'
 export { ScrollbackBuffer, DEFAULT_SCROLLBACK_CHARS } from './scrollback'
+export { createExternalTerminalService } from './externalTerminal'
+export type { ExternalTerminalService } from './externalTerminal'
 export { resolvePtySpawnEnv, PARENT_AGENT_SESSION_ENV_KEYS } from './spawnEnv'
 export { ensureNodePtySpawnHelperExecutable } from './spawnHelperPermissions'

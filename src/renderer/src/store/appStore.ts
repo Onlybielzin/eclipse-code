@@ -23,6 +23,7 @@ import type {
 } from '@shared/domain'
 import type { BrainStatus } from '@shared/brain'
 import type { WallSnapshot } from '@shared/wall'
+import type { ExternalTerminalSettings } from '@shared/externalTerminal'
 import type { AgentLimitSettings } from '@shared/ports'
 import type {
   EclipseApi,
@@ -328,6 +329,19 @@ export class AppStore {
 
   saveAgentLimits(limits: AgentLimitSettings): Promise<AgentLimitSettings> {
     return this.call('settings.save', limits)
+  }
+
+  /** Terminal externo. Erro sobe para quem chamou (Configuracoes ou botao do cabecalho). */
+  loadExternalTerminals(): Promise<ExternalTerminalSettings> {
+    return this.call('externalTerminal.get', {})
+  }
+
+  saveExternalTerminal(id: string | null): Promise<ExternalTerminalSettings> {
+    return this.call('externalTerminal.save', { id })
+  }
+
+  openInExternalTerminal(taskId: string): Promise<void> {
+    return this.call('externalTerminal.open', { taskId })
   }
 
   /** Plugin Cerebro: so "tem chave" e o final dela. Erro sobe para o modal. */
