@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.2 - 2026-11-14
+
+- Nova aba Iniciar: você salva o comando da tarefa (por exemplo, `pnpm dev`) e liga o projeto na worktree com um clique. O log aparece no meio, com Parar e Reiniciar.
+- Nova aba Terminal: um shell livre na pasta da tarefa.
+
 ## 0.1.1 - 2026-11-14
 
 - Nova Parede: um painel com todas as tarefas abertas e o que cada uma está fazendo agora.
