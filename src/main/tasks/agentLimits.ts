@@ -7,9 +7,10 @@
 import { DomainError, type Session, type SessionId, type TaskId } from '@shared/domain'
 import type { AgentLimits } from '@shared/ports'
 
+// Sem limite por padrão (pedido do vings) até existir configuração; os testes passam limites próprios.
 export const DEFAULT_AGENT_LIMITS: AgentLimits = {
-  maxLiveMembersPerTask: 6,
-  maxLiveAgents: 12,
+  maxLiveMembersPerTask: Number.POSITIVE_INFINITY,
+  maxLiveAgents: Number.POSITIVE_INFINITY,
 }
 
 export interface AgentLiveness {
