@@ -58,5 +58,11 @@ describe('parseIpcInvokeRequest', () => {
     expect(
       parseIpcInvokeRequest({ channel: 'projects.add', input: { rootPath: '/abs/x' } }).ok,
     ).toBe(true)
+    expect(
+      parseIpcInvokeRequest({
+        channel: 'projects.add',
+        input: { rootPath: 'C:\\Users\\conta\\eclipse-code' },
+      }).ok,
+    ).toBe(true)
   })
 })

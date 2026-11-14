@@ -61,6 +61,7 @@ import {
   type UserQuestionStatus,
 } from '@shared/domain'
 import { agentLimitSettingsSchema } from '@shared/ipc'
+import { isAbsolutePath } from '@shared/paths'
 import type { ActivityPage, ProjectSummary, SubtaskDetail } from '@shared/ipc'
 import type {
   AgentLimitSettings,
@@ -282,7 +283,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
 
   addProject(input: { rootPath: string; name?: string | undefined }): Project {
     const rootPath = normalizeRootPath(input.rootPath)
-    if (!rootPath.startsWith('/')) {
+    if (!isAbsolutePath(rootPath)) {
       throw new DomainError('invalid_input', 'caminho do projeto precisa ser absoluto')
     }
     return this.write(() => {
