@@ -1,7 +1,8 @@
 /**
- * Identidade do app novo. Tudo aqui e proprio do Eclipse Code novo para que ele
- * rode lado a lado com o app antigo (dev.vings.eclipsecode, ~/.config/Eclipse Code)
- * sem dividir pasta de dados, socket ou porta.
+ * Identidade do Eclipse Code. O app com canvas foi aposentado em 2026-11-13; os nomes
+ * internos com "next" (appId, pasta de dados ~/.config/eclipse-code-next, prefixo de env)
+ * ficaram de proposito: a pasta de dados guarda as worktrees das tarefas, e mudar o nome
+ * quebraria os caminhos gravados no banco e no git.
  */
 
 export const APP_ID = 'app.eclipsecode.next'

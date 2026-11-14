@@ -297,7 +297,7 @@ export class AcpMemberRuntime implements MemberRuntime {
               fs: { readTextFile: false, writeTextFile: false },
               terminal: false,
             },
-            clientInfo: { name: 'eclipse-code-next', version: '0.1.0' },
+            clientInfo: { name: 'eclipse-code', version: '0.1.0' },
           })
           const mcpServers = [toAcpMcpServer(request.mcpServer)]
           const meta = buildSessionMeta(request)

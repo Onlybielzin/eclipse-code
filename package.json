@@ -1,9 +1,9 @@
 {
-  "name": "eclipse-code-next",
+  "name": "eclipse-code",
   "version": "0.1.0",
   "private": true,
   "productName": "Eclipse Code",
-  "desktopName": "eclipse-code-next.desktop",
+  "desktopName": "eclipse-code.desktop",
   "description": "Tarefas, Líder e subtarefas para Claude Code e Codex, sem canvas.",
   "main": "./out/main/index.js",
   "author": {
@@ -33,7 +33,7 @@
   "build": {
     "appId": "app.eclipsecode.next",
     "productName": "Eclipse Code",
-    "executableName": "eclipse-code-next",
+    "executableName": "eclipse-code",
     "artifactName": "Eclipse-Code-${version}-${arch}.${ext}",
     "directories": {
       "output": "release",
