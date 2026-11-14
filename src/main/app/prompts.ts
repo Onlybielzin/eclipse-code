@@ -67,6 +67,8 @@ export const LEADER_APP_CONTEXT = [
   '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
   '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
   '- Quando um membro termina o turno, o app escreve uma linha [eclipse] neste terminal.',
+  '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
+  '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
   '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
 ].join('\n')
 
@@ -123,6 +125,49 @@ export function composeMemberAnswerPrompt(text: string): string {
   return `Resposta à sua dúvida:\n\n${text.trim()}\n\n${DELIVERY_RULE}`
 }
 
+/**
+ * Primeiro prompt do membro reaberto na MESMA conversa (session/load) depois do reinicio:
+ * ele ja tem o contexto, so falta a mensagem do Lider.
+ */
+export function composeMemberResumePrompt(text: string): string {
+  return `O app reiniciou e você parou no meio desta subtarefa. A conversa foi retomada; o que você já alterou continua na worktree. Mensagem do Líder:\n\n${text.trim()}\n\n${DELIVERY_RULE}`
+}
+
+const MAX_PROGRESS_CHARS = 4_000
+
+/**
+ * Primeiro prompt do membro reaberto em conversa NOVA (sem providerSessionId ou o
+ * session/load falhou): leva titulo, instrucoes originais, o resumo do que ja foi feito e a
+ * mensagem do Lider.
+ */
+export function composeMemberReopenPrompt(input: {
+  subtask: Subtask
+  progress: string
+  answer: string
+}): string {
+  const { subtask } = input
+  const progress = input.progress.trim()
+  const clipped =
+    progress.length > MAX_PROGRESS_CHARS ? `…${progress.slice(-MAX_PROGRESS_CHARS)}` : progress
+  return [
+    `Subtarefa ${subtask.id}: ${subtask.title}`,
+    '',
+    'O app reiniciou no meio desta subtarefa e a conversa anterior não pôde ser retomada.',
+    'O que já foi alterado continua na worktree: confira os arquivos antes de seguir.',
+    '',
+    'Instruções originais:',
+    subtask.instructions.trim(),
+    '',
+    'O que já foi feito (último relato do membro anterior):',
+    clipped || '(nada registrado)',
+    '',
+    'Mensagem do Líder:',
+    input.answer.trim(),
+    '',
+    DELIVERY_RULE,
+  ].join('\n')
+}
+
 function oneLine(text: string, max: number): string {
   const flat = text.replace(/\s+/g, ' ').trim()
   return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat
@@ -142,9 +187,12 @@ export function composeMemberStoppedNotice(subtask: Subtask, roleName: string): 
   return `[eclipse] Subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou: bloqueado (processo morreu fora de turno). -> detalhes: subtarefas_ver`
 }
 
-/** Aviso ao Lider de que a subtarefa sem turno aberto se perdeu quando o app reiniciou. */
+/**
+ * Aviso ao Lider de que a subtarefa parou porque o app reiniciou (com ou sem turno aberto).
+ * Um por subtarefa: o fim de turno fechado pela recuperacao nao gera outro.
+ */
 export function composeSessionLostNotice(subtask: Subtask, roleName: string): string {
-  return `[eclipse] Subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou: bloqueado (sessão perdida ao reiniciar o app). -> detalhes: subtarefas_ver`
+  return `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou no meio. O que o membro já alterou continua na worktree. Para continuar: subtarefa_responder com o que ele deve fazer (o app reabre o membro na mesma conversa). Para encerrar: subtarefa_cancelar.`
 }
 
 function answerText(question: UserQuestion, answers: readonly QuestionAnswer[]): string {

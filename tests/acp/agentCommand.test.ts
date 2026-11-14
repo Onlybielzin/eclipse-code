@@ -65,7 +65,7 @@ describe('buildAgentCommand', () => {
     }
   })
 
-  it('Codex: modelo e prompt do papel em CODEX_CONFIG, sem perder o que o usuário já tinha', () => {
+  it('Codex: modelo, prompt do papel e permissão total em CODEX_CONFIG, sem perder o que o usuário já tinha', () => {
     const cmd = buildAgentCommand(
       { provider: 'codex', model: 'gpt-5.4-mini', systemPrompt: 'Você é o Revisor.' },
       {
@@ -78,6 +78,8 @@ describe('buildAgentCommand', () => {
       model_reasoning_effort: 'low',
       model: 'gpt-5.4-mini',
       developer_instructions: 'Você é o Revisor.',
+      sandbox_mode: 'danger-full-access',
+      approval_policy: 'never',
     })
   })
 
@@ -108,31 +110,58 @@ describe('decidePermission', () => {
     ],
   })
 
-  it('aceita dentro (inclusive arquivo novo e caminho relativo), recusa fora e escapes com ..', () => {
+  it('aceita tudo, dentro e fora da worktree (permissão total), e o motivo diz onde', () => {
     dir = mkdtempSync(join(tmpdir(), 'eclipse-perm-'))
     const wt = join(dir, 'wt')
     mkdirSync(wt)
-    expect(decidePermission(request([join(wt, 'a/b/novo.ts')]), { cwd: wt }).response).toEqual({
-      outcome: { outcome: 'selected', optionId: 'a' },
+    // allow_always vem antes de allow_once, para o agente não perguntar de novo.
+    const inside = decidePermission(request([join(wt, 'a/b/novo.ts')]), { cwd: wt })
+    expect(inside).toEqual({
+      allow: true,
+      reason: 'dentro da worktree',
+      response: { outcome: { outcome: 'selected', optionId: 'aa' } },
     })
-    expect(decidePermission(request(['src/x.ts']), { cwd: wt }).allow).toBe(true)
-    expect(decidePermission(request([]), { cwd: wt }).allow).toBe(true)
+    expect(decidePermission(request(['src/x.ts']), { cwd: wt }).reason).toBe('dentro da worktree')
+    expect(decidePermission(request([]), { cwd: wt })).toMatchObject({
+      allow: true,
+      reason: 'sem caminho de arquivo',
+    })
     const outside = decidePermission(request([join(wt, 'a.ts'), join(wt, '../fora.ts')]), {
       cwd: wt,
     })
-    expect(outside.allow).toBe(false)
-    expect(outside.response).toEqual({ outcome: { outcome: 'selected', optionId: 'r' } })
-    expect(decidePermission(request(['/tmp/x']), { cwd: wt, extraRoots: ['/tmp'] }).allow).toBe(
-      true,
+    expect(outside).toEqual({
+      allow: true,
+      reason: `fora da worktree: ${join(wt, '../fora.ts')}`,
+      response: { outcome: { outcome: 'selected', optionId: 'aa' } },
+    })
+    expect(decidePermission(request(['/tmp/x']), { cwd: wt, extraRoots: ['/tmp'] }).reason).toBe(
+      'dentro da worktree',
     )
+    // Só allow_once no pedido: aceita com ele.
+    const once = decidePermission(
+      {
+        ...request(['/etc/passwd']),
+        options: [{ optionId: 'a', name: 'Sim', kind: 'allow_once' }],
+      },
+      { cwd: wt },
+    )
+    expect(once.response).toEqual({ outcome: { outcome: 'selected', optionId: 'a' } })
+    // Sem opção de aceitar: cancela pelo protocolo.
+    const none = decidePermission(
+      { ...request([]), options: [{ optionId: 'r', name: 'Não', kind: 'reject_once' }] },
+      { cwd: wt },
+    )
+    expect(none).toMatchObject({ allow: false, response: { outcome: { outcome: 'cancelled' } } })
   })
 
-  it('symlink de dentro da worktree para fora é recusado', () => {
+  it('symlink de dentro da worktree para fora é aceito, com motivo "fora da worktree"', () => {
     dir = mkdtempSync(join(tmpdir(), 'eclipse-perm-'))
     const wt = join(dir, 'wt')
     mkdirSync(wt)
     mkdirSync(join(dir, 'segredo'))
     symlinkSync(join(dir, 'segredo'), join(wt, 'link'))
-    expect(decidePermission(request([join(wt, 'link', 'x.txt')]), { cwd: wt }).allow).toBe(false)
+    const decision = decidePermission(request([join(wt, 'link', 'x.txt')]), { cwd: wt })
+    expect(decision.allow).toBe(true)
+    expect(decision.reason).toBe(`fora da worktree: ${join(wt, 'link', 'x.txt')}`)
   })
 })

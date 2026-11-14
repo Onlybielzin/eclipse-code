@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AppStore } from './appStore'
-import { formatElapsed, groupTasks } from './format'
+import { formatElapsed, groupTasks, subtaskRowLabel } from './format'
 import { FakeApi, makeActivity, makeSubtask, makeTask, mockupData } from '../test/fakeApi'
 
 async function started() {
@@ -117,5 +117,26 @@ describe('format', () => {
       ['Lançado', ['old1']],
     ])
     expect(groupTasks([makeTask('a', 'a')]).map((g) => g.status)).toEqual(['em_andamento'])
+  })
+})
+
+describe('subtaskRowLabel', () => {
+  it('em dúvida mostra a statusMessage (ex: parada pelo reinício); nos outros, o estado', () => {
+    expect(
+      subtaskRowLabel(
+        makeSubtask('s1', 't1', {
+          state: 'input_required',
+          statusMessage: 'parada: o app reiniciou',
+        }),
+      ),
+    ).toBe('parada: o app reiniciou')
+    expect(
+      subtaskRowLabel(makeSubtask('s1', 't1', { state: 'input_required', statusMessage: null })),
+    ).toBe('dúvida')
+    expect(
+      subtaskRowLabel(
+        makeSubtask('s1', 't1', { state: 'failed', statusMessage: 'bloqueado: erro' }),
+      ),
+    ).toBe('bloqueado')
   })
 })

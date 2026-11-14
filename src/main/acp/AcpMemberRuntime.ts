@@ -153,6 +153,7 @@ const ERROR_TEXT: Record<TurnErrorCode, string> = {
   session_closed: 'A sessão do membro foi fechada.',
   spawn_failed: 'Não foi possível abrir o membro.',
   protocol_error: 'Erro de protocolo ACP.',
+  app_restarted: 'O app reiniciou no meio do turno.',
 }
 
 export class AcpMemberRuntime implements MemberRuntime {
@@ -594,8 +595,8 @@ export class AcpMemberRuntime implements MemberRuntime {
       cwd: session.request.cwd,
       extraRoots: this.extraAllowedRoots,
     })
-    if (!decision.allow) {
-      this.logger.warn('acp: permissão recusada', {
+    if (!decision.allow || decision.reason.startsWith('fora')) {
+      this.logger.info(decision.allow ? 'acp: permissão liberada' : 'acp: permissão recusada', {
         sessionId: session.id,
         tool: params.toolCall.title ?? params.toolCall.toolCallId,
         reason: decision.reason,

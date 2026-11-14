@@ -13,7 +13,12 @@
  *   C1. Um Lider vivo por tarefa: ensureLeader roda em fila por tarefa.
  *   C2. Membro em estado final nunca fica com processo aberto (closeMember depois do finishTurn).
  *   C3. No desligamento nenhum turno e fechado a forca: a recuperacao na proxima partida decide
- *       (entrega gravada vale; sem entrega vira "bloqueado: sessão perdida").
+ *       (entrega gravada vale; sem entrega a subtarefa fica parada em input_required,
+ *       "parada: o app reiniciou", e o Lider recebe um aviso).
+ *   C8. subtarefa_responder numa subtarefa em input_required sem membro vivo reabre o membro:
+ *       sessao nova para a mesma subtarefa, retomando a conversa (session/load) quando ha
+ *       providerSessionId; senao (ou se o load falhar) conversa nova com o contexto no prompt.
+ *       Nao reabriu: failed / spawn_failed e aviso ao Lider.
  *   C4. Processo de Lider aberto para uma sessao ja encerrada (arquivada/fechada durante o
  *       launch) e morto na hora: nenhum Lider vive sem sessao aberta no banco.
  *   C5. Aviso ao Lider nunca e descartado: vai para a fila duravel (leaderNotices) e so sai
@@ -67,6 +72,8 @@ import {
   composeLeaderPrompt,
   composeMemberAnswerPrompt,
   composeMemberFirstPrompt,
+  composeMemberReopenPrompt,
+  composeMemberResumePrompt,
   composeMemberSystemPrompt,
   composeQuestionNotice,
   composeMemberStoppedNotice,
@@ -622,15 +629,173 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       throw new DomainError('invalid_transition', 'só se responde uma subtarefa em dúvida')
     }
     const sessionId = subtask.sessionId
-    if (!sessionId || !this.members.isAlive(sessionId)) {
-      throw new DomainError(
-        'unavailable',
-        'o membro desta subtarefa não está mais aberto; crie uma subtarefa nova com origem nela',
-      )
+    if (sessionId && this.members.isAlive(sessionId)) {
+      const next = this.tasks.transitionSubtask(subtaskId, 'working')
+      this.track(this.runTurn(sessionId, subtaskId, author, composeMemberAnswerPrompt(text)))
+      return next
     }
+    // Membro nao esta vivo (ex: o app reiniciou): reabre na mesma subtarefa (C8).
+    assertAgentCapacity({
+      limits: this.limits,
+      kind: 'member',
+      taskId: subtask.taskId,
+      openSessions: this.tasks.listOpenSessions(),
+      liveness: { isAlive: (s) => this.isSessionAlive(s) },
+    })
+    // 'working' ja agora: o Lider que espera (subtarefas_esperar) nao recebe a subtarefa de
+    // volta como parada, e uma segunda resposta e recusada enquanto o membro abre.
     const next = this.tasks.transitionSubtask(subtaskId, 'working')
-    this.track(this.runTurn(sessionId, subtaskId, author, composeMemberAnswerPrompt(text)))
+    this.track(this.reopenMember(next, author, text))
     return next
+  }
+
+  /**
+   * Reabre o membro de uma subtarefa parada (C8). Mesmo papel, cwd e token MCP do
+   * startMember. Tenta session/load com o providerSessionId da ultima sessao do membro; se
+   * nao houver ou falhar, abre conversa nova e o primeiro prompt leva o contexto.
+   */
+  private async reopenMember(
+    subtask: Subtask,
+    author: 'leader' | 'user',
+    answer: string,
+  ): Promise<void> {
+    let session: Session | null = null
+    let role: Role | null = null
+    let prompt: string
+    try {
+      role = this.tasks.getRole(subtask.roleId)
+      const task = this.tasks.getTask(subtask.taskId)
+      const project = this.tasks.getProject(task.projectId)
+      const cwd = task.worktreePath ?? project.rootPath
+      const previous = subtask.sessionId ? this.tasks.getSession(subtask.sessionId) : null
+      const resumeId =
+        previous?.provider === role.provider ? (previous.providerSessionId ?? null) : null
+      session = this.tasks.openSession({
+        taskId: task.id,
+        subtaskId: subtask.id,
+        roleId: role.id,
+        kind: 'member-acp',
+        provider: role.provider,
+        model: role.model,
+        cwd,
+        providerSessionId: null,
+      })
+      this.startingMembers.add(session.id)
+      this.tasks.attachSubtaskSession(subtask.id, session.id)
+      const token = this.bridge.issueToken({
+        role: 'member',
+        sessionId: session.id,
+        taskId: task.id,
+        subtaskId: subtask.id,
+      })
+      const request = {
+        sessionId: session.id,
+        taskId: task.id,
+        subtaskId: subtask.id,
+        provider: role.provider,
+        model: role.model,
+        cwd,
+        systemPrompt: composeMemberSystemPrompt({
+          task,
+          subtask,
+          cwd,
+          template: role.promptTemplate,
+        }),
+        mcpServer: this.bridge.launchSpec(token),
+        env: { ...this.deps.memberEnv },
+      }
+      let handle: Awaited<ReturnType<MemberRuntime['startSession']>> | null = null
+      if (resumeId) {
+        try {
+          handle = await this.members.startSession({
+            ...request,
+            resumeProviderSessionId: resumeId,
+          })
+        } catch (error) {
+          if (this.shuttingDown) throw error
+          this.log.warn('membro não retomou a conversa; abrindo conversa nova', {
+            subtaskId: subtask.id,
+            providerSessionId: resumeId,
+            error: errorMessage(error),
+          })
+        }
+      }
+      const resumed = handle !== null
+      if (handle) {
+        prompt = composeMemberResumePrompt(answer)
+      } else {
+        handle = await this.members.startSession({ ...request, resumeProviderSessionId: null })
+        prompt = composeMemberReopenPrompt({
+          subtask,
+          progress: this.memberProgress(subtask.id),
+          answer,
+        })
+      }
+      this.startingMembers.delete(session.id)
+      if (this.shuttingDown) return
+      if (isFinalSubtaskState(this.tasks.getSubtask(subtask.id).state)) {
+        // Cancelada enquanto abria.
+        await this.closeMember(session.id)
+        return
+      }
+      this.tasks.updateSession(session.id, {
+        providerSessionId: handle.providerSessionId,
+        pid: handle.pid,
+        status: 'running',
+      })
+      this.log.info('membro reaberto', {
+        subtaskId: subtask.id,
+        sessionId: session.id,
+        resumed,
+      })
+    } catch (error) {
+      this.failMemberStart(subtask, session, role, error)
+      return
+    }
+    await this.runTurn(session.id, subtask.id, author, prompt)
+  }
+
+  /** O que o membro anterior ja relatou: texto final do ultimo turno ou a ultima mensagem dele. */
+  private memberProgress(subtaskId: SubtaskId): string {
+    const detail = this.tasks.getSubtaskDetail(subtaskId)
+    const lastTurnText = [...detail.turns].reverse().find((t) => t.finalText?.trim())?.finalText
+    if (lastTurnText?.trim()) return lastTurnText
+    const lastMessage = [...detail.messages].reverse().find((m) => m.author === 'member')
+    return (
+      lastMessage?.parts
+        .map((p) => (p.kind === 'text' ? p.text : ''))
+        .join('\n')
+        .trim() ?? ''
+    )
+  }
+
+  /** Membro que nao abriu (ou nao reabriu): failed / spawn_failed e aviso ao Lider. */
+  private failMemberStart(
+    subtask: Subtask,
+    session: Session | null,
+    role: Role | null,
+    error: unknown,
+  ): void {
+    if (session) {
+      this.startingMembers.delete(session.id)
+      this.bridge.revokeSession(session.id)
+    }
+    if (this.shuttingDown) return
+    const message = errorMessage(error)
+    this.log.warn('membro não abriu', { subtaskId: subtask.id, error: message })
+    this.safely('marcar membro que não abriu', () => {
+      if (session) this.tasks.endSession(session.id, { reason: 'spawn_failed', exitCode: null })
+      const current = this.tasks.getSubtask(subtask.id)
+      if (isFinalSubtaskState(current.state)) return
+      this.tasks.transitionSubtask(subtask.id, 'failed', {
+        failureCode: 'spawn_failed',
+        statusMessage: `bloqueado: membro não abriu (${message.slice(0, 300)})`,
+      })
+      this.notifyLeader(
+        subtask.taskId,
+        composeSpawnFailureNotice(subtask, role?.name ?? subtask.roleId, message),
+      )
+    })
   }
 
   private async startMember(subtask: Subtask): Promise<void> {
@@ -690,26 +855,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       })
       this.tasks.transitionSubtask(subtask.id, 'working')
     } catch (error) {
-      if (session) {
-        this.startingMembers.delete(session.id)
-        this.bridge.revokeSession(session.id)
-      }
-      if (this.shuttingDown) return
-      const message = errorMessage(error)
-      this.log.warn('membro não abriu', { subtaskId: subtask.id, error: message })
-      this.safely('marcar membro que não abriu', () => {
-        if (session) this.tasks.endSession(session.id, { reason: 'spawn_failed', exitCode: null })
-        const current = this.tasks.getSubtask(subtask.id)
-        if (isFinalSubtaskState(current.state)) return
-        this.tasks.transitionSubtask(subtask.id, 'failed', {
-          failureCode: 'spawn_failed',
-          statusMessage: `bloqueado: membro não abriu (${message.slice(0, 300)})`,
-        })
-        this.notifyLeader(
-          subtask.taskId,
-          composeSpawnFailureNotice(subtask, role?.name ?? subtask.roleId, message),
-        )
-      })
+      this.failMemberStart(subtask, session, role, error)
       return
     }
     const references = subtask.referenceTaskIds.map((id) => this.tasks.getSubtask(id))
@@ -781,6 +927,9 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
   private onMemberExit(sessionId: SessionId, exitCode: number | null): void {
     if (this.shuttingDown) return
+    // Saida durante a partida (ex: session/load recusado): quem abriu decide (tenta conversa
+    // nova ou marca spawn_failed). Sem isso a subtarefa viraria "processo morreu".
+    if (this.startingMembers.has(sessionId)) return
     this.bridge.revokeSession(sessionId)
     const closing = this.closingMembers.delete(sessionId)
     this.safely('encerrar membro que saiu', () => {
@@ -825,7 +974,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   // -------------------------------------------------------------------------
 
   /**
-   * Fecha o que nao voltou (membros viram "bloqueado: sessão perdida") e reabre cada
+   * Fecha o que nao voltou (subtarefas ficam paradas esperando o Lider) e reabre cada
    * Lider que estava aberto com --resume / resume, em segundo plano.
    */
   async recoverOnStartup(): Promise<void> {
@@ -836,7 +985,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   async recover(): Promise<RecoveryReport> {
     const report = this.tasks.recoverAfterRestart({
       survivingSessionIds: new Set(),
-      // Subtarefa perdida sem turno aberto nao gera fim de turno: o aviso vai para a fila.
+      // Um aviso por subtarefa parada, na fila duravel e na mesma transacao.
       composeLostNotice: (subtask) =>
         composeSessionLostNotice(subtask, this.findRole(subtask.roleId)?.name ?? subtask.roleId),
     })

@@ -67,6 +67,21 @@ const ERROR_TO_FAILURE: Record<TurnErrorCode, SubtaskFailureCode> = {
   session_closed: 'error',
   spawn_failed: 'spawn_failed',
   protocol_error: 'error',
+  app_restarted: 'session_lost',
+}
+
+/**
+ * statusMessage da subtarefa que o app reiniciou no meio: fica em input_required esperando o
+ * Lider responder (o app reabre o membro) ou cancelar.
+ */
+export const RESTART_PAUSE_MESSAGE = 'parada: o app reiniciou'
+
+/** A subtarefa parou porque o app reiniciou (e nao por uma duvida do membro). */
+export function isPausedByRestart(subtask: {
+  state: string
+  statusMessage: string | null
+}): boolean {
+  return subtask.state === 'input_required' && subtask.statusMessage === RESTART_PAUSE_MESSAGE
 }
 
 const FAILURE_MESSAGES: Record<SubtaskFailureCode, string> = {

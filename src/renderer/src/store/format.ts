@@ -1,4 +1,5 @@
 import {
+  SUBTASK_STATE_LABELS,
   TASK_WORKFLOW_STATUS_LABELS,
   TASK_WORKFLOW_STATUSES,
   type Role,
@@ -110,4 +111,13 @@ export function upsertById<T extends { id: string }>(list: readonly T[], item: T
   const next = list.slice()
   next[idx] = item
   return next
+}
+
+/**
+ * Rotulo do estado na linha. Em dúvida, a statusMessage diz o motivo (ex: "parada: o app
+ * reiniciou", que espera o Lider); nos outros estados fica o rotulo do estado.
+ */
+export function subtaskRowLabel(sub: Subtask): string {
+  if (sub.state === 'input_required' && sub.statusMessage?.trim()) return sub.statusMessage.trim()
+  return SUBTASK_STATE_LABELS[sub.state]
 }

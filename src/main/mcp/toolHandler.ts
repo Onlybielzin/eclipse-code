@@ -179,7 +179,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       }
       const subtask = await actions.answerSubtask(caller, current.id, input.texto)
       return {
-        text: `Resposta enviada a ${subtask.id}. O membro continua na mesma sessão.`,
+        text: `Resposta enviada a ${subtask.id}. O membro continua na mesma conversa (se ele tinha parado, o app reabre).`,
         data: subtaskSummary(subtask),
       }
     },

@@ -216,10 +216,12 @@ export function isFinalSubtaskState(state: SubtaskState): state is FinalSubtaskS
 
 /** Transicoes permitidas. Tudo que nao esta aqui e recusado com 'invalid_transition'. */
 export const SUBTASK_TRANSITIONS: Readonly<Record<SubtaskState, readonly SubtaskState[]>> = {
-  // failed: o membro nem abriu (spawn_failed) ou a sessao foi perdida antes do turno.
-  submitted: ['working', 'failed', 'canceled'],
+  // failed: o membro nem abriu (spawn_failed). input_required: o app reiniciou antes de o
+  // membro abrir; a subtarefa fica parada esperando o Lider.
+  submitted: ['working', 'input_required', 'failed', 'canceled'],
   working: ['input_required', 'completed', 'failed', 'canceled'],
-  // working: o Lider respondeu (novo session/prompt). failed: sessao perdida ao reiniciar.
+  // working: o Lider respondeu (novo session/prompt, ou membro reaberto depois do reinicio).
+  // failed: o membro nao reabriu.
   input_required: ['working', 'failed', 'canceled'],
   completed: [],
   failed: [],
@@ -243,7 +245,10 @@ export const SUBTASK_FAILURE_CODES = [
   'silent_timeout',
   /** Tempo maximo por turno estourou. */
   'turn_timeout',
-  /** Sessao nao voltou depois de reiniciar o app ("bloqueado: sessao perdida"). */
+  /**
+   * Sessao nao voltou depois de reiniciar o app ("bloqueado: sessao perdida"). Legado: hoje
+   * o reinicio deixa a subtarefa parada em input_required, esperando o Lider.
+   */
   'session_lost',
   /** Nao foi possivel abrir o processo do membro. */
   'spawn_failed',
@@ -464,6 +469,8 @@ export const TURN_ERROR_CODES = [
   'session_closed',
   'spawn_failed',
   'protocol_error',
+  /** O app fechou com o turno aberto; a recuperacao na partida seguinte fechou o turno. */
+  'app_restarted',
 ] as const
 export type TurnErrorCode = (typeof TURN_ERROR_CODES)[number]
 

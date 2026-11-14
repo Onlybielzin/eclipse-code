@@ -1,10 +1,10 @@
 /**
- * Politica de permissao dos membros: aceitar sozinho tudo o que fica dentro da worktree.
+ * Politica de permissao dos membros: o membro tem permissao total, como o Lider
+ * (que roda com bypass). Decisao do usuario em 2026-11-13: "libera pra todos os agentes".
  *
- * - Sem caminho (comando de terminal, ferramenta MCP como `entregar`): aceita. O processo
- *   ja roda com cwd na worktree e o Codex ainda aplica o sandbox workspace-write.
- * - Todos os caminhos dentro da worktree (ou de uma raiz extra permitida): aceita.
- * - Algum caminho fora: recusa, e o membro recebe a recusa como resultado da ferramenta.
+ * - Todo pedido e aceito (allow_always quando houver, para nao repetir o pedido).
+ * - O motivo diz se o pedido era dentro ou fora da worktree, para o log e a Atividade.
+ * - Sem opcao de aceitar no pedido: cancela pelo protocolo (nao ha como aceitar).
  *
  * Caminhos sao comparados depois de resolver symlinks (realpath), e um caminho que ainda
  * nao existe e resolvido pela pasta-mae mais proxima que existe.
@@ -69,15 +69,13 @@ export function decidePermission(
     const real = realPathLoose(isAbsolute(p) ? p : resolve(context.cwd, p))
     return !roots.some((root) => isInside(root, real))
   })
-  const allow = outside.length === 0
-  const option = allow
-    ? pickOption(request.options, ['allow_once', 'allow_always'])
-    : pickOption(request.options, ['reject_once', 'reject_always'])
-  const reason = allow
-    ? paths.length
+  const allow = true
+  const option = pickOption(request.options, ['allow_always', 'allow_once'])
+  const reason = outside.length
+    ? `fora da worktree: ${outside.join(', ')}`
+    : paths.length
       ? 'dentro da worktree'
       : 'sem caminho de arquivo'
-    : `fora da worktree: ${outside.join(', ')}`
   if (!option) {
     // Sem opcao do tipo certo: recusar pelo protocolo e o caminho seguro.
     return {

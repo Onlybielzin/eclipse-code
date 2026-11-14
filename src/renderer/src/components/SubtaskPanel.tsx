@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { PROVIDER_LABELS, SUBTASK_STATE_LABELS, type Subtask } from '@shared/domain'
-import { countCompleted, STATE_ICON_CLASS, subtaskElapsed } from '../store/format'
+import { PROVIDER_LABELS, type Subtask } from '@shared/domain'
+import { countCompleted, STATE_ICON_CLASS, subtaskElapsed, subtaskRowLabel } from '../store/format'
 import { useAppState, useStore } from '../store/context'
 
 const EMPTY: Subtask[] = []
@@ -34,6 +34,7 @@ export function SubtaskPanel() {
   const renderSub = (sub: Subtask) => {
     const role = roles[sub.roleId]
     const model = role ? (role.model ?? PROVIDER_LABELS[role.provider]) : null
+    const stateLabel = subtaskRowLabel(sub)
     return (
       <button
         type="button"
@@ -43,14 +44,11 @@ export function SubtaskPanel() {
         data-testid={`subtask-${sub.id}`}
         onClick={() => void store.selectSubtask(sub.id)}
       >
-        <i
-          className={`ic ${STATE_ICON_CLASS[sub.state]}`}
-          title={SUBTASK_STATE_LABELS[sub.state]}
-        />
+        <i className={`ic ${STATE_ICON_CLASS[sub.state]}`} title={stateLabel} />
         <span className="nm">{role?.name ?? 'Membro'}</span>
         <span className="ds">{sub.title}</span>
-        <span className="who">
-          {SUBTASK_STATE_LABELS[sub.state]}
+        <span className="who" title={stateLabel}>
+          {stateLabel}
           {model ? ` · ${model}` : ''} · {subtaskElapsed(sub, now)}
         </span>
       </button>

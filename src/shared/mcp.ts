@@ -146,7 +146,8 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
     'Cria uma subtarefa para um papel do time. O app abre o membro e avisa você no fim do turno dele.',
   entregar:
     'Entrega o resultado do seu turno: estado (pronto, duvida, bloqueado), resumo, arquivos e testes.',
-  subtarefa_responder: 'Responde uma subtarefa em dúvida. O membro continua na mesma sessão.',
+  subtarefa_responder:
+    'Responde uma subtarefa em dúvida ou parada pelo reinício do app. O membro continua na mesma conversa (se ele parou, o app reabre).',
   subtarefa_cancelar: 'Cancela uma subtarefa que ainda não terminou.',
   subtarefas_ver: 'Lista as subtarefas desta tarefa ou mostra uma com entregas e histórico.',
   subtarefas_esperar:

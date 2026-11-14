@@ -258,7 +258,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
     services = await startAppServices(options)
     try {
       expect(services.recovery.leadersToResume.map((s) => s.id)).toEqual([leaderSession.id])
-      expect(services.recovery.lostSubtasks).toEqual([])
+      expect(services.recovery.pausedSubtasks).toEqual([])
 
       await waitFor('Líder retomado criou e esperou o membro novo', () =>
         readLog(leaderLog).some((r) => r.kind === 'plan-done' && r['pid'] !== start.pid),

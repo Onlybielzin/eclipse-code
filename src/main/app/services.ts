@@ -163,7 +163,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
   const recovery = await coordinator.recover()
   log.info('recuperação da partida', {
     lostSessions: recovery.lostSessions.length,
-    lostSubtasks: recovery.lostSubtasks.length,
+    pausedSubtasks: recovery.pausedSubtasks.length,
     leadersToResume: recovery.leadersToResume.length,
   })
 

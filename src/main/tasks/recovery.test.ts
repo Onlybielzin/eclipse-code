@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { failureMessage } from '@shared/subtaskRules'
+import { RESTART_PAUSE_MESSAGE } from '@shared/subtaskRules'
 import { LATEST_SCHEMA_VERSION } from './migrations'
 import {
   createHarness,
@@ -41,7 +41,7 @@ describe('recuperação no boot', () => {
     h2.store.close()
   })
 
-  it('membro que não volta: sessão perdida, subtarefa bloqueada, turno fechado', () => {
+  it('membro que não volta: sessão encerrada, subtarefa parada esperando o Líder, turno fechado', () => {
     const h1 = createHarness(dbPath, 'a')
     const fx = seedTeam(h1.service)
     const midTurn = seedWorkingSubtask(h1.service, fx, 'no meio do turno')
@@ -76,42 +76,53 @@ describe('recuperação no boot', () => {
     const h2 = reboot(h1, 'b')
     const report = h2.service.recoverAfterRestart()
 
-    const lostIds = report.lostSubtasks.map((s) => s.id).sort()
-    expect(lostIds).toEqual([midTurn.subtask.id, waiting.subtask.id, queued.id].sort())
-    for (const id of lostIds) {
+    const pausedIds = report.pausedSubtasks.map((s) => s.id).sort()
+    expect(pausedIds).toEqual([midTurn.subtask.id, waiting.subtask.id, queued.id].sort())
+    // Nada vira cancelada nem bloqueada: tudo para em dúvida, esperando o Líder.
+    for (const id of pausedIds) {
       expect(h2.service.getSubtask(id)).toMatchObject({
-        state: 'failed',
-        failureCode: 'session_lost',
-        statusMessage: failureMessage('session_lost'),
+        state: 'input_required',
+        failureCode: null,
+        statusMessage: RESTART_PAUSE_MESSAGE,
+        finishedAt: null,
       })
     }
-    expect(failureMessage('session_lost')).toBe('bloqueado: sessão perdida')
+    expect(RESTART_PAUSE_MESSAGE).toBe('parada: o app reiniciou')
     expect(h2.service.getSubtask(done.subtask.id).state).toBe('completed')
     expect(h2.service.listOpenSessions()).toEqual([])
     expect(h2.service.getSession(midTurn.session.id)).toMatchObject({
       status: 'exited',
       endReason: 'lost_on_restart',
       activeTurnId: null,
+      // O id do provedor fica: responder reabre o membro com session/load.
+      providerSessionId: 'acp-1',
     })
     const closedTurn = h2.store.getTurn(turn.id)
     expect(closedTurn?.endedAt).not.toBeNull()
-    expect(closedTurn?.error?.code).toBe('session_closed')
+    expect(closedTurn?.error?.code).toBe('app_restarted')
     expect(closedTurn?.finalText).toBe('trabalhando... STATUS: PRONTO')
 
     // Rodar de novo não muda nada.
     const second = h2.service.recoverAfterRestart()
     expect(second).toEqual({
       lostSessions: [],
-      lostSubtasks: [],
+      pausedSubtasks: [],
       deliveredSubtasks: [],
       leadersToResume: [],
     })
     h2.store.close()
   })
 
-  it('subtarefa sem turno aberto que vira sessão perdida deixa aviso durável ao Líder', () => {
+  it('reinício deixa um aviso durável por subtarefa parada, com ou sem turno aberto', () => {
     const h1 = createHarness(dbPath, 'a')
     const fx = seedTeam(h1.service)
+    const midTurn = seedWorkingSubtask(h1.service, fx, 'no meio do turno')
+    h1.service.startTurn({
+      sessionId: midTurn.session.id,
+      subtaskId: midTurn.subtask.id,
+      author: 'leader',
+      parts: [],
+    })
     const waiting = seedWorkingSubtask(h1.service, fx, 'em dúvida')
     h1.service.transitionSubtask(waiting.subtask.id, 'input_required')
     const queued = h1.service.createSubtask({
@@ -124,27 +135,29 @@ describe('recuperação no boot', () => {
 
     const h2 = reboot(h1, 'b')
     h2.service.recoverAfterRestart({
-      composeLostNotice: (subtask) => `[eclipse] ${subtask.id} parou: ${subtask.state}`,
+      composeLostNotice: (subtask) =>
+        `[eclipse] ${subtask.id} parou: ${subtask.state} ${subtask.statusMessage}`,
     })
+    const expected = [midTurn.subtask.id, waiting.subtask.id, queued.id].map(
+      (id) => `[eclipse] ${id} parou: input_required ${RESTART_PAUSE_MESSAGE}`,
+    )
     const notices = h2.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)
-    expect(notices).toEqual([
-      `[eclipse] ${waiting.subtask.id} parou: failed`,
-      `[eclipse] ${queued.id} parou: failed`,
-    ])
+    expect(notices.sort()).toEqual([...expected].sort())
 
-    // Gravado no SQLite: sobrevive a outro reinício até ser entregue.
+    // Gravado no SQLite: sobrevive a outro reinício até ser entregue, e o segundo reinício
+    // não repete o aviso da subtarefa que continua parada.
     const h3 = reboot(h2, 'c')
+    const again = h3.service.recoverAfterRestart({ composeLostNotice: () => 'repetido' })
+    expect(again.pausedSubtasks).toEqual([])
     const pending = h3.service.listPendingLeaderNotices(fx.task.id)
-    expect(pending).toHaveLength(2)
+    expect(pending).toHaveLength(3)
     expect(h3.service.listTasksWithPendingLeaderNotices()).toEqual([fx.task.id])
     h3.service.markLeaderNoticeDelivered(pending[0]!.id)
-    expect(h3.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)).toEqual([
-      `[eclipse] ${queued.id} parou: failed`,
-    ])
+    expect(h3.service.listPendingLeaderNotices(fx.task.id)).toHaveLength(2)
     h3.store.close()
   })
 
-  it('entrega pronta gravada antes da queda vale; dúvida gravada vira sessão perdida', () => {
+  it('entrega pronta ou bloqueada gravada antes da queda vale; dúvida gravada fica parada', () => {
     const h1 = createHarness(dbPath, 'a')
     const fx = seedTeam(h1.service)
     const ok = seedWorkingSubtask(h1.service, fx, 'entregou')
@@ -163,18 +176,37 @@ describe('recuperação no boot', () => {
       parts: [],
     })
     h1.service.recordDelivery(ask.session.id, sampleDelivery('input_required', 'qual tabela?'))
+    const stuck = seedWorkingSubtask(h1.service, fx, 'travou')
+    h1.service.startTurn({
+      sessionId: stuck.session.id,
+      subtaskId: stuck.subtask.id,
+      author: 'leader',
+      parts: [],
+    })
+    h1.service.recordDelivery(stuck.session.id, sampleDelivery('failed', 'sem acesso ao banco'))
 
     const h2 = reboot(h1, 'b')
-    const report = h2.service.recoverAfterRestart()
-    expect(report.deliveredSubtasks.map((s) => s.id)).toEqual([ok.subtask.id])
+    const report = h2.service.recoverAfterRestart({ composeLostNotice: (s) => `parou ${s.id}` })
+    expect(report.deliveredSubtasks.map((s) => s.id).sort()).toEqual(
+      [ok.subtask.id, stuck.subtask.id].sort(),
+    )
     expect(h2.service.getSubtask(ok.subtask.id)).toMatchObject({
       state: 'completed',
       failureCode: null,
     })
-    expect(h2.service.getSubtask(ask.subtask.id)).toMatchObject({
+    expect(h2.service.getSubtask(stuck.subtask.id)).toMatchObject({
       state: 'failed',
-      failureCode: 'session_lost',
+      failureCode: 'member_blocked',
     })
+    expect(report.pausedSubtasks.map((s) => s.id)).toEqual([ask.subtask.id])
+    expect(h2.service.getSubtask(ask.subtask.id)).toMatchObject({
+      state: 'input_required',
+      statusMessage: RESTART_PAUSE_MESSAGE,
+    })
+    // Só a parada gera aviso de reinício; as entregues avisam pelo fim de turno (relay).
+    expect(h2.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)).toEqual([
+      `parou ${ask.subtask.id}`,
+    ])
     h2.store.close()
   })
 
@@ -188,7 +220,7 @@ describe('recuperação no boot', () => {
       survivingSessionIds: new Set([back.session.id]),
     })
     expect(report.lostSessions).toEqual([])
-    expect(report.lostSubtasks).toEqual([])
+    expect(report.pausedSubtasks).toEqual([])
     expect(h2.service.getSubtask(back.subtask.id).state).toBe('input_required')
     expect(h2.service.getSession(back.session.id).status).toBe('starting')
     h2.store.close()
@@ -235,7 +267,7 @@ describe('recuperação no boot', () => {
     expect(report.leadersToResume.map((s) => [s.taskId, s.providerSessionId])).toEqual([
       [fx.task.id, 'claude-abc'],
     ])
-    expect(report.lostSubtasks).toEqual([])
+    expect(report.pausedSubtasks).toEqual([])
     expect(h2.service.getLiveLeaderSession(fx.task.id)).toBeNull()
     const resumed = h2.service.openSession({
       taskId: fx.task.id,

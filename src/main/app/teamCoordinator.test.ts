@@ -1,18 +1,27 @@
 // TeamCoordinator com SQLite em memoria e portas falsas (pty, Lider, membros, ponte).
 // Nenhum processo real, nenhum modelo, nenhuma janela.
 import { describe, expect, it } from 'vitest'
-import type { Provider, SessionId, TaskId } from '@shared/domain'
+import {
+  DomainError,
+  type Provider,
+  type SessionId,
+  type TaskId,
+  type TurnResult,
+} from '@shared/domain'
+import type { McpCaller } from '@shared/mcp'
+import { RESTART_PAUSE_MESSAGE } from '@shared/subtaskRules'
 import type {
   LeaderLaunchRequest,
   LeaderLaunchResult,
   McpBridgeServer,
   MemberRuntime,
+  MemberSessionStart,
   PtyHost,
   WorktreeService,
 } from '@shared/ports'
 import type { LeaderModule, LeaderSessionEvent } from '../leader'
 import { startTeamTurnRelay } from '../mcp'
-import { createHarness, seedTeam } from '../tasks/testing'
+import { createHarness, seedTeam, seedWorkingSubtask } from '../tasks/testing'
 import { createIpcHandlers } from './ipcHandlers'
 import { createIpcRouter } from './ipcRouter'
 import { AppTeamCoordinator } from './teamCoordinator'
@@ -30,7 +39,7 @@ function deferred<T>(): Deferred<T> {
   return { promise, resolve }
 }
 
-function setup(options: { transcripts?: Set<string> } = {}) {
+function setup(options: { transcripts?: Set<string>; members?: MemberRuntime } = {}) {
   const { service: tasks } = createHarness()
   const fx = seedTeam(tasks)
   const alive = new Set<string>()
@@ -98,13 +107,15 @@ function setup(options: { transcripts?: Set<string> } = {}) {
     dispose: async () => undefined,
   } as unknown as LeaderModule
 
-  const members = {
-    onActivity: () => () => undefined,
-    onSessionExit: () => () => undefined,
-    isAlive: () => false,
-    close: async () => undefined,
-    dispose: async () => undefined,
-  } as unknown as MemberRuntime
+  const members =
+    options.members ??
+    ({
+      onActivity: () => () => undefined,
+      onSessionExit: () => () => undefined,
+      isAlive: () => false,
+      close: async () => undefined,
+      dispose: async () => undefined,
+    } as unknown as MemberRuntime)
   const bridge = {
     issueToken: () => 'tok',
     revokeSession: () => undefined,
@@ -268,7 +279,7 @@ describe('avisos ao Líder fora de turno', () => {
     expect(h.tasks.listPendingLeaderNotices(h.fx.task.id)).toEqual([])
   })
 
-  it('recuperação avisa o Líder das subtarefas perdidas sem turno aberto', async () => {
+  it('recuperação avisa o Líder das subtarefas paradas sem turno aberto', async () => {
     const h = setup()
     const queued = h.tasks.createSubtask({
       taskId: h.fx.task.id,
@@ -282,7 +293,177 @@ describe('avisos ao Líder fora de turno', () => {
     const pending = h.tasks.listPendingLeaderNotices(h.fx.task.id).map((n) => n.text)
     expect(pending).toHaveLength(1)
     expect(pending[0]).toContain(queued.id)
-    expect(pending[0]).toContain('sessão perdida')
+    expect(pending[0]).toContain('O app reiniciou')
+    expect(h.tasks.getSubtask(queued.id)).toMatchObject({
+      state: 'input_required',
+      statusMessage: RESTART_PAUSE_MESSAGE,
+    })
+  })
+})
+
+/** MemberRuntime falso: grava partidas e prompts; o turno termina com STATUS: PRONTO. */
+function fakeMembers(options: { loadFails?: boolean; startFails?: boolean } = {}) {
+  const starts: MemberSessionStart[] = []
+  const prompts: { sessionId: string; text: string }[] = []
+  const alive = new Set<string>()
+  const runtime = {
+    onActivity: () => () => undefined,
+    onSessionExit: () => () => undefined,
+    isAlive: (id: string) => alive.has(id),
+    liveCount: () => alive.size,
+    async startSession(request: MemberSessionStart) {
+      starts.push(request)
+      if (options.startFails) throw new DomainError('unavailable', 'agente não abriu')
+      if (request.resumeProviderSessionId && options.loadFails) {
+        throw new DomainError('unavailable', 'Este agente não sabe retomar sessão (session/load).')
+      }
+      alive.add(request.sessionId)
+      return {
+        sessionId: request.sessionId,
+        providerSessionId: request.resumeProviderSessionId ?? `novo-${starts.length}`,
+        pid: 4242,
+      }
+    },
+    async prompt(sessionId: string, input: { turnId: string; text: string }): Promise<TurnResult> {
+      prompts.push({ sessionId, text: input.text })
+      return {
+        turnId: input.turnId,
+        sessionId,
+        outcome: { kind: 'stopped', stopReason: 'end_turn' },
+        finalText: 'Continuei e terminei.\nSTATUS: PRONTO',
+        deliveries: [],
+        startedAt: 1,
+        endedAt: 2,
+      }
+    },
+    async close(id: string) {
+      alive.delete(id)
+    },
+    cancel: async () => undefined,
+    dispose: async () => undefined,
+  } as unknown as MemberRuntime
+  return { runtime, starts, prompts }
+}
+
+/**
+ * Subtarefa com membro no meio do turno quando o app fechou, depois da recuperacao da
+ * partida seguinte: parada em input_required, sessao antiga com providerSessionId 'acp-1'.
+ */
+async function pausedByRestart(members: ReturnType<typeof fakeMembers>) {
+  const h = setup({ members: members.runtime })
+  const { subtask, session } = seedWorkingSubtask(h.tasks, h.fx)
+  const turn = h.tasks.startTurn({
+    sessionId: session.id,
+    subtaskId: subtask.id,
+    author: 'leader',
+    parts: [{ kind: 'text', text: 'faça a rota' }],
+  })
+  h.tasks.appendActivity([
+    {
+      sessionId: session.id,
+      subtaskId: subtask.id,
+      turnId: turn.id,
+      at: 5,
+      payload: { kind: 'text', text: 'Criei src/rota.ts; faltam os testes.' },
+    },
+  ])
+  await h.coordinator.recover()
+  await h.settle()
+  const leader: McpCaller = {
+    role: 'leader',
+    sessionId: 'sess-lider',
+    taskId: h.fx.task.id,
+    subtaskId: null,
+  }
+  return { h, subtask, session, leader }
+}
+
+describe('subtarefa parada pelo reinício do app', () => {
+  it('turno aberto na queda: fica parada e o Líder recebe um aviso só, o de reinício', async () => {
+    const { h, subtask, session } = await pausedByRestart(fakeMembers())
+    expect(h.tasks.getSubtask(subtask.id)).toMatchObject({
+      state: 'input_required',
+      statusMessage: 'parada: o app reiniciou',
+      failureCode: null,
+    })
+    expect(h.tasks.getSession(session.id)).toMatchObject({
+      endReason: 'lost_on_restart',
+      providerSessionId: 'acp-1',
+    })
+    const pending = h.tasks.listPendingLeaderNotices(h.fx.task.id).map((n) => n.text)
+    expect(pending).toEqual([
+      `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (Dev 1: Implementar rota) parou no meio. O que o membro já alterou continua na worktree. Para continuar: subtarefa_responder com o que ele deve fazer (o app reabre o membro na mesma conversa). Para encerrar: subtarefa_cancelar.`,
+    ])
+    // Quando o Líder abre, recebe exatamente esse aviso (e não o "terminou o turno").
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    await h.settle()
+    expect(h.delivered.map((d) => d.text)).toEqual(pending)
+  })
+
+  it('Líder cancela depois do reinício', async () => {
+    const { h, subtask, leader } = await pausedByRestart(fakeMembers())
+    const canceled = await h.coordinator.cancelSubtask(leader, subtask.id, null)
+    await h.settle()
+    expect(canceled).toMatchObject({ state: 'canceled', statusMessage: 'cancelada pelo Líder' })
+  })
+
+  it('Líder responde: o membro é reaberto com session/load na mesma conversa e o turno roda', async () => {
+    const members = fakeMembers()
+    const { h, subtask, session, leader } = await pausedByRestart(members)
+    const answered = await h.coordinator.answerSubtask(leader, subtask.id, 'Faça os testes.')
+    expect(answered.state).toBe('working')
+    await h.settle()
+
+    expect(members.starts).toHaveLength(1)
+    expect(members.starts[0]).toMatchObject({
+      subtaskId: subtask.id,
+      provider: 'codex',
+      cwd: '/wt/corrigir-login',
+      resumeProviderSessionId: 'acp-1',
+    })
+    expect(members.prompts).toHaveLength(1)
+    expect(members.prompts[0]!.text).toContain('A conversa foi retomada')
+    expect(members.prompts[0]!.text).toContain('Faça os testes.')
+
+    const after = h.tasks.getSubtask(subtask.id)
+    expect(after.state).toBe('completed')
+    expect(after.sessionId).not.toBe(session.id)
+    const reopened = h.tasks.getSession(after.sessionId!)
+    expect(reopened).toMatchObject({ providerSessionId: 'acp-1', endReason: 'closed' })
+    expect(h.tasks.getSession(session.id).endReason).toBe('lost_on_restart')
+  })
+
+  it('sem session/load: conversa nova e o primeiro prompt leva o contexto da subtarefa', async () => {
+    const members = fakeMembers({ loadFails: true })
+    const { h, subtask, leader } = await pausedByRestart(members)
+    await h.coordinator.answerSubtask(leader, subtask.id, 'Faça os testes.')
+    await h.settle()
+
+    expect(members.starts.map((s) => s.resumeProviderSessionId)).toEqual(['acp-1', null])
+    // As duas tentativas usam a mesma sessão do app.
+    expect(new Set(members.starts.map((s) => s.sessionId)).size).toBe(1)
+    const text = members.prompts[0]!.text
+    expect(text).toContain(`Subtarefa ${subtask.id}: Implementar rota`)
+    expect(text).toContain('faça a rota')
+    expect(text).toContain('Criei src/rota.ts; faltam os testes.')
+    expect(text).toContain('Mensagem do Líder:\nFaça os testes.')
+    expect(h.tasks.getSubtask(subtask.id).state).toBe('completed')
+    expect(h.tasks.getSession(h.tasks.getSubtask(subtask.id).sessionId!).providerSessionId).toBe(
+      'novo-2',
+    )
+  })
+
+  it('falha ao reabrir: subtarefa bloqueada (spawn_failed) e o Líder é avisado', async () => {
+    const { h, subtask, leader } = await pausedByRestart(fakeMembers({ startFails: true }))
+    await h.coordinator.answerSubtask(leader, subtask.id, 'Faça os testes.')
+    await h.settle()
+    const after = h.tasks.getSubtask(subtask.id)
+    expect(after).toMatchObject({ state: 'failed', failureCode: 'spawn_failed' })
+    expect(h.tasks.getSession(after.sessionId!).endReason).toBe('spawn_failed')
+    const pending = h.tasks.listPendingLeaderNotices(h.fx.task.id).map((n) => n.text)
+    expect(pending).toHaveLength(2)
+    expect(pending[1]).toContain(`Subtarefa ${subtask.id}`)
+    expect(pending[1]).toContain('não abriu: bloqueado')
   })
 })
 

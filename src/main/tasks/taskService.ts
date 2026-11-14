@@ -82,7 +82,13 @@ import {
   questionAnswerSchema,
   questionItemsSchema,
 } from '@shared/schemas'
-import { assembleFinalText, failureMessage, resolveTurn } from '@shared/subtaskRules'
+import {
+  RESTART_PAUSE_MESSAGE,
+  assembleFinalText,
+  failureMessage,
+  isPausedByRestart,
+  resolveTurn,
+} from '@shared/subtaskRules'
 import { nextTaskWorkflowStatus, type TaskWorkflowSignal } from '@shared/taskWorkflow'
 import { roleNameKey, type SqliteTaskStore } from './sqliteTaskStore'
 
@@ -101,8 +107,11 @@ export interface TaskServiceDeps {
 export interface RecoveryReport {
   /** Sessoes abertas que nao voltaram e foram encerradas com 'lost_on_restart'. */
   lostSessions: Session[]
-  /** Subtarefas que viraram 'failed' com failureCode 'session_lost'. */
-  lostSubtasks: Subtask[]
+  /**
+   * Subtarefas que ficaram paradas em input_required ("parada: o app reiniciou"), esperando
+   * o Lider responder (reabre o membro) ou cancelar. Uma entrada (e um aviso) por subtarefa.
+   */
+  pausedSubtasks: Subtask[]
   /** Subtarefas fechadas pela entrega estruturada gravada antes da queda. */
   deliveredSubtasks: Subtask[]
   /**
@@ -664,6 +673,11 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     return this.write(() => this.applyTransition(this.getSubtask(id), to, patch))
   }
 
+  private isSessionOpen(sessionId: SessionId): boolean {
+    const session = this.store.getSession(sessionId)
+    return !!session && session.status !== 'exited'
+  }
+
   attachSubtaskSession(id: SubtaskId, sessionId: SessionId): Subtask {
     return this.write(() => {
       const subtask = this.getSubtask(id)
@@ -675,7 +689,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         throw new DomainError('invalid_input', 'sessão não é do membro desta subtarefa')
       }
       if (subtask.sessionId === sessionId) return subtask
-      if (subtask.sessionId !== null) {
+      // Sessao anterior encerrada (ex: o app reiniciou): o membro reaberto a substitui.
+      if (subtask.sessionId !== null && this.isSessionOpen(subtask.sessionId)) {
         throw new DomainError('conflict', 'subtarefa já tem sessão de membro', { subtaskId: id })
       }
       const next: Subtask = { ...subtask, sessionId, updatedAt: this.clock.now() }
@@ -773,7 +788,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         if (isFinalSubtaskState(subtask.state)) {
           throw new DomainError('final_state', 'subtarefa já terminou', { subtaskId: subtask.id })
         }
-        if (subtask.sessionId !== null) {
+        if (subtask.sessionId !== null && this.isSessionOpen(subtask.sessionId)) {
           throw new DomainError('conflict', 'subtarefa já tem sessão de membro', {
             subtaskId: subtask.id,
           })
@@ -954,17 +969,15 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   }
 
   finishTurn(result: TurnResult): FinishTurnOutcome {
-    return this.write(() => this.applyFinishTurn(result, null))
+    return this.write(() => this.applyFinishTurn(result, false))
   }
 
   /**
-   * Fecha o turno. `forceFailure` (recuperacao) troca o resultado nao final por
-   * failed com o codigo dado, porque nao ha mais sessao para continuar.
+   * Fecha o turno. `afterRestart` (recuperacao): sem entrega final (pronto ou bloqueado)
+   * gravada, a subtarefa fica parada em input_required com RESTART_PAUSE_MESSAGE,
+   * esperando o Lider, porque o membro nao existe mais para continuar sozinho.
    */
-  private applyFinishTurn(
-    result: TurnResult,
-    forceFailure: SubtaskFailureCode | null,
-  ): FinishTurnOutcome {
+  private applyFinishTurn(result: TurnResult, afterRestart: boolean): FinishTurnOutcome {
     const turn =
       this.store.getTurn(result.turnId) ??
       (() => {
@@ -1032,11 +1045,12 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     let state = resolution.state
     let failureCode = resolution.failureCode
     let statusMessage = resolution.statusMessage
-    // Sem entrega estruturada, ou com uma que pede resposta, nao ha como seguir.
-    if (forceFailure && (deliveries.length === 0 || !isFinalSubtaskState(state))) {
-      state = 'failed'
-      failureCode = forceFailure
-      statusMessage = failureMessage(forceFailure)
+    // Sem entrega final gravada (ou com uma duvida): o membro nao existe mais para seguir.
+    // A subtarefa para e espera o Lider (responder reabre o membro; ou cancelar).
+    if (afterRestart && (deliveries.length === 0 || !isFinalSubtaskState(state))) {
+      state = 'input_required'
+      failureCode = null
+      statusMessage = RESTART_PAUSE_MESSAGE
     }
     // O turno roda com a subtarefa em 'working'; se ela nao esta mais la (ex: a tela
     // mexeu no meio), so transiciona se a regra deixar.
@@ -1250,16 +1264,19 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   /**
    * Chamado uma vez na partida, depois que o TeamCoordinator tentou retomar o que
    * podia. Toda sessao aberta fora de `survivingSessionIds` nao voltou:
-   *   - a sessao e encerrada com 'lost_on_restart';
-   *   - turno aberto dela e fechado. Se o membro ja tinha chamado entregar com
-   *     pronto ou bloqueado, a entrega vale; senao a subtarefa vira
-   *     failed / 'session_lost' ("bloqueado: sessão perdida");
-   *   - subtarefa nao final cuja sessao nao voltou (ou que nem chegou a ter
-   *     sessao) tambem vira failed / 'session_lost'.
+   *   - a sessao e encerrada com 'lost_on_restart' (o providerSessionId fica gravado: o
+   *     membro reaberto pelo Lider retoma a conversa com session/load);
+   *   - turno aberto dela e fechado com erro 'app_restarted'. Se o membro ja tinha chamado
+   *     entregar com pronto ou bloqueado, a entrega vale;
+   *   - toda subtarefa nao final cuja sessao nao voltou (ou que nem chegou a ter sessao)
+   *     fica parada: input_required com RESTART_PAUSE_MESSAGE ("parada: o app reiniciou").
+   *     Nao vira cancelada nem bloqueada: o Lider decide (subtarefa_responder reabre o
+   *     membro; subtarefa_cancelar encerra).
+   * Com `composeLostNotice`, cada subtarefa parada deixa UM aviso na fila duravel
+   * (leader_notices), na mesma transacao. O fim de turno 'app_restarted' de subtarefa parada
+   * nao gera outro aviso no TeamTurnRelay. Subtarefa que ja estava parada por um reinicio
+   * anterior nao gera aviso de novo.
    * Lideres nao viram erro: voltam em leadersToResume para o --resume.
-   * Subtarefa perdida sem turno aberto (na fila, em duvida) nao gera turn.upserted, entao o
-   * TeamTurnRelay nao avisaria o Lider: com `composeLostNotice`, o aviso entra na fila
-   * duravel de avisos (leader_notices) na mesma transacao.
    * Uma transacao so: ou recupera tudo, ou nada muda.
    */
   recoverAfterRestart(
@@ -1272,7 +1289,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     return this.write(() => {
       const report: RecoveryReport = {
         lostSessions: [],
-        lostSubtasks: [],
+        pausedSubtasks: [],
         deliveredSubtasks: [],
         leadersToResume: [],
       }
@@ -1289,33 +1306,35 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
               sessionId: session.id,
               outcome: {
                 kind: 'error',
-                error: { code: 'session_closed', message: 'sessão perdida ao reiniciar o app' },
+                error: { code: 'app_restarted', message: 'o app reiniciou no meio do turno' },
               },
               finalText,
               deliveries: [],
               startedAt: now,
               endedAt: now,
             },
-            'session_lost',
+            true,
           )
-          if (outcome.transitioned) {
-            if (outcome.subtask.failureCode === 'session_lost') {
-              report.lostSubtasks.push(outcome.subtask)
-            } else {
-              report.deliveredSubtasks.push(outcome.subtask)
-            }
+          if (outcome.transitioned && isFinalSubtaskState(outcome.subtask.state)) {
+            report.deliveredSubtasks.push(outcome.subtask)
           }
         }
         const ended = this.endSession(session.id, { reason: 'lost_on_restart', exitCode: null })
         report.lostSessions.push(ended)
       }
 
+      // Inclui as que o laco acima acabou de parar: o aviso sai aqui, um por subtarefa.
+      const pausedNow = new Set(
+        report.lostSessions.map((s) => s.subtaskId).filter((id): id is SubtaskId => !!id),
+      )
       for (const subtask of this.store.listUnfinishedSubtasks()) {
         if (subtask.sessionId !== null && survivors.has(subtask.sessionId)) continue
-        const lost = this.applyTransition(subtask, 'failed', { failureCode: 'session_lost' })
-        report.lostSubtasks.push(lost)
+        // Parada por um reinicio anterior e ainda sem decisao do Lider: o aviso ja saiu.
+        if (isPausedByRestart(subtask) && !pausedNow.has(subtask.id)) continue
+        const paused = this.pauseAfterRestart(subtask)
+        report.pausedSubtasks.push(paused)
         if (input.composeLostNotice) {
-          this.insertLeaderNotice(lost.taskId, input.composeLostNotice(lost))
+          this.insertLeaderNotice(paused.taskId, input.composeLostNotice(paused))
         }
       }
 
@@ -1331,6 +1350,24 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       }
       return report
     })
+  }
+
+  /** submitted/working -> input_required, ou so a mensagem se ja estava em duvida. */
+  private pauseAfterRestart(subtask: Subtask): Subtask {
+    if (isPausedByRestart(subtask)) return subtask
+    if (subtask.state !== 'input_required') {
+      return this.applyTransition(subtask, 'input_required', {
+        statusMessage: RESTART_PAUSE_MESSAGE,
+      })
+    }
+    const next: Subtask = {
+      ...subtask,
+      statusMessage: RESTART_PAUSE_MESSAGE,
+      updatedAt: this.clock.now(),
+    }
+    this.store.updateSubtask(next)
+    this.emit({ type: 'subtask.upserted', subtask: next })
+    return next
   }
 }
 

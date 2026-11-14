@@ -22,8 +22,8 @@
  *   - Le ~/.codex/config.toml sozinho (MCPs e preferencias do usuario).
  *   - CLI: CODEX_PATH aponta para o primeiro `codex` do PATH, como o Lider usa.
  *   - CODEX_CONFIG (JSON) sobrepoe chaves: model e developer_instructions (prompt do papel).
- *   - Modo padrao "agent": sandbox workspace-write e aprovacao on-request, que chega aqui
- *     como session/request_permission e passa pela politica da worktree.
+ *   - Permissao total como o Lider: sandbox_mode danger-full-access e approval_policy never
+ *     no CODEX_CONFIG. Pedido que ainda chegue como session/request_permission e aceito.
  */
 import { createRequire } from 'node:module'
 import type { McpServer } from '@agentclientprotocol/sdk'
@@ -80,6 +80,9 @@ export function buildAgentCommand(
     const config: Record<string, unknown> = { ...existing }
     if (request.model) config.model = request.model
     if (request.systemPrompt.trim()) config.developer_instructions = request.systemPrompt
+    // Permissao total, como o Lider (--dangerously-bypass-approvals-and-sandbox).
+    config.sandbox_mode = 'danger-full-access'
+    config.approval_policy = 'never'
     if (Object.keys(config).length > 0) env.CODEX_CONFIG = JSON.stringify(config)
   }
   return { command: nodeBinary, args: [scriptPath], env }

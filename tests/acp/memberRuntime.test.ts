@@ -283,12 +283,12 @@ describe('AcpMemberRuntime com agente falso', () => {
     expect(h.runtime.liveCount()).toBe(0)
   })
 
-  it('aceita sozinho o que está dentro da worktree e recusa o que está fora', async () => {
+  it('aceita sozinho tudo, dentro e fora da worktree (permissão total)', async () => {
     const h = makeRuntime()
     const request = startRequest('permissao')
     await h.runtime.startSession(request)
     const result = await h.runtime.prompt(request.sessionId, { turnId: 't1', text: 'oi' })
-    expect(result.finalText).toBe('dentro=sim fora=nao terminal=sim')
+    expect(result.finalText).toBe('dentro=sim fora=sim terminal=sim')
   })
 
   it('retoma com session/load e ignora o histórico repetido', async () => {

@@ -15,6 +15,8 @@
 // FAKE_ACP_GRANDCHILD=<arquivo>: abre um neto no mesmo grupo de processos que ignora
 // SIGTERM (como um `pnpm test` aberto pelo Bash do membro) e grava o pid dele no arquivo.
 //
+// FAKE_ACP_NO_LOAD=1: anuncia loadSession false (agente que nao sabe retomar conversa).
+//
 // FAKE_ACP_RECORD=<arquivo>: grava uma linha JSON por chamada de partida (initialize,
 // session/new, session/load) com cwd e algumas variaveis de ambiente.
 import { spawn } from 'node:child_process'
@@ -72,7 +74,7 @@ class FakeAgent {
     record('initialize', params)
     return {
       protocolVersion: PROTOCOL_VERSION,
-      agentCapabilities: { loadSession: true },
+      agentCapabilities: { loadSession: process.env.FAKE_ACP_NO_LOAD !== '1' },
       authMethods: [],
     }
   }
@@ -128,6 +130,7 @@ class FakeAgent {
             content: { type: 'text', text: `pensando ${n}` },
           },
         })
+        record('session/prompt', { sessionId, text: promptText })
         await this.say(sessionId, `Vou entregar o turno ${n}.`, `m${n}a`)
         const toolCallId = `tool-${n}`
         await this.connection.sessionUpdate({

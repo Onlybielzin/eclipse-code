@@ -380,8 +380,9 @@ export interface TeamCoordinator extends McpToolHandler {
   ensureLeader(taskId: TaskId): Promise<Session>
   answerUserQuestion(questionId: QuestionId, answers: QuestionAnswer[]): Promise<UserQuestion>
   /**
-   * Na partida: retoma Lideres com --resume/resume; membros cuja sessao nao volta
-   * viram 'failed' com failureCode 'session_lost'. Sessoes encerradas nao contam no limite.
+   * Na partida: retoma Lideres com --resume/resume; subtarefas cujo membro nao volta ficam
+   * paradas em input_required ("parada: o app reiniciou") e o Lider recebe um aviso.
+   * Sessoes encerradas nao contam no limite.
    */
   recoverOnStartup(): Promise<void>
   /** Encerra membros e Lideres de forma ordenada ao fechar o app. */

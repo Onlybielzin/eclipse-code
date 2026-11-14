@@ -14,6 +14,7 @@ import type {
   TaskService,
   Unsubscribe,
 } from '@shared/ports'
+import { isPausedByRestart } from '@shared/subtaskRules'
 
 const MAX_SUMMARY_CHARS = 280
 const MAX_SEEN_TURNS = 2_000
@@ -25,6 +26,7 @@ const TURN_ERROR_LABELS: Record<string, string> = {
   session_closed: 'sessão fechada',
   spawn_failed: 'não abriu',
   protocol_error: 'erro de protocolo',
+  app_restarted: 'o app reiniciou',
 }
 
 function oneLine(text: string, max: number): string {
@@ -174,6 +176,9 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
 
   const handleTurnEnd = (turn: Turn) => {
     const subtask = tasks.getSubtask(turn.subtaskId)
+    // Turno fechado pela recuperacao com a subtarefa parada: o aviso de reinicio ja entrou na
+    // fila na mesma transacao (recoverAfterRestart). Um aviso so por subtarefa.
+    if (turn.error?.code === 'app_restarted' && isPausedByRestart(subtask)) return
     let roleName = subtask.roleId
     try {
       roleName = tasks.getRole(subtask.roleId).name
