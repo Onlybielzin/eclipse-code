@@ -15,7 +15,7 @@
  */
 import type { EpochMs, Provider, SessionId } from '@shared/domain'
 import type { PtyExit, PtyHost, Unsubscribe } from '@shared/ports'
-import { removeClaudeHookFiles, type ClaudeHookPaths } from './claudeHooks'
+import { parseNoticesDelivered, removeClaudeHookFiles, type ClaudeHookPaths } from './claudeHooks'
 import { JsonlTail } from './jsonlTail'
 import {
   findCodexSessionFile,
@@ -45,12 +45,16 @@ export interface LeaderSessionSnapshot {
   bracketedPaste: boolean
   lastOutputAt: EpochMs
   exit: PtyExit | null
+  /** Pasta do gancho (caixa de avisos); null no Codex. */
+  claudeHooks: ClaudeHookPaths | null
 }
 
 export type LeaderSessionEvent =
   | { type: 'provider-session-id'; sessionId: SessionId; providerSessionId: string }
   | { type: 'activity'; sessionId: SessionId; activity: LeaderActivity }
   | { type: 'exit'; sessionId: SessionId; ptyId: string; exit: PtyExit }
+  /** O gancho entregou estes avisos (ids da fila duravel) ao Claude. */
+  | { type: 'notices-delivered'; sessionId: SessionId; ids: number[] }
 
 export interface RegisterLeaderInput {
   sessionId: SessionId
@@ -193,6 +197,11 @@ export function createLeaderSessionRegistry(
 
   const watchClaudeHooks = (entry: Entry, paths: ClaudeHookPaths): void => {
     startTail(entry, paths.events, true, (raw) => {
+      const delivered = parseNoticesDelivered(raw)
+      if (delivered) {
+        emit({ type: 'notices-delivered', sessionId: entry.input.sessionId, ids: delivered })
+        return
+      }
       const record = parseClaudeHookRecord(raw)
       if (!record) return
       if (record.event === 'SessionStart' && record.sessionId)
@@ -279,6 +288,7 @@ export function createLeaderSessionRegistry(
     bracketedPaste: entry.bracketedPaste,
     lastOutputAt: entry.lastOutputAt,
     exit: entry.exit,
+    claudeHooks: entry.input.claudeHooks,
   })
 
   return {

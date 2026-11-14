@@ -85,6 +85,8 @@ export interface LeaderActivityEvent {
   type: string
   sessionId: SessionId
   activity?: string
+  /** notices-delivered: ids da fila duravel que o gancho entregou. */
+  ids?: number[]
 }
 
 export interface TeamTurnRelay {
@@ -166,6 +168,7 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   // na fila num microtask depois do commit e o subtarefas_esperar pode devolver antes.
   const seenBySubtask = new Map<SubtaskId, number>()
   const draining = new Map<TaskId, Promise<void>>()
+  const rerun = new Set<TaskId>()
   let stopped = false
 
   const remember = (turnId: TurnId): boolean => {
@@ -177,20 +180,37 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
 
   const drain = (taskId: TaskId): Promise<void> => {
     const running = draining.get(taskId)
-    if (running) return running
+    if (running) {
+      // Pedido chegou com a rodada quase no fim: roda mais uma ao terminar.
+      rerun.add(taskId)
+      return running
+    }
     const job = (async () => {
       while (!stopped) {
-        const next = notices.listPendingLeaderNotices(taskId)[0]
-        if (!next) return
+        const pending = notices.listPendingLeaderNotices(taskId)
+        if (pending.length === 0) return
         const leader = tasks.getLiveLeaderSession(taskId)
         if (!leader) return
+        // Lider Claude trabalhando: o aviso vai pela caixa do gancho e sai da fila so com
+        // notices-delivered. Do contrario (ocioso, Codex), cola o mais antigo.
+        const toPaste = relay.offer
+          ? await relay.offer(
+              leader.id,
+              pending.map(({ id, text }) => ({ id, text })),
+            )
+          : pending
+        const next = toPaste[0]
+        if (!next) return
         const result = await relay.deliver(leader.id, next.text)
         if (!result.delivered) return
         notices.markLeaderNoticeDelivered(next.id)
       }
     })()
       .catch(onError)
-      .finally(() => draining.delete(taskId))
+      .finally(() => {
+        draining.delete(taskId)
+        if (rerun.delete(taskId)) void drain(taskId)
+      })
     draining.set(taskId, job)
     return job
   }
@@ -260,7 +280,14 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   })
 
   const offLeader = deps.leaderEvents?.onEvent((event) => {
-    if (stopped || event.type !== 'activity' || event.activity !== 'idle') return
+    if (stopped) return
+    if (event.type === 'notices-delivered') {
+      try {
+        for (const id of event.ids ?? []) notices.markLeaderNoticeDelivered(id)
+      } catch (error) {
+        onError(error)
+      }
+    } else if (event.type !== 'activity' || event.activity !== 'idle') return
     let taskId: TaskId
     try {
       taskId = tasks.getSession(event.sessionId).taskId
@@ -305,6 +332,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
       }
       try {
         notices.discardPendingLeaderNoticesForSubtasks(taskId, subtaskIds)
+        // Reoferece o que sobrou: a oferta regrava a caixa do gancho sem o que foi descartado.
+        if (notices.listPendingLeaderNotices(taskId).length > 0) void drain(taskId)
       } catch (error) {
         onError(error)
       }

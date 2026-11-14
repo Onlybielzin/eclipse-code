@@ -519,6 +519,17 @@ export interface LeaderLauncher {
  */
 export interface LeaderRelay {
   deliver(sessionId: SessionId, text: string): Promise<{ delivered: boolean; attempts: number }>
+  /**
+   * Oferece os avisos pendentes (do mais antigo ao mais novo) antes de colar. Lider Claude
+   * trabalhando e com ganchos: grava na caixa do gancho e nao devolve nada; o aviso so sai da
+   * fila com o evento notices-delivered. Qualquer outro caso (ocioso, Codex, sem gancho):
+   * recolhe a caixa e devolve os avisos que o chamador ainda deve colar com deliver.
+   * Sem este metodo, o chamador cola tudo.
+   */
+  offer?(
+    sessionId: SessionId,
+    notices: readonly { id: number; text: string }[],
+  ): Promise<{ id: number; text: string }[]>
 }
 
 // ---------------------------------------------------------------------------
