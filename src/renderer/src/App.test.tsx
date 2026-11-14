@@ -55,86 +55,147 @@ function openAddProject() {
 
 describe('Configurações', () => {
   const openSettings = () => fireEvent.click(screen.getByRole('button', { name: 'Configurações' }))
+  const page = () => screen.getByRole('main', { name: 'Configurações' })
+  const agentsField = async () => {
+    const field = await within(page()).findByLabelText(/Máximo de agentes vivos no app/)
+    await waitFor(() => expect(field).toHaveProperty('disabled', false))
+    return field
+  }
 
-  it('foca o primeiro campo depois de carregar os valores', async () => {
+  it('abre como página: esconde o Líder sem desmontar o terminal e Voltar ao Líder fecha', async () => {
     await renderApp()
+    const term = await within(middle()).findByTestId('xterm')
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
-    await waitFor(() => expect(document.activeElement).toBe(agents))
+    expect(page()).toBeTruthy()
+    expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull()
+    expect(screen.getByRole('region', { name: 'Tarefas' })).toBeTruthy()
+    expect(document.body.contains(term)).toBe(true)
+    // jsdom não carrega o CSS: a classe é o que esconde o meio e a direita.
+    expect(page().parentElement?.classList.contains('settings-open')).toBe(true)
+    fireEvent.click(within(page()).getByRole('button', { name: 'Voltar ao Líder' }))
+    expect(screen.queryByRole('main', { name: 'Configurações' })).toBeNull()
+    expect(document.body.contains(term)).toBe(true)
+    expect(middle().parentElement?.classList.contains('settings-open')).toBe(false)
   })
 
-  it('abre com os limites atuais e salva vazio como sem limite', async () => {
+  it('Escape e clicar numa tarefa fecham a página', async () => {
+    await renderApp()
+    openSettings()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByRole('main', { name: 'Configurações' })).toBeNull()
+    openSettings()
+    fireEvent.click(screen.getByTestId('task-t1'))
+    expect(screen.queryByRole('main', { name: 'Configurações' })).toBeNull()
+  })
+
+  it('clicar numa subtarefa fecha a página e mostra a subtarefa', async () => {
+    await renderApp()
+    openSettings()
+    fireEvent.click(screen.getByTestId('subtask-d1'))
+    expect(screen.queryByRole('main', { name: 'Configurações' })).toBeNull()
+    await within(middle()).findByTestId('delivery')
+  })
+
+  it('tarefa criada depois de abrir a página não fecha a página, mas fica selecionada', async () => {
+    const { store } = await renderApp()
+    const creating = store.createTask({ title: 'nova', kind: 'team', useWorktree: true })
+    openSettings()
+    await act(async () => {
+      await creating
+    })
+    expect(page()).toBeTruthy()
+    expect(store.getState().selectedTaskId).toBe('t-new-4')
+  })
+
+  it('sem projeto a página também abre', async () => {
+    api = new FakeApi({ ...mockupData(), projects: [], tasks: [], subtasks: [] })
+    render(<App store={new AppStore(api)} />)
+    await screen.findByText(/Nenhum projeto ainda/)
+    openSettings()
+    expect(page()).toBeTruthy()
+    expect(screen.queryByText(/Nenhum projeto ainda/)).toBeNull()
+  })
+
+  it('abre com os limites atuais e salva vazio como sem limite, sem fechar a página', async () => {
     await renderApp()
     api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null }
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
+    const agents = await agentsField()
     await waitFor(() => expect(agents).toHaveProperty('value', '12'))
-    const members = within(dialog).getByLabelText(/Máximo de membros vivos por tarefa/)
+    const members = within(page()).getByLabelText(/Máximo de membros vivos por tarefa/)
     expect(members).toHaveProperty('value', '')
+    const save = within(page()).getByRole('button', { name: 'Salvar limites' })
+    expect(save).toHaveProperty('disabled', true)
     fireEvent.change(agents, { target: { value: '' } })
     fireEvent.change(members, { target: { value: '3' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull())
+    expect(within(page()).getByText('Alterações não salvas')).toBeTruthy()
+    fireEvent.click(save)
+    expect(await within(page()).findByText(/Limites salvos: sem limite de agentes, 3 por tarefa/)).toBeTruthy()
     expect(api.callsTo('settings.save')).toEqual([
       { maxLiveAgents: null, maxLiveMembersPerTask: 3 },
     ])
+    expect(page()).toBeTruthy()
+    expect(save).toHaveProperty('disabled', true)
   })
 
-  it('valor inválido mostra o erro no modal e não grava', async () => {
+  it('Descartar volta aos valores carregados', async () => {
     await renderApp()
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: 4 }
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
-    await waitFor(() => expect(agents).toHaveProperty('disabled', false))
-    fireEvent.change(agents, { target: { value: '101' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
-    expect((await within(dialog).findByRole('alert')).textContent).toContain('1 a 100')
+    const agents = await agentsField()
+    await waitFor(() => expect(agents).toHaveProperty('value', '12'))
+    fireEvent.change(agents, { target: { value: '7' } })
+    fireEvent.click(within(page()).getByRole('button', { name: 'Descartar' }))
+    expect(agents).toHaveProperty('value', '12')
     expect(api.callsTo('settings.save')).toEqual([])
   })
 
-  it('erro do main aparece no modal; Cancelar fecha sem gravar', async () => {
+  it('valor inválido mostra o erro na página e não grava', async () => {
+    await renderApp()
+    openSettings()
+    const agents = await agentsField()
+    fireEvent.change(agents, { target: { value: '101' } })
+    fireEvent.click(within(page()).getByRole('button', { name: 'Salvar limites' }))
+    expect((await within(page()).findByRole('alert')).textContent).toContain('1 a 100')
+    expect(api.callsTo('settings.save')).toEqual([])
+  })
+
+  it('erro do main aparece na página', async () => {
     await renderApp()
     api.overrides.set('settings.save', () => ({
       ok: false,
       error: { code: 'invalid_input', message: 'recusado pelo main' },
     }))
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
-    await waitFor(() => expect(agents).toHaveProperty('disabled', false))
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
-    expect((await within(dialog).findByRole('alert')).textContent).toContain('recusado pelo main')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
-    expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull()
+    const agents = await agentsField()
+    fireEvent.change(agents, { target: { value: '5' } })
+    fireEvent.click(within(page()).getByRole('button', { name: 'Salvar limites' }))
+    expect((await within(page()).findByRole('alert')).textContent).toContain('recusado pelo main')
   })
 
   it('Second Brain: salva a chave, mostra só o final e remove', async () => {
     await renderApp()
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    const field = await within(dialog).findByLabelText(/Chave de acesso/)
+    const field = await within(page()).findByLabelText(/Chave de acesso/)
     fireEvent.change(field, { target: { value: 'sbk_segredo5678' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
-    expect(await within(dialog).findByText('Chave salva (…5678)')).toBeTruthy()
+    fireEvent.click(within(page()).getByRole('button', { name: 'Salvar chave' }))
+    expect(await within(page()).findByText('Chave salva (…5678)')).toBeTruthy()
     expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }])
-    expect(dialog.textContent).not.toContain('segredo')
+    expect(page().textContent).not.toContain('segredo')
     expect(field).toHaveProperty('value', '')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Remover chave' }))
-    await waitFor(() => expect(within(dialog).getByText(/Nenhuma chave salva/)).toBeTruthy())
+    fireEvent.click(within(page()).getByRole('button', { name: 'Remover chave' }))
+    await waitFor(() => expect(within(page()).getByText(/Nenhuma chave salva/)).toBeTruthy())
     expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }, { key: null }])
   })
 
   it('Second Brain: texto sem sbk_ não vai ao main', async () => {
     await renderApp()
     openSettings()
-    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
-    fireEvent.change(await within(dialog).findByLabelText(/Chave de acesso/), {
+    fireEvent.change(await within(page()).findByLabelText(/Chave de acesso/), {
       target: { value: 'qualquer' },
     })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
-    expect((await within(dialog).findByRole('alert')).textContent).toContain('sbk_')
+    fireEvent.click(within(page()).getByRole('button', { name: 'Salvar chave' }))
+    expect((await within(page()).findByRole('alert')).textContent).toContain('sbk_')
     expect(api.callsTo('brain.setKey')).toEqual([])
   })
 })
