@@ -23,6 +23,7 @@
     "test": "node scripts/vitest-electron.mjs run",
     "test:watch": "node scripts/vitest-electron.mjs",
     "lint": "eslint .",
+    "screenshots": "electron-vite build && electron scripts/screenshots.mjs --ozone-platform=headless --no-sandbox",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "rebuild:native": "electron-builder install-app-deps",
