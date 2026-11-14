@@ -25,7 +25,7 @@ export function createXterm(container: HTMLElement): XtermHandle {
     scrollback: 10_000,
     allowProposedApi: false,
     theme: {
-      background: '#0a0d14',
+      background: '#07090e',
       foreground: '#c9d1dd',
       cursor: '#5ab9fc',
       selectionBackground: '#264a6b',
