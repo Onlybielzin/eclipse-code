@@ -576,3 +576,20 @@ describe('subtarefa abre na aba certa', () => {
     await within(middle()).findByTestId('delivery')
   })
 })
+
+describe('subtarefas bloqueadas e canceladas', () => {
+  it('ficam num grupo recolhido que abre ao clicar', async () => {
+    api = new FakeApi(mockupData())
+    api.data.subtasks = api.data.subtasks.map((s) =>
+      s.id === 't' ? { ...s, state: 'failed', failureCode: 'session_lost' } : s,
+    )
+    const store = new AppStore(api)
+    render(<App store={store} />)
+    await screen.findByText('feat-orfer-e-up')
+    const head = await screen.findByRole('button', { name: /Bloqueadas e canceladas/ })
+    expect(screen.queryByTestId('subtask-t')).toBeNull()
+    expect(screen.getByTestId('subtask-d1')).toBeTruthy()
+    fireEvent.click(head)
+    expect(screen.getByTestId('subtask-t')).toBeTruthy()
+  })
+})

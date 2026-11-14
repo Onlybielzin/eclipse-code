@@ -1135,3 +1135,30 @@ button:disabled {
     animation: none;
   }
 }
+
+/* Grupo recolhido de subtarefas bloqueadas e canceladas. */
+.sub-closed {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.sub-closed-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 4px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.sub-closed-head .sp {
+  margin-left: auto;
+}
+.sub-closed .sub-item {
+  opacity: 0.75;
+}

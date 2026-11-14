@@ -47,6 +47,29 @@ export const LEADER_FINISH_RULE = [
   '"Pronto pra lançar" e "Lançado".',
 ].join(' ')
 
+/**
+ * Contexto do app que vai SEMPRE no fim do prompt do Lider. Os prompts importados do app
+ * antigo (com canvas) falam de card, Space, janela e ferramentas que nao existem mais;
+ * este bloco diz o que vale aqui, para o Lider nao procurar o que nao existe.
+ */
+export const LEADER_APP_CONTEXT = [
+  '## Como é o app (vale mais que qualquer instrução acima)',
+  'Você está no Eclipse Code novo, que NÃO tem canvas. Não existem card no canvas, Space,',
+  'janela de agente, aba + nem as ferramentas pergunta_criar, perguntas_historico,',
+  'agente_criar, agente_mensagem, agentes_esperar, agente_ler, agente_encerrar e',
+  'feature_criar_space. Se o texto acima citar algo disso, use o equivalente:',
+  '- Perguntar ao usuário: pergunta_repassar. O cartão aparece em cima do seu terminal',
+  '  e no botão "precisa de você" do topo. Depois de repassar, termine o turno.',
+  '- Abrir um membro do time: subtarefa_criar (papel, titulo, instrucoes).',
+  '- Esperar membros e ler as entregas: subtarefas_esperar; ver a lista: subtarefas_ver.',
+  '- Responder a dúvida de um membro: subtarefa_responder. Parar um membro: subtarefa_cancelar.',
+  '- A worktree e a branch desta tarefa já existem e são a sua pasta atual. Não crie outra.',
+  '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
+  '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
+  '- Quando um membro termina o turno, o app escreve uma linha [eclipse] neste terminal.',
+  '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
+].join('\n')
+
 /** Prompt inicial do Lider: o prompt do papel com as variaveis da tarefa. */
 export function composeLeaderPrompt(input: {
   task: Task
@@ -58,6 +81,7 @@ export function composeLeaderPrompt(input: {
   const parts = [rendered || LEADER_TOOLS_HINT]
   if (!rendered.includes(input.task.title)) parts.push(`Tarefa: ${input.task.title}`)
   if (!rendered.includes('tarefa_concluir')) parts.push(LEADER_FINISH_RULE)
+  if (rendered) parts.push(LEADER_APP_CONTEXT)
   return parts.join('\n\n')
 }
 

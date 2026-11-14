@@ -4,6 +4,7 @@ import {
   composeLeaderPrompt,
   composeMemberFirstPrompt,
   LEADER_FINISH_RULE,
+  LEADER_APP_CONTEXT,
   composeQuestionNotice,
   renderPromptTemplate,
 } from './prompts'
@@ -55,7 +56,7 @@ describe('prompts', () => {
 
   it('Líder: prompt do papel renderizado; sem papel usa a dica das ferramentas', () => {
     expect(composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere {{tarefa}}.' })).toBe(
-      `Lidere Login novo.\n\n${LEADER_FINISH_RULE}`,
+      `Lidere Login novo.\n\n${LEADER_FINISH_RULE}\n\n${LEADER_APP_CONTEXT}`,
     )
     const semPapel = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
     expect(semPapel).toContain('subtarefa_criar')
@@ -111,5 +112,19 @@ describe('prompts', () => {
     expect(composeQuestionNotice({ ...question, status: 'dismissed', answers: null })).toContain(
       'deixou a decisão com você',
     )
+  })
+})
+
+describe('contexto do app no prompt do Líder', () => {
+  const t = { title: 'Login novo' } as Parameters<typeof composeLeaderPrompt>[0]['task']
+  it('prompt importado com canvas recebe o bloco que diz o que vale no app novo', () => {
+    const prompt = composeLeaderPrompt({
+      task: t,
+      cwd: '/wt',
+      template: 'Pergunte com pergunta_criar (card no canvas).',
+    })
+    expect(prompt.endsWith(LEADER_APP_CONTEXT)).toBe(true)
+    expect(prompt).toContain('NÃO tem canvas')
+    expect(prompt).toContain('pergunta_repassar')
   })
 })

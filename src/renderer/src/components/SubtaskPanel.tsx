@@ -25,6 +25,37 @@ export function SubtaskPanel() {
   const roles = useAppState((s) => s.roles)
   const task = useAppState((s) => s.tasks.find((t) => t.id === taskId) ?? null)
   const now = useNow()
+  const [showClosed, setShowClosed] = useState(false)
+  // Bloqueadas e canceladas sao finais e nao pedem acao: ficam num grupo recolhido.
+  const closed = subs.filter((x) => x.state === 'failed' || x.state === 'canceled')
+  const active = subs.filter((x) => x.state !== 'failed' && x.state !== 'canceled')
+  // A subtarefa aberta no meio nunca some da coluna: o grupo abre se ela estiver nele.
+  const closedOpen = showClosed || closed.some((x) => x.id === selected)
+  const renderSub = (sub: Subtask) => {
+    const role = roles[sub.roleId]
+    const model = role ? (role.model ?? PROVIDER_LABELS[role.provider]) : null
+    return (
+      <button
+        type="button"
+        key={sub.id}
+        className={`sub-item ${selected === sub.id ? 'sel' : ''}`}
+        aria-pressed={selected === sub.id}
+        data-testid={`subtask-${sub.id}`}
+        onClick={() => void store.selectSubtask(sub.id)}
+      >
+        <i
+          className={`ic ${STATE_ICON_CLASS[sub.state]}`}
+          title={SUBTASK_STATE_LABELS[sub.state]}
+        />
+        <span className="nm">{role?.name ?? 'Membro'}</span>
+        <span className="ds">{sub.title}</span>
+        <span className="who">
+          {SUBTASK_STATE_LABELS[sub.state]}
+          {model ? ` · ${model}` : ''} · {subtaskElapsed(sub, now)}
+        </span>
+      </button>
+    )
+  }
 
   return (
     <section className="col" aria-label="Subtarefas">
@@ -45,31 +76,21 @@ export function SubtaskPanel() {
               : 'O Líder ainda não criou subtarefas.'}
           </p>
         )}
-        {subs.map((sub) => {
-          const role = roles[sub.roleId]
-          const model = role ? (role.model ?? PROVIDER_LABELS[role.provider]) : null
-          return (
+        {active.map(renderSub)}
+        {closed.length > 0 && (
+          <div className="sub-closed">
             <button
               type="button"
-              key={sub.id}
-              className={`sub-item ${selected === sub.id ? 'sel' : ''}`}
-              aria-pressed={selected === sub.id}
-              data-testid={`subtask-${sub.id}`}
-              onClick={() => void store.selectSubtask(sub.id)}
+              className="sub-closed-head"
+              aria-expanded={closedOpen}
+              onClick={() => setShowClosed(!closedOpen)}
             >
-              <i
-                className={`ic ${STATE_ICON_CLASS[sub.state]}`}
-                title={SUBTASK_STATE_LABELS[sub.state]}
-              />
-              <span className="nm">{role?.name ?? 'Membro'}</span>
-              <span className="ds">{sub.title}</span>
-              <span className="who">
-                {SUBTASK_STATE_LABELS[sub.state]}
-                {model ? ` · ${model}` : ''} · {subtaskElapsed(sub, now)}
-              </span>
+              <span aria-hidden="true">{closedOpen ? '⌄' : '›'}</span> Bloqueadas e canceladas
+              <span className="sp">{closed.length}</span>
             </button>
-          )
-        })}
+            {closedOpen && closed.map(renderSub)}
+          </div>
+        )}
       </div>
     </section>
   )
