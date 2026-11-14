@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +55,41 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.6.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec electron-vite build
+
+      - name: Gerar o instalador do Windows e subir para o release
+        run: pnpm exec electron-builder --win nsis --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: [linux, windows]
+    # O Linux sai mesmo se o build do Windows falhar; o .exe some só desta versão.
+    if: always() && needs.linux.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Publicar o release com as notas
-        run: gh release edit "$GITHUB_REF_NAME" --notes-file notes.md --draft=false
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '/^## /{ if (on) exit; on = ($2 == v); next } on' CHANGELOG.md > notes.md
+          gh release edit "$GITHUB_REF_NAME" --notes-file notes.md --draft=false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

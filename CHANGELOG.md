@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.4 - 2026-11-14
+
+- Versão para Windows: o release ganha o instalador .exe, que também se atualiza sozinho.
+
 ## 0.1.3 - 2026-11-14
 
 - O app acha o claude e o codex mesmo quando é aberto pelo menu ou depois de atualizar.
