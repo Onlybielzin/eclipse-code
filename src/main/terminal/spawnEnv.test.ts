@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sanitizeInheritedEnv } from './spawnEnv'
+import { envValue, sanitizeInheritedEnv } from './spawnEnv'
 
 describe('sanitizeInheritedEnv com PATH', () => {
   it('tira a pasta de shim do PATH no formato do Windows', () => {
@@ -19,5 +19,13 @@ describe('sanitizeInheritedEnv com PATH', () => {
       { platform: 'linux', delimiter: ':' },
     )
     expect(env['PATH']).toBe('/usr/bin')
+  })
+})
+
+describe('envValue', () => {
+  it('acha a variavel sem diferenciar caixa (Path no Windows)', () => {
+    expect(envValue({ Path: 'C:\\Windows' }, 'PATH')).toBe('C:\\Windows')
+    expect(envValue({ PATH: '/usr/bin' }, 'PATH')).toBe('/usr/bin')
+    expect(envValue({ HOME: '/h' }, 'PATH')).toBeUndefined()
   })
 })

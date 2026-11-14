@@ -34,6 +34,7 @@ import {
   resolveNpmShimScript,
   unsupportedScriptError,
 } from '../leader/executable'
+import { envValue } from '../terminal/spawnEnv'
 
 export interface AgentCommand {
   command: string
@@ -76,7 +77,7 @@ export function buildAgentCommand(
   const env: Record<string, string> = { ELECTRON_RUN_AS_NODE: '1' }
   const cliVariable = request.provider === 'claude' ? 'CLAUDE_CODE_EXECUTABLE' : 'CODEX_PATH'
   if (!baseEnv[cliVariable]) {
-    const found = resolveExecutableOnPath(request.provider, baseEnv.PATH, {
+    const found = resolveExecutableOnPath(request.provider, envValue(baseEnv, 'PATH'), {
       platform: options.platform,
     })
     // O SDK do Claude faz spawn sem shell: nao roda .cmd, mas roda .js (com `node` do PATH) e .exe.

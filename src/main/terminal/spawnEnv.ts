@@ -24,6 +24,19 @@ export const PARENT_AGENT_SESSION_ENV_KEYS = [
 ] as const
 
 /**
+ * Valor da variavel sem diferenciar caixa. No Windows o process.env ignora a caixa, mas a copia
+ * (objeto comum) guarda a chave como veio (`Path`): `env['PATH']` daria undefined.
+ */
+export function envValue(
+  env: Record<string, string | undefined>,
+  name: string,
+): string | undefined {
+  const wanted = name.toUpperCase()
+  const key = Object.keys(env).find((candidate) => candidate.toUpperCase() === wanted)
+  return key === undefined ? undefined : env[key]
+}
+
+/**
  * Devolve uma copia limpa do ambiente:
  *  - tira as marcas da sessao Claude pai (senao o filho acha que e sessao aninhada);
  *  - tira NO_COLOR/NODE_DISABLE_COLORS herdados de ferramentas (terminal real tem cor);

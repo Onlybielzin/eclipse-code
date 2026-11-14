@@ -207,4 +207,18 @@ describe('buildAgentCommand no win32', () => {
       rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('baseEnv copiado do Windows so com Path (nao PATH) acha o claude', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'shim-'))
+    try {
+      writeFileSync(join(dir, 'claude.EXE'), '')
+      const cmd = buildAgentCommand(
+        { provider: 'claude', model: null, systemPrompt: '' },
+        { nodeBinary: 'n', scriptPath: 's', baseEnv: { Path: dir }, platform: 'win32' },
+      )
+      expect(cmd.env.CLAUDE_CODE_EXECUTABLE).toBe(join(dir, 'claude.EXE'))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })

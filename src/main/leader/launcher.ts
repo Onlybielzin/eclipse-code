@@ -19,6 +19,7 @@ import {
   writeClaudeHookFiles,
   type ClaudeHookPaths,
 } from './claudeHooks'
+import { envValue } from '../terminal/spawnEnv'
 import { buildLeaderCommand, claudeSessionIdFor } from './commands'
 import { resolveExecutableOnPath, wrapWindowsScript } from './executable'
 import type { LeaderSessionRegistry } from './leaderSessions'
@@ -65,7 +66,7 @@ export function createLeaderLauncher(options: LeaderLauncherOptions): LeaderLaun
 
     async launch(request: LeaderLaunchRequest): Promise<LeaderLaunchResult> {
       const command = buildCommand(request)
-      const executable = resolveExecutable(command.command, command.env['PATH'])
+      const executable = resolveExecutable(command.command, envValue(command.env, 'PATH'))
       if (!executable) {
         throw new DomainError(
           'unavailable',
@@ -90,7 +91,7 @@ export function createLeaderLauncher(options: LeaderLauncherOptions): LeaderLaun
       const startedAt: EpochMs = now()
       let spawned
       try {
-        const run = wrapWindowsScript(executable, command.args, command.env['PATH'])
+        const run = wrapWindowsScript(executable, command.args, envValue(command.env, 'PATH'))
         spawned = await options.ptyHost.spawn({
           command: run.command,
           args: run.args,
