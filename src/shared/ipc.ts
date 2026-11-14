@@ -32,6 +32,7 @@ import {
   type MemoryDetail,
 } from './brain'
 import type { AgentLimitSettings } from './ports'
+import type { WallSnapshot } from './wall'
 import {
   absolutePathSchema,
   idSchema,
@@ -195,6 +196,9 @@ export const ipcCommands = {
   /** Liga o SSE de atividade enquanto houver ao menos um assinante (contagem). */
   'brain.subscribe': command<void>()(emptyInput),
   'brain.unsubscribe': command<void>()(emptyInput),
+
+  /** Retrato de todos os projetos para a Parede (tarefas abertas, diff das worktrees, numeros). */
+  'wall.snapshot': command<WallSnapshot>()(emptyInput),
 
   'roles.list': command<Role[]>()(z.object({ projectId: idSchema }).strict()),
   /** Cria (sem roleId) ou atualiza (com roleId) um papel. */

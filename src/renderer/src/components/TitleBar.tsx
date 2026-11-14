@@ -14,6 +14,7 @@ export function TitleBar() {
   const [adding, setAdding] = useState(false)
   const update = useAppState((s) => s.update)
   const whatsNew = useAppState((s) => s.whatsNew)
+  const wallOpen = useAppState((s) => s.wallOpen)
 
   const goToQuestion = () => {
     const q = open[0]
@@ -54,6 +55,21 @@ export function TitleBar() {
         <span className="need-go" aria-hidden="true">
           ›
         </span>
+      </button>
+      <button
+        type="button"
+        className="icon-btn wall-btn"
+        aria-label="Parede"
+        title="Parede"
+        aria-pressed={wallOpen}
+        onClick={() => store.setWallOpen(!wallOpen)}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+          <rect x="2" y="2" width="5" height="5" rx="1" />
+          <rect x="9" y="2" width="5" height="5" rx="1" />
+          <rect x="2" y="9" width="5" height="5" rx="1" />
+          <rect x="9" y="9" width="5" height="5" rx="1" />
+        </svg>
       </button>
       <button
         type="button"

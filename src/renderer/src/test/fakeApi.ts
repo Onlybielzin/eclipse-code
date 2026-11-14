@@ -14,6 +14,7 @@ import type {
   Task,
   UserQuestion,
 } from '@shared/domain'
+import type { WallSnapshot } from '@shared/wall'
 import type {
   EclipseApi,
   IpcCommandChannel,
@@ -168,6 +169,16 @@ export class FakeApi implements EclipseApi {
   /** Estado devolvido por update.state e notas devolvidas por app.whatsNew (ate app.whatsNewSeen). */
   updateState: UpdateState = { status: 'idle', version: null }
   whatsNew: WhatsNew | null = null
+  /** Retrato devolvido por wall.snapshot. */
+  wallSnapshot: WallSnapshot = {
+    at: T0,
+    tasks: [],
+    workingAgents: 0,
+    maxLiveAgents: null,
+    doneToday: 0,
+    inReview: 0,
+    openQuestions: 0,
+  }
 
   /** Home devolvida em projects.summary. */
   homeDir = '/home/vings'
@@ -246,6 +257,8 @@ export class FakeApi implements EclipseApi {
           connected: false,
           lastError: null,
         }
+      case 'wall.snapshot':
+        return this.wallSnapshot
       case 'brain.graph':
         return this.brainGraph
       case 'brain.memory':

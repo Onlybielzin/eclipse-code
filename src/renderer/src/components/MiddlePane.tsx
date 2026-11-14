@@ -1,6 +1,7 @@
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
 import { BrainView } from '../brain/BrainView'
+import { WallView } from '../wall/WallView'
 import { ActivityView } from './ActivityView'
 import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
@@ -19,6 +20,10 @@ export function MiddlePane() {
   const subtaskId = useAppState((s) => s.selectedSubtaskId)
   const tab = useAppState((s) => s.midTab)
   const brainOpen = useAppState((s) => s.brainOpen)
+  const wallOpen = useAppState((s) => s.wallOpen)
+  // Cerebro e Parede ocupam o meio inteiro; o terminal do Lider segue montado, escondido.
+  const full = brainOpen || wallOpen
+  const fullTitle = wallOpen ? 'Parede' : 'Cérebro'
   const task = useAppState((s) => s.tasks.find((t) => t.id === taskId) ?? null)
   const subtask = useAppState((s) =>
     taskId && subtaskId ? (s.subtasks[taskId]?.find((x) => x.id === subtaskId) ?? null) : null,
@@ -33,7 +38,11 @@ export function MiddlePane() {
   )
 
   const closeBrain = (
-    <button type="button" className="ghost sp" onClick={() => store.setBrainOpen(false)}>
+    <button
+      type="button"
+      className="ghost sp"
+      onClick={() => (wallOpen ? store.setWallOpen(false) : store.setBrainOpen(false))}
+    >
       Fechar
     </button>
   )
@@ -42,13 +51,11 @@ export function MiddlePane() {
     return (
       <section className="col" aria-label="Centro">
         <div className="colhead">
-          {brainOpen ? 'Cérebro' : 'Líder'}
-          {brainOpen && closeBrain}
+          {full ? fullTitle : 'Líder'}
+          {full && closeBrain}
         </div>
-        {brainOpen ? (
-          <div className="mid">
-            <BrainView full />
-          </div>
+        {full ? (
+          <div className="mid">{wallOpen ? <WallView /> : <BrainView full />}</div>
         ) : (
           <div className="empty">Escolha uma tarefa na lista ou crie uma nova.</div>
         )}
@@ -63,15 +70,15 @@ export function MiddlePane() {
     <section className="col" aria-label="Centro">
       <div className="colhead">
         <span className="mid-title">
-          {!brainOpen && !subtask && (
+          {!full && !subtask && (
             <span className="mid-prompt" aria-hidden="true">
               ›_
             </span>
           )}
-          {brainOpen ? 'Cérebro' : subtask ? subtask.title : leaderTitle}
+          {full ? fullTitle : subtask ? subtask.title : leaderTitle}
         </span>
-        {brainOpen && closeBrain}
-        {!brainOpen && !subtask && (
+        {full && closeBrain}
+        {!full && !subtask && (
           <span className="mid-status" data-testid="mid-status">
             <TaskStatusMenu
               variant="pill"
@@ -81,8 +88,8 @@ export function MiddlePane() {
             />
           </span>
         )}
-        {!brainOpen && !subtask && <span className="mid-task">{task.title}</span>}
-        {!brainOpen && subtask && (
+        {!full && !subtask && <span className="mid-task">{task.title}</span>}
+        {!full && subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (
               <button
@@ -106,7 +113,8 @@ export function MiddlePane() {
             <BrainView full />
           </div>
         )}
-        <div className="mid-layer" hidden={brainOpen || !showLeader}>
+        {wallOpen && <WallView />}
+        <div className="mid-layer" hidden={full || !showLeader}>
           {task.status === 'archived' ? (
             <div className="empty" data-testid="task-launched">
               Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o status
@@ -123,10 +131,10 @@ export function MiddlePane() {
             </>
           )}
         </div>
-        {!brainOpen && subtask && tab === 'delivery' && (
+        {!full && subtask && tab === 'delivery' && (
           <DeliveryView subtask={subtask} detail={detail} />
         )}
-        {!brainOpen && subtask && tab === 'activity' && (
+        {!full && subtask && tab === 'activity' && (
           <ActivityView events={activity} working={subtask.state === 'working'} />
         )}
       </div>
