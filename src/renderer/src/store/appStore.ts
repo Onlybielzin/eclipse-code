@@ -314,6 +314,12 @@ export class AppStore {
 
   /** Clicar na tarefa volta o meio para o terminal do Lider. */
   selectTask(taskId: string): void {
+    this.showTask(taskId)
+    this.set({ settingsOpen: false }) // escolher uma tarefa volta ao Líder dela
+  }
+
+  /** Seleciona sem mexer em Configurações: a criação termina sozinha, sem clique do vings. */
+  private showTask(taskId: string): void {
     this.set((s) => ({
       selectedTaskId: taskId,
       selectedSubtaskId: null,
@@ -332,6 +338,7 @@ export class AppStore {
     this.set({
       selectedTaskId: subtask?.taskId ?? this.state.selectedTaskId,
       selectedSubtaskId: subtaskId,
+      settingsOpen: false,
       // Membro ainda trabalhando: abre no que ele esta fazendo. Terminou: abre na entrega.
       midTab: subtask && !isFinalOrWaiting(subtask.state) ? 'activity' : 'delivery',
     })
@@ -412,7 +419,7 @@ export class AppStore {
         tasks: upsertById(s.tasks, task),
         subtasks: { [task.id]: s.subtasks[task.id] ?? [], ...s.subtasks },
       }))
-      this.selectTask(task.id)
+      this.showTask(task.id)
       return task
     })
   }
