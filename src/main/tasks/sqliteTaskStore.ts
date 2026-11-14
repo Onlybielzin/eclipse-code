@@ -321,8 +321,7 @@ export class SqliteTaskStore implements TaskStore {
   }
   getSetting(key: string): string | null {
     const row = this.db.prepare('SELECT value_json FROM app_settings WHERE key = ?').get(key) as
-      | { value_json: string }
-      | undefined
+      { value_json: string } | undefined
     return row?.value_json ?? null
   }
   setSetting(key: string, valueJson: string): void {
@@ -658,11 +657,32 @@ export class SqliteTaskStore implements TaskStore {
 
   // --- avisos ao Lider -----------------------------------------------------
 
-  insertLeaderNotice(taskId: TaskId, text: string, createdAt: EpochMs): LeaderNotice {
+  insertLeaderNotice(
+    taskId: TaskId,
+    text: string,
+    createdAt: EpochMs,
+    subtaskId: SubtaskId | null = null,
+  ): LeaderNotice {
     const info = this.db
-      .prepare('INSERT INTO leader_notices (task_id, text, created_at) VALUES (?, ?, ?)')
-      .run(taskId, text, createdAt)
-    return { id: Number(info.lastInsertRowid), taskId, text, createdAt }
+      .prepare(
+        'INSERT INTO leader_notices (task_id, text, created_at, subtask_id) VALUES (?, ?, ?, ?)',
+      )
+      .run(taskId, text, createdAt, subtaskId)
+    return { id: Number(info.lastInsertRowid), taskId, text, createdAt, subtaskId }
+  }
+  discardPendingLeaderNoticesForSubtasks(
+    taskId: TaskId,
+    subtaskIds: readonly SubtaskId[],
+    at: EpochMs,
+  ): void {
+    if (subtaskIds.length === 0) return
+    const marks = subtaskIds.map(() => '?').join(', ')
+    this.db
+      .prepare(
+        `UPDATE leader_notices SET delivered_at = ? WHERE task_id = ? AND delivered_at IS NULL
+         AND subtask_id IN (${marks})`,
+      )
+      .run(at, taskId, ...subtaskIds)
   }
   listPendingLeaderNotices(taskId: TaskId, limit = -1): LeaderNotice[] {
     return this.all(
@@ -708,5 +728,6 @@ function toLeaderNotice(row: Row): LeaderNotice {
     taskId: String(row['task_id']),
     text: String(row['text']),
     createdAt: Number(row['created_at']),
+    subtaskId: row['subtask_id'] === null ? null : String(row['subtask_id']),
   }
 }

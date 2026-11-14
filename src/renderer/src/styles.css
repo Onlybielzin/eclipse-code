@@ -1219,18 +1219,6 @@ button:disabled {
   font-size: 13px;
   color: var(--muted);
 }
-fieldset.modal-field {
-  border: 0;
-  border-top: 1px solid var(--border, #1a2030);
-  margin: 4px 0 0;
-  padding: 12px 0 0;
-  min-width: 0;
-}
-fieldset.modal-field legend {
-  padding: 0 6px 0 0;
-  font-weight: 600;
-  color: var(--text, inherit);
-}
 .modal-actions {
   display: flex;
   justify-content: flex-end;

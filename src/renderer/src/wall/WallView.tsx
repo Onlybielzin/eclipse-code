@@ -30,16 +30,17 @@ export function WallView() {
     void tick()
     // Esc fecha, a menos que um menu, modal ou campo (inclui o terminal) ja use a tecla.
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || e.defaultPrevented) return
+      // As Configuracoes (pagina por cima) usam o mesmo Esc; captura roda antes delas fecharem.
+      if (e.key !== 'Escape' || e.defaultPrevented || store.getState().settingsOpen) return
       if (document.querySelector('[aria-modal="true"], .proj-pop')) return
       if ((e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"]), .xterm')) return
       store.setWallOpen(false)
     }
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     return () => {
       alive = false
       clearTimeout(timer)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
     }
   }, [store])
 

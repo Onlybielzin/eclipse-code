@@ -33,7 +33,7 @@ const LEADER_TOOLS_HINT = [
   '- subtarefas_esperar: espera os membros pararem e devolve as entregas.',
   '- subtarefas_ver, subtarefa_responder, subtarefa_cancelar, pergunta_repassar.',
   '- tarefa_concluir (resumo): declara a tarefa terminada.',
-  'O app avisa neste terminal, com uma linha [eclipse], quando o turno de um membro acaba.',
+  'O app avisa quando o turno de um membro acaba: linha [eclipse] no terminal ou contexto do gancho.',
 ].join('\n')
 
 /**
@@ -66,7 +66,7 @@ export const LEADER_APP_CONTEXT = [
   '- A worktree e a branch desta tarefa já existem e são a sua pasta atual. Não crie outra.',
   '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
   '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
-  '- Quando um membro termina o turno, o app escreve uma linha [eclipse] neste terminal.',
+  '- Quando um membro termina o turno, o aviso [eclipse] chega como linha no terminal ou como contexto do gancho.',
   '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
   '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
   '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',

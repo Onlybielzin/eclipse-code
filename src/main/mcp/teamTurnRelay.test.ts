@@ -5,6 +5,8 @@ import {
   createMemoryLeaderNoticeStore,
   startTeamTurnRelay,
 } from './teamTurnRelay'
+import type { McpCaller } from '@shared/mcp'
+import { createMcpToolHandler } from './toolHandler'
 import { createFakeTaskService, leaderSession } from './testing/fakeTaskService'
 
 function relaySpy(delivered = true) {
@@ -225,5 +227,202 @@ describe('startTeamTurnRelay', () => {
     expect(sent).toEqual([{ sessionId: 'L9', text: '[eclipse] resposta do usuário' }])
     expect(notices.listPendingLeaderNotices('task1')).toEqual([])
     second.stop()
+  })
+})
+
+describe('aviso de subtarefa que o Lider ja viu', () => {
+  const leader: McpCaller = { role: 'leader', sessionId: 'L1', taskId: 'task1', subtaskId: null }
+  function setup() {
+    const tasks = createFakeTaskService()
+    const { relay, sent } = relaySpy()
+    const team = startTeamTurnRelay({ tasks, relay, now: () => 1_000 })
+    const actions = { createSubtask: vi.fn(), answerSubtask: vi.fn(), cancelSubtask: vi.fn() }
+    const handler = createMcpToolHandler({ tasks, actions, notices: team })
+    return { tasks, team, handler, sent }
+  }
+
+  it('membro termina com o Lider em subtarefas_esperar: nenhum aviso fica', async () => {
+    const { tasks, team, handler, sent } = setup() // sem Lider vivo: aviso so ficaria pendente
+    tasks.seedSubtask({ id: 'a', state: 'working' })
+    const waiting = handler.callTool(leader, 'subtarefas_esperar', {})
+    tasks.setState('a', 'completed')
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await waiting
+    await team.idle()
+    expect(team.pending('task1')).toEqual([])
+    expect(sent).toHaveLength(0)
+    team.stop()
+  })
+
+  it('membro termina sem o Lider esperar: aviso continua sendo entregue', async () => {
+    const { tasks, team, sent } = setup()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await team.idle()
+    expect(sent).toHaveLength(1)
+    team.stop()
+  })
+
+  it('subtarefas_ver descarta o aviso que ja estava na fila; subtarefa em andamento nao', async () => {
+    const { tasks, team, handler } = setup()
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.seedSubtask({ id: 'b', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    tasks.endTurn({ id: 'tb', subtaskId: 'b' })
+    await team.idle()
+    expect(team.pending('task1')).toHaveLength(2)
+    tasks.setState('b', 'working')
+    await handler.callTool(leader, 'subtarefas_ver', { subtarefa_id: 'a' })
+    await handler.callTool(leader, 'subtarefas_ver', { subtarefa_id: 'b' })
+    expect(team.pending('task1')).toHaveLength(1)
+    expect(team.pending('task1')[0]).toContain('Subtarefa b')
+    team.stop()
+  })
+
+  it('turno que termina depois de o Lider ver a subtarefa ainda avisa', async () => {
+    const { tasks, team, sent } = setup()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    team.markSubtasksSeen('task1', ['a'])
+    tasks.endTurn({ id: 'tb', subtaskId: 'a', endedAt: 2_000 })
+    await team.idle()
+    expect(sent).toHaveLength(1)
+    team.stop()
+  })
+})
+
+describe('notify de subtarefa que o Lider ja viu', () => {
+  it('nao enfileira depois da visao, mas enfileira transicao nova depois de visao antiga', async () => {
+    const tasks = createFakeTaskService()
+    let clock = 1_000
+    const { relay } = relaySpy()
+    const team = startTeamTurnRelay({ tasks, relay, now: () => clock, retryIntervalMs: 0 })
+    tasks.seedSubtask({ id: 'a', state: 'failed', updatedAt: 50_000 }) // transicao
+    clock = 100_000
+    team.markSubtasksSeen('task1', ['a'])
+    team.notify('task1', 'membro parou', 'a')
+    expect(team.pending('task1')).toEqual([])
+    clock = 200_000
+    tasks.seedSubtask({ id: 'a', state: 'failed', updatedAt: 150_000 }) // transicao nova
+    team.notify('task1', 'membro parou de novo', 'a')
+    expect(team.pending('task1')).toEqual(['membro parou de novo'])
+    team.stop()
+  })
+})
+
+describe('aviso pelo gancho (relay.offer)', () => {
+  function boxRelay() {
+    const pasted: string[] = []
+    const boxed: { id: number; text: string }[] = []
+    const offered: { id: number; text: string }[][] = []
+    let working = true
+    const relay: LeaderRelay = {
+      async offer(_s, notices) {
+        offered.push([...notices])
+        if (working) {
+          for (const n of notices) if (!boxed.some((b) => b.id === n.id)) boxed.push(n)
+          return []
+        }
+        boxed.length = 0
+        return [...notices]
+      },
+      async deliver(_s, text) {
+        pasted.push(text)
+        return { delivered: true, attempts: 1 }
+      },
+    }
+    return { relay, pasted, boxed, offered, setWorking: (value: boolean) => void (working = value) }
+  }
+
+  function listeners() {
+    const set = new Set<(e: { type: string; sessionId: string; activity?: string; ids?: number[] }) => void>()
+    return {
+      leaderEvents: {
+        onEvent(l: (e: never) => void) {
+          set.add(l as never)
+          return () => set.delete(l as never)
+        },
+      },
+      emit: (e: { type: string; sessionId: string; activity?: string; ids?: number[] }) =>
+        set.forEach((l) => l(e)),
+    }
+  }
+
+  it('Lider trabalhando: vai para a caixa, nao cola e so sai da fila com notices-delivered', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const box = boxRelay()
+    const events = listeners()
+    const notices = createMemoryLeaderNoticeStore()
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: box.relay,
+      notices,
+      retryIntervalMs: 0,
+      leaderEvents: events.leaderEvents,
+    })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(box.pasted).toEqual([])
+    expect(box.boxed.map((n) => n.text)).toEqual(['aviso 1'])
+    expect(team.pending('task1')).toEqual(['aviso 1'])
+
+    events.emit({ type: 'notices-delivered', sessionId: 'L1', ids: [box.boxed[0]!.id] })
+    await team.idle()
+    expect(team.pending('task1')).toEqual([])
+    expect(box.pasted).toEqual([])
+    team.stop()
+  })
+
+  it('Lider ocioso: cola como antes e confirma pela colagem', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const box = boxRelay()
+    box.setWorking(false)
+    const team = startTeamTurnRelay({ tasks, relay: box.relay, retryIntervalMs: 0 })
+    team.notify('task1', 'aviso 1')
+    team.notify('task1', 'aviso 2')
+    await team.idle()
+    expect(box.pasted).toEqual(['aviso 1', 'aviso 2'])
+    expect(team.pending('task1')).toEqual([])
+    team.stop()
+  })
+
+  it('Lider passa de trabalhando a ocioso com aviso na caixa: o evento idle cola o pendente', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const box = boxRelay()
+    const events = listeners()
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: box.relay,
+      retryIntervalMs: 0,
+      leaderEvents: events.leaderEvents,
+    })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    box.setWorking(false)
+    events.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(box.pasted).toEqual(['aviso 1'])
+    expect(team.pending('task1')).toEqual([])
+    team.stop()
+  })
+
+  it('subtarefa vista descarta o aviso e reoferece o que sobrou (limpa a caixa)', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const box = boxRelay()
+    const team = startTeamTurnRelay({ tasks, relay: box.relay, retryIntervalMs: 0 })
+    team.notify('task1', 'aviso a', 'a')
+    team.notify('task1', 'aviso b', 'b')
+    await team.idle()
+    expect(box.boxed).toHaveLength(2)
+    team.markSubtasksSeen('task1', ['a'])
+    await team.idle()
+    expect(team.pending('task1')).toEqual(['aviso b'])
+    expect(box.offered.at(-1)?.map((n) => n.text)).toEqual(['aviso b'])
+    team.stop()
   })
 })

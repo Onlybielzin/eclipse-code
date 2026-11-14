@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { AddProjectModal } from './AddProjectModal'
-import { SettingsModal } from './SettingsModal'
 import { ProjectPicker } from './ProjectPicker'
 import { openQuestions } from '../store/format'
 import { useAppState, useStore } from '../store/context'
@@ -12,7 +11,6 @@ export function TitleBar() {
   const tasks = useAppState((s) => s.tasks)
   const open = useMemo(() => openQuestions(questions), [questions])
   const [adding, setAdding] = useState(false)
-  const settingsOpen = useAppState((s) => s.settingsOpen)
   const wallOpen = useAppState((s) => s.wallOpen)
 
   const goToQuestion = () => {
@@ -75,7 +73,6 @@ export function TitleBar() {
           />
         </svg>
       </button>
-      {settingsOpen && <SettingsModal onClose={() => store.setSettingsOpen(false)} />}
     </header>
   )
 }

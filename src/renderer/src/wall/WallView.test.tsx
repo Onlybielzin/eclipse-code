@@ -99,6 +99,11 @@ describe('Parede', () => {
     expect(screen.queryByTestId('wall-view')).not.toBeNull()
     term.remove()
 
+    act(() => store.setSettingsOpen(true))
+    fireEvent.keyDown(document.body, { key: 'Escape' })
+    expect(screen.queryByTestId('wall-view')).not.toBeNull()
+    act(() => store.setSettingsOpen(false))
+
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(screen.queryByTestId('wall-view')).toBeNull()
   })

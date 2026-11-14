@@ -106,13 +106,13 @@ describe('Seção Cérebro', () => {
   })
 
   it('sem chave mostra o aviso, não assina e abre as Configurações', async () => {
-    setup(false)
+    const store = setup(false)
     expand()
     await screen.findByText('Configure a chave do Second Brain em Configurações.')
     expect(names('brain.subscribe')).toBe(0)
     expect(engines).toHaveLength(0)
     fireEvent.click(screen.getByRole('button', { name: 'Abrir Configurações' }))
-    expect(screen.getByRole('dialog', { name: 'Configurações' })).toBeTruthy()
+    expect(store.getState().settingsOpen).toBe(true)
   })
 
   it('expandir assina o SSE, pede o grafo e cria o motor; recolher solta tudo', async () => {
