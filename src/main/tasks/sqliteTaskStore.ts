@@ -319,6 +319,19 @@ export class SqliteTaskStore implements TaskStore {
       { ...p },
     )
   }
+  getSetting(key: string): string | null {
+    const row = this.db.prepare('SELECT value_json FROM app_settings WHERE key = ?').get(key) as
+      | { value_json: string }
+      | undefined
+    return row?.value_json ?? null
+  }
+  setSetting(key: string, valueJson: string): void {
+    this.run(
+      `INSERT INTO app_settings (key, value_json) VALUES (@key, @valueJson)
+       ON CONFLICT(key) DO UPDATE SET value_json = @valueJson`,
+      { key, valueJson },
+    )
+  }
   deleteProject(id: ProjectId): void {
     // Ordem explicita: filhos antes dos pais, para nao depender da ordem do cascade.
     this.transaction(() => {

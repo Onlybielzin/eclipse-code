@@ -236,6 +236,16 @@ export const MIGRATIONS: readonly Migration[] = [
       CREATE INDEX questions_open ON questions(task_id) WHERE status = 'open';
     `,
   },
+  {
+    version: 5,
+    name: 'configuracoes do app',
+    sql: `
+      CREATE TABLE app_settings (
+        key TEXT PRIMARY KEY,
+        value_json TEXT NOT NULL
+      );
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

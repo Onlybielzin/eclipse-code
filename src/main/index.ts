@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, safeStorage, type OpenDialogOptions } from 'electron'
 import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
@@ -37,6 +37,8 @@ const log: AppLogger = {
 
 /** Janelas do app: so elas falam com o main. */
 const windows = new Set<number>()
+/** Solta o que a janela assinou no main (ligado em boot). */
+let releaseWindow: (id: number) => void = () => {}
 
 function createMainWindow(): BrowserWindow {
   const window = new BrowserWindow({
@@ -60,6 +62,11 @@ function createMainWindow(): BrowserWindow {
   const id = window.webContents.id
   windows.add(id)
   window.on('closed', () => windows.delete(id))
+  // Recarregar ou fechar a janela nao avisa a tela: o main solta as assinaturas dela.
+  window.webContents.on('destroyed', () => releaseWindow(id))
+  window.webContents.on('did-start-navigation', (details) => {
+    if (details.isMainFrame && !details.isSameDocument) releaseWindow(id)
+  })
   if (!isTestRun) window.once('ready-to-show', () => window.show())
 
   const devUrl = process.env['ELECTRON_RENDERER_URL']
@@ -83,8 +90,10 @@ async function boot(): Promise<AppServices> {
             join(homedir(), '.config', 'eclipse-code', 'eclipse-code.db'),
             join(homedir(), '.config', 'eclipse-code-dev', 'eclipse-code.db'),
           ],
+    brainCipher: safeStorage,
     log,
   })
+  releaseWindow = (id) => services.brain.unsubscribe(id)
   const route = createIpcRouter({
     ...createIpcHandlers(services),
     'projects.pickFolder': async (): Promise<PickedFolder | null> => {
@@ -120,7 +129,7 @@ async function boot(): Promise<AppServices> {
     if (!windows.has(event.sender.id)) {
       return { ok: false, error: { code: 'forbidden', message: 'origem desconhecida' } }
     }
-    return route(raw)
+    return route(raw, { senderId: event.sender.id })
   })
   services.onUiEvent((message) => {
     for (const window of BrowserWindow.getAllWindows()) {

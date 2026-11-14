@@ -21,6 +21,8 @@ import type {
   TaskWorkflowStatus,
   UserQuestion,
 } from '@shared/domain'
+import type { BrainStatus } from '@shared/brain'
+import type { AgentLimitSettings } from '@shared/ports'
 import type {
   EclipseApi,
   IpcCommandChannel,
@@ -31,6 +33,35 @@ import type {
   SubtaskDetail,
 } from '@shared/ipc'
 import { upsertById } from './format'
+import { isMotion, isStyle, type Motion, type Style } from '../brain/looks'
+import { readPref, savePref } from '../brain/prefs'
+import { isShape, type Shape } from '../brain/shapes'
+
+/** Efeito do cérebro (pequeno e grande). As chaves eclipse.brain.* já existiam na barra antiga. */
+export interface BrainLook {
+  shape: Shape
+  motion: Motion
+  style: Style
+  twinkle: boolean
+}
+
+const isFlag = (v: unknown): v is '1' | '0' => v === '1' || v === '0'
+
+export const defaultBrainLook: BrainLook = {
+  shape: 'rodizio',
+  motion: 'parado',
+  style: 'tipo',
+  twinkle: false,
+}
+
+function readBrainLook(): BrainLook {
+  return {
+    shape: readPref('eclipse.brain.shape', isShape, defaultBrainLook.shape),
+    motion: readPref('eclipse.brain.motion', isMotion, defaultBrainLook.motion),
+    style: readPref('eclipse.brain.style', isStyle, defaultBrainLook.style),
+    twinkle: readPref('eclipse.brain.twinkle', isFlag, '0') === '1',
+  }
+}
 
 export type MidTab = 'leader' | 'delivery' | 'activity'
 
@@ -47,6 +78,10 @@ export interface AppState {
   selectedTaskId: string | null
   selectedSubtaskId: string | null
   midTab: MidTab
+  /** Cerebro grande aberto no painel do meio (so um motor WebGL por vez). */
+  brainOpen: boolean
+  settingsOpen: boolean
+  brainLook: BrainLook
   expanded: Record<string, boolean>
   details: Record<string, SubtaskDetail>
   activity: Record<string, ActivityEvent[]>
@@ -65,6 +100,9 @@ export const initialState: AppState = {
   selectedTaskId: null,
   selectedSubtaskId: null,
   midTab: 'leader',
+  brainOpen: false,
+  settingsOpen: false,
+  brainLook: defaultBrainLook,
   expanded: {},
   details: {},
   activity: {},
@@ -113,7 +151,9 @@ export class AppStore {
   private readonly listeners = new Set<() => void>()
   private unsubscribe: (() => void) | null = null
 
-  constructor(readonly api: EclipseApi) {}
+  constructor(readonly api: EclipseApi) {
+    this.state = { ...initialState, brainLook: readBrainLook() }
+  }
 
   // -- assinatura (useSyncExternalStore) -------------------------------------
 
@@ -240,6 +280,25 @@ export class AppStore {
     )
   }
 
+  /** Limites de agentes. Erro sobe para o modal (nao vai para a faixa global). */
+  loadAgentLimits(): Promise<AgentLimitSettings> {
+    return this.call('settings.get', {})
+  }
+
+  saveAgentLimits(limits: AgentLimitSettings): Promise<AgentLimitSettings> {
+    return this.call('settings.save', limits)
+  }
+
+  /** Plugin Cerebro: so "tem chave" e o final dela. Erro sobe para o modal. */
+  loadBrainStatus(): Promise<BrainStatus> {
+    return this.call('brain.status', {})
+  }
+
+  /** Salva a chave sbk_ ou, com null, apaga. */
+  saveBrainKey(key: string | null): Promise<BrainStatus> {
+    return this.call('brain.setKey', { key })
+  }
+
   async addProject(rootPath: string, name?: string): Promise<void> {
     await this.guard(async () => {
       const project = await this.call(
@@ -277,6 +336,22 @@ export class AppStore {
       midTab: subtask && !isFinalOrWaiting(subtask.state) ? 'activity' : 'delivery',
     })
     await Promise.all([this.loadDetail(subtaskId), this.loadActivity(subtaskId)])
+  }
+
+  setBrainOpen(open: boolean): void {
+    this.set({ brainOpen: open })
+  }
+
+  setSettingsOpen(open: boolean): void {
+    this.set({ settingsOpen: open })
+  }
+
+  setBrainLook(patch: Partial<BrainLook>): void {
+    const brainLook = { ...this.state.brainLook, ...patch }
+    for (const [k, v] of Object.entries(patch)) {
+      savePref(`eclipse.brain.${k}`, typeof v === 'boolean' ? (v ? '1' : '0') : String(v))
+    }
+    this.set({ brainLook })
   }
 
   setMidTab(tab: MidTab): void {

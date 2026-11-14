@@ -53,6 +53,92 @@ function openAddProject() {
   fireEvent.click(within(picker).getByRole('button', { name: '+ Adicionar projeto' }))
 }
 
+describe('Configurações', () => {
+  const openSettings = () => fireEvent.click(screen.getByRole('button', { name: 'Configurações' }))
+
+  it('foca o primeiro campo depois de carregar os valores', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
+    await waitFor(() => expect(document.activeElement).toBe(agents))
+  })
+
+  it('abre com os limites atuais e salva vazio como sem limite', async () => {
+    await renderApp()
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null }
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
+    await waitFor(() => expect(agents).toHaveProperty('value', '12'))
+    const members = within(dialog).getByLabelText(/Máximo de membros vivos por tarefa/)
+    expect(members).toHaveProperty('value', '')
+    fireEvent.change(agents, { target: { value: '' } })
+    fireEvent.change(members, { target: { value: '3' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull())
+    expect(api.callsTo('settings.save')).toEqual([
+      { maxLiveAgents: null, maxLiveMembersPerTask: 3 },
+    ])
+  })
+
+  it('valor inválido mostra o erro no modal e não grava', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
+    await waitFor(() => expect(agents).toHaveProperty('disabled', false))
+    fireEvent.change(agents, { target: { value: '101' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toContain('1 a 100')
+    expect(api.callsTo('settings.save')).toEqual([])
+  })
+
+  it('erro do main aparece no modal; Cancelar fecha sem gravar', async () => {
+    await renderApp()
+    api.overrides.set('settings.save', () => ({
+      ok: false,
+      error: { code: 'invalid_input', message: 'recusado pelo main' },
+    }))
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const agents = await within(dialog).findByLabelText(/Máximo de agentes vivos no app/)
+    await waitFor(() => expect(agents).toHaveProperty('disabled', false))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toContain('recusado pelo main')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull()
+  })
+
+  it('Second Brain: salva a chave, mostra só o final e remove', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const field = await within(dialog).findByLabelText(/Chave de acesso/)
+    fireEvent.change(field, { target: { value: 'sbk_segredo5678' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
+    expect(await within(dialog).findByText('Chave salva (…5678)')).toBeTruthy()
+    expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }])
+    expect(dialog.textContent).not.toContain('segredo')
+    expect(field).toHaveProperty('value', '')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Remover chave' }))
+    await waitFor(() => expect(within(dialog).getByText(/Nenhuma chave salva/)).toBeTruthy())
+    expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }, { key: null }])
+  })
+
+  it('Second Brain: texto sem sbk_ não vai ao main', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    fireEvent.change(await within(dialog).findByLabelText(/Chave de acesso/), {
+      target: { value: 'qualquer' },
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toContain('sbk_')
+    expect(api.callsTo('brain.setKey')).toEqual([])
+  })
+})
+
 function middle() {
   return screen.getByRole('region', { name: 'Centro' })
 }

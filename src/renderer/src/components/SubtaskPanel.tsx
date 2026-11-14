@@ -9,6 +9,7 @@ import {
 } from '../store/format'
 import { useNow } from '../store/useNow'
 import { useAppState, useStore } from '../store/context'
+import { BrainSection } from '../brain/BrainSection'
 
 const EMPTY: Subtask[] = []
 
@@ -105,6 +106,7 @@ export function SubtaskPanel() {
           </div>
         )}
       </div>
+      <BrainSection />
     </section>
   )
 }

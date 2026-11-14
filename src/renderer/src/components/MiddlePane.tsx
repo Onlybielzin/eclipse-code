@@ -1,5 +1,6 @@
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
+import { BrainView } from '../brain/BrainView'
 import { ActivityView } from './ActivityView'
 import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
@@ -17,6 +18,7 @@ export function MiddlePane() {
   const taskId = useAppState((s) => s.selectedTaskId)
   const subtaskId = useAppState((s) => s.selectedSubtaskId)
   const tab = useAppState((s) => s.midTab)
+  const brainOpen = useAppState((s) => s.brainOpen)
   const task = useAppState((s) => s.tasks.find((t) => t.id === taskId) ?? null)
   const subtask = useAppState((s) =>
     taskId && subtaskId ? (s.subtasks[taskId]?.find((x) => x.id === subtaskId) ?? null) : null,
@@ -30,11 +32,26 @@ export function MiddlePane() {
       null,
   )
 
+  const closeBrain = (
+    <button type="button" className="ghost sp" onClick={() => store.setBrainOpen(false)}>
+      Fechar
+    </button>
+  )
+
   if (!task) {
     return (
       <section className="col" aria-label="Centro">
-        <div className="colhead">Líder</div>
-        <div className="empty">Escolha uma tarefa na lista ou crie uma nova.</div>
+        <div className="colhead">
+          {brainOpen ? 'Cérebro' : 'Líder'}
+          {brainOpen && closeBrain}
+        </div>
+        {brainOpen ? (
+          <div className="mid">
+            <BrainView full />
+          </div>
+        ) : (
+          <div className="empty">Escolha uma tarefa na lista ou crie uma nova.</div>
+        )}
       </section>
     )
   }
@@ -46,14 +63,15 @@ export function MiddlePane() {
     <section className="col" aria-label="Centro">
       <div className="colhead">
         <span className="mid-title">
-          {!subtask && (
+          {!brainOpen && !subtask && (
             <span className="mid-prompt" aria-hidden="true">
               ›_
             </span>
           )}
-          {subtask ? subtask.title : leaderTitle}
+          {brainOpen ? 'Cérebro' : subtask ? subtask.title : leaderTitle}
         </span>
-        {!subtask && (
+        {brainOpen && closeBrain}
+        {!brainOpen && !subtask && (
           <span className="mid-status" data-testid="mid-status">
             <TaskStatusMenu
               variant="pill"
@@ -63,8 +81,8 @@ export function MiddlePane() {
             />
           </span>
         )}
-        {!subtask && <span className="mid-task">{task.title}</span>}
-        {subtask && (
+        {!brainOpen && !subtask && <span className="mid-task">{task.title}</span>}
+        {!brainOpen && subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (
               <button
@@ -83,7 +101,12 @@ export function MiddlePane() {
       </div>
       <div className="mid">
         {/* O terminal fica montado enquanto a tarefa nao muda, para nao perder o xterm ao trocar de aba. */}
-        <div className="mid-layer" hidden={!showLeader}>
+        {brainOpen && (
+          <div className="mid-layer" data-testid="brain-middle">
+            <BrainView full />
+          </div>
+        )}
+        <div className="mid-layer" hidden={brainOpen || !showLeader}>
           {task.status === 'archived' ? (
             <div className="empty" data-testid="task-launched">
               Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o status
@@ -100,8 +123,10 @@ export function MiddlePane() {
             </>
           )}
         </div>
-        {subtask && tab === 'delivery' && <DeliveryView subtask={subtask} detail={detail} />}
-        {subtask && tab === 'activity' && (
+        {!brainOpen && subtask && tab === 'delivery' && (
+          <DeliveryView subtask={subtask} detail={detail} />
+        )}
+        {!brainOpen && subtask && tab === 'activity' && (
           <ActivityView events={activity} working={subtask.state === 'working'} />
         )}
       </div>

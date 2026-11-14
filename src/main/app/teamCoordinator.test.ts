@@ -11,6 +11,7 @@ import {
 import type { McpCaller } from '@shared/mcp'
 import { RESTART_PAUSE_MESSAGE } from '@shared/subtaskRules'
 import type {
+  AgentLimits,
   LeaderLaunchRequest,
   LeaderLaunchResult,
   McpBridgeServer,
@@ -24,6 +25,7 @@ import { startTeamTurnRelay } from '../mcp'
 import { createHarness, seedTeam, seedWorkingSubtask } from '../tasks/testing'
 import { createIpcHandlers } from './ipcHandlers'
 import { createIpcRouter } from './ipcRouter'
+import type { AppServices } from './services'
 import { AppTeamCoordinator } from './teamCoordinator'
 
 interface Deferred<T> {
@@ -39,7 +41,13 @@ function deferred<T>(): Deferred<T> {
   return { promise, resolve }
 }
 
-function setup(options: { transcripts?: Set<string>; members?: MemberRuntime } = {}) {
+function setup(
+  options: {
+    transcripts?: Set<string>
+    members?: MemberRuntime
+    limits?: () => AgentLimits
+  } = {},
+) {
   const { service: tasks } = createHarness()
   const fx = seedTeam(tasks)
   const alive = new Set<string>()
@@ -143,6 +151,7 @@ function setup(options: { transcripts?: Set<string>; members?: MemberRuntime } =
     bridge,
     worktreesRoot: '/wt',
     leaderNotices: turnRelay,
+    ...(options.limits ? { limits: options.limits } : {}),
   })
 
   const exitLeader = (sessionId: SessionId, exitCode: number) => {
@@ -522,7 +531,13 @@ describe('pergunta respondida no terminal do Líder', () => {
       subtaskId: null,
       items: [ITEM],
     })
-    const route = createIpcRouter(createIpcHandlers({ tasks: h.tasks, coordinator: h.coordinator }))
+    const route = createIpcRouter(
+      createIpcHandlers({
+        tasks: h.tasks,
+        coordinator: h.coordinator,
+        brain: {} as AppServices['brain'],
+      }),
+    )
     return { h, leader, question, route }
   }
 
@@ -559,5 +574,45 @@ describe('pergunta respondida no terminal do Líder', () => {
     // ...e a pergunta continua aberta: só a digitação da tela conta.
     expect(h.tasks.getQuestion(question.id).status).toBe('open')
     expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('pergunta')
+  })
+})
+
+describe('limites de agentes configuráveis', () => {
+  it('limite salvo vale na próxima checagem, sem recriar o coordenador', async () => {
+    const h = setup({ limits: () => h.tasks.getAgentLimits() })
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const caller: McpCaller = {
+      role: 'leader',
+      sessionId: 'x',
+      taskId: h.fx.task.id,
+      subtaskId: null,
+    }
+    const input = { roleId: h.fx.dev.id, title: 'a', instructions: 'b', referenceTaskIds: [] }
+    // Sem configuração = sem limite: o limite 1 com 1 Líder vivo ainda não foi salvo.
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: 1, maxLiveMembersPerTask: null })
+    await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
+      code: 'unavailable',
+    })
+    // Baixar o limite não derrubou o Líder vivo.
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).not.toBeNull()
+  })
+
+  it('maxLiveMembersPerTask lido da configuração; voltar a null libera a criação', async () => {
+    const h = setup({ limits: () => h.tasks.getAgentLimits(), members: fakeMembers().runtime })
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const caller: McpCaller = {
+      role: 'leader',
+      sessionId: 'x',
+      taskId: h.fx.task.id,
+      subtaskId: null,
+    }
+    const input = { roleId: h.fx.dev.id, title: 'a', instructions: 'b', referenceTaskIds: [] }
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 1 })
+    await h.coordinator.createSubtask(caller, input)
+    await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
+      code: 'unavailable',
+    })
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null })
+    await expect(h.coordinator.createSubtask(caller, input)).resolves.toBeDefined()
   })
 })

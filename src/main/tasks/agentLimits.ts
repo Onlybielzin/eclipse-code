@@ -5,12 +5,25 @@
  * com processo morto, nao ocupa vaga.
  */
 import { DomainError, type Session, type SessionId, type TaskId } from '@shared/domain'
-import type { AgentLimits } from '@shared/ports'
+import type { AgentLimitSettings, AgentLimits } from '@shared/ports'
 
 // Sem limite por padrão (pedido do vings) até existir configuração; os testes passam limites próprios.
 export const DEFAULT_AGENT_LIMITS: AgentLimits = {
   maxLiveMembersPerTask: Number.POSITIVE_INFINITY,
   maxLiveAgents: Number.POSITIVE_INFINITY,
+}
+
+/** Limite fixo ou funcao lida a cada checagem; ausente = sem limite. */
+export function resolveAgentLimits(limits?: AgentLimits | (() => AgentLimits)): AgentLimits {
+  const value = limits ?? DEFAULT_AGENT_LIMITS
+  return typeof value === 'function' ? value() : value
+}
+
+export function limitsFromSettings(s: AgentLimitSettings): AgentLimits {
+  return {
+    maxLiveMembersPerTask: s.maxLiveMembersPerTask ?? Number.POSITIVE_INFINITY,
+    maxLiveAgents: s.maxLiveAgents ?? Number.POSITIVE_INFINITY,
+  }
 }
 
 export interface AgentLiveness {

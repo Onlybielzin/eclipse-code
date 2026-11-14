@@ -60,8 +60,11 @@ import {
   type UserQuestion,
   type UserQuestionStatus,
 } from '@shared/domain'
+import { agentLimitSettingsSchema } from '@shared/ipc'
 import type { ActivityPage, ProjectSummary, SubtaskDetail } from '@shared/ipc'
 import type {
+  AgentLimitSettings,
+  AgentLimits,
   Clock,
   CreateSubtaskRecord,
   CreateTaskRecord,
@@ -90,10 +93,13 @@ import {
   resolveTurn,
 } from '@shared/subtaskRules'
 import { nextTaskWorkflowStatus, type TaskWorkflowSignal } from '@shared/taskWorkflow'
+import { limitsFromSettings } from './agentLimits'
 import { roleNameKey, type SqliteTaskStore } from './sqliteTaskStore'
 
 export const systemClock: Clock = { now: () => Date.now() }
 export const uuidIds: IdFactory = { newId: () => randomUUID() }
+
+const AGENT_LIMITS_KEY = 'agentLimits'
 
 export interface TaskServiceDeps {
   store: SqliteTaskStore
@@ -231,6 +237,30 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
 
   listProjects(): Project[] {
     return this.store.listProjects()
+  }
+
+  /** Limites de agentes gravados; valor ausente ou ilegivel = sem limite. */
+  getAgentLimitSettings(): AgentLimitSettings {
+    const raw = this.store.getSetting(AGENT_LIMITS_KEY)
+    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null }
+    if (raw === null) return none
+    try {
+      const parsed = agentLimitSettingsSchema.safeParse(JSON.parse(raw))
+      if (parsed.success) return parsed.data
+    } catch {
+      // JSON corrompido: cai em sem limite, como valor fora de 1-100.
+    }
+    console.warn('[eclipse] limites de agentes gravados são inválidos; usando sem limite')
+    return none
+  }
+
+  getAgentLimits(): AgentLimits {
+    return limitsFromSettings(this.getAgentLimitSettings())
+  }
+
+  saveAgentLimitSettings(settings: AgentLimitSettings): AgentLimitSettings {
+    this.store.setSetting(AGENT_LIMITS_KEY, JSON.stringify(settings))
+    return settings
   }
 
   summarizeProjects(): ProjectSummary[] {

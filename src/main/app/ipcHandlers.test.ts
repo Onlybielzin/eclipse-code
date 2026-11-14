@@ -19,7 +19,11 @@ const ITEM: QuestionItem = {
 function handlersFor(service: AppServices['tasks']) {
   // projects.summary so le o TaskService; o coordinator nao e tocado.
   return createIpcHandlers(
-    { tasks: service, coordinator: {} as AppServices['coordinator'] },
+    {
+      tasks: service,
+      coordinator: {} as AppServices['coordinator'],
+      brain: {} as AppServices['brain'],
+    },
     { homeDir: '/home/vings' },
   )
 }
