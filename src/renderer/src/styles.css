@@ -1011,3 +1011,16 @@ button:disabled {
   font-size: 12px;
   color: var(--muted);
 }
+
+/* Pergunta do Lider em cima do terminal dele: rola sozinha, o terminal fica com o resto. */
+.leader-question {
+  flex: none;
+  max-height: 45%;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.leader-question .box {
+  margin: 0;
+}

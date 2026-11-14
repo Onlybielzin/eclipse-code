@@ -510,3 +510,26 @@ describe('painéis do rodape da coluna esquerda', () => {
     expect(screen.getByTestId('panel-team-count').textContent).toBe('0')
   })
 })
+
+describe('pergunta do Líder', () => {
+  it('aparece em cima do terminal do Líder e o botão "precisa de você" leva até ela', async () => {
+    api = new FakeApi(mockupData())
+    const base = api.data.questions[0]!
+    api.data.questions = [
+      {
+        ...base,
+        id: 'q-lead',
+        subtaskId: null,
+        items: [{ ...base.items[0]!, prompt: 'Quem manda e-mail no chat?' }],
+      },
+    ]
+    const store = new AppStore(api)
+    render(<App store={store} />)
+    await screen.findByText('feat-orfer-e-up')
+
+    fireEvent.click(screen.getByTestId('need-you'))
+    const card = await screen.findByTestId('leader-question')
+    expect(within(card).getByText('Quem manda e-mail no chat?')).toBeTruthy()
+    expect(within(middle()).getByTestId('leader-terminal')).toBeTruthy()
+  })
+})

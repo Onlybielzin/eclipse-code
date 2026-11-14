@@ -153,7 +153,7 @@ export function DeliveryView({
   )
 }
 
-function QuestionBox({ question }: { question: UserQuestion }) {
+export function QuestionBox({ question }: { question: UserQuestion }) {
   const store = useStore()
   const [picked, setPicked] = useState<Record<string, string[]>>({})
   const [texts, setTexts] = useState<Record<string, string>>({})

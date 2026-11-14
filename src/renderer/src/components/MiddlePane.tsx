@@ -1,7 +1,7 @@
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
 import { ActivityView } from './ActivityView'
-import { DeliveryView } from './DeliveryView'
+import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
 
 const TABS: { id: MidTab; label: string }[] = [
@@ -22,6 +22,12 @@ export function MiddlePane() {
   )
   const detail = useAppState((s) => (subtaskId ? s.details[subtaskId] : undefined))
   const activity = useAppState((s) => (subtaskId ? s.activity[subtaskId] : undefined))
+  // Pergunta que o Lider repassou (sem subtarefa): aparece em cima do terminal dele.
+  const leaderQuestion = useAppState(
+    (s) =>
+      s.questions.find((q) => q.taskId === taskId && q.subtaskId === null && q.status === 'open') ??
+      null,
+  )
 
   if (!task) {
     return (
@@ -65,7 +71,14 @@ export function MiddlePane() {
               no ícone da tarefa.
             </div>
           ) : (
-            <LeaderTerminal key={task.id} task={task} />
+            <>
+              {leaderQuestion && (
+                <div className="leader-question" data-testid="leader-question">
+                  <QuestionBox key={leaderQuestion.id} question={leaderQuestion} />
+                </div>
+              )}
+              <LeaderTerminal key={task.id} task={task} />
+            </>
           )}
         </div>
         {subtask && tab === 'delivery' && <DeliveryView subtask={subtask} detail={detail} />}
