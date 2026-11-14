@@ -1035,3 +1035,103 @@ button:disabled {
   border-radius: 4px;
   opacity: 0.7;
 }
+
+/* Aba Atividade com cara de terminal do Claude Code. */
+.tl-term {
+  background: var(--term);
+  font-family: var(--f-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  color: var(--fg);
+}
+.tl {
+  margin: 0 0 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tl-dot {
+  display: inline-block;
+  width: 1.4em;
+}
+.tl-say {
+  color: var(--fg);
+}
+.tl-ok {
+  color: var(--st-green);
+}
+.tl-run {
+  color: var(--st-blue);
+  animation: tl-pulse 1.2s ease-in-out infinite;
+}
+.tl-fail {
+  color: var(--st-red);
+}
+.tl-head b {
+  font-weight: 600;
+}
+.tl-arg {
+  color: var(--muted);
+}
+.tl-out {
+  margin: 2px 0 0 1.4em;
+  font: inherit;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tl-branch {
+  color: var(--line);
+}
+.tl-more {
+  margin: 2px 0 0 2.6em;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.tl-muted {
+  color: var(--muted);
+}
+.tl-prompt {
+  color: var(--muted);
+  border-left: 2px solid var(--line);
+  padding-left: 8px;
+}
+.tl-thought {
+  color: var(--muted);
+  font-style: italic;
+}
+.tl-bad {
+  color: var(--bad);
+}
+.tl-end {
+  color: var(--muted);
+  text-align: center;
+  margin: 12px 0;
+}
+.tl-working {
+  color: var(--st-amber);
+}
+.tl-spin {
+  display: inline-block;
+  animation: tl-spin 2s linear infinite;
+}
+@keyframes tl-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes tl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl-run,
+  .tl-spin {
+    animation: none;
+  }
+}

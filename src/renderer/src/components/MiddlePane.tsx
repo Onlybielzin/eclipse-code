@@ -82,7 +82,9 @@ export function MiddlePane() {
           )}
         </div>
         {subtask && tab === 'delivery' && <DeliveryView subtask={subtask} detail={detail} />}
-        {subtask && tab === 'activity' && <ActivityView events={activity} />}
+        {subtask && tab === 'activity' && (
+          <ActivityView events={activity} working={subtask.state === 'working'} />
+        )}
       </div>
     </section>
   )

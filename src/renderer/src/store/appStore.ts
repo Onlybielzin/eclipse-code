@@ -256,7 +256,8 @@ export class AppStore {
     this.set({
       selectedTaskId: subtask?.taskId ?? this.state.selectedTaskId,
       selectedSubtaskId: subtaskId,
-      midTab: 'delivery',
+      // Membro ainda trabalhando: abre no que ele esta fazendo. Terminou: abre na entrega.
+      midTab: subtask && !isFinalOrWaiting(subtask.state) ? 'activity' : 'delivery',
     })
     await Promise.all([this.loadDetail(subtaskId), this.loadActivity(subtaskId)])
   }
@@ -456,4 +457,9 @@ export class AppStore {
         return
     }
   }
+}
+
+/** Subtarefa que ja tem algo para ler na entrega (pronta, bloqueada, cancelada ou em duvida). */
+function isFinalOrWaiting(state: Subtask['state']): boolean {
+  return state !== 'submitted' && state !== 'working'
 }

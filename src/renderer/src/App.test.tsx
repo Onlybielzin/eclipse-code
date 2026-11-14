@@ -566,3 +566,13 @@ describe('cartão de pergunta: Ctrl+Enter', () => {
     expect(screen.queryByLabelText('Legenda')).toBeNull()
   })
 })
+
+describe('subtarefa abre na aba certa', () => {
+  it('membro trabalhando abre na Atividade; pronto abre na Entrega', async () => {
+    await renderApp()
+    fireEvent.click(screen.getByTestId('subtask-t'))
+    await within(middle()).findByTestId('activity')
+    fireEvent.click(screen.getByTestId('subtask-d1'))
+    await within(middle()).findByTestId('delivery')
+  })
+})
