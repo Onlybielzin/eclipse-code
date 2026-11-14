@@ -4,9 +4,7 @@ import type { ActivityEvent, BrainGraph, BrainStatus, MemoryDetail } from '@shar
 import { useAppState, useStore } from '../store/context'
 import { buildScene } from './buildScene'
 import { loadEngine, type BrainEngineLike, type EngineFactory } from './engineLoader'
-import { isMotion, isStyle, MOTIONS, STYLES, type Motion, type Style } from './looks'
-import { Picker } from './Picker'
-import { isShape, SHAPES, type Shape } from './shapes'
+import { readPref, savePref } from './prefs'
 
 /** Limite do feed, igual ao site. */
 export const FEED_LIMIT = 20
@@ -53,23 +51,6 @@ function ago(ts: string, now: number): string {
 
 const isBool = (v: unknown): v is '1' | '0' => v === '1' || v === '0'
 
-function readPref<T>(key: string, ok: (v: unknown) => v is T, fallback: T): T {
-  try {
-    const v = globalThis.localStorage?.getItem(key)
-    return ok(v) ? v : fallback
-  } catch {
-    return fallback
-  }
-}
-
-function savePref(key: string, value: string): void {
-  try {
-    globalThis.localStorage?.setItem(key, value)
-  } catch {
-    // sem armazenamento: so perde a lembranca da escolha
-  }
-}
-
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
 /**
@@ -86,6 +67,7 @@ export function BrainView({
 }) {
   const store = useStore()
   const settingsOpen = useAppState((s) => s.settingsOpen)
+  const { shape, motion, style, twinkle } = useAppState((s) => s.brainLook)
   const stageRef = useRef<HTMLDivElement>(null)
   const labelsRef = useRef<HTMLDivElement>(null)
   const engineRef = useRef<BrainEngineLike | null>(null)
@@ -101,16 +83,6 @@ export function BrainView({
   const [selected, setSelected] = useState<string | null>(null)
   const [detail, setDetail] = useState<MemoryDetail | null>(null)
   const [now, setNow] = useState(() => Date.now())
-  const [shape, setShape] = useState<Shape>(() =>
-    readPref('eclipse.brain.shape', isShape, 'rodizio'),
-  )
-  const [motion, setMotion] = useState<Motion>(() =>
-    readPref('eclipse.brain.motion', isMotion, 'parado'),
-  )
-  const [style, setStyle] = useState<Style>(() => readPref('eclipse.brain.style', isStyle, 'tipo'))
-  const [twinkle, setTwinkle] = useState(
-    () => readPref('eclipse.brain.twinkle', isBool, '0') === '1',
-  )
   const [feedOpen, setFeedOpen] = useState(
     () => readPref('eclipse.brain.feed', isBool, '1') === '1',
   )
@@ -211,19 +183,15 @@ export function BrainView({
 
   useEffect(() => {
     engine?.setShape(shape)
-    savePref('eclipse.brain.shape', shape)
   }, [engine, shape])
   useEffect(() => {
     engine?.setMotion(motion)
-    savePref('eclipse.brain.motion', motion)
   }, [engine, motion])
   useEffect(() => {
     engine?.setStyle(style)
-    savePref('eclipse.brain.style', style)
   }, [engine, style])
   useEffect(() => {
     engine?.setTwinkle(twinkle)
-    savePref('eclipse.brain.twinkle', twinkle ? '1' : '0')
   }, [engine, twinkle])
   useEffect(() => savePref('eclipse.brain.feed', feedOpen ? '1' : '0'), [feedOpen])
   useEffect(() => {
@@ -325,27 +293,6 @@ export function BrainView({
             <button type="button" onClick={() => void load()}>
               Recarregar
             </button>
-            <div className="looks" role="group" aria-label="Aparência das bolinhas">
-              <Picker
-                label="Forma"
-                value={shape}
-                options={SHAPES}
-                onChange={setShape}
-                columns={2}
-              />
-              <Picker label="Movimento" value={motion} options={MOTIONS} onChange={setMotion} />
-              <Picker label="Cor" value={style} options={STYLES} onChange={setStyle} />
-              <label className="look switch">
-                <span>Cintilar</span>
-                <input
-                  type="checkbox"
-                  role="switch"
-                  checked={twinkle}
-                  onChange={(e) => setTwinkle(e.target.checked)}
-                />
-                <i aria-hidden="true" />
-              </label>
-            </div>
             <span className="stats">{stats}</span>
           </div>
 

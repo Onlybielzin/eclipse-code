@@ -1827,9 +1827,13 @@ fieldset.modal-field legend {
 }
 
 /* ===== design C: cartao de pergunta ===== */
+/* Como na maquete C: a pergunta do Lider fica embaixo do terminal. */
 .leader-question {
+  order: 1;
   background: transparent;
   padding: 12px 20px;
+  border-bottom: 0;
+  border-top: 1px solid var(--line);
 }
 .question-card {
   padding: 14px 16px 12px;
@@ -1946,7 +1950,24 @@ fieldset.modal-field legend {
 .proj-sep {
   color: var(--faint);
 }
+/* So a branch encurta: o nome do projeto e o atalho ficam inteiros. */
+.proj-btn {
+  max-width: 440px;
+}
+.proj-btn-name,
+.proj-sep,
+.proj-kbd,
+.proj-btn svg {
+  flex: none;
+}
+.proj-kbd {
+  white-space: nowrap;
+}
+.proj-btn .proj-btn-name {
+  max-width: 200px;
+}
 .proj-branch {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

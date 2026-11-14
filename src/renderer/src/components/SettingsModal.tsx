@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { BrainStatus } from '@shared/brain'
-import { useStore } from '../store/context'
+import { MOTIONS, STYLES } from '../brain/looks'
+import { SHAPES } from '../brain/shapes'
+import { useAppState, useStore } from '../store/context'
 
 const LIMIT_ERROR = 'Informe um número inteiro de 1 a 100, ou deixe vazio para sem limite.'
 
@@ -15,6 +17,7 @@ function parseLimit(text: string): number | null | undefined {
 /** Modal "Configurações": os dois limites de agentes vivos. Salvar vale na hora, sem reiniciar. */
 export function SettingsModal({ onClose }: { onClose: () => void }) {
   const store = useStore()
+  const look = useAppState((s) => s.brainLook)
   const [maxAgents, setMaxAgents] = useState('')
   const [maxMembers, setMaxMembers] = useState('')
   const [loaded, setLoaded] = useState(false)
@@ -197,6 +200,58 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               Salvar chave
             </button>
           </div>
+          <p className="modal-note">Efeito do cérebro: vale na hora, no pequeno e no grande.</p>
+          <label className="modal-field">
+            <span>Forma</span>
+            <select
+              className="field"
+              value={look.shape}
+              onChange={(e) => store.setBrainLook({ shape: e.target.value as typeof look.shape })}
+            >
+              {SHAPES.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="modal-field">
+            <span>Movimento</span>
+            <select
+              className="field"
+              value={look.motion}
+              onChange={(e) => store.setBrainLook({ motion: e.target.value as typeof look.motion })}
+            >
+              {MOTIONS.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {`${o.label} - ${o.hint}`}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="modal-field">
+            <span>Cor</span>
+            <select
+              className="field"
+              value={look.style}
+              onChange={(e) => store.setBrainLook({ style: e.target.value as typeof look.style })}
+            >
+              {STYLES.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {`${o.label} - ${o.hint}`}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="modal-field">
+            <span>Cintilar</span>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={look.twinkle}
+              onChange={(e) => store.setBrainLook({ twinkle: e.target.checked })}
+            />
+          </label>
           {brainError && (
             <p className="modal-note bad" role="alert">
               {brainError}

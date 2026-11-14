@@ -217,7 +217,9 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
             <span className="proj-sep" aria-hidden="true">
               /
             </span>
-            <span className="proj-branch">{branch}</span>
+            <span className="proj-branch" title={branch}>
+              {branch}
+            </span>
           </>
         )}
         <kbd className="proj-kbd" aria-hidden="true">
