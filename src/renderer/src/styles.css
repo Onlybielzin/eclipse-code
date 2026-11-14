@@ -115,6 +115,24 @@ code {
 .titlebar b {
   font-weight: 800;
 }
+/* Logo da maquete C: lua de eclipse em CSS, sem arquivo de imagem. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 64% 38%, var(--bg) 0 46%, transparent 47%),
+    conic-gradient(from 200deg, var(--accent), var(--st-violet), var(--accent));
+  box-shadow:
+    0 0 0 1px rgb(90 185 252 / 25%),
+    0 0 18px rgb(90 185 252 / 25%);
+}
 /* Seletor de projeto (quick pick no estilo Linear / VS Code). */
 .proj-btn {
   display: inline-flex;
@@ -1892,6 +1910,348 @@ fieldset.modal-field legend {
   order: 1;
   height: 32px;
   border: 0;
+}
+
+/* ===== design C: estrutura (topo, tarefas, subtarefas, meio, pergunta) ===== */
+.need {
+  gap: 8px;
+}
+.need-n {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--st-pink);
+  color: #2a0a1a;
+  font-size: 11px;
+  font-weight: 700;
+}
+.need.none .need-n {
+  background: var(--line-2);
+  color: var(--muted);
+}
+.need-go {
+  opacity: 0.7;
+}
+.proj-btn {
+  gap: 8px;
+}
+.proj-sep {
+  color: var(--faint);
+}
+.proj-branch {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.proj-kbd,
+.question-card kbd {
+  padding: 0 5px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  line-height: 16px;
+  color: var(--faint);
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+}
+.colhead-n {
+  font-family: var(--f-mono);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--faint);
+}
+.add-task {
+  margin-left: auto;
+  height: 28px;
+  padding: 0 12px;
+  font-weight: 600;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-md);
+}
+.add-task:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.task-search {
+  padding: 4px 12px 2px;
+}
+.task-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--faint);
+}
+.task-search-box:focus-within {
+  border-color: var(--accent);
+}
+.task-search-input,
+.task-search-input:hover,
+.task-search-input:focus {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  outline: none;
+}
+.quick-chips {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 4px;
+}
+.quick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line-2);
+  border-radius: 99px;
+  cursor: pointer;
+  transition:
+    background var(--m-out) var(--ease),
+    color var(--m-out) var(--ease);
+}
+.quick-chip:hover {
+  color: var(--fg);
+}
+.quick-chip.on {
+  color: var(--accent-ink);
+  background: var(--fg);
+  border-color: var(--fg);
+  font-weight: 500;
+}
+.quick-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.grp-count {
+  margin-left: auto;
+}
+.row .m {
+  min-width: 28px;
+  text-align: right;
+}
+.mid-prompt {
+  margin-right: 8px;
+  font-family: var(--f-mono);
+  color: var(--accent);
+}
+.mid-title {
+  flex: none;
+}
+.mid-task {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 400;
+}
+.col-subs .colhead .sp {
+  margin-left: 0;
+}
+.seg-wrap {
+  padding: 0 16px 10px;
+  flex: none;
+}
+.seg-bar {
+  display: flex;
+  gap: 3px;
+}
+.seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--st-gray);
+}
+.seg[data-state='completed'] {
+  background: var(--st-green);
+}
+.seg[data-state='working'] {
+  background: var(--st-blue);
+}
+.seg[data-state='input_required'] {
+  background: var(--st-pink);
+}
+.seg[data-state='submitted'] {
+  background: var(--st-amber);
+}
+.seg[data-state='failed'] {
+  background: var(--st-red);
+}
+.seg-sum {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--faint);
+}
+.sub-item .head {
+  grid-column: 2;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.sub-item .nm {
+  flex: none;
+  padding: 0 6px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  line-height: 18px;
+  color: var(--muted);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.sub-item .ds {
+  grid-column: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.who-state[data-state='working'] {
+  color: var(--st-blue);
+}
+.who-state[data-state='input_required'] {
+  color: var(--st-pink);
+}
+.who-state[data-state='completed'] {
+  color: var(--st-green);
+}
+.who-state[data-state='failed'] {
+  color: var(--st-red);
+}
+.sub-closed-head .ic {
+  margin-left: 2px;
+}
+.sub-closed-head {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+.question-card > h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+}
+.q-who {
+  color: var(--faint);
+  text-transform: none;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.q-steps {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--faint);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.q-step {
+  width: 16px;
+  height: 3px;
+  /* o padding aumenta a area de clique; o fundo fica so no miolo */
+  box-sizing: content-box;
+  padding: 8px 4px;
+  border: 0;
+  background: var(--line-2) content-box;
+  background-clip: content-box;
+  cursor: pointer;
+}
+.q-step.cur {
+  background: var(--st-pink) content-box;
+  background-clip: content-box;
+}
+.q-steps span {
+  margin-left: 6px;
+}
+.q-item .answer button:not(.ghost):not(.primary) {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.q-mark {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border: 1.5px solid var(--faint);
+  border-radius: 50%;
+}
+.q-mark.sq {
+  border-radius: 4px;
+}
+button[aria-pressed='true'] > .q-mark {
+  border-color: var(--accent);
+  background: radial-gradient(circle, var(--accent) 0 38%, transparent 42%);
+}
+.q-opt {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.q-opt-t {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.q-tag {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.q-opt-d {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.q-other {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding-left: 12px;
+  color: var(--faint);
+  background: rgb(10 13 20 / 35%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.q-other:focus-within {
+  border-color: var(--accent);
+}
+.q-other .field {
+  flex: 1;
+  background: none;
+  border: 0;
+  outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

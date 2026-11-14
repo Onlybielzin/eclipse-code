@@ -70,6 +70,8 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
   const listId = useId()
 
   const current = projects.find((p) => p.id === projectId) ?? null
+  // Branch da tarefa aberta; sem tarefa ou sem branch, so o projeto.
+  const branch = useAppState((s) => s.tasks.find((t) => t.id === s.selectedTaskId)?.branch ?? null)
   const filtered = useMemo(
     () => projects.filter((p) => matchesProject(p, query)),
     [projects, query],
@@ -210,6 +212,17 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
         <span className={`proj-btn-name ${current ? '' : 'none'}`}>
           {current?.name ?? 'Nenhum projeto'}
         </span>
+        {current && branch && (
+          <>
+            <span className="proj-sep" aria-hidden="true">
+              /
+            </span>
+            <span className="proj-branch">{branch}</span>
+          </>
+        )}
+        <kbd className="proj-kbd" aria-hidden="true">
+          Ctrl O
+        </kbd>
         <ChevronIcon />
       </button>
       {open && (

@@ -63,6 +63,11 @@ export function MiddlePane() {
     <section className="col" aria-label="Centro">
       <div className="colhead">
         <span className="mid-title">
+          {!brainOpen && !subtask && (
+            <span className="mid-prompt" aria-hidden="true">
+              ›_
+            </span>
+          )}
           {brainOpen ? 'Cérebro' : subtask ? subtask.title : leaderTitle}
         </span>
         {brainOpen && closeBrain}
@@ -76,6 +81,7 @@ export function MiddlePane() {
             />
           </span>
         )}
+        {!brainOpen && !subtask && <span className="mid-task">{task.title}</span>}
         {!brainOpen && subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (

@@ -1,20 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PROVIDER_LABELS, type Subtask } from '@shared/domain'
-import { countCompleted, STATE_ICON_CLASS, subtaskElapsed, subtaskRowLabel } from '../store/format'
+import {
+  countCompleted,
+  STATE_ICON_CLASS,
+  subtaskElapsed,
+  subtaskRowLabel,
+  subtaskSummary,
+} from '../store/format'
+import { useNow } from '../store/useNow'
 import { useAppState, useStore } from '../store/context'
 import { BrainSection } from '../brain/BrainSection'
 
 const EMPTY: Subtask[] = []
-
-/** Relogio de 30 s para o tempo das subtarefas que ainda correm. */
-function useNow(intervalMs = 30_000): number {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), intervalMs)
-    return () => clearInterval(id)
-  }, [intervalMs])
-  return now
-}
 
 /** Coluna direita: subtarefas da tarefa aberta, com estado, papel, modelo e tempo. */
 export function SubtaskPanel() {
@@ -46,10 +43,14 @@ export function SubtaskPanel() {
         onClick={() => void store.selectSubtask(sub.id)}
       >
         <i className={`ic ${STATE_ICON_CLASS[sub.state]}`} title={stateLabel} />
-        <span className="nm">{role?.name ?? 'Membro'}</span>
-        <span className="ds">{sub.title}</span>
+        <span className="head">
+          <span className="nm">{role?.name ?? 'Membro'}</span>
+          <span className="ds">{sub.title}</span>
+        </span>
         <span className="who" title={stateLabel}>
-          {stateLabel}
+          <span className="who-state" data-state={sub.state}>
+            {stateLabel}
+          </span>
           {model ? ` · ${model}` : ''} · {subtaskElapsed(sub, now)}
         </span>
       </button>
@@ -57,7 +58,7 @@ export function SubtaskPanel() {
   }
 
   return (
-    <section className="col" aria-label="Subtarefas">
+    <section className="col col-subs" aria-label="Subtarefas">
       <div className="colhead">
         Subtarefas
         {subs.length > 0 && (
@@ -66,6 +67,18 @@ export function SubtaskPanel() {
           </span>
         )}
       </div>
+      {subs.length > 0 && (
+        <div className="seg-wrap">
+          <div className="seg-bar" data-testid="subtask-bar" aria-hidden="true">
+            {subs.map((x) => (
+              <i key={x.id} className="seg" data-state={x.state} />
+            ))}
+          </div>
+          <p className="seg-sum" data-testid="subtask-summary">
+            {subtaskSummary(subs, now)}
+          </p>
+        </div>
+      )}
       <div className="scroll">
         {!task && <p className="empty">Nenhuma tarefa aberta.</p>}
         {task && subs.length === 0 && (
@@ -84,7 +97,9 @@ export function SubtaskPanel() {
               aria-expanded={closedOpen}
               onClick={() => setShowClosed(!closedOpen)}
             >
-              <span aria-hidden="true">{closedOpen ? '⌄' : '›'}</span> Bloqueadas e canceladas
+              <span aria-hidden="true">{closedOpen ? '⌄' : '›'}</span>
+              <i className={`ic ${STATE_ICON_CLASS.failed}`} aria-hidden="true" />
+              Bloqueadas e canceladas
               <span className="sp">{closed.length}</span>
             </button>
             {closedOpen && closed.map(renderSub)}

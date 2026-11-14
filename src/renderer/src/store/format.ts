@@ -121,3 +121,32 @@ export function subtaskRowLabel(sub: Subtask): string {
   if (sub.state === 'input_required' && sub.statusMessage?.trim()) return sub.statusMessage.trim()
   return SUBTASK_STATE_LABELS[sub.state]
 }
+
+/** Tempo curto da linha de tarefa: "agora", "3m", "1h", "2d". */
+export function formatShortElapsed(fromMs: number, toMs: number): string {
+  const min = Math.max(0, Math.floor((toMs - fromMs) / 60_000))
+  if (min < 1) return 'agora'
+  if (min < 60) return `${min}m`
+  if (min < 1440) return `${Math.floor(min / 60)}h`
+  return `${Math.floor(min / 1440)}d`
+}
+
+/** Ordem e rotulos (singular, plural) da linha de resumo das subtarefas. */
+const SUMMARY_PARTS: readonly [SubtaskState, string, string][] = [
+  ['completed', 'pronta', 'prontas'],
+  ['working', 'trabalhando', 'trabalhando'],
+  ['input_required', 'dúvida', 'dúvidas'],
+  ['submitted', 'na fila', 'na fila'],
+  ['failed', 'bloqueada', 'bloqueadas'],
+  ['canceled', 'cancelada', 'canceladas'],
+]
+
+/** "3 prontas · 1 trabalhando · 1 dúvida · 62 min": contagem por estado e tempo somado. */
+export function subtaskSummary(subtasks: readonly Subtask[], nowMs: number): string {
+  const parts = SUMMARY_PARTS.flatMap(([state, one, many]) => {
+    const n = subtasks.filter((s) => s.state === state).length
+    return n > 0 ? [`${n} ${n === 1 ? one : many}`] : []
+  })
+  const total = subtasks.reduce((sum, s) => sum + ((s.finishedAt ?? nowMs) - s.createdAt), 0)
+  return [...parts, formatElapsed(0, total)].join(' · ')
+}

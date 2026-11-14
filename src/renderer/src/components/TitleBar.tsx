@@ -23,7 +23,10 @@ export function TitleBar() {
 
   return (
     <header className="titlebar">
-      <b>Eclipse Code</b>
+      <b className="brand">
+        <span className="logo" aria-hidden="true" />
+        Eclipse Code
+      </b>
       <ProjectPicker onAddProject={() => setAdding(true)} />
       {adding && <AddProjectModal onClose={() => setAdding(false)} />}
       <button
@@ -33,7 +36,10 @@ export function TitleBar() {
         disabled={open.length === 0}
         onClick={goToQuestion}
       >
-        {open.length} precisa{open.length === 1 ? '' : 'm'} de você
+        <span className="need-n">{open.length}</span> precisa{open.length === 1 ? '' : 'm'} de você{' '}
+        <span className="need-go" aria-hidden="true">
+          ›
+        </span>
       </button>
       <button
         type="button"
