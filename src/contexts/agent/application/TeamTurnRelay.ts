@@ -53,7 +53,7 @@ export function composeTeamTurnMessage(input: {
     '',
     body,
     '',
-    '[time] Primeiro atualize a subtarefa deste membro no quadro (TaskUpdate: status e nota no título). Depois: se for DUVIDA e você souber, responda com agente_mensagem para esse id; se for decisão do vings, pergunte a ele com pergunta_criar e repasse; se for PRONTO, siga a esteira.',
+    '[time] Primeiro atualize a subtarefa deste membro no quadro (TaskUpdate: status e nota no título). Depois: se for DUVIDA e você souber, responda com agente_mensagem para esse id; se for decisão do vings, pergunte a ele com pergunta_criar e repasse; se for PRONTO, leia a resposta, feche a janela dele com agente_encerrar (esse id) e siga a esteira; se precisar de correção depois, crie um agente novo com o contexto.',
   ].join('\n')
 }
 
