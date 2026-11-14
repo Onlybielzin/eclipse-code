@@ -319,6 +319,15 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     },
     notify(taskId, text, subtaskId) {
       if (stopped) return
+      // O Lider ja viu a subtarefa depois da ultima transicao: o aviso chegaria velho.
+      if (subtaskId !== undefined) {
+        const seenAt = seenBySubtask.get(subtaskId)
+        try {
+          if (seenAt !== undefined && seenAt >= tasks.getSubtask(subtaskId).updatedAt) return
+        } catch {
+          // subtarefa desconhecida: avisa mesmo assim
+        }
+      }
       enqueue(taskId, text, subtaskId)
     },
     markSubtasksSeen(taskId, subtaskIds) {

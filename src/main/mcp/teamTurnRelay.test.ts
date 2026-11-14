@@ -292,6 +292,25 @@ describe('aviso de subtarefa que o Lider ja viu', () => {
   })
 })
 
+describe('notify de subtarefa que o Lider ja viu', () => {
+  it('nao enfileira depois da visao, mas enfileira transicao nova depois de visao antiga', async () => {
+    const tasks = createFakeTaskService()
+    let clock = 1_000
+    const { relay } = relaySpy()
+    const team = startTeamTurnRelay({ tasks, relay, now: () => clock, retryIntervalMs: 0 })
+    tasks.seedSubtask({ id: 'a', state: 'failed', updatedAt: 50_000 }) // transicao
+    clock = 100_000
+    team.markSubtasksSeen('task1', ['a'])
+    team.notify('task1', 'membro parou', 'a')
+    expect(team.pending('task1')).toEqual([])
+    clock = 200_000
+    tasks.seedSubtask({ id: 'a', state: 'failed', updatedAt: 150_000 }) // transicao nova
+    team.notify('task1', 'membro parou de novo', 'a')
+    expect(team.pending('task1')).toEqual(['membro parou de novo'])
+    team.stop()
+  })
+})
+
 describe('aviso pelo gancho (relay.offer)', () => {
   function boxRelay() {
     const pasted: string[] = []

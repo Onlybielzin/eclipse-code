@@ -65,6 +65,22 @@ describe('hook.mjs entrega a caixa', () => {
     expect(lines[0]).toMatchObject({ ids: [4, 5] })
   })
 
+  it('dentro de subagente (agent_id): nao reivindica a caixa e so observa', async () => {
+    const paths = await setup()
+    await writeInbox(paths, NOTICES)
+    for (const event of ['PostToolUse', 'Stop']) {
+      const result = await runHook(paths, { hook_event_name: event, agent_id: 'sub-1' })
+      expect(result).toEqual({ stdout: '', code: 0 })
+    }
+    expect(existsSync(paths.inbox)).toBe(true)
+    expect(eventLines(paths).map((l) => l['event'])).toEqual(['PostToolUse', 'Stop'])
+    // agent_id vazio nao e subagente: entrega como antes.
+    const main = await runHook(paths, { hook_event_name: 'PostToolUse', agent_id: '' })
+    expect(JSON.parse(main.stdout)).toMatchObject({
+      hookSpecificOutput: { additionalContext: TEXT },
+    })
+  })
+
   it('UserPromptSubmit: igual, com o nome do evento', async () => {
     const paths = await setup()
     await writeInbox(paths, NOTICES)

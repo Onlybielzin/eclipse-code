@@ -381,8 +381,21 @@ export function createLeaderSessionRegistry(
     noteUserInput(sessionId, data) {
       const entry = bySession.get(sessionId)
       if (!entry) return
-      if (/[\r\n]/.test(data)) entry.draftAt = null
-      else if (data !== '\x1b[I' && data !== '\x1b[O') entry.draftAt = now() // foco do terminal nao e digitacao
+      // Tira o que nao e digitacao (colagem, CSI, OSC, SS3: respostas do xterm, foco, setas) e
+      // le o resto em ordem: Enter limpa o rascunho, caractere imprimivel o reabre.
+      // Enter dentro de ESC[200~...ESC[201~ e texto colado, nao Enter.
+      let draft: boolean | null = null
+      const re =
+      // eslint-disable-next-line no-control-regex -- sequencias de escape sao o ponto
+        /\x1b\[200~([\s\S]*?)(?:\x1b\[201~|$)|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b\[[0-?]*[ -/]*[@-~]|\x1bO[@-~]|([\s\S])/g
+      for (const m of data.matchAll(re)) {
+        const [, pasted, char] = m
+        if (pasted) draft = true
+        else if (char === '\r' || char === '\n') draft = false
+        else if (char !== undefined && char >= ' ' && char !== '\x7f') draft = true
+      }
+      if (draft === true) entry.draftAt = now()
+      else if (draft === false) entry.draftAt = null
     },
 
     onEvent(listener) {

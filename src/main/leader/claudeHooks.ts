@@ -109,7 +109,9 @@ try {
     transcriptPath: pick('transcript_path'),
     at: Date.now(),
   };
-  const delivered = target && NOTICE_EVENTS.includes(record.event) && deliverNotices(record.event);
+  // agent_id so vem de gancho dentro de subagente: o aviso e do Lider, nao dele.
+  const inSubagent = typeof input.agent_id === 'string' && input.agent_id !== '';
+  const delivered = target && !inSubagent && NOTICE_EVENTS.includes(record.event) && deliverNotices(record.event);
   if (target && record.event && !(delivered && record.event === 'Stop')) {
     appendFileSync(target, JSON.stringify(record) + '\n', { mode: 0o600 });
   }
