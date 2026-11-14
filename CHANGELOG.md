@@ -2,6 +2,15 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.1 - 2026-11-14
+
+- Nova Parede: um painel com todas as tarefas abertas e o que cada uma está fazendo agora.
+- As Configurações abrem como página, no lugar do terminal.
+- A tela ganhou hierarquia de cor, com fundos em camadas.
+- O Líder recebe os avisos das subtarefas sem que o app digite no terminal dele.
+- O aviso de uma subtarefa não cola mais sobre o que você está escrevendo para o Líder.
+- Primeiros ajustes para rodar no Windows: caminhos de projeto e PATH do Windows.
+
 ## 0.1.0 - 2026-11-14
 
 - Lista de tarefas por projeto, com os status A fazer, Em andamento, Pergunta para você, Em revisão, Pronto pra lançar e Concluída.
