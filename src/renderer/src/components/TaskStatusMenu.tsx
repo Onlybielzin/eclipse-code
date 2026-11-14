@@ -19,10 +19,16 @@ export function TaskStatusMenu({
   status,
   taskTitle,
   onChange,
+  variant = 'icon',
+  openAt,
 }: {
   status: TaskWorkflowStatus
   taskTitle: string
   onChange: (status: TaskWorkflowStatus) => void
+  /** 'icon': so o circulo (linha da lista). 'pill': circulo + nome + seta (cabecalho). */
+  variant?: 'icon' | 'pill'
+  /** Abre o menu nesse ponto (clique direito na linha). nonce novo = abrir de novo. */
+  openAt?: { x: number; y: number; nonce: number } | null
 }) {
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<CSSProperties>({})
@@ -52,6 +58,12 @@ export function TaskStatusMenu({
     }
   }, [open])
 
+  useEffect(() => {
+    if (!openAt) return
+    setPos({ top: openAt.y, left: openAt.x })
+    setOpen(true)
+  }, [openAt])
+
   const toggle = () => {
     // Menu em position: fixed para nao ser cortado pelo scroll da coluna.
     const rect = buttonRef.current?.getBoundingClientRect()
@@ -64,8 +76,8 @@ export function TaskStatusMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="status-btn"
-        title={label}
+        className={variant === 'pill' ? 'status-btn status-pill' : 'status-btn'}
+        title={`${label} · clique para trocar o status`}
         aria-label={`Status de ${taskTitle}: ${label}. Trocar status`}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -74,6 +86,14 @@ export function TaskStatusMenu({
         onKeyDown={(e) => e.stopPropagation()}
       >
         <TaskStatusIcon status={status} />
+        {variant === 'pill' && (
+          <>
+            <span className="status-pill-label">{label}</span>
+            <span className="status-pill-chev" aria-hidden="true">
+              ⌄
+            </span>
+          </>
+        )}
       </button>
       {open && (
         <div

@@ -37,6 +37,13 @@ export function TaskList() {
   const [query, setQuery] = useState('')
   // Tarefas em que o usuario abriu as subtarefas encerradas pela linha "N encerradas".
   const [doneOpen, setDoneOpen] = useState<Record<string, boolean>>({})
+  // Clique direito numa tarefa abre o menu de status no ponto do clique.
+  const [statusMenuAt, setStatusMenuAt] = useState<{
+    taskId: string
+    x: number
+    y: number
+    nonce: number
+  } | null>(null)
   // Busca nao e salva: troca de projeto comeca sem texto.
   const [queryProject, setQueryProject] = useState(projectId)
   if (queryProject !== projectId) {
@@ -157,6 +164,15 @@ export function TaskList() {
                           aria-expanded={subs.length > 0 ? open : undefined}
                           tabIndex={0}
                           onClick={() => store.selectTask(task.id)}
+                          onContextMenu={(e) => {
+                            e.preventDefault()
+                            setStatusMenuAt({
+                              taskId: task.id,
+                              x: e.clientX,
+                              y: e.clientY,
+                              nonce: Date.now(),
+                            })
+                          }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault()
@@ -181,6 +197,7 @@ export function TaskList() {
                             status={task.workflowStatus}
                             taskTitle={task.title}
                             onChange={(status) => void store.setTaskStatus(task.id, status)}
+                            openAt={statusMenuAt?.taskId === task.id ? statusMenuAt : null}
                           />
                           <span className="t">{task.title}</span>
                           <span className="m">{leadMeta(task)}</span>

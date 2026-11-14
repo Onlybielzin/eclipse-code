@@ -3,6 +3,7 @@ import { useAppState, useStore } from '../store/context'
 import { ActivityView } from './ActivityView'
 import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
+import { TaskStatusMenu } from './TaskStatusMenu'
 
 const TABS: { id: MidTab; label: string }[] = [
   { id: 'delivery', label: 'Entrega' },
@@ -45,6 +46,16 @@ export function MiddlePane() {
     <section className="col" aria-label="Centro">
       <div className="colhead">
         <span className="mid-title">{subtask ? subtask.title : leaderTitle}</span>
+        {!subtask && (
+          <span className="mid-status" data-testid="mid-status">
+            <TaskStatusMenu
+              variant="pill"
+              status={task.workflowStatus}
+              taskTitle={task.title}
+              onChange={(status) => void store.setTaskStatus(task.id, status)}
+            />
+          </span>
+        )}
         {subtask && (
           <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
             {TABS.map((t) => (

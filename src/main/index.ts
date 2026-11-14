@@ -46,6 +46,10 @@ function createMainWindow(): BrowserWindow {
     show: false,
     title: APP_PRODUCT_NAME,
     backgroundColor: '#0e1211',
+    // Icone da janela (X11 e barra de tarefas); no Wayland vale o Icon= do .desktop.
+    icon: app.isPackaged
+      ? join(process.resourcesPath, 'icon.png')
+      : join(__dirname, '../../resources/icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,

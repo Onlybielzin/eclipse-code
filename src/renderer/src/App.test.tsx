@@ -961,3 +961,48 @@ describe('subtarefas encerradas na lista', () => {
     expect(within(list).getByRole('button', { name: 'esconder encerradas' })).toBeTruthy()
   })
 })
+
+describe('trocar o status da tarefa', () => {
+  it('pela pílula no cabeçalho do meio', async () => {
+    await renderApp()
+    const pill = within(screen.getByTestId('mid-status')).getByRole('button')
+    fireEvent.click(pill)
+    fireEvent.click(screen.getByRole('menuitemradio', { name: 'Em revisão' }))
+    await waitFor(() => expect(api.callsTo('tasks.setStatus')).toHaveLength(1))
+  })
+
+  it('pelo clique direito na linha da tarefa', async () => {
+    await renderApp()
+    const row = screen.getByTestId('task-t1')
+    fireEvent.contextMenu(row, { clientX: 40, clientY: 80 })
+    const menu = await screen.findByRole('menu')
+    fireEvent.click(within(menu).getByRole('menuitemradio', { name: 'Pronto pra lançar' }))
+    await waitFor(() =>
+      expect(api.callsTo('tasks.setStatus')).toEqual([
+        expect.objectContaining({ taskId: 't1', status: 'pronto_lancar' }),
+      ]),
+    )
+  })
+})
+
+describe('trocar o status da tarefa', () => {
+  it('pela pílula no cabeçalho do meio', async () => {
+    await renderApp()
+    const pill = within(screen.getByTestId('mid-status')).getByRole('button')
+    fireEvent.click(pill)
+    fireEvent.click(screen.getByRole('menuitemradio', { name: 'Em revisão' }))
+    await waitFor(() => expect(api.callsTo('tasks.setStatus')).toHaveLength(1))
+  })
+
+  it('pelo clique direito na linha da tarefa', async () => {
+    await renderApp()
+    fireEvent.contextMenu(screen.getByTestId('task-t1'), { clientX: 40, clientY: 80 })
+    const menu = await screen.findByRole('menu')
+    fireEvent.click(within(menu).getByRole('menuitemradio', { name: 'Pronto pra lançar' }))
+    await waitFor(() =>
+      expect(api.callsTo('tasks.setStatus')).toEqual([
+        expect.objectContaining({ taskId: 't1', status: 'pronto_lancar' }),
+      ]),
+    )
+  })
+})

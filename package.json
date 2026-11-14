@@ -60,9 +60,16 @@
       ],
       "category": "Development",
       "synopsis": "Tarefas, Líder e subtarefas para Claude Code e Codex",
-      "syncDesktopName": true
+      "syncDesktopName": true,
+      "icon": "build/icon.png"
     },
-    "publish": null
+    "publish": null,
+    "extraResources": [
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [
