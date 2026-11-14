@@ -154,6 +154,14 @@ describe('recuperação no boot', () => {
     expect(h3.service.listTasksWithPendingLeaderNotices()).toEqual([fx.task.id])
     h3.service.markLeaderNoticeDelivered(pending[0]!.id)
     expect(h3.service.listPendingLeaderNotices(fx.task.id)).toHaveLength(2)
+    // O aviso guarda a subtarefa; descartar por subtarefa tira so os avisos dela (e sobrevive ao reinício).
+    expect(pending.map((n) => n.subtaskId).sort()).toEqual(
+      [midTurn.subtask.id, waiting.subtask.id, queued.id].sort(),
+    )
+    h3.service.discardPendingLeaderNoticesForSubtasks(fx.task.id, [pending[1]!.subtaskId!])
+    expect(h3.service.listPendingLeaderNotices(fx.task.id).map((n) => n.id)).toEqual([
+      pending[2]!.id,
+    ])
     h3.store.close()
   })
 

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { MiddlePane } from './components/MiddlePane'
+import { SettingsPage } from './components/SettingsPage'
 import { SubtaskPanel } from './components/SubtaskPanel'
 import { TaskList } from './components/TaskList'
 import { TitleBar } from './components/TitleBar'
@@ -23,21 +24,28 @@ function ErrorBar() {
 function Shell() {
   const status = useAppState((s) => s.status)
   const hasProject = useAppState((s) => s.projectId !== null)
+  const settingsOpen = useAppState((s) => s.settingsOpen)
   return (
     <div className="app">
       <TitleBar />
       <ErrorBar />
-      {status === 'loading' ? (
+      {settingsOpen && (status === 'loading' || !hasProject) ? (
+        <div className="cols alone">
+          <SettingsPage alone />
+        </div>
+      ) : status === 'loading' ? (
         <div className="empty">Carregando...</div>
       ) : !hasProject ? (
         <div className="empty">
           Nenhum projeto ainda. Use "+ projeto" e informe a pasta do repositório.
         </div>
       ) : (
-        <div className="cols">
+        // Com Configurações aberta, o meio e a direita só ficam escondidos: o xterm do Líder continua montado.
+        <div className={`cols ${settingsOpen ? 'settings-open' : ''}`}>
           <TaskList />
           <MiddlePane />
           <SubtaskPanel />
+          {settingsOpen && <SettingsPage />}
         </div>
       )}
     </div>

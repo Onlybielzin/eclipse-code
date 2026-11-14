@@ -9,6 +9,7 @@ import {
   type Subtask,
   type SubtaskId,
   type SubtaskState,
+  type TaskId,
 } from '@shared/domain'
 import {
   deliveryFromEntregar,
@@ -38,6 +39,8 @@ export interface McpTeamActions {
 export interface McpToolHandlerDeps {
   tasks: TaskService
   actions: McpTeamActions
+  /** Avisos ao Lider: subtarefa parada que o Lider viu nao precisa de aviso. */
+  notices?: { markSubtasksSeen(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void }
 }
 
 export interface DisposableMcpToolHandler extends McpToolHandler {
@@ -63,6 +66,11 @@ function oneLine(text: string, max: number): string {
  */
 export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToolHandler {
   const { tasks, actions } = deps
+  // Parada e vista pelo Lider: descarta o aviso pendente dela.
+  const markSeen = (taskId: TaskId, subtasks: readonly Subtask[]): void => {
+    const ids = subtasks.filter((s) => isStoppedState(s.state)).map((s) => s.id)
+    if (ids.length > 0) deps.notices?.markSubtasksSeen(taskId, ids)
+  }
   const waiters = new Set<() => void>()
 
   const ownSubtask = (caller: McpCaller, id: SubtaskId): Subtask => {
@@ -200,6 +208,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       if (input.subtarefa_id) {
         const subtask = ownSubtask(caller, input.subtarefa_id)
         const detail = tasks.getSubtaskDetail(subtask.id)
+        markSeen(caller.taskId, [subtask])
         const data: JsonObject = {
           ...deliveryData(subtask),
           instrucoes: subtask.instructions,
@@ -273,6 +282,17 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
             result = {
               text: `Erro ao montar o resultado: ${error instanceof Error ? error.message : String(error)}`,
               isError: true,
+            }
+          }
+          // So marca quando o resultado foi montado: o Lider recebe o que a entrega mostra.
+          if (!result.isError) {
+            try {
+              markSeen(
+                caller.taskId,
+                unique.map((id) => tasks.getSubtask(id)),
+              )
+            } catch {
+              // o aviso fica; o Lider so o recebe de novo
             }
           }
           resolve(result)

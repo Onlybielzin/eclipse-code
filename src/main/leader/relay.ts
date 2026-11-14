@@ -3,11 +3,13 @@
  *
  * Espera o Lider ficar pronto (LeaderSessionRegistry.isReadyForInput), cola o texto com
  * bracketed paste, espera `submitDelayMs` e manda Enter. Entregas da mesma sessao saem
- * em fila, uma por vez. Enquanto o Lider esta ocupado, tenta de novo a cada `retryDelayMs`
+ * em fila, uma por vez. `offer` entrega pela caixa do gancho (inbox.ts) quando o Lider Claude
+ * esta trabalhando; ver LeaderRelay em src/shared/ports.ts. Enquanto o Lider esta ocupado, tenta de novo a cada `retryDelayMs`
  * ate `maxAttempts`. Sessao desconhecida ou encerrada: { delivered: false }.
  */
 import type { SessionId } from '@shared/domain'
 import type { LeaderRelay, PtyHost } from '@shared/ports'
+import { claimInbox, fitInbox, writeInbox, type InboxNotice } from './inbox'
 import type { LeaderSessionRegistry } from './leaderSessions'
 
 export interface LeaderRelayOptions {
@@ -20,6 +22,9 @@ export interface LeaderRelayOptions {
   maxAttempts?: number
   /** Pausa entre colar e o Enter (300 ms no app antigo, Claude e Codex). */
   submitDelayMs?: number
+  now?: () => number
+  /** Aviso na caixa que ninguem confirmou neste prazo volta a ser oferecido (gancho morto no meio). */
+  inFlightTtlMs?: number
 }
 
 /** Tira o que poderia sair do bracketed paste ou virar tecla de controle no TUI. */
@@ -40,7 +45,53 @@ export function createLeaderRelay(options: LeaderRelayOptions): LeaderRelay {
   const retryDelayMs = options.retryDelayMs ?? 1000
   const maxAttempts = options.maxAttempts ?? 600
   const submitDelayMs = options.submitDelayMs ?? 300
+  const now = options.now ?? Date.now
+  const inFlightTtlMs = options.inFlightTtlMs ?? 60_000
   const queues = new Map<SessionId, Promise<unknown>>()
+  // Avisos ja gravados na caixa (ou levados pelo gancho) sem notices-delivered: id -> hora.
+  const inFlight = new Map<SessionId, Map<number, number>>()
+
+  options.registry.onEvent((event) => {
+    if (event.type !== 'notices-delivered') return
+    for (const id of event.ids) inFlight.get(event.sessionId)?.delete(id)
+  })
+
+  const offerNow = async (
+    sessionId: SessionId,
+    notices: readonly InboxNotice[],
+  ): Promise<InboxNotice[]> => {
+    const session = options.registry.get(sessionId)
+    const hooks = session?.claudeHooks
+    if (!session || !hooks) return [...notices]
+    const flying = inFlight.get(sessionId) ?? new Map<number, number>()
+    inFlight.set(sessionId, flying)
+    const boxed = await claimInbox(hooks)
+    // Aviso descartado enquanto estava na caixa (subtarefa ja vista) nao vale mais.
+    const pendingIds = new Set(notices.map((n) => n.id))
+    const stale = boxed.filter((n) => !pendingIds.has(n.id))
+    for (const n of stale) flying.delete(n.id)
+    boxed.splice(0, boxed.length, ...boxed.filter((n) => pendingIds.has(n.id)))
+    const boxedIds = new Set(boxed.map((n) => n.id))
+    for (const [id, at] of flying) {
+      if (!boxedIds.has(id) && now() - at >= inFlightTtlMs) flying.delete(id)
+    }
+    const fresh = notices.filter((n) => !boxedIds.has(n.id) && !flying.has(n.id))
+    if (session.activity === 'working') {
+      const next = fitInbox([...boxed, ...fresh])
+      try {
+        await writeInbox(hooks, next)
+      } catch (error) {
+        // Caixa nao gravada: o que foi reivindicado nao pode sumir; cola como antes.
+        for (const n of boxed) flying.delete(n.id)
+        throw error
+      }
+      for (const n of next) flying.set(n.id, flying.get(n.id) ?? now())
+      return []
+    }
+    // Nao esta trabalhando: o que estava na caixa volta a ser colavel (se o gancho nao levou).
+    for (const n of boxed) flying.delete(n.id)
+    return notices.filter((n) => !flying.has(n.id))
+  }
 
   const alive = (sessionId: SessionId): string | null => {
     const session = options.registry.get(sessionId)
@@ -72,6 +123,8 @@ export function createLeaderRelay(options: LeaderRelayOptions): LeaderRelay {
   }
 
   return {
+    // Sem fila propria: o TeamTurnRelay chama uma vez por vez por tarefa.
+    offer: offerNow,
     deliver(sessionId, text) {
       const previous = queues.get(sessionId) ?? Promise.resolve()
       const next = previous.catch(() => undefined).then(() => deliverNow(sessionId, text))

@@ -246,6 +246,12 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 6,
+    name: 'aviso ao Lider guarda a subtarefa',
+    // Sem FK: aviso de subtarefa apagada continua legivel; NULL para aviso sem subtarefa.
+    sql: `ALTER TABLE leader_notices ADD COLUMN subtask_id TEXT;`,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0
