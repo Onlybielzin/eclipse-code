@@ -37,10 +37,18 @@ describe('filterTasks', () => {
     expect(ids({ ...EMPTY_TASK_FILTERS, statuses: ['a_fazer', 'pergunta'] })).toEqual(['a', 'c'])
     expect(ids({ ...EMPTY_TASK_FILTERS, kinds: ['solo'] })).toEqual(['b', 'c'])
     // working e submitted contam; completed não.
-    expect(ids({ ...EMPTY_TASK_FILTERS, runningOnly: true })).toEqual(['a', 'c'])
-    expect(ids({ statuses: ['pergunta', 'a_fazer'], kinds: ['solo'], runningOnly: true })).toEqual([
+    expect(ids({ ...EMPTY_TASK_FILTERS, runningOnly: true, showDoneSubtasks: false })).toEqual([
+      'a',
       'c',
     ])
+    expect(
+      ids({
+        statuses: ['pergunta', 'a_fazer'],
+        kinds: ['solo'],
+        runningOnly: true,
+        showDoneSubtasks: false,
+      }),
+    ).toEqual(['c'])
   })
 
   it('busca ignora maiúsculas e acentos', () => {
@@ -51,7 +59,7 @@ describe('filterTasks', () => {
 })
 
 describe('presets e normalização', () => {
-  it('"Abertas" esconde só Lançado; "Todas" limpa os status', () => {
+  it('"Abertas" esconde só Concluída; "Todas" limpa os status', () => {
     const open = applyPreset({ ...EMPTY_TASK_FILTERS, kinds: ['team'] }, 'open')
     expect(open.statuses).not.toContain('lancado')
     expect(open.statuses).toHaveLength(5)
@@ -68,6 +76,7 @@ describe('presets e normalização', () => {
         statuses: [...TASK_WORKFLOW_STATUSES].reverse(),
         kinds: ['solo', 'team'],
         runningOnly: false,
+        showDoneSubtasks: false,
       }),
     ).toEqual(EMPTY_TASK_FILTERS)
     expect(
@@ -80,7 +89,7 @@ describe('presets e normalização', () => {
     expect(includeStatus(f, 'a_fazer')).toBe(f)
     expect(includeStatus(EMPTY_TASK_FILTERS, 'lancado')).toBe(EMPTY_TASK_FILTERS)
     expect(includeStatus(f, 'lancado').statuses).toEqual(['a_fazer', 'lancado'])
-    // Abertas + Lançado = todos = sem filtro.
+    // Abertas + Concluída = todos = sem filtro.
     expect(includeStatus(applyPreset(f, 'open'), 'lancado').statuses).toEqual([])
   })
 })
@@ -91,9 +100,10 @@ describe('chips', () => {
       statuses: applyPreset(EMPTY_TASK_FILTERS, 'open').statuses,
       kinds: ['solo'],
       runningOnly: true,
+      showDoneSubtasks: false,
     }
     expect(taskFilterChips(f)).toEqual([
-      { key: 'status', label: 'Sem Lançado' },
+      { key: 'status', label: 'Sem Concluída' },
       { key: 'kind', label: 'Avulso' },
       { key: 'running', label: 'Agente rodando' },
     ])
@@ -107,10 +117,19 @@ describe('chips', () => {
   })
 
   it('remover um chip limpa só aquela categoria', () => {
-    const f: TaskFilters = { statuses: ['a_fazer'], kinds: ['team'], runningOnly: true }
+    const f: TaskFilters = {
+      statuses: ['a_fazer'],
+      kinds: ['team'],
+      runningOnly: true,
+      showDoneSubtasks: false,
+    }
     expect(removeTaskFilter(f, 'kind')).toEqual({ ...f, kinds: [] })
     expect(removeTaskFilter(f, 'status')).toEqual({ ...f, statuses: [] })
-    expect(removeTaskFilter(f, 'running')).toEqual({ ...f, runningOnly: false })
+    expect(removeTaskFilter(f, 'running')).toEqual({
+      ...f,
+      runningOnly: false,
+      showDoneSubtasks: false,
+    })
   })
 })
 
@@ -118,9 +137,19 @@ describe('parseTaskFilters', () => {
   it('aceita o salvo e descarta lixo', () => {
     expect(
       parseTaskFilters(
-        JSON.stringify({ statuses: ['em_revisao', 'xx', 3], kinds: ['solo'], runningOnly: true }),
+        JSON.stringify({
+          statuses: ['em_revisao', 'xx', 3],
+          kinds: ['solo'],
+          runningOnly: true,
+          showDoneSubtasks: false,
+        }),
       ),
-    ).toEqual({ statuses: ['em_revisao'], kinds: ['solo'], runningOnly: true })
+    ).toEqual({
+      statuses: ['em_revisao'],
+      kinds: ['solo'],
+      runningOnly: true,
+      showDoneSubtasks: false,
+    })
     expect(parseTaskFilters('{quebrado')).toEqual(EMPTY_TASK_FILTERS)
     expect(parseTaskFilters('null')).toEqual(EMPTY_TASK_FILTERS)
     expect(parseTaskFilters(null)).toEqual(EMPTY_TASK_FILTERS)

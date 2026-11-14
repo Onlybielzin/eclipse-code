@@ -45,7 +45,7 @@ describe('AppStore', () => {
     expect(store.getState().activity.d1?.map((e) => e.seq)).toEqual([1, 2, 3, 4, 5])
   })
 
-  it('ignora tarefa de outro projeto e mantém a arquivada no grupo Lançado', async () => {
+  it('ignora tarefa de outro projeto e mantém a arquivada no grupo Concluída', async () => {
     const { api, store } = await started()
     expect(api.callsTo('tasks.list')).toEqual([{ projectId: 'p1', includeArchived: true }])
     api.emitDomain({ type: 'task.upserted', task: makeTask('x', 'outra', { projectId: 'p2' }) })
@@ -114,7 +114,7 @@ describe('format', () => {
       ['Pergunta para você', ['q1t']],
       ['Em revisão', ['r1']],
       ['Pronto pra lançar', ['p1t']],
-      ['Lançado', ['old1']],
+      ['Concluída', ['old1']],
     ])
     expect(groupTasks([makeTask('a', 'a')]).map((g) => g.status)).toEqual(['em_andamento'])
   })

@@ -1517,3 +1517,38 @@ button:disabled {
 .sub-closed .sub-item {
   opacity: 0.75;
 }
+
+/* Subtarefas na lista: mais recuo e linha guia, para separar da tarefa. */
+.row.child {
+  position: relative;
+  padding-left: 52px;
+}
+.row.child::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--line);
+}
+.row.child .t {
+  font-size: 12.5px;
+}
+.done-toggle {
+  width: 100%;
+  text-align: left;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.done-toggle .t {
+  color: var(--muted);
+}
+.done-ic {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  color: var(--st-green);
+  font-size: 11px;
+}

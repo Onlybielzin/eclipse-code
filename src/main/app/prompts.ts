@@ -44,7 +44,7 @@ export const LEADER_FINISH_RULE = [
   'Quando todo o trabalho da tarefa estiver pronto e verificado, chame a ferramenta MCP',
   '`tarefa_concluir` uma vez, com um resumo do que foi entregue. A tarefa vai para "Em revisão"',
   'do usuário. Não chame com pergunta ao usuário sem resposta. Só o usuário marca',
-  '"Pronto pra lançar" e "Lançado".',
+  '"Pronto pra lançar" e "Concluída".',
 ].join(' ')
 
 /**

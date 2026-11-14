@@ -180,6 +180,19 @@ export function TaskFilterButton({
               Só com agente rodando
             </label>
           </fieldset>
+          <fieldset className="filter-sec">
+            <legend>Subtarefas</legend>
+            <label className="filter-opt" title="Prontas, bloqueadas e canceladas">
+              <input
+                type="checkbox"
+                checked={filters.showDoneSubtasks}
+                onChange={() =>
+                  onChange({ ...filters, showDoneSubtasks: !filters.showDoneSubtasks })
+                }
+              />
+              Mostrar as encerradas
+            </label>
+          </fieldset>
           <div className="filter-foot">
             <button
               type="button"

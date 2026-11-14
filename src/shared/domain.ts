@@ -135,7 +135,7 @@ export const TASK_WORKFLOW_STATUS_LABELS: Record<TaskWorkflowStatus, string> = {
   pergunta: 'Pergunta para você',
   em_revisao: 'Em revisão',
   pronto_lancar: 'Pronto pra lançar',
-  lancado: 'Lançado',
+  lancado: 'Concluída',
 }
 
 /** Status que agente e automacao nunca escrevem (W1). */

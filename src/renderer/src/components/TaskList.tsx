@@ -35,6 +35,8 @@ export function TaskList() {
     useState<Partial<Record<TaskWorkflowStatus, boolean>>>(COLLAPSED_BY_DEFAULT)
   const [filters, setFilters] = useTaskFilters(projectId)
   const [query, setQuery] = useState('')
+  // Tarefas em que o usuario abriu as subtarefas encerradas pela linha "N encerradas".
+  const [doneOpen, setDoneOpen] = useState<Record<string, boolean>>({})
   // Busca nao e salva: troca de projeto comeca sem texto.
   const [queryProject, setQueryProject] = useState(projectId)
   if (queryProject !== projectId) {
@@ -135,6 +137,14 @@ export function TaskList() {
                 {!isCollapsed &&
                   group.tasks.map((task) => {
                     const subs = subtasks[task.id] ?? []
+                    // Encerradas (pronta, bloqueada, cancelada) ficam recolhidas numa linha,
+                    // a menos que o filtro mande mostrar, o usuario abra ou uma esteja aberta.
+                    const done = subs.filter((x) => isDoneSubtask(x.state))
+                    const showAllDone = filters.showDoneSubtasks || doneOpen[task.id] === true
+                    const shown = showAllDone
+                      ? subs
+                      : subs.filter((x) => !isDoneSubtask(x.state) || x.id === selectedSubtaskId)
+                    const hiddenDone = subs.length - shown.length
                     const open = expanded[task.id] === true
                     const isSel = selectedTaskId === task.id && selectedSubtaskId === null
                     return (
@@ -176,7 +186,7 @@ export function TaskList() {
                           <span className="m">{leadMeta(task)}</span>
                         </div>
                         {open &&
-                          subs.map((sub) => {
+                          shown.map((sub) => {
                             const subSel = selectedSubtaskId === sub.id
                             const role = roles[sub.roleId]
                             return (
@@ -202,6 +212,32 @@ export function TaskList() {
                               </div>
                             )
                           })}
+                        {open && hiddenDone > 0 && (
+                          <button
+                            type="button"
+                            className="row child done-toggle"
+                            onClick={() => setDoneOpen((d) => ({ ...d, [task.id]: !d[task.id] }))}
+                          >
+                            <span className="done-ic" aria-hidden="true">
+                              ✓
+                            </span>
+                            <span className="t">
+                              {hiddenDone} encerrada{hiddenDone === 1 ? '' : 's'}
+                            </span>
+                          </button>
+                        )}
+                        {open &&
+                          !filters.showDoneSubtasks &&
+                          doneOpen[task.id] &&
+                          done.length > 0 && (
+                            <button
+                              type="button"
+                              className="row child done-toggle"
+                              onClick={() => setDoneOpen((d) => ({ ...d, [task.id]: false }))}
+                            >
+                              <span className="t">esconder encerradas</span>
+                            </button>
+                          )}
                       </div>
                     )
                   })}
@@ -302,4 +338,8 @@ export function NewTaskForm({ onDone }: { onDone: () => void }) {
       </div>
     </form>
   )
+}
+
+function isDoneSubtask(state: string): boolean {
+  return state === 'completed' || state === 'failed' || state === 'canceled'
 }

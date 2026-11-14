@@ -67,7 +67,7 @@ export function MiddlePane() {
         <div className="mid-layer" hidden={!showLeader}>
           {task.status === 'archived' ? (
             <div className="empty" data-testid="task-launched">
-              Tarefa lançada e arquivada. Os agentes foram fechados. Para reabrir, troque o status
+              Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o status
               no ícone da tarefa.
             </div>
           ) : (

@@ -25,9 +25,16 @@ export interface TaskFilters {
   statuses: TaskWorkflowStatus[]
   kinds: TaskKind[]
   runningOnly: boolean
+  /** Opcao de visao (nao conta como filtro): mostra as subtarefas encerradas na lista. */
+  showDoneSubtasks: boolean
 }
 
-export const EMPTY_TASK_FILTERS: TaskFilters = { statuses: [], kinds: [], runningOnly: false }
+export const EMPTY_TASK_FILTERS: TaskFilters = {
+  statuses: [],
+  kinds: [],
+  runningOnly: false,
+  showDoneSubtasks: false,
+}
 
 export const TASK_KIND_FILTER_LABELS: Record<TaskKind, string> = {
   team: 'Equipe',
@@ -54,6 +61,7 @@ export function normalizeTaskFilters(filters: TaskFilters): TaskFilters {
     statuses: statuses.length === TASK_WORKFLOW_STATUSES.length ? [] : statuses,
     kinds: kinds.length === TASK_KINDS.length ? [] : kinds,
     runningOnly: filters.runningOnly,
+    showDoneSubtasks: filters.showDoneSubtasks === true,
   }
 }
 
@@ -185,6 +193,7 @@ export function parseTaskFilters(raw: string | null | undefined): TaskFilters {
         (TASK_KINDS as readonly string[]).includes(k),
       ),
       runningOnly: obj.runningOnly === true,
+      showDoneSubtasks: obj.showDoneSubtasks === true,
     })
   } catch {
     return EMPTY_TASK_FILTERS
