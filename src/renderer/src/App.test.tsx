@@ -109,6 +109,34 @@ describe('Configurações', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
     expect(screen.queryByRole('dialog', { name: 'Configurações' })).toBeNull()
   })
+
+  it('Second Brain: salva a chave, mostra só o final e remove', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    const field = await within(dialog).findByLabelText(/Chave de acesso/)
+    fireEvent.change(field, { target: { value: 'sbk_segredo5678' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
+    expect(await within(dialog).findByText('Chave salva (…5678)')).toBeTruthy()
+    expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }])
+    expect(dialog.textContent).not.toContain('segredo')
+    expect(field).toHaveProperty('value', '')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Remover chave' }))
+    await waitFor(() => expect(within(dialog).getByText(/Nenhuma chave salva/)).toBeTruthy())
+    expect(api.callsTo('brain.setKey')).toEqual([{ key: 'sbk_segredo5678' }, { key: null }])
+  })
+
+  it('Second Brain: texto sem sbk_ não vai ao main', async () => {
+    await renderApp()
+    openSettings()
+    const dialog = screen.getByRole('dialog', { name: 'Configurações' })
+    fireEvent.change(await within(dialog).findByLabelText(/Chave de acesso/), {
+      target: { value: 'qualquer' },
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar chave' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toContain('sbk_')
+    expect(api.callsTo('brain.setKey')).toEqual([])
+  })
 })
 
 function middle() {

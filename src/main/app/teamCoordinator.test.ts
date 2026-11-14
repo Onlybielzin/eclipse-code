@@ -25,6 +25,7 @@ import { startTeamTurnRelay } from '../mcp'
 import { createHarness, seedTeam, seedWorkingSubtask } from '../tasks/testing'
 import { createIpcHandlers } from './ipcHandlers'
 import { createIpcRouter } from './ipcRouter'
+import type { AppServices } from './services'
 import { AppTeamCoordinator } from './teamCoordinator'
 
 interface Deferred<T> {
@@ -530,7 +531,13 @@ describe('pergunta respondida no terminal do Líder', () => {
       subtaskId: null,
       items: [ITEM],
     })
-    const route = createIpcRouter(createIpcHandlers({ tasks: h.tasks, coordinator: h.coordinator }))
+    const route = createIpcRouter(
+      createIpcHandlers({
+        tasks: h.tasks,
+        coordinator: h.coordinator,
+        brain: {} as AppServices['brain'],
+      }),
+    )
     return { h, leader, question, route }
   }
 

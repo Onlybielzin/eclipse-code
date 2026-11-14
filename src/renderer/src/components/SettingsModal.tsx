@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import type { BrainStatus } from '@shared/brain'
 import { useStore } from '../store/context'
 
 const LIMIT_ERROR = 'Informe um número inteiro de 1 a 100, ou deixe vazio para sem limite.'
@@ -19,6 +20,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [brain, setBrain] = useState<BrainStatus | null>(null)
+  const [brainKey, setBrainKey] = useState('')
+  const [brainBusy, setBrainBusy] = useState(false)
+  const [brainError, setBrainError] = useState<string | null>(null)
   const firstField = useRef<HTMLInputElement>(null)
 
   // O input só aceita foco depois de habilitado, ou seja, depois de carregar.
@@ -51,6 +56,35 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
       alive = false
     }
   }, [store])
+
+  useEffect(() => {
+    let alive = true
+    store
+      .loadBrainStatus()
+      .then((status) => alive && setBrain(status))
+      .catch((e: unknown) => alive && setBrainError(e instanceof Error ? e.message : String(e)))
+    return () => {
+      alive = false
+    }
+  }, [store])
+
+  /** A chave não é gravada pelo "Salvar" do modal: os botões da seção valem na hora. */
+  const changeBrainKey = async (key: string | null) => {
+    if (key !== null && !key.trim().startsWith('sbk_')) {
+      setBrainError('A chave do Second Brain começa com "sbk_".')
+      return
+    }
+    setBrainBusy(true)
+    setBrainError(null)
+    try {
+      setBrain(await store.saveBrainKey(key === null ? null : key.trim()))
+      setBrainKey('')
+    } catch (err) {
+      setBrainError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setBrainBusy(false)
+    }
+  }
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -125,6 +159,50 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           />
           <small>Vazio = sem limite.</small>
         </label>
+
+        <fieldset className="modal-field">
+          <legend>Second Brain</legend>
+          <label className="modal-field">
+            <span>Chave de acesso (sbk_...)</span>
+            <input
+              className="field"
+              type="password"
+              autoComplete="off"
+              maxLength={200}
+              value={brainKey}
+              disabled={brainBusy}
+              onChange={(e) => setBrainKey(e.target.value)}
+            />
+            <small>
+              {brain?.hasKey
+                ? `Chave salva (…${brain.keyLast4 ?? ''})`
+                : 'Nenhuma chave salva. Ela fica cifrada neste computador.'}
+            </small>
+          </label>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="ghost"
+              disabled={brainBusy || !brain?.hasKey}
+              onClick={() => void changeBrainKey(null)}
+            >
+              Remover chave
+            </button>
+            <button
+              type="button"
+              className="primary"
+              disabled={brainBusy || brainKey.trim() === ''}
+              onClick={() => void changeBrainKey(brainKey)}
+            >
+              Salvar chave
+            </button>
+          </div>
+          {brainError && (
+            <p className="modal-note bad" role="alert">
+              {brainError}
+            </p>
+          )}
+        </fieldset>
 
         {error && (
           <p className="modal-note bad" role="alert">

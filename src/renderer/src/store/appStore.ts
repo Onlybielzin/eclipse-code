@@ -21,6 +21,7 @@ import type {
   TaskWorkflowStatus,
   UserQuestion,
 } from '@shared/domain'
+import type { BrainStatus } from '@shared/brain'
 import type { AgentLimitSettings } from '@shared/ports'
 import type {
   EclipseApi,
@@ -48,6 +49,9 @@ export interface AppState {
   selectedTaskId: string | null
   selectedSubtaskId: string | null
   midTab: MidTab
+  /** Cerebro grande aberto no painel do meio (so um motor WebGL por vez). */
+  brainOpen: boolean
+  settingsOpen: boolean
   expanded: Record<string, boolean>
   details: Record<string, SubtaskDetail>
   activity: Record<string, ActivityEvent[]>
@@ -66,6 +70,8 @@ export const initialState: AppState = {
   selectedTaskId: null,
   selectedSubtaskId: null,
   midTab: 'leader',
+  brainOpen: false,
+  settingsOpen: false,
   expanded: {},
   details: {},
   activity: {},
@@ -250,6 +256,16 @@ export class AppStore {
     return this.call('settings.save', limits)
   }
 
+  /** Plugin Cerebro: so "tem chave" e o final dela. Erro sobe para o modal. */
+  loadBrainStatus(): Promise<BrainStatus> {
+    return this.call('brain.status', {})
+  }
+
+  /** Salva a chave sbk_ ou, com null, apaga. */
+  saveBrainKey(key: string | null): Promise<BrainStatus> {
+    return this.call('brain.setKey', { key })
+  }
+
   async addProject(rootPath: string, name?: string): Promise<void> {
     await this.guard(async () => {
       const project = await this.call(
@@ -287,6 +303,14 @@ export class AppStore {
       midTab: subtask && !isFinalOrWaiting(subtask.state) ? 'activity' : 'delivery',
     })
     await Promise.all([this.loadDetail(subtaskId), this.loadActivity(subtaskId)])
+  }
+
+  setBrainOpen(open: boolean): void {
+    this.set({ brainOpen: open })
+  }
+
+  setSettingsOpen(open: boolean): void {
+    this.set({ settingsOpen: open })
   }
 
   setMidTab(tab: MidTab): void {

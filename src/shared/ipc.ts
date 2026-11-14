@@ -24,6 +24,13 @@ import type {
   Turn,
   UserQuestion,
 } from './domain'
+import {
+  brainKeySchema,
+  type ActivityEvent as BrainActivityEvent,
+  type BrainGraph,
+  type BrainStatus,
+  type MemoryDetail,
+} from './brain'
 import type { AgentLimitSettings } from './ports'
 import {
   absolutePathSchema,
@@ -164,6 +171,17 @@ export const ipcCommands = {
     agentLimitSettingsSchema,
   ),
 
+  /** Plugin Cerebro. A chave sbk_ nunca volta para a tela: so brain.status (final da chave). */
+  'brain.setKey': command<BrainStatus>()(
+    z.object({ key: brainKeySchema.nullable() }).strict(),
+  ),
+  'brain.status': command<BrainStatus>()(emptyInput),
+  'brain.graph': command<BrainGraph>()(emptyInput),
+  'brain.memory': command<MemoryDetail>()(z.object({ id: z.string().min(1).max(500) }).strict()),
+  /** Liga o SSE de atividade enquanto houver ao menos um assinante (contagem). */
+  'brain.subscribe': command<void>()(emptyInput),
+  'brain.unsubscribe': command<void>()(emptyInput),
+
   'roles.list': command<Role[]>()(z.object({ projectId: idSchema }).strict()),
   /** Cria (sem roleId) ou atualiza (com roleId) um papel. */
   'roles.save': command<Role>()(
@@ -262,9 +280,17 @@ export interface IpcInvokeRequest {
   input: unknown
 }
 
+/** Quem chamou: id do webContents. Handlers que nao precisam dele o ignoram. */
+export interface IpcCallContext {
+  senderId: number
+}
+
 /** Handlers que o main registra. Erros de dominio: lance DomainError. */
 export type IpcCommandHandlers = {
-  [C in IpcCommandChannel]: (input: IpcCommandInput<C>) => Promise<IpcCommandOutput<C>>
+  [C in IpcCommandChannel]: (
+    input: IpcCommandInput<C>,
+    context?: IpcCallContext,
+  ) => Promise<IpcCommandOutput<C>>
 }
 
 export function isIpcCommandChannel(value: unknown): value is IpcCommandChannel {
@@ -313,6 +339,10 @@ export interface IpcEvents {
   /** Saida do terminal do Lider. Volume alto; nao passa pelo SQLite. */
   'terminal.data': { sessionId: string; data: string }
   'terminal.exit': { sessionId: string; exitCode: number | null; signal: string | null }
+  /** Um evento novo do SSE do second-brain. */
+  'brain.activity': BrainActivityEvent
+  /** Historico enviado ao abrir o SSE. */
+  'brain.history': BrainActivityEvent[]
 }
 
 export type IpcEventChannel = keyof IpcEvents
@@ -326,6 +356,8 @@ export const IPC_EVENT_CHANNELS = [
   'domain.event',
   'terminal.data',
   'terminal.exit',
+  'brain.activity',
+  'brain.history',
 ] as const satisfies readonly IpcEventChannel[]
 
 // ---------------------------------------------------------------------------

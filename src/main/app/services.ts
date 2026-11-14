@@ -20,6 +20,7 @@ import {
   DEFAULT_MEMBER_TURN_TIMEOUTS,
   type AcpMemberRuntimeOptions,
 } from '../acp'
+import { createBrainService, type BrainCipher, type BrainService } from '../brain'
 import { createLeaderModule, type LeaderModule, type LeaderModuleOptions } from '../leader'
 import { createMcpBridgeServer, startTeamTurnRelay, type TeamTurnRelay } from '../mcp'
 import {
@@ -62,9 +63,12 @@ export interface AppServicesOptions {
   /** Intervalo da tentativa periodica de entregar avisos parados ao Lider (0 desliga). */
   noticeRetryIntervalMs?: number
   log?: AppLogger
+  /** Cifra da chave do Cerebro (safeStorage no app). Sem ela, o main recusa salvar a chave. */
+  brainCipher?: BrainCipher
 }
 
 export interface AppServices {
+  brain: BrainService
   tasks: SqliteTaskService
   coordinator: AppTeamCoordinator
   ptyHost: PtyHost
@@ -80,6 +84,16 @@ export interface AppServices {
   /** Espera agentes abrindo, turnos e avisos em curso. */
   idle(): Promise<void>
   dispose(): Promise<void>
+}
+
+const unavailableCipher: BrainCipher = {
+  isEncryptionAvailable: () => false,
+  encryptString: () => {
+    throw new Error('cifra indisponível')
+  },
+  decryptString: () => {
+    throw new Error('cifra indisponível')
+  },
 }
 
 export async function startAppServices(options: AppServicesOptions): Promise<AppServices> {
@@ -193,8 +207,15 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     coordinator.onLeaderTerminalExit((payload) => emitUi({ channel: 'terminal.exit', payload })),
   ]
 
+  const brain = createBrainService({
+    settings: store,
+    cipher: options.brainCipher ?? unavailableCipher,
+    emit: emitUi,
+  })
+
   let disposed: Promise<void> | null = null
   return {
+    brain,
     tasks,
     coordinator,
     ptyHost,
@@ -216,6 +237,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     },
     dispose() {
       disposed ??= (async () => {
+        brain.dispose()
         await coordinator.shutdown()
         turnRelay.stop()
         for (const off of offs.splice(0)) off()

@@ -13,10 +13,10 @@ export interface IpcHandlerOptions {
 }
 
 export function createIpcHandlers(
-  services: Pick<AppServices, 'tasks' | 'coordinator'>,
+  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain'>,
   options: IpcHandlerOptions = {},
 ): Omit<IpcCommandHandlers, 'app.info' | 'projects.pickFolder'> {
-  const { tasks, coordinator } = services
+  const { tasks, coordinator, brain } = services
   const homeDir = options.homeDir ?? homedir()
   return {
     'projects.list': async () => tasks.listProjects(),
@@ -26,6 +26,17 @@ export function createIpcHandlers(
 
     'settings.get': async () => tasks.getAgentLimitSettings(),
     'settings.save': async (input) => tasks.saveAgentLimitSettings(input),
+
+    'brain.setKey': async (input) => brain.setKey(input.key),
+    'brain.status': async () => brain.status(),
+    'brain.graph': () => brain.graph(),
+    'brain.memory': (input) => brain.memory(input.id),
+    'brain.subscribe': async (_input, context) => {
+      if (context) brain.subscribe(context.senderId)
+    },
+    'brain.unsubscribe': async (_input, context) => {
+      if (context) brain.unsubscribe(context.senderId)
+    },
 
     'roles.list': async (input) => tasks.listRoles(input.projectId),
     'roles.save': async (input) => tasks.saveRole(input),

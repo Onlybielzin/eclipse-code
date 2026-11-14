@@ -1,6 +1,7 @@
 import {
   parseIpcInvokeRequest,
   type IpcCommandChannel,
+  type IpcCallContext,
   type IpcCommandHandlers,
   type IpcResult,
 } from '@shared/ipc'
@@ -11,10 +12,11 @@ import { DomainError, toDomainErrorPayload } from '@shared/domain'
  * Handlers ausentes respondem 'unavailable' (modulo ainda nao ligado).
  */
 export function createIpcRouter(handlers: Partial<IpcCommandHandlers>) {
-  return async function route(raw: unknown): Promise<IpcResult<unknown>> {
+  return async function route(raw: unknown, context?: IpcCallContext): Promise<IpcResult<unknown>> {
     const parsed = parseIpcInvokeRequest(raw)
     if (!parsed.ok) return parsed
-    const handler = handlers[parsed.channel] as ((input: unknown) => Promise<unknown>) | undefined
+    const handler = handlers[parsed.channel] as
+      | ((input: unknown, context?: IpcCallContext) => Promise<unknown>) | undefined
     if (!handler) {
       return {
         ok: false,
@@ -24,7 +26,7 @@ export function createIpcRouter(handlers: Partial<IpcCommandHandlers>) {
       }
     }
     try {
-      return { ok: true, value: await handler(parsed.input) }
+      return { ok: true, value: await handler(parsed.input, context) }
     } catch (error) {
       return { ok: false, error: toDomainErrorPayload(error) }
     }

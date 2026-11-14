@@ -2,6 +2,7 @@
  * EclipseApi falsa para os testes da tela. Responde comandos a partir de dados em
  * memoria e deixa o teste emitir eventos como o main faria.
  */
+import type { BrainGraph, MemoryDetail } from '@shared/brain'
 import type {
   ActivityEvent,
   Artifact,
@@ -148,6 +149,20 @@ export class FakeApi implements EclipseApi {
     maxLiveMembersPerTask: null,
   }
 
+  /** Chave do Cerebro guardada pelo fake (so o final sai em brain.status). */
+  brainKey: string | null = null
+  brainGraph: BrainGraph = { nodes: [], edges: [] }
+  brainMemory: MemoryDetail = {
+    id: 'm1',
+    type: 'learning',
+    scope: 'global',
+    importance: 5,
+    created: '2026-11-01T00:00:00Z',
+    body: 'corpo',
+    links: [],
+    backlinks: [],
+  }
+
   /** Home devolvida em projects.summary. */
   homeDir = '/home/vings'
 
@@ -208,6 +223,22 @@ export class FakeApi implements EclipseApi {
       case 'settings.save':
         this.agentLimits = input as typeof this.agentLimits
         return this.agentLimits
+      case 'brain.status':
+      case 'brain.setKey':
+        if (channel === 'brain.setKey') this.brainKey = input.key as string | null
+        return {
+          hasKey: this.brainKey !== null,
+          keyLast4: this.brainKey?.slice(-4) ?? null,
+          connected: false,
+          lastError: null,
+        }
+      case 'brain.graph':
+        return this.brainGraph
+      case 'brain.memory':
+        return this.brainMemory
+      case 'brain.subscribe':
+      case 'brain.unsubscribe':
+        return undefined
       case 'projects.summary':
         return {
           homeDir: this.homeDir,

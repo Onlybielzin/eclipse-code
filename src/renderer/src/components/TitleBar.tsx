@@ -12,7 +12,7 @@ export function TitleBar() {
   const tasks = useAppState((s) => s.tasks)
   const open = useMemo(() => openQuestions(questions), [questions])
   const [adding, setAdding] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsOpen = useAppState((s) => s.settingsOpen)
 
   const goToQuestion = () => {
     const q = open[0]
@@ -40,7 +40,7 @@ export function TitleBar() {
         className="icon-btn"
         aria-label="Configurações"
         title="Configurações"
-        onClick={() => setSettingsOpen(true)}
+        onClick={() => store.setSettingsOpen(true)}
       >
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
           <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -53,7 +53,7 @@ export function TitleBar() {
           />
         </svg>
       </button>
-      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsModal onClose={() => store.setSettingsOpen(false)} />}
     </header>
   )
 }

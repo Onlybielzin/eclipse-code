@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PROVIDER_LABELS, type Subtask } from '@shared/domain'
 import { countCompleted, STATE_ICON_CLASS, subtaskElapsed, subtaskRowLabel } from '../store/format'
 import { useAppState, useStore } from '../store/context'
+import { BrainSection } from '../brain/BrainSection'
 
 const EMPTY: Subtask[] = []
 
@@ -90,6 +91,7 @@ export function SubtaskPanel() {
           </div>
         )}
       </div>
+      <BrainSection />
     </section>
   )
 }
