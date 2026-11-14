@@ -93,17 +93,17 @@ Requisitos:
 
 Passos:
 
-1. Baixe o `Eclipse-Code-<versão>-x86_64.AppImage` em [Releases](../../releases/latest).
+1. Baixe o `Eclipse-Code-x86_64.AppImage` em [Releases](../../releases/latest).
 2. Dê permissão de execução:
 
    ```bash
-   chmod +x Eclipse-Code-*.AppImage
+   chmod +x Eclipse-Code-x86_64.AppImage
    ```
 
 3. Abra o arquivo:
 
    ```bash
-   ./Eclipse-Code-*.AppImage
+   ./Eclipse-Code-x86_64.AppImage
    ```
 
 Os dados ficam em `~/.config/eclipse-code-next`: o banco SQLite e as worktrees das tarefas.
@@ -118,6 +118,7 @@ O app procura versão nova ao abrir e a cada 4 horas. Ele baixa sozinho e avisa 
 - Na primeira abertura da versão nova, a janela **"Novidades da versão X"** mostra o que mudou.
 
 A atualização automática só funciona no AppImage baixado do Releases.
+Não renomeie o arquivo nem ponha uma versão no nome. Assim a versão nova entra no mesmo caminho, e atalhos e lançadores continuam funcionando.
 
 ## Termos
 
