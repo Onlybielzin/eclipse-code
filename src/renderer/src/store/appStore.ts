@@ -22,6 +22,7 @@ import type {
   UserQuestion,
 } from '@shared/domain'
 import type { BrainStatus } from '@shared/brain'
+import type { WallSnapshot } from '@shared/wall'
 import type { AgentLimitSettings } from '@shared/ports'
 import type {
   EclipseApi,
@@ -80,6 +81,8 @@ export interface AppState {
   midTab: MidTab
   /** Cerebro grande aberto no painel do meio (so um motor WebGL por vez). */
   brainOpen: boolean
+  /** Parede (todos os projetos) aberta no painel do meio. */
+  wallOpen: boolean
   settingsOpen: boolean
   brainLook: BrainLook
   expanded: Record<string, boolean>
@@ -101,6 +104,7 @@ export const initialState: AppState = {
   selectedSubtaskId: null,
   midTab: 'leader',
   brainOpen: false,
+  wallOpen: false,
   settingsOpen: false,
   brainLook: defaultBrainLook,
   expanded: {},
@@ -264,6 +268,15 @@ export class AppStore {
     return (await this.guard(() => this.call('projects.pickFolder', {}))) ?? null
   }
 
+  /** Retrato da Parede. Falha passa em silencio: o proximo ciclo tenta de novo. */
+  async loadWallSnapshot(): Promise<WallSnapshot | null> {
+    try {
+      return await this.call('wall.snapshot', {})
+    } catch {
+      return null
+    }
+  }
+
   /** Contadores de cada projeto para o seletor do topo. Erro vai para a faixa e devolve null. */
   async loadProjectsSummary(): Promise<ProjectsSummary | null> {
     // Relista os projetos junto: projeto criado por fora (CLI, outro processo) aparece
@@ -339,7 +352,11 @@ export class AppStore {
   }
 
   setBrainOpen(open: boolean): void {
-    this.set({ brainOpen: open })
+    this.set(open ? { brainOpen: true, wallOpen: false } : { brainOpen: false })
+  }
+
+  setWallOpen(open: boolean): void {
+    this.set(open ? { wallOpen: true, brainOpen: false } : { wallOpen: false })
   }
 
   setSettingsOpen(open: boolean): void {

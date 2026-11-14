@@ -5,6 +5,7 @@
  */
 import { homedir } from 'node:os'
 import type { IpcCommandHandlers } from '@shared/ipc'
+import { buildWallSnapshot, coalesced } from '../wall'
 import type { AppServices } from './services'
 
 export interface IpcHandlerOptions {
@@ -18,6 +19,7 @@ export function createIpcHandlers(
 ): Omit<IpcCommandHandlers, 'app.info' | 'projects.pickFolder'> {
   const { tasks, coordinator, brain } = services
   const homeDir = options.homeDir ?? homedir()
+  const wallSnapshot = coalesced(() => buildWallSnapshot(tasks))
   return {
     'projects.list': async () => tasks.listProjects(),
     'projects.add': async (input) => tasks.addProject(input),
@@ -37,6 +39,8 @@ export function createIpcHandlers(
     'brain.unsubscribe': async (_input, context) => {
       if (context) brain.unsubscribe(context.senderId)
     },
+
+    'wall.snapshot': wallSnapshot,
 
     'roles.list': async (input) => tasks.listRoles(input.projectId),
     'roles.save': async (input) => tasks.saveRole(input),

@@ -69,6 +69,7 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const listId = useId()
 
+  const wallOpen = useAppState((s) => s.wallOpen)
   const current = projects.find((p) => p.id === projectId) ?? null
   // Branch da tarefa aberta; sem tarefa ou sem branch, so o projeto.
   const branch = useAppState((s) => s.tasks.find((t) => t.id === s.selectedTaskId)?.branch ?? null)
@@ -203,16 +204,22 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
         ref={buttonRef}
         type="button"
         className={`proj-btn ${open ? 'open' : ''}`}
-        aria-label={current ? `Projeto: ${current.name}` : 'Escolher projeto'}
+        aria-label={
+          wallOpen
+            ? 'Projeto: Todos os projetos'
+            : current
+              ? `Projeto: ${current.name}`
+              : 'Escolher projeto'
+        }
         aria-haspopup="dialog"
         aria-expanded={open}
         title="Trocar projeto (Ctrl+O)"
         onClick={() => (open ? close(true) : openPicker())}
       >
         <span className={`proj-btn-name ${current ? '' : 'none'}`}>
-          {current?.name ?? 'Nenhum projeto'}
+          {wallOpen ? 'Todos os projetos' : (current?.name ?? 'Nenhum projeto')}
         </span>
-        {current && branch && (
+        {current && branch && !wallOpen && (
           <>
             <span className="proj-sep" aria-hidden="true">
               /
