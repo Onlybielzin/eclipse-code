@@ -1810,9 +1810,13 @@ button:disabled {
 }
 
 /* ===== design C: cartao de pergunta ===== */
+/* Como na maquete C: a pergunta do Lider fica embaixo do terminal. */
 .leader-question {
+  order: 1;
   background: transparent;
   padding: 12px 20px;
+  border-bottom: 0;
+  border-top: 1px solid var(--line);
 }
 .question-card {
   padding: 14px 16px 12px;
