@@ -1024,3 +1024,14 @@ button:disabled {
 .leader-question .box {
   margin: 0;
 }
+
+/* Atalho mostrado no botao Responder. */
+.box kbd {
+  margin-left: 6px;
+  padding: 0 5px;
+  font-family: var(--f-mono, monospace);
+  font-size: 10.5px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  opacity: 0.7;
+}

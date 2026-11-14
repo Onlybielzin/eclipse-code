@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 import {
   SUBTASK_STATE_LABELS,
   USER_QUESTION_STATUS_LABELS,
@@ -190,8 +190,19 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
     })
   }
 
+  const hasAnswer =
+    Object.values(picked).some((ids) => ids.length > 0) ||
+    Object.values(texts).some((t) => t.trim().length > 0)
+
+  // Ctrl+Enter (ou Cmd+Enter) envia de qualquer campo do cartao, quando ha resposta.
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return
+    e.preventDefault()
+    if (!busy && hasAnswer) void submit()
+  }
+
   return (
-    <div className="box box-warn" data-testid="question">
+    <div className="box box-warn" data-testid="question" onKeyDown={onKeyDown}>
       <h4>Pergunta para você</h4>
       {question.items.map((item) => (
         <div key={item.id} className="q-item">
@@ -222,8 +233,14 @@ export function QuestionBox({ question }: { question: UserQuestion }) {
       ))}
       <div className="answer">
         {(!single || question.items.some((i) => i.allowFreeText || i.options.length === 0)) && (
-          <button type="button" className="primary" disabled={busy} onClick={() => void submit()}>
-            Responder
+          <button
+            type="button"
+            className="primary"
+            disabled={busy || !hasAnswer}
+            title="Ctrl+Enter"
+            onClick={() => void submit()}
+          >
+            Responder <kbd>Ctrl+Enter</kbd>
           </button>
         )}
         <button

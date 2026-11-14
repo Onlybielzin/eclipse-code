@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PROVIDER_LABELS, SUBTASK_STATE_LABELS, SUBTASK_STATES, type Subtask } from '@shared/domain'
+import { PROVIDER_LABELS, SUBTASK_STATE_LABELS, type Subtask } from '@shared/domain'
 import { countCompleted, STATE_ICON_CLASS, subtaskElapsed } from '../store/format'
 import { useAppState, useStore } from '../store/context'
 
@@ -57,7 +57,10 @@ export function SubtaskPanel() {
               data-testid={`subtask-${sub.id}`}
               onClick={() => void store.selectSubtask(sub.id)}
             >
-              <i className={`ic ${STATE_ICON_CLASS[sub.state]}`} />
+              <i
+                className={`ic ${STATE_ICON_CLASS[sub.state]}`}
+                title={SUBTASK_STATE_LABELS[sub.state]}
+              />
               <span className="nm">{role?.name ?? 'Membro'}</span>
               <span className="ds">{sub.title}</span>
               <span className="who">
@@ -67,14 +70,6 @@ export function SubtaskPanel() {
             </button>
           )
         })}
-      </div>
-      <div className="legend" aria-label="Legenda">
-        {SUBTASK_STATES.map((state) => (
-          <span key={state}>
-            <i className={`ic ${STATE_ICON_CLASS[state]}`} />
-            {SUBTASK_STATE_LABELS[state]}
-          </span>
-        ))}
       </div>
     </section>
   )

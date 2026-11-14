@@ -533,3 +533,36 @@ describe('pergunta do Líder', () => {
     expect(within(middle()).getByTestId('leader-terminal')).toBeTruthy()
   })
 })
+
+describe('cartão de pergunta: Ctrl+Enter', () => {
+  it('envia com Ctrl+Enter quando há resposta e ignora sem resposta', async () => {
+    api = new FakeApi(mockupData())
+    const base = api.data.questions[0]!
+    api.data.questions = [
+      {
+        ...base,
+        id: 'q-ctrl',
+        subtaskId: null,
+        items: [{ ...base.items[0]!, allowFreeText: true }],
+      },
+    ]
+    const store = new AppStore(api)
+    render(<App store={store} />)
+    await screen.findByText('feat-orfer-e-up')
+    fireEvent.click(screen.getByTestId('need-you'))
+    const card = await screen.findByTestId('leader-question')
+    const input = within(card).getByPlaceholderText('Responda com suas palavras')
+
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true })
+    expect(api.callsTo('questions.answer')).toHaveLength(0)
+
+    fireEvent.change(input, { target: { value: 'só a entrega automática' } })
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true })
+    await waitFor(() => expect(api.callsTo('questions.answer')).toHaveLength(1))
+  })
+
+  it('a coluna de subtarefas não tem mais a legenda', async () => {
+    await renderApp()
+    expect(screen.queryByLabelText('Legenda')).toBeNull()
+  })
+})
