@@ -23,3 +23,17 @@ describe('resolveAppPaths com --user-data-dir', () => {
     expect(resolveAppPaths(env, '/x', '/tmp/smoke-data').runtime).toBe(p.runtime)
   })
 })
+
+describe('resolveAppPaths no win32', () => {
+  it('usa APPDATA e uma pasta de runtime sem uid', () => {
+    const p = resolveAppPaths({ APPDATA: '/u/AppData/Roaming' }, undefined, undefined, 'win32')
+    expect(p.userData).toBe('/u/AppData/Roaming/eclipse-code-next')
+    expect(p.runtime).toMatch(/eclipse-code-next$/)
+    expect(p.runtime).not.toMatch(/-\d+$/)
+  })
+
+  it('sem APPDATA cai em AppData/Roaming da home', () => {
+    const p = resolveAppPaths({}, undefined, undefined, 'win32')
+    expect(p.userData).toMatch(/AppData[\\/]Roaming[\\/]eclipse-code-next$/)
+  })
+})

@@ -108,6 +108,7 @@ function setup(
         return () => sessionListeners.delete(listener)
       },
       get: () => null,
+      noteUserInput: () => undefined,
     },
     async canResume(input: { provider: Provider; providerSessionId: string; cwd: string }) {
       return transcripts.has(input.providerSessionId)

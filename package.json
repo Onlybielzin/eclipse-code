@@ -29,7 +29,8 @@
     "rebuild:native": "electron-builder install-app-deps",
     "verify:native": "node scripts/verify-native.mjs",
     "postinstall": "electron-builder install-app-deps",
-    "build:linux": "electron-vite build && electron-builder --linux AppImage"
+    "build:linux": "electron-vite build && electron-builder --linux AppImage",
+    "build:win": "node scripts/build-win.mjs"
   },
   "build": {
     "appId": "app.eclipsecode.next",
@@ -43,12 +44,13 @@
     "files": [
       "out{,/**/*}",
       "package.json",
+      "!release{,/**/*}",
       "!node_modules/@anthropic-ai/claude-agent-sdk-*{,/**/*}",
       "!node_modules/@openai/codex-*{,/**/*}",
       "!node_modules/{react,react-dom,scheduler,@xterm}{,/**/*}",
       "!node_modules/better-sqlite3/{deps,src}{,/**/*}",
       "!node_modules/node-pty/{deps,src,scripts}{,/**/*}",
-      "!node_modules/node-pty/prebuilds/{darwin,win32}-*{,/**/*}",
+      "!node_modules/node-pty/prebuilds/darwin-*{,/**/*}",
       "!node_modules/**/*.{map,md,ts,tsx}"
     ],
     "asarUnpack": [
@@ -62,7 +64,10 @@
       "category": "Development",
       "synopsis": "Tarefas, Líder e subtarefas para Claude Code e Codex",
       "syncDesktopName": true,
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "files": [
+        "!node_modules/node-pty/prebuilds/win32-*{,/**/*}"
+      ]
     },
     "publish": [
       {
@@ -80,7 +85,30 @@
         "from": "CHANGELOG.md",
         "to": "CHANGELOG.md"
       }
-    ]
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "files": [
+        "!node_modules/node-pty/build{,/**/*}",
+        "!node_modules/node-pty/prebuilds/win32-arm64{,/**/*}"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createStartMenuShortcut": true,
+      "createDesktopShortcut": false,
+      "shortcutName": "Eclipse Code"
+    }
   },
   "pnpm": {
     "onlyBuiltDependencies": [

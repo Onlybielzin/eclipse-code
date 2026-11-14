@@ -4,6 +4,7 @@
  * processo passa por aqui antes de chegar ao TaskService.
  */
 import { z } from 'zod'
+import { isAbsolutePath } from './paths'
 import {
   DELIVERY_STATES,
   MAX_QUESTION_ITEMS,
@@ -32,7 +33,7 @@ export const absolutePathSchema = z
   .string()
   .min(1)
   .max(MAX_PATH_CHARS)
-  .refine((p) => p.startsWith('/'), { message: 'caminho precisa ser absoluto' })
+  .refine(isAbsolutePath, { message: 'caminho precisa ser absoluto' })
 
 export const providerSchema = z.enum(PROVIDERS)
 export const taskKindSchema = z.enum(TASK_KINDS)

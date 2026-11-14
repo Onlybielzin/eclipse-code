@@ -15,7 +15,7 @@
  */
 import type { EpochMs, Provider, SessionId } from '@shared/domain'
 import type { PtyExit, PtyHost, Unsubscribe } from '@shared/ports'
-import { removeClaudeHookFiles, type ClaudeHookPaths } from './claudeHooks'
+import { parseNoticesDelivered, removeClaudeHookFiles, type ClaudeHookPaths } from './claudeHooks'
 import { JsonlTail } from './jsonlTail'
 import {
   findCodexSessionFile,
@@ -45,12 +45,16 @@ export interface LeaderSessionSnapshot {
   bracketedPaste: boolean
   lastOutputAt: EpochMs
   exit: PtyExit | null
+  /** Pasta do gancho (caixa de avisos); null no Codex. */
+  claudeHooks: ClaudeHookPaths | null
 }
 
 export type LeaderSessionEvent =
   | { type: 'provider-session-id'; sessionId: SessionId; providerSessionId: string }
   | { type: 'activity'; sessionId: SessionId; activity: LeaderActivity }
   | { type: 'exit'; sessionId: SessionId; ptyId: string; exit: PtyExit }
+  /** O gancho entregou estes avisos (ids da fila duravel) ao Claude. */
+  | { type: 'notices-delivered'; sessionId: SessionId; ids: number[] }
 
 export interface RegisterLeaderInput {
   sessionId: SessionId
@@ -73,6 +77,8 @@ export interface LeaderSessionRegistry {
   isReadyForInput(sessionId: SessionId): boolean
   /** O relay acabou de mandar um prompt: considera trabalhando ate a fonte dizer o contrario. */
   markPromptSent(sessionId: SessionId): void
+  /** Digitacao do usuario no terminal do Lider: texto sem Enter segura o relay (rascunho). */
+  noteUserInput(sessionId: SessionId, data: string): void
   onEvent(listener: (event: LeaderSessionEvent) => void): Unsubscribe
   dispose(): Promise<void>
 }
@@ -112,7 +118,12 @@ interface Entry {
   tails: JsonlTail[]
   lastActivity: LeaderActivity
   disposed: boolean
+  /** Hora da ultima tecla sem Enter; null sem rascunho. */
+  draftAt: number | null
 }
+
+/** Rascunho do usuario segura o aviso por este tempo. */
+export const USER_DRAFT_HOLD_MS = 20_000
 
 const BRACKETED_ON = '\x1b[?2004h'
 const BRACKETED_OFF = '\x1b[?2004l'
@@ -186,6 +197,11 @@ export function createLeaderSessionRegistry(
 
   const watchClaudeHooks = (entry: Entry, paths: ClaudeHookPaths): void => {
     startTail(entry, paths.events, true, (raw) => {
+      const delivered = parseNoticesDelivered(raw)
+      if (delivered) {
+        emit({ type: 'notices-delivered', sessionId: entry.input.sessionId, ids: delivered })
+        return
+      }
       const record = parseClaudeHookRecord(raw)
       if (!record) return
       if (record.event === 'SessionStart' && record.sessionId)
@@ -272,6 +288,7 @@ export function createLeaderSessionRegistry(
     bracketedPaste: entry.bracketedPaste,
     lastOutputAt: entry.lastOutputAt,
     exit: entry.exit,
+    claudeHooks: entry.input.claudeHooks,
   })
 
   return {
@@ -298,6 +315,7 @@ export function createLeaderSessionRegistry(
         tails: [],
         lastActivity: alive ? 'starting' : 'exited',
         disposed: false,
+        draftAt: null,
       }
       // A saida que chegou antes do registro tambem conta (bracketed paste ja ligado).
       const early = options.ptyHost.scrollback(input.ptyId)
@@ -334,6 +352,8 @@ export function createLeaderSessionRegistry(
       if (!entry || !entry.alive || !options.ptyHost.isAlive(entry.input.ptyId)) return false
       if (requireBracketedPaste && !entry.bracketedPaste) return false
       const current = now()
+      // shortcut: rascunho apagado com backspace segura o aviso por até 20 s; texto deixado parado mais que 20 s ainda pode grudar, trocar por leitura da linha de entrada se incomodar
+      if (entry.draftAt !== null && current - entry.draftAt < USER_DRAFT_HOLD_MS) return false
       const quiet = current - entry.lastOutputAt
       if (entry.promptSentAt !== null && current - entry.promptSentAt >= promptAckTimeoutMs) {
         // Nenhuma fonte reagiu ao prompt: a TUI provavelmente nao aceitou. Volta ao anterior.
@@ -356,6 +376,26 @@ export function createLeaderSessionRegistry(
         entry.signal = 'working'
         refreshActivity(entry)
       }
+    },
+
+    noteUserInput(sessionId, data) {
+      const entry = bySession.get(sessionId)
+      if (!entry) return
+      // Tira o que nao e digitacao (colagem, CSI, OSC, SS3: respostas do xterm, foco, setas) e
+      // le o resto em ordem: Enter limpa o rascunho, caractere imprimivel o reabre.
+      // Enter dentro de ESC[200~...ESC[201~ e texto colado, nao Enter.
+      let draft: boolean | null = null
+      const re =
+      // eslint-disable-next-line no-control-regex -- sequencias de escape sao o ponto
+        /\x1b\[200~([\s\S]*?)(?:\x1b\[201~|$)|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b\[[0-?]*[ -/]*[@-~]|\x1bO[@-~]|([\s\S])/g
+      for (const m of data.matchAll(re)) {
+        const [, pasted, char] = m
+        if (pasted) draft = true
+        else if (char === '\r' || char === '\n') draft = false
+        else if (char !== undefined && char >= ' ' && char !== '\x7f') draft = true
+      }
+      if (draft === true) entry.draftAt = now()
+      else if (draft === false) entry.draftAt = null
     },
 
     onEvent(listener) {

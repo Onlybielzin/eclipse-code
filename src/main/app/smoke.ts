@@ -64,9 +64,10 @@ async function checkPty(services: AppServices) {
     Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] != null),
   )
   delete env['ELECTRON_RUN_AS_NODE']
+  const win = process.platform === 'win32'
   const info = await services.ptyHost.spawn({
-    command: '/bin/sh',
-    args: ['-c', `printf ${PTY_MARKER}`],
+    command: win ? 'cmd.exe' : '/bin/sh',
+    args: win ? ['/d', '/c', `echo ${PTY_MARKER}`] : ['-c', `printf ${PTY_MARKER}`],
     cwd: tmpdir(),
     env,
     cols: 80,

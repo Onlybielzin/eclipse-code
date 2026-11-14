@@ -9,7 +9,7 @@ import { ENV } from '@shared/app'
 import { MCP_BRIDGE_MAX_FRAME_BYTES, type McpCaller } from '@shared/mcp'
 import type { McpBridgeServer, McpToolHandler } from '@shared/ports'
 import { createMcpBridgeClient } from './bridgeClient'
-import { createMcpBridgeServer } from './bridgeServer'
+import { createMcpBridgeServer, mcpSocketPath } from './bridgeServer'
 import { createEclipseMcpServer } from './stdioServer'
 import { createMcpToolHandler } from './toolHandler'
 import { createFakeTaskService } from './testing/fakeTaskService'
@@ -274,5 +274,17 @@ describe('servidor MCP com cliente MCP falso (ponta a ponta sem modelo)', () => 
       await mem.client.close()
       handler.dispose()
     }
+  })
+})
+
+describe('mcpSocketPath', () => {
+  it('no win32 usa named pipe com sufixo aleatorio a cada chamada', () => {
+    const a = mcpSocketPath('C:\\run\\a', 'mcp.sock', 'win32')
+    expect(a).toMatch(/^\\\\\.\\pipe\\eclipse-mcp-[0-9a-f]{16}$/)
+    expect(mcpSocketPath('C:\\run\\a', 'mcp.sock', 'win32')).not.toBe(a)
+  })
+
+  it('no Linux fica dentro do runtimeDir', () => {
+    expect(mcpSocketPath('/run/x', 'mcp.sock', 'linux')).toBe('/run/x/mcp.sock')
   })
 })

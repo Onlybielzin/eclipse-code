@@ -237,3 +237,38 @@ describe('createPtyHost com /bin/sh', () => {
     }).not.toThrow()
   })
 })
+
+describe('kill no win32', () => {
+  it('chama kill() sem sinal, porque o node-pty do Windows lanca com sinal', async () => {
+    const kills: Array<string | undefined> = []
+    let onExit: (e: { exitCode: number }) => void = () => undefined
+    const host = makeHost({
+      platform: 'win32',
+      spawnPty: () => ({
+        pid: 4242,
+        write: () => undefined,
+        resize: () => undefined,
+        kill: (signal) => {
+          kills.push(signal)
+          onExit({ exitCode: 0 })
+        },
+        onData: () => ({ dispose: () => undefined }),
+        onExit: (listener) => {
+          onExit = listener
+          return { dispose: () => undefined }
+        },
+      }),
+    })
+    const { ptyId } = await host.spawn({
+      command: 'cmd.exe',
+      args: [],
+      cwd: tmpdir(),
+      env: baseEnv(),
+      cols: 80,
+      rows: 24,
+      label: 'teste',
+    })
+    host.kill(ptyId, 'SIGHUP')
+    expect(kills).toEqual([undefined])
+  })
+})

@@ -2,7 +2,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MiddlePane } from '../components/MiddlePane'
-import { SettingsModal } from '../components/SettingsModal'
+import { SettingsPage } from '../components/SettingsPage'
 import { AppStore } from '../store/appStore'
 import { StoreProvider } from '../store/context'
 import { FakeApi, mockupData } from '../test/fakeApi'
@@ -37,7 +37,7 @@ function setup() {
   render(
     <StoreProvider store={store}>
       <MiddlePane />
-      <SettingsModal onClose={() => {}} />
+      <SettingsPage />
     </StoreProvider>,
   )
   return store
@@ -50,7 +50,7 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('Efeito do Cérebro nas Configurações', () => {
-  it('mudar a Forma no modal chama setShape no motor aberto e grava a escolha', async () => {
+  it('mudar a Forma na página chama setShape no motor aberto e grava a escolha', async () => {
     setup()
     await waitFor(() => expect(engines).toHaveLength(1))
     await waitFor(() => expect(engines[0]!.setShape).toHaveBeenCalledWith('rodizio'))

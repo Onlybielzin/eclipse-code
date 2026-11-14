@@ -140,6 +140,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     tasks,
     relay: leader.relay,
     notices: tasks,
+    now: () => clock.now(),
     leaderEvents: leader.sessions,
     ...(options.noticeRetryIntervalMs !== undefined
       ? { retryIntervalMs: options.noticeRetryIntervalMs }

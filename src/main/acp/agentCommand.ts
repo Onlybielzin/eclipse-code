@@ -29,7 +29,12 @@ import { createRequire } from 'node:module'
 import type { McpServer } from '@agentclientprotocol/sdk'
 import type { Provider } from '@shared/domain'
 import type { McpServerLaunch, MemberSessionStart } from '@shared/ports'
-import { resolveExecutableOnPath } from '../leader/executable'
+import {
+  resolveExecutableOnPath,
+  resolveNpmShimScript,
+  unsupportedScriptError,
+} from '../leader/executable'
+import { envValue } from '../terminal/spawnEnv'
 
 export interface AgentCommand {
   command: string
@@ -63,6 +68,7 @@ export function buildAgentCommand(
     nodeBinary?: string
     scriptPath?: string
     baseEnv?: Record<string, string | undefined>
+    platform?: NodeJS.Platform
   } = {},
 ): AgentCommand {
   const nodeBinary = options.nodeBinary ?? process.execPath
@@ -71,7 +77,21 @@ export function buildAgentCommand(
   const env: Record<string, string> = { ELECTRON_RUN_AS_NODE: '1' }
   const cliVariable = request.provider === 'claude' ? 'CLAUDE_CODE_EXECUTABLE' : 'CODEX_PATH'
   if (!baseEnv[cliVariable]) {
-    env[cliVariable] = resolveExecutableOnPath(request.provider, baseEnv.PATH) ?? request.provider
+    const found = resolveExecutableOnPath(request.provider, envValue(baseEnv, 'PATH'), {
+      platform: options.platform,
+    })
+    // O SDK do Claude faz spawn sem shell: nao roda .cmd, mas roda .js (com `node` do PATH) e .exe.
+    let shim: string | null = null
+    if (
+      request.provider === 'claude' &&
+      (options.platform ?? process.platform) === 'win32' &&
+      found &&
+      /\.(cmd|bat)$/i.test(found)
+    ) {
+      shim = resolveNpmShimScript(found)
+      if (!shim) throw unsupportedScriptError(found)
+    }
+    env[cliVariable] = shim ?? found ?? request.provider
   }
   if (request.provider === 'claude') {
     if (request.model) env.ANTHROPIC_MODEL = request.model

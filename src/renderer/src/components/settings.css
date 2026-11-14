@@ -1,0 +1,263 @@
+/*
+ * Página de Configurações (versão C). Tudo sob .settings-page; as cores vêm de styles.css.
+ * Com a página aberta, o meio e a direita ficam hidden (montados, para o xterm do Líder viver).
+ */
+.cols.settings-open > .col:not(.col-left) {
+  display: none;
+}
+.settings-page {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: linear-gradient(180deg, rgb(19 24 36 / 55%), transparent 240px);
+}
+.cols.alone {
+  display: flex;
+}
+.settings-page.alone {
+  flex: 1;
+}
+.settings-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+  height: 52px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+.settings-head h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.settings-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 8px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition:
+    transform var(--m-out) var(--ease),
+    color var(--m-out),
+    border-color var(--m-out),
+    background var(--m-out);
+}
+.settings-back:hover {
+  transform: translateY(-1px);
+  color: var(--fg);
+  border-color: var(--line-2);
+  background: var(--surface);
+}
+.settings-back:active {
+  transform: scale(0.985);
+}
+.settings-legend {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+}
+.dot.now {
+  background: var(--st-green);
+}
+.dot.btn {
+  background: var(--warn);
+}
+.settings-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+}
+.settings-index {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 24px 12px 0 24px;
+}
+.settings-index small {
+  padding: 0 10px 8px;
+  font: 500 10.5px var(--f-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.settings-index button {
+  height: 32px;
+  padding: 0 10px;
+  text-align: left;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition:
+    background var(--m-out) var(--ease),
+    color var(--m-out);
+}
+.settings-index button:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+.settings-scroll {
+  overflow-y: auto;
+  padding: 24px 40px 80px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--raised) transparent;
+}
+.settings-wrap {
+  max-width: 760px;
+}
+.settings-wrap section {
+  padding-bottom: 40px;
+}
+.settings-wrap header {
+  margin-bottom: 14px;
+}
+.settings-wrap h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.settings-wrap header p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+}
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 32px;
+  align-items: center;
+  padding: 16px 20px;
+}
+.settings-row + .settings-row {
+  border-top: 1px solid var(--line);
+}
+.settings-row .lab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+.settings-row .exp {
+  max-width: 46ch;
+  margin-top: 3px;
+  color: var(--muted);
+}
+.settings-row code {
+  font-family: var(--f-mono);
+  color: var(--fg);
+}
+.settings-row .ctl {
+  display: flex;
+  justify-content: flex-end;
+}
+.settings-row .field {
+  width: 100%;
+  height: 34px;
+  background: var(--bg);
+  border-color: var(--line-2);
+}
+.settings-row .field.num {
+  width: 96px;
+  text-align: right;
+  font-family: var(--f-mono);
+}
+.settings-row .field.mono {
+  font-family: var(--f-mono);
+  letter-spacing: 0.08em;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  font: 500 10.5px var(--f-mono);
+  border-radius: 999px;
+}
+.tag.now {
+  color: var(--st-green);
+  background: rgb(74 222 128 / 10%);
+  box-shadow: inset 0 0 0 1px rgb(74 222 128 / 25%);
+}
+.tag.btn {
+  color: var(--warn);
+  background: var(--warn-soft);
+  box-shadow: inset 0 0 0 1px rgb(242 184 75 / 28%);
+}
+.settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.settings-keystate {
+  color: var(--faint);
+  font: 400 11.5px var(--f-mono);
+}
+.settings-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+.settings-error {
+  margin: 0 20px 12px;
+}
+.settings-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgb(10 13 20 / 35%);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.settings-foot .msg {
+  flex: 1;
+  font-size: 12px;
+  color: var(--muted);
+}
+.settings-foot button {
+  height: 32px;
+  padding: 0 14px;
+}
+.settings-foot .primary:disabled {
+  color: var(--faint);
+  background: var(--raised);
+  cursor: default;
+}
+.settings-foot .ghost:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-back,
+  .settings-index button {
+    transition: none;
+  }
+}

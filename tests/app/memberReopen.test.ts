@@ -82,7 +82,7 @@ async function setup(agentEnv: Record<string, string>) {
         return { delivered: true, attempts: 1 }
       },
     },
-    sessions: { onEvent: () => () => undefined, get: () => null },
+    sessions: { onEvent: () => () => undefined, get: () => null, noteUserInput: () => undefined },
     dispose: async () => undefined,
   } as unknown as LeaderModule
   const bridge = {

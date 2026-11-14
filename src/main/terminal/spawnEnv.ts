@@ -1,3 +1,4 @@
+import { delimiter } from 'node:path'
 import { ENV } from '@shared/app'
 
 /**
@@ -21,6 +22,19 @@ export const PARENT_AGENT_SESSION_ENV_KEYS = [
   'CLAUDE_CODE_SSE_PORT',
   'CLAUDE_PID',
 ] as const
+
+/**
+ * Valor da variavel sem diferenciar caixa. No Windows o process.env ignora a caixa, mas a copia
+ * (objeto comum) guarda a chave como veio (`Path`): `env['PATH']` daria undefined.
+ */
+export function envValue(
+  env: Record<string, string | undefined>,
+  name: string,
+): string | undefined {
+  const wanted = name.toUpperCase()
+  const key = Object.keys(env).find((candidate) => candidate.toUpperCase() === wanted)
+  return key === undefined ? undefined : env[key]
+}
 
 /**
  * Devolve uma copia limpa do ambiente:
@@ -71,7 +85,11 @@ const INHERITED_APP_SECRET_KEYS = [ENV.mcpToken, ENV.mcpSocket] as const
  */
 export function sanitizeInheritedEnv(
   env: Record<string, string | undefined>,
+  options: { platform?: NodeJS.Platform; delimiter?: string } = {},
 ): Record<string, string> {
+  const win = (options.platform ?? process.platform) === 'win32'
+  const pathDelimiter = options.delimiter ?? delimiter
+  const trailingSeparators = win ? /[\\/]+$/ : /\/+$/
   const result: Record<string, string> = {}
   for (const [key, value] of Object.entries(env)) {
     if (typeof value === 'string') result[key] = value
@@ -96,9 +114,12 @@ export function sanitizeInheritedEnv(
     const pathKey = Object.keys(result).find((key) => key.toUpperCase() === 'PATH')
     if (pathKey) {
       result[pathKey] = (result[pathKey] ?? '')
-        .split(':')
-        .filter((entry) => !shimDirs.has(entry.trim()) && !shimDirs.has(entry.replace(/\/+$/, '')))
-        .join(':')
+        .split(pathDelimiter)
+        .filter(
+          (entry) =>
+            !shimDirs.has(entry.trim()) && !shimDirs.has(entry.replace(trailingSeparators, '')),
+        )
+        .join(pathDelimiter)
     }
   }
   return result
