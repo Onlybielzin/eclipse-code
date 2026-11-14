@@ -22,6 +22,8 @@ const task: Task = {
   soloProvider: null,
   status: 'open',
   workflowStatus: 'a_fazer',
+  startCommand: null,
+  startDir: null,
   createdAt: 0,
   updatedAt: 0,
   archivedAt: null,

@@ -16,6 +16,7 @@ import type {
 } from '@shared/domain'
 import type { WallSnapshot } from '@shared/wall'
 import type {
+  TaskProcessState,
   EclipseApi,
   IpcCommandChannel,
   IpcEventChannel,
@@ -62,6 +63,8 @@ export function makeTask(id: string, title: string, extra: Partial<Task> = {}): 
     soloProvider: null,
     status: 'open',
     workflowStatus: 'em_andamento',
+    startCommand: null,
+    startDir: null,
     createdAt: T0,
     updatedAt: T0,
     archivedAt: null,
@@ -179,6 +182,10 @@ export class FakeApi implements EclipseApi {
     inReview: 0,
     openQuestions: 0,
   }
+
+  /** Processos das abas Iniciar e Terminal, por `${taskId}:${kind}`. */
+  readonly processes = new Map<string, TaskProcessState>()
+  private processSeq = 0
 
   /** Home devolvida em projects.summary. */
   homeDir = '/home/vings'
@@ -339,6 +346,48 @@ export class FakeApi implements EclipseApi {
       case 'terminal.write':
       case 'terminal.resize':
         return undefined
+      case 'tasks.setStartCommand': {
+        const task = d.tasks.find((t) => t.id === input.taskId)
+        if (!task) throw new Error('tarefa inexistente no fake')
+        task.startCommand = input.command as string | null
+        task.startDir = input.dir as string | null
+        this.emitDomain({ type: 'task.upserted', task: { ...task } })
+        return task
+      }
+      case 'taskProcess.attach':
+      case 'taskProcess.start':
+      case 'taskProcess.stop': {
+        const key = `${String(input.taskId)}:${String(input.kind)}`
+        const cur = this.processes.get(key)
+        if (channel === 'taskProcess.stop') {
+          if (cur) this.processes.set(key, { ...cur, alive: false, exited: true, exitCode: 0 })
+          return undefined
+        }
+        if (channel === 'taskProcess.start' && (!cur?.alive || input.restart)) {
+          this.processes.set(key, {
+            ptyId: `tp-${key}-${++this.processSeq}`,
+            alive: true,
+            cols: 80,
+            rows: 24,
+            scrollback: '',
+            exitCode: null,
+            exited: false,
+            cwd: '/repo/wt',
+          })
+        }
+        return (
+          this.processes.get(key) ?? {
+            ptyId: null,
+            alive: false,
+            cols: 80,
+            rows: 24,
+            scrollback: '',
+            exitCode: null,
+            exited: false,
+            cwd: '/repo/wt',
+          }
+        )
+      }
       case 'tasks.create': {
         const task = makeTask(`t-new-${d.tasks.length + 1}`, String(input.title), {
           kind: input.kind as Task['kind'],

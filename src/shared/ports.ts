@@ -266,6 +266,8 @@ export interface TaskService {
    * lancado arquiva (mesma regra do markTaskArchived) e sair de lancado desarquiva.
    */
   setTaskWorkflowStatus(id: TaskId, to: TaskWorkflowStatus, actor: TaskWorkflowActor): Task
+  /** Comando da aba Iniciar (null limpa) e subpasta relativa. Recusa subpasta absoluta ou com `..`. */
+  setTaskStartCommand(id: TaskId, command: string | null, dir: string | null): Task
   /** Lider ou membro comecou a trabalhar: a_fazer | em_revisao -> em_andamento. */
   markTaskWorkStarted(id: TaskId): Task
   /**

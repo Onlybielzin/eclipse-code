@@ -46,6 +46,7 @@ function setup(
     transcripts?: Set<string>
     members?: MemberRuntime
     limits?: () => AgentLimits
+    taskProcesses?: { stopTask(taskId: string): void }
   } = {},
 ) {
   const { service: tasks } = createHarness()
@@ -152,6 +153,7 @@ function setup(
     bridge,
     worktreesRoot: '/wt',
     leaderNotices: turnRelay,
+    ...(options.taskProcesses ? { taskProcesses: options.taskProcesses } : {}),
     ...(options.limits ? { limits: options.limits } : {}),
   })
 
@@ -244,6 +246,18 @@ describe('Líder: retomada que não existe mais', () => {
     // E o próximo ensure não volta ao id velho.
     expect(await h.coordinator.ensureLeader(h.fx.task.id)).toMatchObject({ id: live?.id })
     expect(h.launches).toHaveLength(2)
+  })
+})
+
+describe('processos das abas Iniciar e Terminal', () => {
+  it('arquivar e lançar a tarefa param os processos dela', async () => {
+    const stopped: string[] = []
+    const h = setup({ taskProcesses: { stopTask: (id) => void stopped.push(id) } })
+    await h.coordinator.archiveTask(h.fx.task.id, { removeWorktree: false })
+    expect(stopped).toEqual([h.fx.task.id])
+    const h2 = setup({ taskProcesses: { stopTask: (id) => void stopped.push(id) } })
+    await h2.coordinator.setTaskStatus(h2.fx.task.id, 'lancado')
+    expect(stopped).toEqual([h.fx.task.id, h2.fx.task.id])
   })
 })
 
@@ -537,6 +551,7 @@ describe('pergunta respondida no terminal do Líder', () => {
         tasks: h.tasks,
         coordinator: h.coordinator,
         brain: {} as AppServices['brain'],
+        taskProcesses: { owns: () => false } as unknown as AppServices['taskProcesses'],
       }),
     )
     return { h, leader, question, route }

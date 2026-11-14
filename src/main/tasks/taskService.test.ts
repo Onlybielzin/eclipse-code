@@ -684,3 +684,35 @@ describe('limites de agentes salvos', () => {
     })
   })
 })
+
+describe('comando de iniciar por tarefa', () => {
+  it('guarda por tarefa, limpa a subpasta sem comando e recusa subpasta fora', () => {
+    const { service } = createHarness()
+    const fx = seedTeam(service)
+    const other = service.createTask({
+      projectId: fx.project.id,
+      title: 'Outra',
+      kind: 'team',
+      worktreePath: '/wt/outra',
+      branch: 'feat/outra',
+      baseBranch: 'main',
+      leadRoleId: null,
+      soloProvider: null,
+    })
+    expect(fx.task).toMatchObject({ startCommand: null, startDir: null })
+    service.setTaskStartCommand(fx.task.id, 'pnpm dev', 'apps/web')
+    expect(service.getTask(fx.task.id)).toMatchObject({
+      startCommand: 'pnpm dev',
+      startDir: 'apps/web',
+    })
+    expect(service.getTask(other.id).startCommand).toBeNull()
+    service.setTaskStartCommand(fx.task.id, null, 'apps/web')
+    expect(service.getTask(fx.task.id)).toMatchObject({ startCommand: null, startDir: null })
+    expect(errorCode(() => service.setTaskStartCommand(fx.task.id, 'x', '../fora'))).toBe(
+      'invalid_input',
+    )
+    expect(errorCode(() => service.setTaskStartCommand(fx.task.id, 'x', '/etc'))).toBe(
+      'invalid_input',
+    )
+  })
+})

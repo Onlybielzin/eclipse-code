@@ -34,7 +34,7 @@ import {
   type RecoveryReport,
   type SqliteTaskService,
 } from '../tasks'
-import { createPtyHost, type PtyHostOptions } from '../terminal'
+import { createPtyHost, TaskProcesses, type PtyHostOptions } from '../terminal'
 import { createWorktreeService } from '../worktree'
 import { AppTeamCoordinator, silentLogger, type AppLogger } from './teamCoordinator'
 import type { McpBridgeServer, PtyHost } from '@shared/ports'
@@ -72,6 +72,7 @@ export interface AppServices {
   tasks: SqliteTaskService
   coordinator: AppTeamCoordinator
   ptyHost: PtyHost
+  taskProcesses: TaskProcesses
   leader: LeaderModule
   members: AcpMemberRuntime
   turnRelay: TeamTurnRelay
@@ -150,9 +151,15 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
         error: error instanceof Error ? error.message : String(error),
       }),
   })
+  const taskProcesses = new TaskProcesses({
+    ptyHost,
+    tasks,
+    ...(options.terminalSize ? { size: options.terminalSize } : {}),
+  })
   const coordinator = new AppTeamCoordinator({
     tasks,
     ptyHost,
+    taskProcesses,
     leader,
     members,
     worktrees: createWorktreeService(),
@@ -202,9 +209,17 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
   const offs: Unsubscribe[] = [
     tasks.subscribe((envelope) => emitUi({ channel: 'domain.event', payload: envelope })),
     ptyHost.onData((ptyId, data) => {
-      const sessionId = coordinator.sessionForPty(ptyId)
+      // Processo de aba nao tem Session: o ptyId faz de sessionId.
+      const sessionId =
+        coordinator.sessionForPty(ptyId) ?? (taskProcesses.owns(ptyId) ? ptyId : null)
       if (sessionId) emitUi({ channel: 'terminal.data', payload: { sessionId, data } })
     }),
+    taskProcesses.onExit((ptyId, exit) =>
+      emitUi({
+        channel: 'terminal.exit',
+        payload: { sessionId: ptyId, exitCode: exit.exitCode, signal: exit.signal },
+      }),
+    ),
     coordinator.onLeaderTerminalExit((payload) => emitUi({ channel: 'terminal.exit', payload })),
   ]
 
@@ -220,6 +235,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     tasks,
     coordinator,
     ptyHost,
+    taskProcesses,
     leader,
     members,
     turnRelay,
@@ -242,6 +258,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
         await coordinator.shutdown()
         turnRelay.stop()
         for (const off of offs.splice(0)) off()
+        taskProcesses.dispose()
         uiListeners.clear()
         await bridge.stop()
         await leader.dispose()
