@@ -23,6 +23,7 @@ import type {
   IpcEvents,
   IpcResult,
   PickedFolder,
+  UpdateCheck,
   UpdateState,
   WhatsNew,
 } from '@shared/ipc'
@@ -172,6 +173,8 @@ export class FakeApi implements EclipseApi {
   /** Estado devolvido por update.state e notas devolvidas por app.whatsNew (ate app.whatsNewSeen). */
   updateState: UpdateState = { status: 'idle', version: null }
   whatsNew: WhatsNew | null = null
+  /** Resultado devolvido por update.check. */
+  updateCheck: UpdateCheck = { current: '0.1.3', available: null }
   /** Retrato devolvido por wall.snapshot. */
   wallSnapshot: WallSnapshot = {
     at: T0,
@@ -244,6 +247,8 @@ export class FakeApi implements EclipseApi {
       }
       case 'update.state':
         return this.updateState
+      case 'update.check':
+        return this.updateCheck
       case 'update.install':
       case 'app.whatsNewSeen':
         if (channel === 'app.whatsNewSeen') this.whatsNew = null

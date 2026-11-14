@@ -121,6 +121,12 @@ export interface UpdateState {
   version: string | null
 }
 
+/** Resposta de update.check: a versão em uso e a nova encontrada (null = já está na última). */
+export interface UpdateCheck {
+  current: string
+  available: string | null
+}
+
 /** Notas da versao atual (seção do CHANGELOG.md), mostradas uma vez por versão. */
 export interface WhatsNew {
   version: string
@@ -192,6 +198,8 @@ export const ipcCommands = {
   'app.whatsNew': command<WhatsNew | null>()(emptyInput),
   'app.whatsNewSeen': command<void>()(emptyInput),
   'update.state': command<UpdateState>()(emptyInput),
+  /** Procura versão nova na hora. Erro se o updater está desligado ou a busca falha. */
+  'update.check': command<UpdateCheck>()(emptyInput),
   /** Fecha o app e instala a versão baixada. Erro se não há versão pronta. */
   'update.install': command<void>()(emptyInput),
 
