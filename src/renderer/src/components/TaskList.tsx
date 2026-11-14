@@ -7,9 +7,11 @@ import {
   type TaskWorkflowStatus,
 } from '@shared/domain'
 import { groupTasks, STATE_ICON_CLASS } from '../store/format'
+import { EMPTY_TASK_FILTERS, filterTasks, includeStatus } from '../store/taskFilters'
 import { useAppState, useStore } from '../store/context'
 import { SidePanels } from './SidePanels'
 import { TaskStatusMenu } from './TaskStatusMenu'
+import { TaskFilterButton, TaskFilterChips, TaskSearch, useTaskFilters } from './TaskFilters'
 
 /** Grupos recolhidos ao abrir a tela. */
 const COLLAPSED_BY_DEFAULT: Partial<Record<TaskWorkflowStatus, boolean>> = { lancado: true }
@@ -31,7 +33,24 @@ export function TaskList() {
   const [creating, setCreating] = useState(false)
   const [collapsed, setCollapsed] =
     useState<Partial<Record<TaskWorkflowStatus, boolean>>>(COLLAPSED_BY_DEFAULT)
-  const groups = useMemo(() => groupTasks(tasks), [tasks])
+  const [filters, setFilters] = useTaskFilters(projectId)
+  const [query, setQuery] = useState('')
+  // Busca nao e salva: troca de projeto comeca sem texto.
+  const [queryProject, setQueryProject] = useState(projectId)
+  if (queryProject !== projectId) {
+    setQueryProject(projectId)
+    setQuery('')
+  }
+  // Filtro so esconde linhas: nao mexe na selecao do store (F2).
+  const visibleTasks = useMemo(
+    () => filterTasks(tasks, filters, query, subtasks),
+    [tasks, filters, query, subtasks],
+  )
+  const groups = useMemo(() => groupTasks(visibleTasks), [visibleTasks])
+  const clearFilters = () => {
+    setFilters(EMPTY_TASK_FILTERS)
+    setQuery('')
+  }
   const scrollRef = useRef<HTMLDivElement>(null)
   // Pedido do painel Status: expande o grupo e, depois de renderizar, rola e foca.
   const [focusRequest, setFocusRequest] = useState<{ status: TaskWorkflowStatus } | null>(null)
@@ -46,7 +65,10 @@ export function TaskList() {
     setFocusRequest(null)
   }, [focusRequest])
 
+  /** Painel Status: se o filtro esconde o status, inclui antes de rolar ate o grupo. */
   const showGroup = (status: TaskWorkflowStatus) => {
+    const next = includeStatus(filters, status)
+    if (next !== filters) setFilters(next)
     setCollapsed((c) => (c[status] ? { ...c, [status]: false } : c))
     setFocusRequest({ status })
   }
@@ -74,11 +96,22 @@ export function TaskList() {
           >
             + nova
           </button>
+          {projectId !== null && <TaskFilterButton filters={filters} onChange={setFilters} />}
         </div>
         {creating && <NewTaskForm onDone={() => setCreating(false)} />}
+        {projectId !== null && <TaskSearch value={query} onChange={setQuery} />}
+        <TaskFilterChips filters={filters} onChange={setFilters} />
         <div className="scroll" role="tree" aria-label="Lista de tarefas" ref={scrollRef}>
-          {groups.length === 0 && !creating && (
+          {tasks.length === 0 && !creating && (
             <p className="empty">Nenhuma tarefa aberta. Use "+ nova" para criar a primeira.</p>
+          )}
+          {tasks.length > 0 && groups.length === 0 && (
+            <div className="empty filter-empty" data-testid="filter-empty">
+              <p>Nenhuma tarefa com esses filtros.</p>
+              <button type="button" className="linkish" onClick={clearFilters}>
+                Limpar filtros
+              </button>
+            </div>
           )}
           {groups.map((group) => {
             const isCollapsed = collapsed[group.status] === true

@@ -593,3 +593,153 @@ describe('subtarefas bloqueadas e canceladas', () => {
     expect(screen.getByTestId('subtask-t')).toBeTruthy()
   })
 })
+
+describe('filtros da lista de tarefas', () => {
+  function list() {
+    return screen.getByRole('region', { name: 'Tarefas' })
+  }
+  function groupLabels() {
+    return within(within(list()).getByRole('tree'))
+      .queryAllByRole('group')
+      .map((g) => g.getAttribute('aria-label'))
+  }
+  function openFilters() {
+    fireEvent.click(within(list()).getByRole('button', { name: /^Filtros/ }))
+    return screen.getByRole('dialog', { name: 'Filtros de tarefas' })
+  }
+
+  it('atalho "Abertas" esconde Lançado, mostra chip e badge; Esc fecha', async () => {
+    await renderApp()
+    expect(screen.queryByTestId('filter-count')).toBeNull()
+    const pop = openFilters()
+    fireEvent.click(within(pop).getByRole('button', { name: 'Abertas' }))
+    expect(groupLabels()).toEqual(['A fazer', 'Em andamento'])
+    expect(screen.getByTestId('chip-status').textContent).toContain('Sem Lançado')
+    expect(screen.getByTestId('filter-count').textContent).toBe('1')
+    expect(within(pop).getByRole('button', { name: 'Abertas' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: 'Filtros de tarefas' })).toBeNull()
+
+    // Clique fora tambem fecha.
+    openFilters()
+    fireEvent.mouseDown(document.body)
+    expect(screen.queryByRole('dialog', { name: 'Filtros de tarefas' })).toBeNull()
+  })
+
+  it('checkbox de tipo filtra e o × do chip remove o filtro', async () => {
+    await renderApp()
+    const pop = openFilters()
+    fireEvent.click(within(pop).getByLabelText('Avulso'))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(screen.getByTestId('task-solo1')).toBeTruthy()
+    expect(screen.getByTestId('chip-kind').textContent).toContain('Avulso')
+
+    fireEvent.click(within(pop).getByLabelText('Só com agente rodando'))
+    // solo1 nao tem membro rodando: nada sobra.
+    expect(screen.getByTestId('filter-empty').textContent).toContain(
+      'Nenhuma tarefa com esses filtros.',
+    )
+    expect(screen.getByTestId('filter-count').textContent).toBe('2')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remover filtro Avulso' }))
+    expect(screen.queryByTestId('chip-kind')).toBeNull()
+    // So t1 tem subtarefa working.
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+    expect(screen.queryByTestId('task-solo1')).toBeNull()
+  })
+
+  it('status marcado no popover: só ele aparece', async () => {
+    await renderApp()
+    const pop = openFilters()
+    fireEvent.click(within(pop).getByLabelText('A fazer'))
+    expect(groupLabels()).toEqual(['A fazer'])
+    expect(within(pop).getAllByRole('checkbox')).toHaveLength(9)
+    fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
+    expect(groupLabels()).toEqual(['A fazer', 'Em andamento', 'Lançado'])
+  })
+
+  it('busca filtra enquanto digita e Esc limpa', async () => {
+    await renderApp()
+    const search = screen.getByLabelText('Buscar tarefa por título')
+    fireEvent.change(search, { target: { value: 'CONVERSA' } })
+    expect(screen.getByTestId('task-solo1')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    fireEvent.keyDown(search, { key: 'Escape' })
+    expect((search as HTMLInputElement).value).toBe('')
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+  })
+
+  it('estado vazio limpa filtros e busca; seleção continua', async () => {
+    const { store } = await renderApp()
+    expect(store.getState().selectedTaskId).toBe('t1')
+    fireEvent.change(screen.getByLabelText('Buscar tarefa por título'), {
+      target: { value: 'zzz' },
+    })
+    const empty = screen.getByTestId('filter-empty')
+    expect(empty.textContent).toContain('Nenhuma tarefa com esses filtros.')
+    // A tarefa selecionada some da lista mas continua aberta (centro e subtarefas).
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(store.getState().selectedTaskId).toBe('t1')
+    expect(screen.getByTestId('subtask-d1')).toBeTruthy()
+    fireEvent.click(within(empty).getByRole('button', { name: 'Limpar filtros' }))
+    expect(screen.getByTestId('task-t1').getAttribute('aria-selected')).toBe('true')
+    expect((screen.getByLabelText('Buscar tarefa por título') as HTMLInputElement).value).toBe('')
+  })
+
+  it('filtros ficam salvos por projeto', async () => {
+    const data = mockupData()
+    data.projects.push({ ...data.projects[0]!, id: 'p2', name: 'outro' })
+    const { store, view } = await renderApp(data)
+    fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(
+      JSON.parse(localStorage.getItem('eclipse.taskFilters.p1') ?? '{}').statuses,
+    ).toHaveLength(5)
+
+    await act(() => store.openProject('p2'))
+    expect(screen.queryByTestId('chip-status')).toBeNull()
+    expect(groupLabels()).toContain('Lançado')
+
+    await act(() => store.openProject('p1'))
+    expect(screen.getByTestId('chip-status')).toBeTruthy()
+    expect(groupLabels()).not.toContain('Lançado')
+
+    view.unmount()
+    await renderApp(data)
+    expect(screen.getByTestId('chip-status').textContent).toContain('Sem Lançado')
+  })
+
+  it('STATUS conta tudo e clicar num status escondido inclui ele no filtro', async () => {
+    await renderApp()
+    fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByTestId('status-row-lancado').textContent).toBe('Lançado1')
+    expect(screen.queryByTestId('group-lancado')).toBeNull()
+
+    fireEvent.click(screen.getByTestId('status-row-lancado'))
+    const group = screen.getByTestId('group-lancado')
+    expect(group.getAttribute('aria-expanded')).toBe('true')
+    expect(document.activeElement).toBe(group)
+    // Abertas + Lançado = todos: o filtro de status sai.
+    expect(screen.queryByTestId('chip-status')).toBeNull()
+  })
+
+  it('sem localStorage os filtros funcionam igual', async () => {
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('bloqueado')
+    })
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('bloqueado')
+    })
+    try {
+      await renderApp()
+      fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
+      expect(groupLabels()).toEqual(['A fazer', 'Em andamento'])
+    } finally {
+      get.mockRestore()
+      set.mockRestore()
+    }
+  })
+})
