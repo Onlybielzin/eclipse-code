@@ -33,3 +33,11 @@ export {
   type LegacyProject,
   type LegacyRole,
 } from './legacyImporter'
+
+export {
+  importLegacyTasks,
+  mapLegacyQuestionItems,
+  readLegacyTasks,
+  type LegacyTask,
+  type LegacyTaskImportReport,
+} from './legacyTaskImporter'

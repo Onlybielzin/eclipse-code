@@ -26,7 +26,9 @@ import {
   createTaskService,
   openSqliteTaskStore,
   importLegacyProjects,
+  importLegacyTasks,
   readLegacyProjects,
+  readLegacyTasks,
   systemClock,
   type RecoveryReport,
   type SqliteTaskService,
@@ -160,6 +162,9 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     throw error
   }
   importLegacyOnFirstRun(tasks, options.legacyDatabases ?? [], log)
+  // Tarefas do app antigo: toda partida, idempotente (pula worktree ja importada). Antes da
+  // recuperacao, para os Lideres importados voltarem com --resume nesta mesma partida.
+  importLegacyTasksEachRun(tasks, options.legacyDatabases ?? [], log)
   const recovery = await coordinator.recover()
   log.info('recuperação da partida', {
     lostSessions: recovery.lostSessions.length,
@@ -244,6 +249,34 @@ export function importLegacyOnFirstRun(
       })
     } catch (error) {
       log.warn('importação do app antigo falhou', {
+        database,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+}
+
+/** Traz as tarefas do app antigo que ainda nao estao aqui. Banco antigo so leitura. */
+export function importLegacyTasksEachRun(
+  tasks: SqliteTaskService,
+  databases: readonly string[],
+  log: AppLogger,
+): void {
+  for (const database of databases) {
+    try {
+      const report = importLegacyTasks(tasks, readLegacyTasks(database))
+      if (report.imported.length === 0) continue
+      log.info('tarefas do app antigo importadas', {
+        database,
+        imported: report.imported.map((i) => ({
+          title: i.task.title,
+          resumes: i.resumes,
+          questions: i.questions,
+        })),
+        skipped: report.skipped.filter((s) => s.reason !== 'já importada'),
+      })
+    } catch (error) {
+      log.warn('importação de tarefas do app antigo falhou', {
         database,
         error: error instanceof Error ? error.message : String(error),
       })
