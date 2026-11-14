@@ -18,7 +18,7 @@
  *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
  *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado; lancado <=> arquivada.
  */
-import { basename, resolve } from 'node:path'
+import { basename, isAbsolute, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import {
   DomainError,
@@ -488,6 +488,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         soloProvider: record.soloProvider,
         status: 'open',
         workflowStatus: 'a_fazer',
+        startCommand: null,
+        startDir: null,
         createdAt: now,
         updatedAt: now,
         archivedAt: null,
@@ -565,6 +567,27 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         task.status === 'archived'
           ? { ...task, status: 'open', archivedAt: null, workflowStatus: to, updatedAt: now }
           : { ...task, workflowStatus: to, updatedAt: now }
+      this.store.updateTask(next)
+      this.emit({ type: 'task.upserted', task: next })
+      return next
+    })
+  }
+
+  setTaskStartCommand(id: TaskId, command: string | null, dir: string | null): Task {
+    if (dir && (isAbsolute(dir) || dir.split(/[\\/]+/).includes('..'))) {
+      throw new DomainError(
+        'invalid_input',
+        'a pasta precisa ser relativa e ficar dentro da worktree',
+      )
+    }
+    return this.write(() => {
+      const task = this.getTask(id)
+      const next: Task = {
+        ...task,
+        startCommand: command,
+        startDir: command ? dir : null,
+        updatedAt: this.clock.now(),
+      }
       this.store.updateTask(next)
       this.emit({ type: 'task.upserted', task: next })
       return next

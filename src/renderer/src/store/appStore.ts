@@ -66,7 +66,7 @@ function readBrainLook(): BrainLook {
   }
 }
 
-export type MidTab = 'leader' | 'delivery' | 'activity'
+export type MidTab = 'leader' | 'delivery' | 'activity' | 'start' | 'terminal'
 
 export interface AppState {
   status: 'loading' | 'ready'

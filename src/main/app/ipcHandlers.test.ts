@@ -23,6 +23,7 @@ function handlersFor(service: AppServices['tasks']) {
       tasks: service,
       coordinator: {} as AppServices['coordinator'],
       brain: {} as AppServices['brain'],
+      taskProcesses: { owns: () => false } as unknown as AppServices['taskProcesses'],
     },
     { homeDir: '/home/vings' },
   )

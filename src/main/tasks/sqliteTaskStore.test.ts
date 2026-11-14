@@ -11,6 +11,15 @@ describe('SqliteTaskStore', () => {
     expect(store.db.pragma('foreign_keys', { simple: true })).toBe(1)
   })
 
+  it('migração 7: tarefas ganham start_command e start_dir nulos', () => {
+    const { store } = createHarness()
+    const cols = (store.db.prepare('PRAGMA table_info(tasks)').all() as { name: string }[]).map(
+      (c) => c.name,
+    )
+    expect(cols).toEqual(expect.arrayContaining(['start_command', 'start_dir']))
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(7)
+  })
+
   it('entrega e atividade gravadas não mudam', () => {
     const { service, store } = createHarness()
     const fx = seedTeam(service)
