@@ -20,7 +20,7 @@ import {
   type ClaudeHookPaths,
 } from './claudeHooks'
 import { buildLeaderCommand, claudeSessionIdFor } from './commands'
-import { resolveExecutableOnPath } from './executable'
+import { resolveExecutableOnPath, wrapWindowsScript } from './executable'
 import type { LeaderSessionRegistry } from './leaderSessions'
 import { locateProviderSessionId, type SessionLocatorDirs } from './sessionLocator'
 
@@ -90,9 +90,10 @@ export function createLeaderLauncher(options: LeaderLauncherOptions): LeaderLaun
       const startedAt: EpochMs = now()
       let spawned
       try {
+        const run = wrapWindowsScript(executable, command.args, command.env['PATH'])
         spawned = await options.ptyHost.spawn({
-          command: executable,
-          args: command.args,
+          command: run.command,
+          args: run.args,
           cwd: request.cwd,
           env: command.env,
           cols: request.cols,

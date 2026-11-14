@@ -27,6 +27,18 @@ export interface McpBridgeServerOptions {
   serverScriptPath: string
   /** Executavel que roda o script. Padrao: process.execPath com ELECTRON_RUN_AS_NODE=1. */
   nodeCommand?: string
+  /** Injetavel para teste. Padrao: process.platform. */
+  platform?: NodeJS.Platform
+}
+
+/** Win32 nao tem socket Unix: named pipe com sufixo aleatorio, gerado a cada start. */
+export function mcpSocketPath(
+  runtimeDir: string,
+  socketName: string,
+  platform: NodeJS.Platform = process.platform,
+): string {
+  if (platform !== 'win32') return join(runtimeDir, socketName)
+  return `\\\\.\\pipe\\eclipse-mcp-${randomBytes(8).toString('hex')}`
 }
 
 /**
@@ -35,7 +47,8 @@ export interface McpBridgeServerOptions {
  * do pedido.
  */
 export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridgeServer {
-  const socketPath = join(options.runtimeDir, options.socketName ?? 'mcp.sock')
+  const isWindows = (options.platform ?? process.platform) === 'win32'
+  let socketPath = ''
   const tokens = new Map<string, McpCaller>()
   const sockets = new Set<Socket>()
   let server: Server | null = null
@@ -111,9 +124,14 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
     async start(toolHandler) {
       if (server) throw new DomainError('conflict', 'ponte MCP ja iniciada')
       handler = toolHandler
+      socketPath = mcpSocketPath(
+        options.runtimeDir,
+        options.socketName ?? 'mcp.sock',
+        options.platform,
+      )
       mkdirSync(options.runtimeDir, { recursive: true, mode: 0o700 })
       // Socket velho de uma execucao anterior: nao ha dono vivo (tokens morreram com ele).
-      rmSync(socketPath, { force: true })
+      if (!isWindows) rmSync(socketPath, { force: true })
       const next = createServer((socket) => {
         sockets.add(socket)
         socket.on('close', () => sockets.delete(socket))
@@ -131,7 +149,7 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
           resolve()
         })
       })
-      chmodSync(socketPath, 0o600)
+      if (!isWindows) chmodSync(socketPath, 0o600)
       server = next
       return { socketPath }
     },
@@ -144,7 +162,7 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
       for (const socket of sockets) socket.destroy()
       sockets.clear()
       if (current) await new Promise<void>((resolve) => current.close(() => resolve()))
-      rmSync(socketPath, { force: true })
+      if (!isWindows) rmSync(socketPath, { force: true })
     },
 
     issueToken(grant: McpTokenGrant) {

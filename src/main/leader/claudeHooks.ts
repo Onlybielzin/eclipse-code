@@ -26,6 +26,8 @@ export interface ClaudeHookPaths {
   settings: string
   script: string
   events: string
+  /** Win32: .cmd que define ELECTRON_RUN_AS_NODE e chama o executavel com o script. */
+  launcher: string
 }
 
 export function claudeHookPaths(hooksRoot: string, sessionId: string): ClaudeHookPaths {
@@ -35,6 +37,7 @@ export function claudeHookPaths(hooksRoot: string, sessionId: string): ClaudeHoo
     settings: join(directory, 'settings.json'),
     script: join(directory, 'hook.mjs'),
     events: join(directory, 'events.jsonl'),
+    launcher: join(directory, 'hook.cmd'),
   }
 }
 
@@ -75,27 +78,39 @@ try {
 `
 
 /** settings.json passado em `claude --settings <arquivo>`. Soma-se aos ganchos do usuario. */
-export function buildClaudeHookSettings(runtimeExecutable: string, paths: ClaudeHookPaths): object {
+export function buildClaudeHookSettings(
+  runtimeExecutable: string,
+  paths: ClaudeHookPaths,
+  platform: NodeJS.Platform = process.platform,
+): object {
   // ELECTRON_RUN_AS_NODE=1 faz o binario do Electron rodar como Node; o ambiente do
   // agente nao tem essa variavel (o PtyHost tira), entao o gancho a define sozinho.
   const handler = {
     hooks: [
       {
         type: 'command',
-        command: [
-          '/usr/bin/env',
-          'ELECTRON_RUN_AS_NODE=1',
-          runtimeExecutable,
-          paths.script,
-          paths.events,
-        ]
-          .map(quotePosix)
-          .join(' '),
+        command:
+          platform === 'win32'
+            ? // O Claude no Windows roda ganchos pelo Git Bash: `/` vale no bash e no cmd.
+              `"${paths.launcher.replaceAll('\\', '/')}"`
+            : [
+                '/usr/bin/env',
+                'ELECTRON_RUN_AS_NODE=1',
+                runtimeExecutable,
+                paths.script,
+                paths.events,
+              ]
+                .map(quotePosix)
+                .join(' '),
         timeout: 3,
       },
     ],
   }
   return { hooks: Object.fromEntries(CLAUDE_HOOK_EVENTS.map((event) => [event, [handler]])) }
+}
+
+function cmdEscape(value: string): string {
+  return value.replaceAll('%', '%%')
 }
 
 function quotePosix(value: string): string {
@@ -105,18 +120,27 @@ function quotePosix(value: string): string {
 export async function writeClaudeHookFiles(
   paths: ClaudeHookPaths,
   runtimeExecutable: string,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<void> {
   await mkdir(paths.directory, { recursive: true, mode: 0o700 })
   await chmod(paths.directory, 0o700)
   await writeFile(paths.script, CLAUDE_HOOK_SCRIPT, { encoding: 'utf8', mode: 0o600 })
   await writeFile(
     paths.settings,
-    JSON.stringify(buildClaudeHookSettings(runtimeExecutable, paths), null, 2),
+    JSON.stringify(buildClaudeHookSettings(runtimeExecutable, paths, platform), null, 2),
     {
       encoding: 'utf8',
       mode: 0o600,
     },
   )
+  if (platform === 'win32') {
+    await writeFile(
+      paths.launcher,
+      // chcp 65001: caminho com acento; `%` dobrado: o cmd expande variavel dentro do .cmd.
+      `@echo off\r\n@chcp 65001 >nul\r\n@set ELECTRON_RUN_AS_NODE=1\r\n"${cmdEscape(runtimeExecutable)}" "${cmdEscape(paths.script)}" "${cmdEscape(paths.events)}"\r\n`,
+      'utf8',
+    )
+  }
   // Arquivo novo a cada abertura: eventos de uma abertura anterior nao valem para esta.
   await writeFile(paths.events, '', { encoding: 'utf8', mode: 0o600 })
 }

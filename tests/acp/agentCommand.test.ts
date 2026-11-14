@@ -165,3 +165,46 @@ describe('decidePermission', () => {
     expect(decision.reason).toBe(`fora da worktree: ${join(wt, 'link', 'x.txt')}`)
   })
 })
+
+describe('buildAgentCommand no win32', () => {
+  it('Claude: shim .cmd do npm vira o caminho do .js; Codex nao muda', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'shim-'))
+    try {
+      writeFileSync(join(dir, 'claude.CMD'), '@"%dp0%\\node_modules\\x\\cli.js" %*\r\n')
+      writeFileSync(join(dir, 'codex.CMD'), '@"%dp0%\\node_modules\\x\\codex.js" %*\r\n')
+      const base = {
+        nodeBinary: 'n',
+        scriptPath: 's',
+        baseEnv: { PATH: dir },
+        platform: 'win32',
+      } as const
+      const claude = buildAgentCommand({ provider: 'claude', model: null, systemPrompt: '' }, base)
+      expect(claude.env.CLAUDE_CODE_EXECUTABLE).toBe(join(dir, 'node_modules', 'x', 'cli.js'))
+      const codex = buildAgentCommand({ provider: 'codex', model: null, systemPrompt: '' }, base)
+      expect(codex.env.CODEX_PATH).toBe(join(dir, 'codex.CMD'))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('Claude: shim com alvo .exe usa o .exe; .cmd que nao e shim vira erro', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'shim-'))
+    try {
+      const base = {
+        nodeBinary: 'n',
+        scriptPath: 's',
+        baseEnv: { PATH: dir },
+        platform: 'win32',
+      } as const
+      const request = { provider: 'claude', model: null, systemPrompt: '' } as const
+      writeFileSync(join(dir, 'claude.CMD'), '@"%dp0%\\node_modules\\x\\bin\\claude.exe" %*\r\n')
+      expect(buildAgentCommand(request, base).env.CLAUDE_CODE_EXECUTABLE).toBe(
+        join(dir, 'node_modules', 'x', 'bin', 'claude.exe'),
+      )
+      writeFileSync(join(dir, 'claude.CMD'), '@echo oi\r\n')
+      expect(() => buildAgentCommand(request, base)).toThrow(/versão nativa/)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

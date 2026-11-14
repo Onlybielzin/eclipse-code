@@ -13,9 +13,16 @@ import { DATABASE_FILE_NAME, USER_DATA_DIR_NAME, type AppPaths } from '@shared/a
  */
 export function resolveAppPaths(
   env: NodeJS.ProcessEnv = process.env,
-  configHome = env['XDG_CONFIG_HOME'] || join(homedir(), '.config'),
+  configHomeOverride?: string,
   userDataOverride?: string,
+  platform: NodeJS.Platform = process.platform,
 ): AppPaths {
+  const win = platform === 'win32'
+  const configHome =
+    configHomeOverride ??
+    (win
+      ? env['APPDATA'] || join(homedir(), 'AppData', 'Roaming')
+      : env['XDG_CONFIG_HOME'] || join(homedir(), '.config'))
   const userData = userDataOverride
     ? resolve(userDataOverride)
     : join(configHome, USER_DATA_DIR_NAME)
@@ -25,7 +32,7 @@ export function resolveAppPaths(
   const runtimeBase = env['XDG_RUNTIME_DIR']
   const runtime = runtimeBase
     ? join(runtimeBase, runtimeName)
-    : join(tmpdir(), `${runtimeName}-${userInfo().uid}`)
+    : join(tmpdir(), win ? runtimeName : `${runtimeName}-${userInfo().uid}`)
   return {
     userData,
     database: join(userData, DATABASE_FILE_NAME),

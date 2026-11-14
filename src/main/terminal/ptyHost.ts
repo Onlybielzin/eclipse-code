@@ -56,6 +56,8 @@ export interface PtyHostOptions {
   /** Sinal ao grupo de processos (-pid). Injetavel para teste. */
   signalGroup?: (pid: number, signal: KillSignal) => boolean
   log?: (message: string) => void
+  /** Injetavel para teste. Padrao: process.platform. */
+  platform?: NodeJS.Platform
 }
 
 interface Entry {
@@ -116,6 +118,7 @@ export function createPtyHost(options: PtyHostOptions = {}): PtyHost {
   const newId = options.newId ?? (() => randomUUID())
   const signalGroup = options.signalGroup ?? defaultSignalGroup
   const log = options.log ?? (() => undefined)
+  const isWindows = (options.platform ?? process.platform) === 'win32'
 
   const entries = new Map<string, Entry>()
   const exitedOrder: string[] = []
@@ -155,7 +158,9 @@ export function createPtyHost(options: PtyHostOptions = {}): PtyHost {
     if (!entry.alive) return
     if (!signalGroup(entry.pid, signal)) {
       try {
-        entry.pty.kill(signal)
+        // node-pty no Windows lanca 'Signals not supported' se kill() recebe sinal.
+        if (isWindows) entry.pty.kill()
+        else entry.pty.kill(signal)
       } catch (error) {
         log(`[pty] kill ${signal} falhou em ${entry.ptyId}: ${String(error)}`)
       }
