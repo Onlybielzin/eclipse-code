@@ -48,6 +48,25 @@ const task = (id, title, workflowStatus, extra = {}) => ({
   archivedAt: null,
   ...extra,
 })
+function wallTask(id, title, workflowStatus, branch, ago, extra = {}) {
+  return {
+    id,
+    projectId: P,
+    projectName: 'loja-exemplo',
+    title,
+    workflowStatus,
+    branch,
+    updatedAt: min(ago),
+    members: [],
+    linesAdded: 0,
+    linesRemoved: 0,
+    lastFile: null,
+    lastLines: [],
+    openQuestions: 0,
+    ...extra,
+  }
+}
+
 const tasks = [
   task('busca-categoria', 'Adicionar busca por categoria', 'em_andamento', { updatedAt: min(1) }),
   task('total-carrinho', 'Corrigir total do carrinho', 'pergunta', { updatedAt: min(3) }),
@@ -263,6 +282,70 @@ const handlers = {
     projects: [{ projectId: P, openTasks: 4, needsYou: 1 }],
   }),
   'settings.get': () => ({ maxLiveAgents: 6, maxLiveMembersPerTask: 3 }),
+  'wall.snapshot': () => ({
+    at: now,
+    workingAgents: 3,
+    maxLiveAgents: 6,
+    doneToday: 4,
+    inReview: 1,
+    openQuestions: 1,
+    tasks: [
+      wallTask('t1', 'Adicionar busca por categoria', 'em_andamento', 'feat/busca-categoria', 1, {
+        members: [
+          {
+            subtaskId: 's2',
+            role: 'Dev',
+            title: 'Campo de categoria na tela de busca',
+            state: 'working',
+          },
+          {
+            subtaskId: 's3',
+            role: 'Revisor',
+            title: 'Revisar o filtro por categoria',
+            state: 'working',
+          },
+        ],
+        linesAdded: 184,
+        linesRemoved: 22,
+        lastFile: 'src/busca/CampoCategoria.tsx',
+        lastLines: [
+          '+export function CampoCategoria({ valor, aoMudar }: Props) {',
+          '+  const categorias = useCategorias()',
+          '+  return (',
+          '+    <select value={valor} onChange={(e) => aoMudar(e.target.value)}>',
+          '-  return null',
+        ],
+      }),
+      wallTask('t2', 'Corrigir total do carrinho', 'pergunta', 'feat/total-carrinho', 3, {
+        members: [
+          {
+            subtaskId: 's4',
+            role: 'Dev',
+            title: 'Somar o frete no total do carrinho',
+            state: 'input_required',
+          },
+        ],
+        linesAdded: 12,
+        linesRemoved: 5,
+        lastFile: 'src/carrinho/total.ts',
+        lastLines: [
+          '-  const total = subtotal - desconto',
+          '+  const total = subtotal + frete - desconto',
+        ],
+        openQuestions: 1,
+      }),
+      wallTask('t3', 'Calcular frete por CEP', 'em_revisao', 'feat/frete-cep', 25, {
+        linesAdded: 96,
+        linesRemoved: 8,
+        lastFile: 'src/frete/cep.ts',
+        lastLines: [
+          '+export async function freteParaCep(cep: string) {',
+          '+  const faixa = faixaDoCep(cep)',
+        ],
+      }),
+      wallTask('t4', 'Página de pedidos', 'a_fazer', null, 40),
+    ],
+  }),
   'brain.status': () => ({ hasKey: false, keyLast4: null, connected: false, lastError: null }),
   'brain.graph': () => ({ nodes: [], edges: [] }),
   'brain.subscribe': () => undefined,

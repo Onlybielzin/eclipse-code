@@ -20,6 +20,7 @@ const scenes = [
   },
   { name: 'novidades', click: [] },
   { name: 'configuracoes', click: ['button[aria-label="Configurações"]'] },
+  { name: 'parede', click: ['button[aria-label="Parede"]'] },
 ]
 
 // Sem await no topo: o Electron so dispara 'ready' depois que o modulo principal termina de carregar.

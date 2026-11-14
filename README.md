@@ -59,11 +59,23 @@ A tarefa passa por 6 status. O app move sozinho os 4 primeiros. Só você marca 
 
 Também há:
 
-- **Configurações**, com o limite de agentes ao mesmo tempo (no total e por tarefa).
-- **Cérebro**, um plugin opcional que mostra a memória do
-  second-brain como um grafo.
+- **Parede**: um painel com as tarefas abertas de todos os projetos, as linhas mudadas em
+  cada uma, quantos agentes estão trabalhando e o log da sessão. Abra pelo botão "Parede"
+  do topo.
+- **Configurações**: uma página no lugar do terminal, com o limite de agentes ao mesmo tempo
+  (no total e por tarefa) e a chave do Cérebro. Abra pelo botão "Configurações" do topo.
+- **Cérebro**: um plugin opcional que mostra a memória do second-brain como um grafo.
+- **Avisos ao Líder sem atrapalhar você**: quando um membro termina, o Líder Claude recebe o
+  aviso por um gancho (hook) do Claude Code. O app não digita no terminal, então o que você
+  está escrevendo para o Líder não se mistura com o aviso.
+- **Atualização automática** com a janela "Novidades da versão". Veja
+  [Atualização automática](#atualização-automática).
 
 ### Telas
+
+**Parede.** As tarefas abertas de todos os projetos, as linhas mudadas e o que cada membro faz agora.
+
+![Parede com o total de linhas, os números do dia e os cartões das tarefas abertas](docs/screenshots/parede.png)
 
 **Pergunta do Líder.** A pergunta aparece embaixo do terminal, com as opções e o custo de cada uma.
 
@@ -77,9 +89,9 @@ Também há:
 
 ![Janela Novidades da versão 0.2.0 com três itens](docs/screenshots/novidades.png)
 
-**Configurações.** Aqui você define o limite de agentes ao mesmo tempo e a chave do Cérebro.
+**Configurações.** Uma página no lugar do terminal. Aqui você define o limite de agentes, a chave do second-brain e a aparência do Cérebro.
 
-![Tela de Configurações com os limites de agentes](docs/screenshots/configuracoes.png)
+![Página de Configurações com os limites de agentes, a chave do second-brain e o Cérebro](docs/screenshots/configuracoes.png)
 
 ## Instalar
 
@@ -143,7 +155,11 @@ pnpm typecheck
 pnpm lint
 pnpm test        # vitest dentro do Electron; precisa de display
 pnpm build
+pnpm build:win   # instalador NSIS para Windows x64, gerado no Linux (experimental)
 ```
+
+O suporte a Windows é experimental. O release oficial e a atualização automática são só para
+Linux.
 
 Estrutura:
 
