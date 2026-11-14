@@ -21,6 +21,7 @@ function setup(enabled = true) {
     enabled,
     emit: (m) => events.push(m),
     log: silent,
+    version: '0.1.3',
   })
   return { fake, events, updater }
 }
@@ -61,6 +62,7 @@ describe('createUpdater', () => {
       enabled: true,
       emit: () => undefined,
       log: { ...silent, warn },
+      version: '0.1.3',
     })
     updater.start()
     fake.emit('error', new Error('offline'))
@@ -88,6 +90,47 @@ describe('createUpdater', () => {
     updater.install()
     expect(fake.quitAndInstall).toHaveBeenCalledTimes(1)
     updater.dispose()
+  })
+})
+
+describe('createUpdater.checkNow', () => {
+  it('desligado: erro claro, sem procurar', async () => {
+    const { fake, updater } = setup(false)
+    await expect(updater.checkNow()).rejects.toThrow('A atualização só funciona no app instalado.')
+    expect(fake.checkForUpdates).not.toHaveBeenCalled()
+  })
+
+  it('versão nova: devolve a versão encontrada e a atual', async () => {
+    const { fake, updater } = setup()
+    fake.checkForUpdates.mockResolvedValue({
+      isUpdateAvailable: true,
+      updateInfo: { version: '0.2.0' },
+    } as never)
+    expect(await updater.checkNow()).toEqual({ current: '0.1.3', available: '0.2.0' })
+  })
+
+  it('já na última: available é null', async () => {
+    const { fake, updater } = setup()
+    fake.checkForUpdates.mockResolvedValue({
+      isUpdateAvailable: false,
+      updateInfo: { version: '0.1.3' },
+    } as never)
+    expect(await updater.checkNow()).toEqual({ current: '0.1.3', available: null })
+  })
+
+  it('falha vira erro em português', async () => {
+    const { fake, updater } = setup()
+    fake.checkForUpdates.mockRejectedValue(new Error('net::ERR'))
+    await expect(updater.checkNow()).rejects.toThrow('Não foi possível verificar a atualização')
+  })
+
+  it('reaproveita a checagem em andamento', async () => {
+    const { fake, updater } = setup()
+    const [a, b] = await Promise.all([updater.checkNow(), updater.checkNow()])
+    expect(fake.checkForUpdates).toHaveBeenCalledTimes(1)
+    expect(a).toEqual(b)
+    await updater.checkNow()
+    expect(fake.checkForUpdates).toHaveBeenCalledTimes(2)
   })
 })
 

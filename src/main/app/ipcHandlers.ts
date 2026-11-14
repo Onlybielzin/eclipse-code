@@ -24,6 +24,7 @@ export function createIpcHandlers(
   | 'projects.pickFolder'
   | 'update.state'
   | 'update.install'
+  | 'update.check'
 > {
   const { tasks, coordinator, brain, taskProcesses } = services
   const homeDir = options.homeDir ?? homedir()

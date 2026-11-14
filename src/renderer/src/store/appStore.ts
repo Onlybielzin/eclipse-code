@@ -32,6 +32,7 @@ import type {
   PickedFolder,
   ProjectsSummary,
   SubtaskDetail,
+  UpdateCheck,
   UpdateState,
   WhatsNew,
 } from '@shared/ipc'
@@ -240,6 +241,11 @@ export class AppStore {
   /** Fecha o app e instala a versao baixada (quem confirma com o usuario e a tela). */
   async installUpdate(): Promise<void> {
     await this.guard(() => this.call('update.install', {}))
+  }
+
+  /** Procura versão nova na hora. Erro sobe para a página. */
+  checkUpdate(): Promise<UpdateCheck> {
+    return this.call('update.check', {})
   }
 
   /** "Entendi": fecha a janela e grava a versao como vista. */

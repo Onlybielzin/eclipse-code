@@ -20,6 +20,8 @@ import {
   type AppServices,
 } from './app'
 import { autoUpdater } from 'electron-updater'
+import { applyLoginShellPath } from './app/loginShellPath'
+import { DomainError } from '@shared/domain'
 import { createUpdater, createWhatsNew } from './app/updater'
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
 
@@ -85,6 +87,9 @@ function createMainWindow(): BrowserWindow {
 }
 
 async function boot(): Promise<AppServices> {
+  // Antes de qualquer spawn: aberto pelo menu ou pelo auto-update, o PATH vem sem ~/.local/bin.
+  // Testes e smoke não rodam o shell de login (lento e depende do rc do usuário).
+  if (!isTestRun) await applyLoginShellPath({ log })
   ensureNodePtySpawnHelperExecutable()
   const services = await startAppServices({
     paths,
@@ -115,6 +120,7 @@ async function boot(): Promise<AppServices> {
     enabled: app.isPackaged && !isTestRun,
     emit: emitToWindows,
     log,
+    version: app.getVersion(),
   })
   updater.start()
   const whatsNew = createWhatsNew({
@@ -155,6 +161,11 @@ async function boot(): Promise<AppServices> {
     'app.whatsNew': async () => whatsNew.get(),
     'app.whatsNewSeen': async () => whatsNew.markSeen(),
     'update.state': async () => updater?.state() ?? { status: 'idle', version: null },
+    'update.check': async () => {
+      if (!updater)
+        throw new DomainError('unavailable', 'A atualização só funciona no app instalado.')
+      return updater.checkNow()
+    },
     'update.install': async () => updater?.install(),
     'app.info': async (): Promise<AppInfo> => ({
       version: app.getVersion(),

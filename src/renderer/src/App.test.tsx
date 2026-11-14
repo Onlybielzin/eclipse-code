@@ -175,6 +175,35 @@ describe('Configurações', () => {
     expect((await within(page()).findByRole('alert')).textContent).toContain('recusado pelo main')
   })
 
+  it('Atualização: verifica, mostra o resultado e o erro', async () => {
+    await renderApp()
+    openSettings()
+    const btn = await within(page()).findByRole('button', { name: 'Verificar atualização' })
+    fireEvent.click(btn)
+    expect(
+      await within(page()).findByText('Você já está na versão mais recente (0.1.3).'),
+    ).toBeTruthy()
+    api.updateCheck = { current: '0.1.3', available: '0.2.0' }
+    fireEvent.click(within(page()).getByRole('button', { name: 'Verificar atualização' }))
+    expect(await within(page()).findByText(/Versão 0\.2\.0 encontrada\. Baixando/)).toBeTruthy()
+    api.overrides.set('update.check', () => ({
+      ok: false,
+      error: { code: 'unavailable', message: 'A atualização só funciona no app instalado.' },
+    }))
+    fireEvent.click(within(page()).getByRole('button', { name: 'Verificar atualização' }))
+    expect((await within(page()).findByRole('alert')).textContent).toContain('só funciona')
+    expect(api.callsTo('update.check')).toHaveLength(3)
+  })
+
+  it('Atualização: com versão pronta, Reiniciar e atualizar usa update.install', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    await renderApp()
+    act(() => api.emit('update.state', { status: 'ready', version: '0.2.0' }))
+    openSettings()
+    fireEvent.click(await within(page()).findByRole('button', { name: 'Reiniciar e atualizar' }))
+    await waitFor(() => expect(api.callsTo('update.install')).toHaveLength(1))
+  })
+
   it('Second Brain: salva a chave, mostra só o final e remove', async () => {
     await renderApp()
     openSettings()
