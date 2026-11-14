@@ -226,7 +226,18 @@ export class AppStore {
 
   /** Contadores de cada projeto para o seletor do topo. Erro vai para a faixa e devolve null. */
   async loadProjectsSummary(): Promise<ProjectsSummary | null> {
-    return (await this.guard(() => this.call('projects.summary', {}))) ?? null
+    // Relista os projetos junto: projeto criado por fora (CLI, outro processo) aparece
+    // no seletor sem reiniciar o app.
+    return (
+      (await this.guard(async () => {
+        const [projects, summary] = await Promise.all([
+          this.call('projects.list', {}),
+          this.call('projects.summary', {}),
+        ])
+        this.set({ projects })
+        return summary
+      })) ?? null
+    )
   }
 
   async addProject(rootPath: string, name?: string): Promise<void> {
