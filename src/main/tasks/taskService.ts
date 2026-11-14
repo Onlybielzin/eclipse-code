@@ -1258,13 +1258,18 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   // Avisos ao Lider (fila duravel; sem evento de dominio: a tela nao mostra)
   // -------------------------------------------------------------------------
 
-  enqueueLeaderNotice(taskId: TaskId, text: string): LeaderNotice {
-    return this.write(() => this.insertLeaderNotice(taskId, text))
+  enqueueLeaderNotice(taskId: TaskId, text: string, subtaskId?: SubtaskId): LeaderNotice {
+    return this.write(() => this.insertLeaderNotice(taskId, text, subtaskId))
   }
 
-  private insertLeaderNotice(taskId: TaskId, text: string): LeaderNotice {
+  discardPendingLeaderNoticesForSubtasks(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void {
+    // delivered_at = -2: o Lider ja viu a subtarefa; nunca colado (-1 e o teto).
+    this.write(() => this.store.discardPendingLeaderNoticesForSubtasks(taskId, subtaskIds, -2))
+  }
+
+  private insertLeaderNotice(taskId: TaskId, text: string, subtaskId?: SubtaskId): LeaderNotice {
     if (!this.store.getTask(taskId)) throw notFound('tarefa', taskId)
-    const notice = this.store.insertLeaderNotice(taskId, text, this.clock.now())
+    const notice = this.store.insertLeaderNotice(taskId, text, this.clock.now(), subtaskId ?? null)
     const excess = this.store.countPendingLeaderNotices(taskId) - MAX_PENDING_LEADER_NOTICES
     if (excess > 0) {
       // delivered_at = -1: descartado pelo teto, nunca colado no terminal.
@@ -1364,7 +1369,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         const paused = this.pauseAfterRestart(subtask)
         report.pausedSubtasks.push(paused)
         if (input.composeLostNotice) {
-          this.insertLeaderNotice(paused.taskId, input.composeLostNotice(paused))
+          this.insertLeaderNotice(paused.taskId, input.composeLostNotice(paused), paused.id)
         }
       }
 

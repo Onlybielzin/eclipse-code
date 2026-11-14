@@ -73,6 +73,8 @@ export interface LeaderSessionRegistry {
   isReadyForInput(sessionId: SessionId): boolean
   /** O relay acabou de mandar um prompt: considera trabalhando ate a fonte dizer o contrario. */
   markPromptSent(sessionId: SessionId): void
+  /** Digitacao do usuario no terminal do Lider: texto sem Enter segura o relay (rascunho). */
+  noteUserInput(sessionId: SessionId, data: string): void
   onEvent(listener: (event: LeaderSessionEvent) => void): Unsubscribe
   dispose(): Promise<void>
 }
@@ -112,7 +114,12 @@ interface Entry {
   tails: JsonlTail[]
   lastActivity: LeaderActivity
   disposed: boolean
+  /** Hora da ultima tecla sem Enter; null sem rascunho. */
+  draftAt: number | null
 }
+
+/** Rascunho do usuario segura o aviso por este tempo. */
+export const USER_DRAFT_HOLD_MS = 20_000
 
 const BRACKETED_ON = '\x1b[?2004h'
 const BRACKETED_OFF = '\x1b[?2004l'
@@ -298,6 +305,7 @@ export function createLeaderSessionRegistry(
         tails: [],
         lastActivity: alive ? 'starting' : 'exited',
         disposed: false,
+        draftAt: null,
       }
       // A saida que chegou antes do registro tambem conta (bracketed paste ja ligado).
       const early = options.ptyHost.scrollback(input.ptyId)
@@ -334,6 +342,8 @@ export function createLeaderSessionRegistry(
       if (!entry || !entry.alive || !options.ptyHost.isAlive(entry.input.ptyId)) return false
       if (requireBracketedPaste && !entry.bracketedPaste) return false
       const current = now()
+      // shortcut: rascunho apagado com backspace segura o aviso por até 20 s; texto deixado parado mais que 20 s ainda pode grudar, trocar por leitura da linha de entrada se incomodar
+      if (entry.draftAt !== null && current - entry.draftAt < USER_DRAFT_HOLD_MS) return false
       const quiet = current - entry.lastOutputAt
       if (entry.promptSentAt !== null && current - entry.promptSentAt >= promptAckTimeoutMs) {
         // Nenhuma fonte reagiu ao prompt: a TUI provavelmente nao aceitou. Volta ao anterior.
@@ -356,6 +366,13 @@ export function createLeaderSessionRegistry(
         entry.signal = 'working'
         refreshActivity(entry)
       }
+    },
+
+    noteUserInput(sessionId, data) {
+      const entry = bySession.get(sessionId)
+      if (!entry) return
+      if (/[\r\n]/.test(data)) entry.draftAt = null
+      else if (data !== '\x1b[I' && data !== '\x1b[O') entry.draftAt = now() // foco do terminal nao e digitacao
     },
 
     onEvent(listener) {

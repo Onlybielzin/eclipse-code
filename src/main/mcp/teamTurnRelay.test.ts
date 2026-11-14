@@ -5,6 +5,8 @@ import {
   createMemoryLeaderNoticeStore,
   startTeamTurnRelay,
 } from './teamTurnRelay'
+import type { McpCaller } from '@shared/mcp'
+import { createMcpToolHandler } from './toolHandler'
 import { createFakeTaskService, leaderSession } from './testing/fakeTaskService'
 
 function relaySpy(delivered = true) {
@@ -225,5 +227,67 @@ describe('startTeamTurnRelay', () => {
     expect(sent).toEqual([{ sessionId: 'L9', text: '[eclipse] resposta do usuário' }])
     expect(notices.listPendingLeaderNotices('task1')).toEqual([])
     second.stop()
+  })
+})
+
+describe('aviso de subtarefa que o Lider ja viu', () => {
+  const leader: McpCaller = { role: 'leader', sessionId: 'L1', taskId: 'task1', subtaskId: null }
+  function setup() {
+    const tasks = createFakeTaskService()
+    const { relay, sent } = relaySpy()
+    const team = startTeamTurnRelay({ tasks, relay, now: () => 1_000 })
+    const actions = { createSubtask: vi.fn(), answerSubtask: vi.fn(), cancelSubtask: vi.fn() }
+    const handler = createMcpToolHandler({ tasks, actions, notices: team })
+    return { tasks, team, handler, sent }
+  }
+
+  it('membro termina com o Lider em subtarefas_esperar: nenhum aviso fica', async () => {
+    const { tasks, team, handler, sent } = setup() // sem Lider vivo: aviso so ficaria pendente
+    tasks.seedSubtask({ id: 'a', state: 'working' })
+    const waiting = handler.callTool(leader, 'subtarefas_esperar', {})
+    tasks.setState('a', 'completed')
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await waiting
+    await team.idle()
+    expect(team.pending('task1')).toEqual([])
+    expect(sent).toHaveLength(0)
+    team.stop()
+  })
+
+  it('membro termina sem o Lider esperar: aviso continua sendo entregue', async () => {
+    const { tasks, team, sent } = setup()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    await team.idle()
+    expect(sent).toHaveLength(1)
+    team.stop()
+  })
+
+  it('subtarefas_ver descarta o aviso que ja estava na fila; subtarefa em andamento nao', async () => {
+    const { tasks, team, handler } = setup()
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    tasks.seedSubtask({ id: 'b', state: 'completed' })
+    tasks.endTurn({ id: 'ta', subtaskId: 'a' })
+    tasks.endTurn({ id: 'tb', subtaskId: 'b' })
+    await team.idle()
+    expect(team.pending('task1')).toHaveLength(2)
+    tasks.setState('b', 'working')
+    await handler.callTool(leader, 'subtarefas_ver', { subtarefa_id: 'a' })
+    await handler.callTool(leader, 'subtarefas_ver', { subtarefa_id: 'b' })
+    expect(team.pending('task1')).toHaveLength(1)
+    expect(team.pending('task1')[0]).toContain('Subtarefa b')
+    team.stop()
+  })
+
+  it('turno que termina depois de o Lider ver a subtarefa ainda avisa', async () => {
+    const { tasks, team, sent } = setup()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    tasks.seedSubtask({ id: 'a', state: 'completed' })
+    team.markSubtasksSeen('task1', ['a'])
+    tasks.endTurn({ id: 'tb', subtaskId: 'a', endedAt: 2_000 })
+    await team.idle()
+    expect(sent).toHaveLength(1)
+    team.stop()
   })
 })

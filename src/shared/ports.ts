@@ -336,6 +336,8 @@ export interface LeaderNotice {
   taskId: TaskId
   text: string
   createdAt: EpochMs
+  /** Subtarefa a que o aviso se refere; null para aviso sem subtarefa (resposta do usuario). */
+  subtaskId: SubtaskId | null
 }
 
 /**
@@ -343,7 +345,12 @@ export interface LeaderNotice {
  * confirma a entrega; sobrevive a Lider ocupado, Lider morto e reinicio do app.
  */
 export interface LeaderNoticeStore {
-  enqueueLeaderNotice(taskId: TaskId, text: string): LeaderNotice
+  enqueueLeaderNotice(taskId: TaskId, text: string, subtaskId?: SubtaskId): LeaderNotice
+  /**
+   * O Lider ja viu estas subtarefas (subtarefas_esperar / subtarefas_ver): descarta os avisos
+   * pendentes delas. Marca delivered_at = -2 (-1 e o descarte pelo teto); nunca sao coladas.
+   */
+  discardPendingLeaderNoticesForSubtasks(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void
   /** Pendentes da tarefa, do mais antigo ao mais novo. */
   listPendingLeaderNotices(taskId: TaskId): LeaderNotice[]
   markLeaderNoticeDelivered(id: number): void

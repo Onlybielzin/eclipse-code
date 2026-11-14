@@ -1,7 +1,8 @@
 // Ponta a ponta sem modelo real e sem janela:
 //   Lider falso no pty (tests/fixtures/fake-leader.mjs no lugar do `claude`) fala MCP com o
 //   servidor do app -> subtarefa_criar x2 -> membros pelo agente ACP falso (modo 'mcp', chama
-//   `entregar` de verdade) -> entregas gravadas -> 2 avisos colados no terminal do Lider ->
+//   `entregar` de verdade) -> entregas gravadas -> o Lider as le em subtarefas_esperar (por isso
+//   nenhum aviso e colado no terminal dele) ->
 //   membros encerrados. Depois reinicia os servicos no mesmo SQLite: o Lider volta com --resume
 //   e cria um membro novo sem erro (o limite nao conta as sessoes ja encerradas).
 import { execFileSync } from 'node:child_process'
@@ -80,7 +81,7 @@ async function waitFor<T>(what: string, check: () => T | null | undefined | fals
 }
 
 describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
-  it('Lider cria 2 subtarefas, recebe 2 avisos e os membros fecham; reinicia e cria mais um', async () => {
+  it('Lider cria 2 subtarefas, le as 2 entregas e os membros fecham; reinicia e cria mais um', async () => {
     const repo = makeRepo()
     const bin = fakeBin()
     const leaderLog = join(dir, 'leader.jsonl')
@@ -172,7 +173,6 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       readLog(leaderLog).filter(
         (r) => r.kind === 'prompt' && String(r['text']).startsWith('[eclipse] Subtarefa'),
       )
-    await waitFor('2 avisos no terminal do Líder', () => notices().length >= 2 || null)
     await waitFor('plano do Líder terminou', () =>
       readLog(leaderLog).some((r) => r.kind === 'plan-done'),
     )
@@ -209,10 +209,11 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       const activity = tasks.listActivity(subtask.id, null, 100).events
       expect(activity.filter((e) => e.payload.kind === 'prompt')).toHaveLength(1)
       expect(activity.some((e) => e.payload.kind === 'turn_end')).toBe(true)
-      // O aviso ao Lider leva o id e o estado.
-      expect(notices().some((n) => String(n['text']).includes(subtask.id))).toBe(true)
-      expect(notices().every((n) => String(n['text']).includes('pronto'))).toBe(true)
+      // O Lider viu a entrega em subtarefas_esperar (id e estado), entao nao ha aviso colado.
+      const waited = first.find((r) => r.kind === 'tool' && r['name'] === 'subtarefas_esperar')!
+      expect(String(waited['text'])).toContain(`${subtask.id} [pronto]`)
     }
+    expect(notices()).toEqual([])
 
     // Membros encerrados: sessao fechada pelo app, nenhum processo vivo.
     const memberSessions = tasks.listSessions(task.id).filter((s) => s.kind === 'member-acp')
@@ -263,7 +264,6 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       await waitFor('Líder retomado criou e esperou o membro novo', () =>
         readLog(leaderLog).some((r) => r.kind === 'plan-done' && r['pid'] !== start.pid),
       )
-      await waitFor('3º aviso', () => notices().length >= 3 || null)
       await services.idle()
 
       const second = readLog(leaderLog).filter((r) => r.pid !== start.pid)
@@ -271,6 +271,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       expect(resumedStart['resumed']).toBe(true)
       expect(resumedStart['argv']).toContain(leaderSession.providerSessionId)
       expect(second.filter((r) => r.kind === 'plan-error')).toEqual([])
+      expect(notices()).toEqual([])
       expect(second.filter((r) => r.kind === 'tool').map((r) => r['isError'])).toEqual([
         false,
         false,

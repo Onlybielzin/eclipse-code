@@ -109,7 +109,10 @@ export interface TeamCoordinatorDeps {
    * Fila duravel de avisos ao Lider (TeamTurnRelay.notify). Resposta do usuario, membro que
    * nao abriu ou que parou: tudo entra aqui e sai so com entrega confirmada.
    */
-  leaderNotices: { notify(taskId: TaskId, text: string): void }
+  leaderNotices: {
+    notify(taskId: TaskId, text: string, subtaskId?: SubtaskId): void
+    markSubtasksSeen(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void
+  }
   /**
    * Saida com erro de um Lider aberto com --resume dentro deste prazo, antes de qualquer
    * sinal de turno, conta como retomada que falhou (padrao 60 s).
@@ -174,7 +177,11 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     this.log = deps.log ?? silentLogger
     this.now = deps.now ?? Date.now
     this.resumeFailureWindowMs = deps.resumeFailureWindowMs ?? DEFAULT_RESUME_FAILURE_WINDOW_MS
-    this.toolHandler = createMcpToolHandler({ tasks: this.tasks, actions: this })
+    this.toolHandler = createMcpToolHandler({
+      tasks: this.tasks,
+      actions: this,
+      notices: deps.leaderNotices,
+    })
 
     this.unsubscribers.push(
       this.leader.sessions.onEvent((event) => {
@@ -497,8 +504,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
    * Aviso fora de turno ao Lider (membro nao abriu ou parou, resposta do usuario). Entra na
    * fila duravel e sai quando o Lider estiver vivo e ocioso; nunca e descartado (C5).
    */
-  private notifyLeader(taskId: TaskId, text: string): void {
-    this.deps.leaderNotices.notify(taskId, text)
+  private notifyLeader(taskId: TaskId, text: string, subtaskId?: SubtaskId): void {
+    this.deps.leaderNotices.notify(taskId, text, subtaskId)
   }
 
   // -------------------------------------------------------------------------
@@ -545,6 +552,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   writeTerminal(sessionId: SessionId, data: string): void {
     const ptyId = this.livePty(sessionId)
     this.ptyHost.write(ptyId, data)
+    this.leader.sessions.noteUserInput(sessionId, data)
     if (!/[\r\n]/.test(data)) return
     try {
       const session = this.tasks.getSession(sessionId)
@@ -793,6 +801,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       this.notifyLeader(
         subtask.taskId,
         composeSpawnFailureNotice(subtask, role?.name ?? subtask.roleId, message),
+        subtask.id,
       )
     })
   }
@@ -945,6 +954,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       this.notifyLeader(
         subtask.taskId,
         composeMemberStoppedNotice(subtask, this.findRole(subtask.roleId)?.name ?? subtask.roleId),
+        subtask.id,
       )
     })
   }

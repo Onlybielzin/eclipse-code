@@ -3,6 +3,7 @@ import {
   type Artifact,
   type SessionId,
   type Subtask,
+  type SubtaskId,
   type TaskId,
   type Turn,
   type TurnId,
@@ -72,6 +73,8 @@ export interface TeamTurnRelayDeps {
   leaderEvents?: {
     onEvent(listener: (event: LeaderActivityEvent) => void): Unsubscribe
   }
+  /** Relogio do TaskService (endedAt do turno vem dele). Padrao: Date.now. */
+  now?: () => number
   /** Rede de seguranca: tenta de novo toda tarefa com aviso pendente (0 desliga). */
   retryIntervalMs?: number
   onError?: (error: unknown) => void
@@ -94,7 +97,12 @@ export interface TeamTurnRelay {
    * Aviso fora de fim de turno (resposta do usuario, membro que nao abriu ou parou).
    * Grava na fila duravel e tenta entregar; nunca descarta.
    */
-  notify(taskId: TaskId, text: string): void
+  notify(taskId: TaskId, text: string, subtaskId?: SubtaskId): void
+  /**
+   * O Lider acabou de ver estas subtarefas (subtarefas_esperar / subtarefas_ver): descarta os
+   * avisos pendentes delas e nao enfileira o de um turno que terminou antes desta hora.
+   */
+  markSubtasksSeen(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void
 }
 
 export const DEFAULT_NOTICE_RETRY_INTERVAL_MS = 30_000
@@ -104,13 +112,27 @@ export function createMemoryLeaderNoticeStore(): LeaderNoticeStore {
   let nextId = 1
   const pending: LeaderNotice[] = []
   return {
-    enqueueLeaderNotice(taskId, text) {
-      const notice = { id: nextId++, taskId, text, createdAt: Date.now() }
+    enqueueLeaderNotice(taskId, text, subtaskId) {
+      const notice = {
+        id: nextId++,
+        taskId,
+        text,
+        createdAt: Date.now(),
+        subtaskId: subtaskId ?? null,
+      }
       pending.push(notice)
       return notice
     },
     listPendingLeaderNotices(taskId) {
       return pending.filter((n) => n.taskId === taskId)
+    },
+    discardPendingLeaderNoticesForSubtasks(taskId, subtaskIds) {
+      for (let i = pending.length - 1; i >= 0; i--) {
+        const n = pending[i]
+        if (n && n.taskId === taskId && n.subtaskId !== null && subtaskIds.includes(n.subtaskId)) {
+          pending.splice(i, 1)
+        }
+      }
     },
     markLeaderNoticeDelivered(id) {
       const index = pending.findIndex((n) => n.id === id)
@@ -138,7 +160,11 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   const notices = deps.notices ?? createMemoryLeaderNoticeStore()
   const onError = deps.onError ?? (() => undefined)
   const retryIntervalMs = deps.retryIntervalMs ?? DEFAULT_NOTICE_RETRY_INTERVAL_MS
+  const now = deps.now ?? Date.now
   const seen = new Set<TurnId>()
+  // Quando o Lider viu cada subtarefa parada. Cobre a corrida: o aviso de fim de turno entra
+  // na fila num microtask depois do commit e o subtarefas_esperar pode devolver antes.
+  const seenBySubtask = new Map<SubtaskId, number>()
   const draining = new Map<TaskId, Promise<void>>()
   let stopped = false
 
@@ -169,8 +195,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     return job
   }
 
-  const enqueue = (taskId: TaskId, text: string): void => {
-    notices.enqueueLeaderNotice(taskId, text)
+  const enqueue = (taskId: TaskId, text: string, subtaskId?: SubtaskId): void => {
+    notices.enqueueLeaderNotice(taskId, text, subtaskId)
     void drain(taskId)
   }
 
@@ -179,6 +205,9 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     // Turno fechado pela recuperacao com a subtarefa parada: o aviso de reinicio ja entrou na
     // fila na mesma transacao (recoverAfterRestart). Um aviso so por subtarefa.
     if (turn.error?.code === 'app_restarted' && isPausedByRestart(subtask)) return
+    // O Lider ja viu essa subtarefa depois do fim do turno: o aviso chegaria velho.
+    const seenAt = seenBySubtask.get(subtask.id)
+    if (seenAt !== undefined && turn.endedAt !== null && seenAt >= turn.endedAt) return
     let roleName = subtask.roleId
     try {
       roleName = tasks.getRole(subtask.roleId).name
@@ -192,7 +221,7 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
       turn,
       delivery: deliveries[deliveries.length - 1] ?? null,
     })
-    enqueue(subtask.taskId, text)
+    enqueue(subtask.taskId, text, subtask.id)
   }
 
   const sweep = () => {
@@ -261,9 +290,24 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     pending(taskId) {
       return notices.listPendingLeaderNotices(taskId).map((n) => n.text)
     },
-    notify(taskId, text) {
+    notify(taskId, text, subtaskId) {
       if (stopped) return
-      enqueue(taskId, text)
+      enqueue(taskId, text, subtaskId)
+    },
+    markSubtasksSeen(taskId, subtaskIds) {
+      if (stopped || subtaskIds.length === 0) return
+      const at = now()
+      for (const id of subtaskIds) {
+        seenBySubtask.set(id, at)
+        if (seenBySubtask.size > MAX_SEEN_TURNS) {
+          seenBySubtask.delete(seenBySubtask.keys().next().value as SubtaskId)
+        }
+      }
+      try {
+        notices.discardPendingLeaderNoticesForSubtasks(taskId, subtaskIds)
+      } catch (error) {
+        onError(error)
+      }
     },
   }
 }
