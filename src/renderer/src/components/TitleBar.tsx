@@ -21,7 +21,10 @@ export function TitleBar() {
 
   return (
     <header className="titlebar">
-      <b>Eclipse Code</b>
+      <b className="brand">
+        <span className="logo" aria-hidden="true" />
+        Eclipse Code
+      </b>
       <ProjectPicker onAddProject={() => setAdding(true)} />
       {adding && <AddProjectModal onClose={() => setAdding(false)} />}
       <button

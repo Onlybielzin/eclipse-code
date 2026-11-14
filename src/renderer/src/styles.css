@@ -115,6 +115,24 @@ code {
 .titlebar b {
   font-weight: 800;
 }
+/* Logo da maquete C: lua de eclipse em CSS, sem arquivo de imagem. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 64% 38%, var(--bg) 0 46%, transparent 47%),
+    conic-gradient(from 200deg, var(--accent), var(--st-violet), var(--accent));
+  box-shadow:
+    0 0 0 1px rgb(90 185 252 / 25%),
+    0 0 18px rgb(90 185 252 / 25%);
+}
 /* Seletor de projeto (quick pick no estilo Linear / VS Code). */
 .proj-btn {
   display: inline-flex;
