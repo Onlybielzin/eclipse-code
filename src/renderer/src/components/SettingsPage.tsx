@@ -1,6 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import type { BrainStatus } from '@shared/brain'
-import type { ExternalTerminalSettings } from '@shared/externalTerminal'
 import { MOTIONS, STYLES } from '../brain/looks'
 import { SHAPES } from '../brain/shapes'
 import { useAppState, useStore } from '../store/context'
@@ -29,8 +28,6 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const [brainKey, setBrainKey] = useState('')
   const [brainBusy, setBrainBusy] = useState(false)
   const [brainError, setBrainError] = useState<string | null>(null)
-  const [terminals, setTerminals] = useState<ExternalTerminalSettings | null>(null)
-  const [terminalError, setTerminalError] = useState<string | null>(null)
   const update = useAppState((s) => s.update)
   const [checking, setChecking] = useState(false)
   const [updateMsg, setUpdateMsg] = useState<{ text: string; bad: boolean } | null>(null)
@@ -75,26 +72,6 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
       alive = false
     }
   }, [store])
-
-  useEffect(() => {
-    let alive = true
-    store
-      .loadExternalTerminals()
-      .then((value) => alive && setTerminals(value))
-      .catch((e: unknown) => alive && setTerminalError(e instanceof Error ? e.message : String(e)))
-    return () => {
-      alive = false
-    }
-  }, [store])
-
-  const changeTerminal = async (id: string | null) => {
-    setTerminalError(null)
-    try {
-      setTerminals(await store.saveExternalTerminal(id))
-    } catch (err) {
-      setTerminalError(err instanceof Error ? err.message : String(err))
-    }
-  }
 
   /** A chave não passa pelo "Salvar limites": os botões da seção valem na hora. */
   const changeBrainKey = async (key: string | null) => {
@@ -272,41 +249,6 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
                   </button>
                 </div>
               </form>
-            </section>
-
-            <section id="terminal" aria-labelledby="h-terminal">
-              <header>
-                <h2 id="h-terminal">Terminal</h2>
-                <p>Terminal externo usado pelo botão "Abrir no terminal" do cabeçalho da tarefa.</p>
-              </header>
-              <div className="settings-card">
-                <Row
-                  label="Terminal externo"
-                  hint="Automático usa o primeiro terminal encontrado no PATH."
-                  tag="now"
-                  control={
-                    <select
-                      className="field"
-                      aria-label="Terminal externo"
-                      value={terminals?.selected ?? ''}
-                      disabled={!terminals}
-                      onChange={(e) => void changeTerminal(e.target.value || null)}
-                    >
-                      <option value="">Automático (primeiro encontrado)</option>
-                      {terminals?.options.map((o) => (
-                        <option key={o.id} value={o.id} disabled={!o.available}>
-                          {o.available ? o.label : `${o.label} (não encontrado)`}
-                        </option>
-                      ))}
-                    </select>
-                  }
-                />
-                {terminalError && (
-                  <p className="modal-note bad settings-error" role="alert">
-                    {terminalError}
-                  </p>
-                )}
-              </div>
             </section>
 
             <section id="second-brain" aria-labelledby="h-brain">
@@ -507,7 +449,6 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
 
 const SECTIONS = [
   { id: 'agentes', label: 'Agentes' },
-  { id: 'terminal', label: 'Terminal' },
   { id: 'second-brain', label: 'Second Brain' },
   { id: 'atualizacao', label: 'Atualização' },
   { id: 'cerebro', label: 'Cérebro' },

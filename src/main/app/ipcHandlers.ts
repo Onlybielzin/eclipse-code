@@ -14,7 +14,7 @@ export interface IpcHandlerOptions {
 }
 
 export function createIpcHandlers(
-  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'externalTerminal' | 'taskProcesses'>,
+  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'taskProcesses'>,
   options: IpcHandlerOptions = {},
 ): Omit<
   IpcCommandHandlers,
@@ -26,7 +26,7 @@ export function createIpcHandlers(
   | 'update.install'
   | 'update.check'
 > {
-  const { tasks, coordinator, brain, externalTerminal, taskProcesses } = services
+  const { tasks, coordinator, brain, taskProcesses } = services
   const homeDir = options.homeDir ?? homedir()
   const wallSnapshot = coalesced(() => buildWallSnapshot(tasks))
   return {
@@ -37,10 +37,6 @@ export function createIpcHandlers(
 
     'settings.get': async () => tasks.getAgentLimitSettings(),
     'settings.save': async (input) => tasks.saveAgentLimitSettings(input),
-
-    'externalTerminal.get': async () => externalTerminal.get(),
-    'externalTerminal.save': async (input) => externalTerminal.save(input.id),
-    'externalTerminal.open': (input) => externalTerminal.open(input.taskId),
 
     'brain.setKey': async (input) => brain.setKey(input.key),
     'brain.status': async () => brain.status(),

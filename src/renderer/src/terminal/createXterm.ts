@@ -6,6 +6,7 @@ import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebglAddon } from '@xterm/addon-webgl'
 import '@xterm/xterm/css/xterm.css'
+import { clipboardKeyAction, isImageOnlyPaste } from './clipboardKeys'
 
 export interface XtermHandle {
   write(data: string): void
@@ -47,6 +48,42 @@ export function createXterm(container: HTMLElement): XtermHandle {
   } catch {
     // sem WebGL: o xterm segue com o renderizador DOM
   }
+  // Selecionar copia na hora; erro de permissao da area de transferencia e ignorado.
+  term.onSelectionChange(() => {
+    if (term.hasSelection()) void navigator.clipboard?.writeText(term.getSelection()).catch(() => {})
+  })
+  term.attachCustomKeyEventHandler((e) => {
+    const action = clipboardKeyAction({
+      ctrl: e.ctrlKey,
+      shift: e.shiftKey,
+      alt: e.altKey,
+      meta: e.metaKey,
+      key: e.key,
+      type: e.type,
+      hasSelection: term.hasSelection(),
+      platform: navigator.platform.toLowerCase().includes('mac') ? 'darwin' : 'other',
+    })
+    if (action === 'copy') {
+      // Sem isso o 'copy' nativo do xterm roda depois, com a selecao ja limpa, e grava vazio.
+      e.preventDefault()
+      void navigator.clipboard?.writeText(term.getSelection()).catch(() => {})
+      term.clearSelection()
+      return false
+    }
+    // 'paste': sem preventDefault, o navegador dispara o 'paste' que o xterm ja trata.
+    return action === 'pass'
+  })
+  // So imagem na area de transferencia: manda ^V e o Claude Code le a imagem.
+  container.addEventListener(
+    'paste',
+    (e) => {
+      if (!isImageOnlyPaste(e.clipboardData)) return
+      e.preventDefault()
+      e.stopPropagation()
+      term.input('\x16', true)
+    },
+    true,
+  )
   return {
     write: (data) => term.write(data),
     onData: (listener) => {

@@ -1,4 +1,4 @@
-import { accessSync, constants, lstatSync, readFileSync, statSync } from 'node:fs'
+import { accessSync, constants, readFileSync, statSync } from 'node:fs'
 import { delimiter, dirname, isAbsolute, join } from 'node:path'
 import { DomainError } from '@shared/domain'
 
@@ -104,12 +104,6 @@ function isExecutableFile(path: string, skipExecuteBit: boolean): boolean {
     if (!skipExecuteBit) accessSync(path, constants.X_OK)
     return true
   } catch {
-    // Alias de app do Windows (WindowsApps\\wt.exe) e um reparse point que o stat nao segue.
-    if (!skipExecuteBit) return false
-    try {
-      return lstatSync(path).isSymbolicLink()
-    } catch {
-      return false
-    }
+    return false
   }
 }

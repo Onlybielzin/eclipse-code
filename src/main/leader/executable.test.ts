@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -18,14 +18,6 @@ function tempDir(files: string[]): string {
 }
 
 describe('resolveExecutableOnPath no win32', () => {
-  it('aceita alias de app que o stat nao segue (WindowsApps\\wt.exe)', () => {
-    const dir = tempDir([])
-    symlinkSync(join(dir, 'nao-existe'), join(dir, 'wt.exe'))
-    expect(resolveExecutableOnPath('wt.exe', dir, { platform: 'win32' })).toBe(join(dir, 'wt.exe'))
-    expect(resolveExecutableOnPath('wt.exe', dir, { platform: 'linux' })).toBeNull()
-  })
-
-
   it('prefere .exe a .cmd pela ordem do PATHEXT e nao exige X_OK', () => {
     const dir = tempDir(['claude.cmd', 'claude.exe'])
     // PATHEXT em minusculas: o sistema de arquivos do Linux diferencia caixa; o do Windows nao.
