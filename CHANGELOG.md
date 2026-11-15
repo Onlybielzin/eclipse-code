@@ -2,6 +2,12 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.9 - 2026-11-15
+
+- Ao abrir o app, os Líderes voltam com a conversa anterior, mas nenhum começa a trabalhar sozinho.
+- Avisos ao Líder Claude (reinício do app e fim de turno de subtarefa) chegam pelo gancho, sem texto colado no terminal.
+- Tarefa nova mostra só "Tarefa: <título>. Comece." no terminal. O papel do Líder vai escondido, no prompt de sistema.
+
 ## 0.1.8 - 2026-11-15
 
 - Criar tarefa agora abre um modal com 3 tipos: Com Líder e time, Agente avulso e Terminal.
