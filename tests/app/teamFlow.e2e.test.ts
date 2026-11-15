@@ -142,6 +142,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
     const project = tasks.addProject({ rootPath: repo })
     tasks.saveRole({
       projectId: project.id,
+      roleId: tasks.findRoleByName(project.id, 'Líder')?.id,
       name: 'Líder',
       description: '',
       provider: 'claude',
@@ -151,6 +152,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
     })
     tasks.saveRole({
       projectId: project.id,
+      roleId: tasks.findRoleByName(project.id, 'Dev')?.id,
       name: 'Dev',
       description: '',
       provider: 'claude',
