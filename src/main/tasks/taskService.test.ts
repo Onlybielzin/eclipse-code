@@ -217,7 +217,8 @@ describe('TaskService: eventos só depois do commit', () => {
     const p = service.addProject({ rootPath: '/repo/x/' })
     expect(p.rootPath).toBe('/repo/x')
     expect(service.getProject(p.id)).toEqual(p)
-    expect(errors).toHaveLength(1)
+    // 1 projeto + 3 papéis do time padrão, e cada assinante lança uma vez.
+    expect(errors).toHaveLength(4)
   })
 })
 
@@ -227,6 +228,27 @@ describe('TaskService: projetos, papéis e tarefas', () => {
     const p = service.addProject({ rootPath: '/home/u/meu-repo/' })
     expect(p.name).toBe('meu-repo')
     expect(errorCode(() => service.addProject({ rootPath: '/home/u/meu-repo' }))).toBe('conflict')
+  })
+
+  it('projeto novo nasce com Líder, Dev e Revisor e aceita tarefa de time', () => {
+    const { service } = createHarness()
+    const p = service.addProject({ rootPath: '/repo/novo' })
+    const roles = service.listRoles(p.id)
+    expect(roles.map((r) => r.name).sort()).toEqual(['Dev', 'Líder', 'Revisor'])
+    expect(roles.filter((r) => r.isLead)).toHaveLength(1)
+    expect(roles.every((r) => r.provider === 'claude' && r.model === null)).toBe(true)
+    expect(service.getLeadRole(p.id)?.name).toBe('Líder')
+    const task = service.createTask({
+      projectId: p.id,
+      title: 'Primeira',
+      kind: 'team',
+      worktreePath: '/wt/primeira',
+      branch: 'feat/primeira',
+      baseBranch: 'main',
+      leadRoleId: null,
+      soloProvider: null,
+    })
+    expect(task.leadRoleId).toBe(service.getLeadRole(p.id)?.id)
   })
 
   it('nome de papel é único sem diferenciar acento e maiúscula', () => {

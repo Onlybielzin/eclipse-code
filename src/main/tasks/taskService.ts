@@ -18,6 +18,7 @@
  *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
  *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado; lancado <=> arquivada.
  */
+import { DEFAULT_ROLES } from './defaultRoles'
 import { basename, isAbsolute, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import {
@@ -312,6 +313,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       }
       this.store.insertProject(project)
       this.emit({ type: 'project.upserted', project })
+      for (const role of DEFAULT_ROLES) this.saveRole({ ...role, projectId: project.id })
       return project
     })
   }
