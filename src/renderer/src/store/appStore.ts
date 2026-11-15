@@ -141,6 +141,25 @@ function saveProject(id: string | null): void {
   }
 }
 
+const lastTaskKey = (projectId: string): string => `eclipse.lastTask.${projectId}`
+
+function readLastTask(projectId: string): string | null {
+  try {
+    return globalThis.localStorage?.getItem(lastTaskKey(projectId)) ?? null
+  } catch {
+    return null
+  }
+}
+
+function saveLastTask(projectId: string | null, taskId: string): void {
+  if (projectId === null) return
+  try {
+    globalThis.localStorage?.setItem(lastTaskKey(projectId), taskId)
+  } catch {
+    // armazenamento indisponivel: so perde a lembranca da tarefa
+  }
+}
+
 export class CommandError extends Error {
   constructor(
     readonly code: string,
@@ -259,7 +278,6 @@ export class AppStore {
 
   async openProject(projectId: string | null): Promise<void> {
     saveProject(projectId)
-    this.lastChat.clear()
     this.set({
       projectId,
       roles: {},
@@ -290,14 +308,23 @@ export class AppStore {
       })
       const open = tasks.filter((t) => t.status === 'open')
       const first = open.find((t) => t.kind === 'team') ?? open[0] ?? null
+      // Ids de tarefa sao uuid globais: a ultima tarefa vista do projeto vale em qualquer status.
+      const saved = readLastTask(projectId)
+      const chosen = tasks.find((t) => t.id === saved) ?? first
       this.set((s) => ({
         roles: Object.fromEntries(roles.map((r) => [r.id, r])),
         tasks,
         subtasks,
         questions,
-        selectedTaskId: s.selectedTaskId ?? first?.id ?? null,
-        expanded: first ? { ...s.expanded, [first.id]: true } : s.expanded,
+        selectedTaskId: s.selectedTaskId ?? chosen?.id ?? null,
+        expanded: chosen ? { ...s.expanded, [chosen.id]: true } : s.expanded,
       }))
+      // So restaura o chat se a tarefa escolhida ficou selecionada (clique durante a carga vence).
+      const sel = this.state.selectedTaskId
+      const last = sel ? this.lastChat.get(sel) : null
+      if (sel === chosen?.id && last && subtasks[sel]?.some((x) => x.id === last)) {
+        await this.selectSubtask(last)
+      }
     })
   }
 
@@ -385,6 +412,7 @@ export class AppStore {
   /** Seleciona sem mexer em Configurações: a criação termina sozinha, sem clique do vings. */
   private showTask(taskId: string): void {
     this.lastChat.set(taskId, null)
+    saveLastTask(this.state.projectId, taskId)
     this.set((s) => ({
       selectedTaskId: taskId,
       selectedSubtaskId: null,
@@ -400,7 +428,10 @@ export class AppStore {
   /** Clicar na subtarefa abre a entrega. */
   async selectSubtask(subtaskId: string): Promise<void> {
     const subtask = this.findSubtask(subtaskId)
-    if (subtask) this.lastChat.set(subtask.taskId, subtaskId)
+    if (subtask) {
+      this.lastChat.set(subtask.taskId, subtaskId)
+      saveLastTask(this.state.projectId, subtask.taskId)
+    }
     this.set({
       selectedTaskId: subtask?.taskId ?? this.state.selectedTaskId,
       selectedSubtaskId: subtaskId,

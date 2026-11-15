@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppStore } from './appStore'
 import { formatElapsed, groupTasks, subtaskRowLabel } from './format'
-import { FakeApi, makeActivity, makeSubtask, makeTask, mockupData } from '../test/fakeApi'
+import { FakeApi, makeActivity, makeProject, makeSubtask, makeTask, mockupData } from '../test/fakeApi'
 
 async function started() {
   const api = new FakeApi(mockupData())
@@ -110,17 +110,64 @@ describe('AppStore', () => {
     expect(store.getState().midTab).toBe('leader')
   })
 
-  it('não restaura o chat quando pedido (pergunta do Líder) nem após trocar de projeto', async () => {
+  it('não restaura o chat quando pedido (pergunta do Líder)', async () => {
     const { store } = await started()
     await store.selectSubtask('d1')
     store.selectTask('solo1')
     store.selectTask('t1', false)
     expect(store.getState().selectedSubtaskId).toBeNull()
-    await store.selectSubtask('d1')
+  })
+})
+
+describe('última tarefa por projeto', () => {
+  const saved = new Map<string, string>()
+  beforeEach(() => {
+    saved.clear()
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => saved.get(k) ?? null,
+      setItem: (k: string, v: string) => void saved.set(k, v),
+      removeItem: (k: string) => void saved.delete(k),
+    })
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  async function twoProjects() {
+    const data = mockupData()
+    data.projects.push({ ...makeProject(), id: 'p2', name: 'outro' })
+    data.tasks.push(makeTask('b1', 'tarefa do outro', { projectId: 'p2' }))
+    const store = new AppStore(new FakeApi(data))
+    await store.start()
+    return store
+  }
+
+  it('volta para a tarefa que estava selecionada ao reabrir o projeto', async () => {
+    const store = await twoProjects()
     store.selectTask('solo1')
+    await store.openProject('p2')
+    expect(store.getState().selectedTaskId).toBe('b1')
     await store.openProject('p1')
-    store.selectTask('t1')
-    expect(store.getState().selectedSubtaskId).toBeNull()
+    expect(store.getState().selectedTaskId).toBe('solo1')
+    expect(saved.get('eclipse.lastTask.p1')).toBe('solo1')
+  })
+
+  it('volta também para a subtarefa que estava aberta', async () => {
+    const store = await twoProjects()
+    await store.selectSubtask('d2')
+    await store.openProject('p2')
+    await store.openProject('p1')
+    expect(store.getState().selectedTaskId).toBe('t1')
+    expect(store.getState().selectedSubtaskId).toBe('d2')
+  })
+
+  it('cai na primeira tarefa aberta se a salva não existe mais', async () => {
+    const store = await twoProjects()
+    saved.set('eclipse.lastTask.p2', 'sumiu')
+    await store.openProject('p2')
+    expect(store.getState().selectedTaskId).toBe('b1')
+    saved.set('eclipse.lastTask.p1', 'sumiu')
+    await store.openProject('p1')
+    expect(store.getState().selectedTaskId).toBe('t1')
+    expect(store.getState().error).toBeNull()
   })
 })
 
