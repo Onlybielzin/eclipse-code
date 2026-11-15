@@ -20,7 +20,7 @@ export function TitleBar() {
     const q = open[0]
     if (!q) return
     if (q.subtaskId) void store.selectSubtask(q.subtaskId)
-    else if (tasks.some((t) => t.id === q.taskId)) store.selectTask(q.taskId)
+    else if (tasks.some((t) => t.id === q.taskId)) store.selectTask(q.taskId, false)
   }
 
   const restart = () => {

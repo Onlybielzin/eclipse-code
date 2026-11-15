@@ -90,6 +90,38 @@ describe('AppStore', () => {
       { projectId: 'p1', title: 'nova', kind: 'team', useWorktree: true },
     ])
   })
+
+  it('volta ao último chat da tarefa ao reabri-la', async () => {
+    const { store } = await started()
+    await store.selectSubtask('d1')
+    store.selectTask('solo1')
+    expect(store.getState().selectedSubtaskId).toBeNull()
+    store.selectTask('t1')
+    expect(store.getState().selectedTaskId).toBe('t1')
+    expect(store.getState().selectedSubtaskId).toBe('d1')
+    expect(store.getState().midTab).not.toBe('leader')
+  })
+
+  it('clicar na tarefa já selecionada leva ao Líder', async () => {
+    const { store } = await started()
+    await store.selectSubtask('d1')
+    store.selectTask('t1')
+    expect(store.getState().selectedSubtaskId).toBeNull()
+    expect(store.getState().midTab).toBe('leader')
+  })
+
+  it('não restaura o chat quando pedido (pergunta do Líder) nem após trocar de projeto', async () => {
+    const { store } = await started()
+    await store.selectSubtask('d1')
+    store.selectTask('solo1')
+    store.selectTask('t1', false)
+    expect(store.getState().selectedSubtaskId).toBeNull()
+    await store.selectSubtask('d1')
+    store.selectTask('solo1')
+    await store.openProject('p1')
+    store.selectTask('t1')
+    expect(store.getState().selectedSubtaskId).toBeNull()
+  })
 })
 
 describe('format', () => {

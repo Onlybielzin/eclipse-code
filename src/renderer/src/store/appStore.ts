@@ -161,6 +161,8 @@ export interface CreateTaskInput {
 export class AppStore {
   private state: AppState = initialState
   private readonly listeners = new Set<() => void>()
+  /** Último chat de cada tarefa (subtarefa ou null = Líder); só em memória. */
+  private readonly lastChat = new Map<string, string | null>()
   private unsubscribe: (() => void) | null = null
   private unsubscribeUpdate: (() => void) | null = null
 
@@ -251,6 +253,7 @@ export class AppStore {
 
   async openProject(projectId: string | null): Promise<void> {
     saveProject(projectId)
+    this.lastChat.clear()
     this.set({
       projectId,
       roles: {},
@@ -367,14 +370,28 @@ export class AppStore {
 
   // -- selecao ----------------------------------------------------------------
 
-  /** Clicar na tarefa volta o meio para o terminal do Lider. */
-  selectTask(taskId: string): void {
+  /**
+   * Clicar na tarefa volta o meio para o terminal do Lider. Vindo de outra tarefa, reabre o
+   * último chat dela (restore=false força o Líder, ex.: pergunta do Líder).
+   */
+  selectTask(taskId: string, restore = true): void {
+    const last = this.lastChat.get(taskId)
+    if (
+      restore &&
+      taskId !== this.state.selectedTaskId &&
+      last &&
+      this.state.subtasks[taskId]?.some((x) => x.id === last)
+    ) {
+      void this.selectSubtask(last)
+      return
+    }
     this.showTask(taskId)
     this.set({ settingsOpen: false }) // escolher uma tarefa volta ao Líder dela
   }
 
   /** Seleciona sem mexer em Configurações: a criação termina sozinha, sem clique do vings. */
   private showTask(taskId: string): void {
+    this.lastChat.set(taskId, null)
     this.set((s) => ({
       selectedTaskId: taskId,
       selectedSubtaskId: null,
@@ -390,6 +407,7 @@ export class AppStore {
   /** Clicar na subtarefa abre a entrega. */
   async selectSubtask(subtaskId: string): Promise<void> {
     const subtask = this.findSubtask(subtaskId)
+    if (subtask) this.lastChat.set(subtask.taskId, subtaskId)
     this.set({
       selectedTaskId: subtask?.taskId ?? this.state.selectedTaskId,
       selectedSubtaskId: subtaskId,
