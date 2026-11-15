@@ -536,6 +536,7 @@ describe('pergunta respondida no terminal do Líder', () => {
       createIpcHandlers({
         tasks: h.tasks,
         coordinator: h.coordinator,
+        externalTerminal: {} as AppServices['externalTerminal'],
         brain: {} as AppServices['brain'],
       }),
     )

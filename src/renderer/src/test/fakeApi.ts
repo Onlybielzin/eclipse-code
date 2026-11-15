@@ -154,6 +154,8 @@ export class FakeApi implements EclipseApi {
 
   /** Chave do Cerebro guardada pelo fake (so o final sai em brain.status). */
   brainKey: string | null = null
+  /** Terminal externo escolhido (null = automatico). */
+  externalTerminal: string | null = null
   brainGraph: BrainGraph = { nodes: [], edges: [] }
   brainMemory: MemoryDetail = {
     id: 'm1',
@@ -248,6 +250,18 @@ export class FakeApi implements EclipseApi {
       case 'settings.save':
         this.agentLimits = input as typeof this.agentLimits
         return this.agentLimits
+      case 'externalTerminal.get':
+      case 'externalTerminal.save':
+        if (channel === 'externalTerminal.save') this.externalTerminal = input.id as string | null
+        return {
+          selected: this.externalTerminal,
+          options: [
+            { id: 'kitty', label: 'kitty', available: true },
+            { id: 'konsole', label: 'Konsole', available: false },
+          ],
+        }
+      case 'externalTerminal.open':
+        return undefined
       case 'brain.status':
       case 'brain.setKey':
         if (channel === 'brain.setKey') this.brainKey = input.key as string | null

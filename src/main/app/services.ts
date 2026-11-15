@@ -34,7 +34,12 @@ import {
   type RecoveryReport,
   type SqliteTaskService,
 } from '../tasks'
-import { createPtyHost, type PtyHostOptions } from '../terminal'
+import {
+  createExternalTerminalService,
+  createPtyHost,
+  type ExternalTerminalService,
+  type PtyHostOptions,
+} from '../terminal'
 import { createWorktreeService } from '../worktree'
 import { AppTeamCoordinator, silentLogger, type AppLogger } from './teamCoordinator'
 import type { McpBridgeServer, PtyHost } from '@shared/ports'
@@ -69,6 +74,7 @@ export interface AppServicesOptions {
 
 export interface AppServices {
   brain: BrainService
+  externalTerminal: ExternalTerminalService
   tasks: SqliteTaskService
   coordinator: AppTeamCoordinator
   ptyHost: PtyHost
@@ -214,9 +220,12 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     emit: emitUi,
   })
 
+  const externalTerminal = createExternalTerminalService({ settings: store, tasks })
+
   let disposed: Promise<void> | null = null
   return {
     brain,
+    externalTerminal,
     tasks,
     coordinator,
     ptyHost,
