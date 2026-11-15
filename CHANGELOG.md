@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.5 - 2026-11-14
+
+- Novo botão Abrir no terminal: abre a pasta da tarefa no terminal que você escolher nas Configurações.
+- Ao voltar para uma tarefa, o app reabre o último chat que você deixou aberto nela.
+
 ## 0.1.4 - 2026-11-14
 
 - Versão para Windows: o release ganha o instalador .exe, que também se atualiza sozinho.
