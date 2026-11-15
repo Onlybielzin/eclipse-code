@@ -122,6 +122,12 @@ export interface UpdateState {
   version: string | null
 }
 
+/** Resposta de update.check: a versão em uso e a nova encontrada (null = já está na última). */
+export interface UpdateCheck {
+  current: string
+  available: string | null
+}
+
 /** Notas da versao atual (seção do CHANGELOG.md), mostradas uma vez por versão. */
 export interface WhatsNew {
   version: string
@@ -145,6 +151,26 @@ export interface TerminalAttachResult {
   rows: number
   /** Saida recente (ring buffer do main) para repintar o xterm antes dos eventos novos. */
   scrollback: string
+}
+
+/** Os dois processos da worktree da tarefa: aba Iniciar ('start') e aba Terminal ('shell'). */
+export const taskProcessKindSchema = z.enum(['start', 'shell'])
+export type TaskProcessKind = z.infer<typeof taskProcessKindSchema>
+
+export interface TaskProcessState {
+  /** null = nunca abriu desde que o app iniciou. Serve de sessionId em terminal.write/resize. */
+  ptyId: string | null
+  alive: boolean
+  cols: number
+  rows: number
+  /** Saida recente (ring buffer do main), tambem depois que o processo saiu. */
+  scrollback: string
+  /** Codigo da ultima saida; null enquanto vivo, se nunca saiu ou se morreu por sinal. */
+  exitCode: number | null
+  /** Ja saiu pelo menos uma vez ("Ultimo: parou (codigo N)"). */
+  exited: boolean
+  /** Pasta base da tarefa (worktree ou raiz do projeto). */
+  cwd: string
 }
 
 export interface ActivityPage {
@@ -173,6 +199,8 @@ export const ipcCommands = {
   'app.whatsNew': command<WhatsNew | null>()(emptyInput),
   'app.whatsNewSeen': command<void>()(emptyInput),
   'update.state': command<UpdateState>()(emptyInput),
+  /** Procura versão nova na hora. Erro se o updater está desligado ou a busca falha. */
+  'update.check': command<UpdateCheck>()(emptyInput),
   /** Fecha o app e instala a versão baixada. Erro se não há versão pronta. */
   'update.install': command<void>()(emptyInput),
 
@@ -281,6 +309,28 @@ export const ipcCommands = {
         rows: z.number().int().min(1).max(1_000),
       })
       .strict(),
+  ),
+
+  /** Comando da aba Iniciar, por tarefa. command null limpa. dir e relativo a pasta base. */
+  'tasks.setStartCommand': command<Task>()(
+    z
+      .object({
+        taskId: idSchema,
+        command: z.string().trim().min(1).max(2_000).nullable(),
+        dir: z.string().trim().min(1).max(500).nullable(),
+      })
+      .strict(),
+  ),
+  /** Estado do processo da aba (sem abrir nada): para repintar o scrollback. */
+  'taskProcess.attach': command<TaskProcessState>()(
+    z.object({ taskId: idSchema, kind: taskProcessKindSchema }).strict(),
+  ),
+  /** Abre o processo da aba; restart para o vivo e abre de novo. Digitacao: terminal.write. */
+  'taskProcess.start': command<TaskProcessState>()(
+    z.object({ taskId: idSchema, kind: taskProcessKindSchema, restart: z.boolean() }).strict(),
+  ),
+  'taskProcess.stop': command<void>()(
+    z.object({ taskId: idSchema, kind: taskProcessKindSchema }).strict(),
   ),
 
   /** Perguntas abertas de "Precisa de voce" no projeto. */

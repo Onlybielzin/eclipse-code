@@ -31,6 +31,9 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const [brainError, setBrainError] = useState<string | null>(null)
   const [terminals, setTerminals] = useState<ExternalTerminalSettings | null>(null)
   const [terminalError, setTerminalError] = useState<string | null>(null)
+  const update = useAppState((s) => s.update)
+  const [checking, setChecking] = useState(false)
+  const [updateMsg, setUpdateMsg] = useState<{ text: string; bad: boolean } | null>(null)
   /** Texto dos limites como estão salvos no main: base do "Descartar" e do aviso de alteração. */
   const [saved, setSaved] = useState({ agents: '', members: '' })
 
@@ -111,6 +114,29 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
     }
   }
 
+  const checkUpdate = async () => {
+    setChecking(true)
+    setUpdateMsg(null)
+    try {
+      const { current, available } = await store.checkUpdate()
+      setUpdateMsg({
+        bad: false,
+        text:
+          available === null
+            ? `Você já está na versão mais recente (${current}).`
+            : `Versão ${available} encontrada. Baixando; o aviso aparece no topo quando terminar.`,
+      })
+    } catch (err) {
+      setUpdateMsg({ bad: true, text: err instanceof Error ? err.message : String(err) })
+    } finally {
+      setChecking(false)
+    }
+  }
+  const restart = () => {
+    const message = `Fechar o app instala a versão ${update.version} e para os agentes em andamento. Abra o app de novo depois. Continuar?`
+    if (window.confirm(message)) void store.installUpdate()
+  }
+
   const dirty = maxAgents.trim() !== saved.agents || maxMembers.trim() !== saved.members
   const discard = () => {
     setMaxAgents(saved.agents)
@@ -138,11 +164,14 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
     }
   }
 
-
   return (
     <main className={`settings-page ${alone ? 'alone' : ''}`} aria-labelledby="settings-title">
       <div className="settings-head">
-        <button type="button" className="settings-back" onClick={() => store.setSettingsOpen(false)}>
+        <button
+          type="button"
+          className="settings-back"
+          onClick={() => store.setSettingsOpen(false)}
+        >
           <span aria-hidden="true">‹</span> Voltar ao Líder
         </button>
         <h1 id="settings-title">Configurações</h1>
@@ -230,7 +259,12 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
                         ? 'Alterações não salvas'
                         : `Limites salvos: ${saved.agents === '' ? 'sem limite de agentes' : `${saved.agents} agentes`}, ${saved.members === '' ? 'sem limite' : saved.members} por tarefa`}
                   </span>
-                  <button type="button" className="ghost" disabled={!dirty || saving} onClick={discard}>
+                  <button
+                    type="button"
+                    className="ghost"
+                    disabled={!dirty || saving}
+                    onClick={discard}
+                  >
                     Descartar
                   </button>
                   <button type="submit" className="primary" disabled={!loaded || !dirty || saving}>
@@ -340,6 +374,39 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
               </div>
             </section>
 
+            <section id="atualizacao" aria-labelledby="h-atualizacao">
+              <header>
+                <h2 id="h-atualizacao">Atualização</h2>
+                <p>O app procura versão nova ao abrir e a cada 4 horas. Aqui você procura agora.</p>
+              </header>
+              <div className="settings-card">
+                <div className="settings-foot">
+                  {updateMsg && (
+                    <span
+                      className={updateMsg.bad ? 'msg modal-note bad' : 'msg'}
+                      role={updateMsg.bad ? 'alert' : undefined}
+                      aria-live="polite"
+                    >
+                      {updateMsg.text}
+                    </span>
+                  )}
+                  {update.status === 'ready' && (
+                    <button type="button" className="ghost" onClick={restart}>
+                      Reiniciar e atualizar
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="primary"
+                    disabled={checking}
+                    onClick={() => void checkUpdate()}
+                  >
+                    {checking ? 'Verificando...' : 'Verificar atualização'}
+                  </button>
+                </div>
+              </div>
+            </section>
+
             <section id="cerebro" aria-labelledby="h-cerebro">
               <header>
                 <h2 id="h-cerebro">Cérebro</h2>
@@ -442,6 +509,7 @@ const SECTIONS = [
   { id: 'agentes', label: 'Agentes' },
   { id: 'terminal', label: 'Terminal' },
   { id: 'second-brain', label: 'Second Brain' },
+  { id: 'atualizacao', label: 'Atualização' },
   { id: 'cerebro', label: 'Cérebro' },
 ]
 

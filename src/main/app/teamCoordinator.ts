@@ -92,6 +92,8 @@ export const silentLogger: AppLogger = { info: () => {}, warn: () => {}, error: 
 export interface TeamCoordinatorDeps {
   tasks: SqliteTaskService
   ptyHost: PtyHost
+  /** Processos das abas Iniciar e Terminal: param ao arquivar a tarefa. */
+  taskProcesses?: { stopTask(taskId: TaskId): void }
   leader: LeaderModule
   members: MemberRuntime
   worktrees: WorktreeService
@@ -282,6 +284,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
   async archiveTask(taskId: TaskId, options: { removeWorktree: boolean }): Promise<Task> {
     const task = this.tasks.getTask(taskId)
+    this.deps.taskProcesses?.stopTask(taskId)
     for (const session of this.tasks.listSessions(taskId)) {
       if (session.status === 'exited') continue
       if (session.kind === 'member-acp') await this.closeMember(session.id)

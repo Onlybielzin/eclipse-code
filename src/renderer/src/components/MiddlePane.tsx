@@ -6,12 +6,18 @@ import { WallView } from '../wall/WallView'
 import { ActivityView } from './ActivityView'
 import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
+import { ShellTab, StartTab } from './TaskProcessTab'
 import { TaskStatusMenu } from './TaskStatusMenu'
 
-const TABS: { id: MidTab; label: string }[] = [
+const LEADER_TABS: { id: MidTab; label: string }[] = [
+  { id: 'leader', label: 'Líder' },
+  { id: 'start', label: 'Iniciar' },
+  { id: 'terminal', label: 'Terminal' },
+]
+const SUBTASK_TABS: { id: MidTab; label: string }[] = [
   { id: 'delivery', label: 'Entrega' },
   { id: 'activity', label: 'Atividade' },
-  { id: 'leader', label: 'Líder' },
+  ...LEADER_TABS,
 ]
 
 /** Meio: terminal do Lider, ou a subtarefa aberta com abas Entrega, Atividade e Lider. */
@@ -66,7 +72,10 @@ export function MiddlePane() {
     )
   }
 
-  const showLeader = !subtask || tab === 'leader'
+  const procTab = tab === 'start' || tab === 'terminal'
+  const showLeader = subtask ? tab === 'leader' : !procTab
+  const tabs = subtask ? SUBTASK_TABS : LEADER_TABS
+  const midTitle = procTab ? (tab === 'start' ? 'Iniciar' : 'Terminal') : null
   const leaderTitle = task.kind === 'team' ? 'Líder · terminal' : 'Terminal'
 
   return (
@@ -78,7 +87,7 @@ export function MiddlePane() {
               ›_
             </span>
           )}
-          {full ? fullTitle : subtask ? subtask.title : leaderTitle}
+          {full ? fullTitle : (midTitle ?? (subtask ? subtask.title : leaderTitle))}
         </span>
         {full && closeBrain}
         {!full && !subtask && (
@@ -106,9 +115,9 @@ export function MiddlePane() {
             Abrir no terminal
           </button>
         )}
-        {!full && subtask && (
-          <span className="sp tabs" role="tablist" aria-label="Visão da subtarefa">
-            {TABS.map((t) => (
+        {!full && (
+          <span className="sp tabs" role="tablist" aria-label="Visão do meio">
+            {tabs.map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -153,6 +162,17 @@ export function MiddlePane() {
             </>
           )}
         </div>
+        {!full && procTab && (
+          <div className="mid-layer">
+            {task.status === 'archived' ? (
+              <div className="empty">Tarefa arquivada: os processos foram parados.</div>
+            ) : tab === 'start' ? (
+              <StartTab key={task.id} task={task} />
+            ) : (
+              <ShellTab key={task.id} task={task} />
+            )}
+          </div>
+        )}
         {!full && subtask && tab === 'delivery' && (
           <DeliveryView subtask={subtask} detail={detail} />
         )}

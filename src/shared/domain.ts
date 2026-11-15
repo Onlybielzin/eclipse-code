@@ -171,6 +171,10 @@ export interface Task {
   status: TaskStatus
   /** Status de trabalho mostrado na lista (ver TASK_WORKFLOW_STATUSES). */
   workflowStatus: TaskWorkflowStatus
+  /** Comando da aba Iniciar (ex. `pnpm dev`). null = ainda nao configurado. */
+  startCommand: string | null
+  /** Subpasta relativa (dentro da pasta base da tarefa) onde o comando roda. */
+  startDir: string | null
   createdAt: EpochMs
   updatedAt: EpochMs
   archivedAt: EpochMs | null

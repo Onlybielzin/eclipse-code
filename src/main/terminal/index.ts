@@ -6,6 +6,7 @@
  */
 export { createPtyHost, toPtyExit, waitForPtyExit } from './ptyHost'
 export type { PtyHostOptions, PtyProcessLike, SpawnPty } from './ptyHost'
+export { TaskProcesses, resolveInside } from './taskProcesses'
 export { ScrollbackBuffer, DEFAULT_SCROLLBACK_CHARS } from './scrollback'
 export { createExternalTerminalService } from './externalTerminal'
 export type { ExternalTerminalService } from './externalTerminal'

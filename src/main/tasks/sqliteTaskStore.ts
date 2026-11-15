@@ -138,6 +138,8 @@ function toTask(r: Row): Task {
     soloProvider: strOrNull(r['solo_provider']) as Provider | null,
     status: str(r['status']) as TaskStatus,
     workflowStatus: str(r['workflow_status']) as TaskWorkflowStatus,
+    startCommand: strOrNull(r['start_command']),
+    startDir: strOrNull(r['start_dir']),
     createdAt: num(r['created_at']),
     updatedAt: num(r['updated_at']),
     archivedAt: numOrNull(r['archived_at']),
@@ -410,11 +412,11 @@ export class SqliteTaskStore implements TaskStore {
   insertTask(t: Task): void {
     this.run(
       `INSERT INTO tasks (id, project_id, context_id, title, kind, worktree_path, branch,
-         base_branch, lead_role_id, solo_provider, status, workflow_status, created_at, updated_at,
-         archived_at)
+         base_branch, lead_role_id, solo_provider, status, workflow_status, start_command, start_dir,
+         created_at, updated_at, archived_at)
        VALUES (@id, @projectId, @contextId, @title, @kind, @worktreePath, @branch,
-         @baseBranch, @leadRoleId, @soloProvider, @status, @workflowStatus, @createdAt, @updatedAt,
-         @archivedAt)`,
+         @baseBranch, @leadRoleId, @soloProvider, @status, @workflowStatus, @startCommand, @startDir,
+         @createdAt, @updatedAt, @archivedAt)`,
       { ...t },
     )
   }
@@ -422,8 +424,8 @@ export class SqliteTaskStore implements TaskStore {
     this.run(
       `UPDATE tasks SET title = @title, worktree_path = @worktreePath, branch = @branch,
          base_branch = @baseBranch, lead_role_id = @leadRoleId, solo_provider = @soloProvider,
-         status = @status, workflow_status = @workflowStatus, updated_at = @updatedAt,
-         archived_at = @archivedAt
+         status = @status, workflow_status = @workflowStatus, start_command = @startCommand,
+         start_dir = @startDir, updated_at = @updatedAt, archived_at = @archivedAt
        WHERE id = @id`,
       { ...t },
     )

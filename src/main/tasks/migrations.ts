@@ -252,6 +252,14 @@ export const MIGRATIONS: readonly Migration[] = [
     // Sem FK: aviso de subtarefa apagada continua legivel; NULL para aviso sem subtarefa.
     sql: `ALTER TABLE leader_notices ADD COLUMN subtask_id TEXT;`,
   },
+  {
+    version: 7,
+    name: 'comando de iniciar por tarefa',
+    sql: `
+      ALTER TABLE tasks ADD COLUMN start_command TEXT;
+      ALTER TABLE tasks ADD COLUMN start_dir TEXT;
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

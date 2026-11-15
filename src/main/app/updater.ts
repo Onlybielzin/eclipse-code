@@ -5,7 +5,7 @@
  */
 import { DomainError } from '@shared/domain'
 import { changelogSection } from '@shared/changelog'
-import type { IpcEventMessage, UpdateState, WhatsNew } from '@shared/ipc'
+import type { IpcEventMessage, UpdateCheck, UpdateState, WhatsNew } from '@shared/ipc'
 import type { AppLogger } from './teamCoordinator'
 
 const CHECK_EVERY_MS = 4 * 60 * 60 * 1000
@@ -17,7 +17,14 @@ export interface UpdaterLike {
   autoRunAppAfterInstall: boolean
   on(event: 'update-available' | 'update-downloaded', l: (info: { version: string }) => void): this
   on(event: 'error', l: (error: Error) => void): this
-  checkForUpdates(): Promise<unknown>
+  checkForUpdates(): Promise<
+    | {
+        isUpdateAvailable?: boolean
+        updateInfo: { version: string }
+      }
+    | null
+    | undefined
+  >
   quitAndInstall(): void
 }
 
@@ -27,9 +34,11 @@ export interface UpdaterOptions {
   enabled: boolean
   emit: (message: IpcEventMessage) => void
   log: AppLogger
+  /** Versão em uso (app.getVersion()). */
+  version: string
 }
 
-export function createUpdater({ autoUpdater, enabled, emit, log }: UpdaterOptions) {
+export function createUpdater({ autoUpdater, enabled, emit, log, version }: UpdaterOptions) {
   let state: UpdateState = { status: 'idle', version: null }
   let timer: ReturnType<typeof setInterval> | null = null
   const set = (next: UpdateState) => {
@@ -40,7 +49,33 @@ export function createUpdater({ autoUpdater, enabled, emit, log }: UpdaterOption
     autoUpdater.checkForUpdates().catch((error: unknown) => {
       log.warn('atualização: falha ao procurar versão nova', { error: String(error) })
     })
+  let checking: Promise<UpdateCheck> | null = null
+  const checkNow = (): Promise<UpdateCheck> => {
+    if (!enabled) {
+      return Promise.reject(
+        new DomainError('unavailable', 'A atualização só funciona no app instalado.'),
+      )
+    }
+    checking ??= autoUpdater
+      .checkForUpdates()
+      .then((r): UpdateCheck => ({
+        current: version,
+        available: r?.isUpdateAvailable ? r.updateInfo.version : null,
+      }))
+      .catch((error: unknown) => {
+        log.warn('atualização: falha ao verificar', { error: String(error) })
+        throw new DomainError(
+          'unavailable',
+          'Não foi possível verificar a atualização. Confira a conexão e tente de novo.',
+        )
+      })
+      .finally(() => {
+        checking = null
+      })
+    return checking
+  }
   return {
+    checkNow,
     state: (): UpdateState => state,
     start(): void {
       if (!enabled) return

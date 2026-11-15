@@ -2318,3 +2318,33 @@ button[aria-pressed='true'] > .q-mark {
   background: var(--raised);
   border-color: var(--line-2);
 }
+
+/* abas Iniciar e Terminal */
+.proc-form,
+.proc-idle {
+  margin: auto;
+  width: min(520px, 90%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.proc-form h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.proc-row {
+  display: flex;
+  gap: 8px;
+}
+.proc-idle {
+  margin: 24px auto;
+  align-items: center;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.proc-big {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 10px 36px;
+}

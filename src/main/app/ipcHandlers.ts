@@ -14,7 +14,7 @@ export interface IpcHandlerOptions {
 }
 
 export function createIpcHandlers(
-  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'externalTerminal'>,
+  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'externalTerminal' | 'taskProcesses'>,
   options: IpcHandlerOptions = {},
 ): Omit<
   IpcCommandHandlers,
@@ -24,8 +24,9 @@ export function createIpcHandlers(
   | 'projects.pickFolder'
   | 'update.state'
   | 'update.install'
+  | 'update.check'
 > {
-  const { tasks, coordinator, brain, externalTerminal } = services
+  const { tasks, coordinator, brain, externalTerminal, taskProcesses } = services
   const homeDir = options.homeDir ?? homedir()
   const wallSnapshot = coalesced(() => buildWallSnapshot(tasks))
   return {
@@ -73,9 +74,21 @@ export function createIpcHandlers(
 
     'leader.ensure': (input) => coordinator.ensureLeader(input.taskId),
     'terminal.attach': async (input) => coordinator.attachTerminal(input.sessionId),
-    'terminal.write': async (input) => coordinator.writeTerminal(input.sessionId, input.data),
+    // Processos das abas Iniciar e Terminal usam o ptyId como sessionId.
+    'terminal.write': async (input) =>
+      taskProcesses.owns(input.sessionId)
+        ? taskProcesses.write(input.sessionId, input.data)
+        : coordinator.writeTerminal(input.sessionId, input.data),
     'terminal.resize': async (input) =>
-      coordinator.resizeTerminal(input.sessionId, input.cols, input.rows),
+      taskProcesses.owns(input.sessionId)
+        ? taskProcesses.resize(input.sessionId, input.cols, input.rows)
+        : coordinator.resizeTerminal(input.sessionId, input.cols, input.rows),
+
+    'tasks.setStartCommand': async (input) =>
+      tasks.setTaskStartCommand(input.taskId, input.command, input.dir),
+    'taskProcess.attach': async (input) => taskProcesses.attach(input.taskId, input.kind),
+    'taskProcess.start': (input) => taskProcesses.start(input.taskId, input.kind, input.restart),
+    'taskProcess.stop': async (input) => taskProcesses.stop(input.taskId, input.kind),
 
     'questions.list': async (input) => tasks.listOpenQuestions(input.projectId),
     'questions.answer': (input) => coordinator.answerUserQuestion(input.questionId, input.answers),

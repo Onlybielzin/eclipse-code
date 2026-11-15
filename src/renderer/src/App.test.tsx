@@ -130,7 +130,9 @@ describe('Configurações', () => {
     fireEvent.change(members, { target: { value: '3' } })
     expect(within(page()).getByText('Alterações não salvas')).toBeTruthy()
     fireEvent.click(save)
-    expect(await within(page()).findByText(/Limites salvos: sem limite de agentes, 3 por tarefa/)).toBeTruthy()
+    expect(
+      await within(page()).findByText(/Limites salvos: sem limite de agentes, 3 por tarefa/),
+    ).toBeTruthy()
     expect(api.callsTo('settings.save')).toEqual([
       { maxLiveAgents: null, maxLiveMembersPerTask: 3 },
     ])
@@ -197,6 +199,35 @@ describe('Configurações', () => {
     }))
     fireEvent.click(await screen.findByRole('button', { name: 'Abrir no terminal' }))
     expect((await screen.findByRole('alert')).textContent).toContain('nenhum terminal')
+  })
+
+  it('Atualização: verifica, mostra o resultado e o erro', async () => {
+    await renderApp()
+    openSettings()
+    const btn = await within(page()).findByRole('button', { name: 'Verificar atualização' })
+    fireEvent.click(btn)
+    expect(
+      await within(page()).findByText('Você já está na versão mais recente (0.1.3).'),
+    ).toBeTruthy()
+    api.updateCheck = { current: '0.1.3', available: '0.2.0' }
+    fireEvent.click(within(page()).getByRole('button', { name: 'Verificar atualização' }))
+    expect(await within(page()).findByText(/Versão 0\.2\.0 encontrada\. Baixando/)).toBeTruthy()
+    api.overrides.set('update.check', () => ({
+      ok: false,
+      error: { code: 'unavailable', message: 'A atualização só funciona no app instalado.' },
+    }))
+    fireEvent.click(within(page()).getByRole('button', { name: 'Verificar atualização' }))
+    expect((await within(page()).findByRole('alert')).textContent).toContain('só funciona')
+    expect(api.callsTo('update.check')).toHaveLength(3)
+  })
+
+  it('Atualização: com versão pronta, Reiniciar e atualizar usa update.install', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    await renderApp()
+    act(() => api.emit('update.state', { status: 'ready', version: '0.2.0' }))
+    openSettings()
+    fireEvent.click(await within(page()).findByRole('button', { name: 'Reiniciar e atualizar' }))
+    await waitFor(() => expect(api.callsTo('update.install')).toHaveLength(1))
   })
 
   it('Second Brain: salva a chave, mostra só o final e remove', async () => {
@@ -1374,5 +1405,99 @@ describe('Atualização e novidades', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Entendi' }))
     await waitFor(() => expect(api.callsTo('app.whatsNewSeen')).toEqual([{}]))
     expect(screen.queryByRole('dialog', { name: /Novidades/ })).toBeNull()
+  })
+})
+
+describe('abas Iniciar e Terminal', () => {
+  it('sem subtarefa: Líder, Iniciar e Terminal; com subtarefa: cinco abas', async () => {
+    await renderApp()
+    const names = () => screen.getAllByRole('tab').map((t) => t.textContent)
+    expect(names()).toEqual(['Líder', 'Iniciar', 'Terminal'])
+    fireEvent.click(screen.getByTestId('subtask-d1'))
+    await within(middle()).findByTestId('delivery')
+    expect(names()).toEqual(['Entrega', 'Atividade', 'Líder', 'Iniciar', 'Terminal'])
+  })
+
+  it('o terminal do Líder continua montado ao trocar de aba', async () => {
+    await renderApp()
+    await within(middle()).findByTestId('xterm')
+    fireEvent.click(screen.getByRole('tab', { name: 'Iniciar' }))
+    expect(within(middle()).getByTestId('leader-terminal').closest('[hidden]')).not.toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: 'Líder' }))
+    expect(api.callsTo('leader.ensure')).toHaveLength(1)
+  })
+
+  it('primeiro uso: formulário salva o comando e inicia; depois Parar', async () => {
+    await renderApp()
+    fireEvent.click(screen.getByRole('tab', { name: 'Iniciar' }))
+    expect(within(middle()).getByText('Como iniciar esta tarefa?')).toBeTruthy()
+    fireEvent.change(within(middle()).getByLabelText('Comando'), { target: { value: 'pnpm dev' } })
+    fireEvent.change(within(middle()).getByLabelText(/^Pasta/), { target: { value: 'apps/web' } })
+    fireEvent.click(within(middle()).getByRole('button', { name: 'Salvar e iniciar' }))
+
+    await within(middle()).findByText('rodando · pnpm dev')
+    expect(api.callsTo('tasks.setStartCommand')).toContainEqual({
+      taskId: 't1',
+      command: 'pnpm dev',
+      dir: 'apps/web',
+    })
+    expect(api.callsTo('taskProcess.start')).toContainEqual({
+      taskId: 't1',
+      kind: 'start',
+      restart: false,
+    })
+
+    fireEvent.click(within(middle()).getByRole('button', { name: 'Reiniciar' }))
+    await waitFor(() =>
+      expect(api.callsTo('taskProcess.start')).toContainEqual({
+        taskId: 't1',
+        kind: 'start',
+        restart: true,
+      }),
+    )
+    fireEvent.click(within(middle()).getByRole('button', { name: 'Parar' }))
+    expect(api.callsTo('taskProcess.stop')).toContainEqual({ taskId: 't1', kind: 'start' })
+  })
+
+  it('comando salvo e parado: botão Iniciar, comando e Editar comando', async () => {
+    const data = mockupData()
+    data.tasks[0]!.startCommand = 'pnpm dev'
+    await renderApp(data)
+    fireEvent.click(screen.getByRole('tab', { name: 'Iniciar' }))
+    const idle = await within(middle()).findByTestId('start-idle')
+    expect(idle.textContent).toContain('pnpm dev')
+    expect(within(idle).getByRole('button', { name: 'Editar comando' })).toBeTruthy()
+    fireEvent.click(within(idle).getByRole('button', { name: 'Iniciar' }))
+    await within(middle()).findByTestId('start-running')
+  })
+
+  it('Terminal abre o shell no primeiro clique e manda a digitação ao pty', async () => {
+    await renderApp()
+    expect(api.callsTo('taskProcess.start')).toHaveLength(0)
+    fireEvent.click(screen.getByRole('tab', { name: 'Terminal' }))
+    await waitFor(() =>
+      expect(api.callsTo('taskProcess.start')).toContainEqual({
+        taskId: 't1',
+        kind: 'shell',
+        restart: false,
+      }),
+    )
+    const input = xtermInputs.at(-1)
+    await waitFor(() => expect(within(middle()).getByText(/Pasta: \/repo\/wt/)).toBeTruthy())
+    input?.('ls\r')
+    await waitFor(() =>
+      expect(api.callsTo('terminal.write')).toContainEqual({
+        sessionId: expect.stringContaining('tp-t1:shell'),
+        data: 'ls\r',
+      }),
+    )
+    act(() =>
+      api.emit('terminal.exit', {
+        sessionId: (api.processes.get('t1:shell') as { ptyId: string }).ptyId,
+        exitCode: 0,
+        signal: null,
+      }),
+    )
+    expect(within(middle()).getByRole('button', { name: 'Novo shell' })).toBeTruthy()
   })
 })
