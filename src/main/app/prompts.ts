@@ -37,7 +37,7 @@ const LEADER_TOOLS_HINT = [
 ].join('\n')
 
 /**
- * Regra de fim do Lider. Vai sempre no prompt inicial, mesmo com prompt de papel proprio,
+ * Regra de fim do Lider. Vai sempre no prompt do Lider (prompt de sistema no Claude, inicial no Codex), mesmo com prompt de papel proprio,
  * porque e o unico jeito de a tarefa ir para "Em revisão".
  */
 export const LEADER_FINISH_RULE = [
@@ -85,6 +85,11 @@ export function composeLeaderPrompt(input: {
   if (!rendered.includes('tarefa_concluir')) parts.push(LEADER_FINISH_RULE)
   if (rendered) parts.push(LEADER_APP_CONTEXT)
   return parts.join('\n\n')
+}
+
+/** Primeira mensagem visivel do Lider Claude; o papel inteiro vai no prompt de sistema. */
+export function composeLeaderKickoff(task: Task): string {
+  return `Tarefa: ${task.title.replace(/\s*[\r\n]+\s*/g, ' ').trim()}. Comece.`
 }
 
 /** Prompt de sistema do membro: o prompt do papel com as variaveis da subtarefa. */

@@ -69,6 +69,7 @@ import {
   type SqliteTaskService,
 } from '../tasks'
 import {
+  composeLeaderKickoff,
   composeLeaderPrompt,
   composeMemberAnswerPrompt,
   composeMemberFirstPrompt,
@@ -393,6 +394,10 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       subtaskId: null,
     })
     const size = this.deps.terminalSize ?? { cols: 120, rows: 32 }
+    const leaderPrompt =
+      task.kind === 'solo' && !role
+        ? null
+        : composeLeaderPrompt({ task, cwd, template: role?.promptTemplate ?? null })
     let launched
     try {
       launched = await this.leader.launcher.launch({
@@ -401,10 +406,15 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         provider,
         model: role?.model ?? null,
         cwd,
+        // Claude: papel no prompt de sistema (tambem no resume, para o papel editado valer
+        // e sobreviver ao /compact) e primeira mensagem curta. Codex: papel como prompt inicial.
+        systemPrompt: provider === 'claude' ? leaderPrompt : null,
         initialPrompt:
-          resumeId || (task.kind === 'solo' && !role)
+          resumeId || !leaderPrompt
             ? null
-            : composeLeaderPrompt({ task, cwd, template: role?.promptTemplate ?? null }),
+            : provider === 'claude'
+              ? composeLeaderKickoff(task)
+              : leaderPrompt,
         resumeProviderSessionId: resumeId,
         initialNotices: this.tasks
           .listPendingLeaderNotices(taskId)

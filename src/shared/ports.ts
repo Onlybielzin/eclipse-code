@@ -478,6 +478,8 @@ export interface LeaderLaunchRequest {
   cwd: string
   /** Prompt do papel ja renderizado. Ignorado ao retomar. */
   initialPrompt: string | null
+  /** Prompt de sistema do Lider (so o Claude usa; vai em toda abertura, inclusive no resume). */
+  systemPrompt: string | null
   /** Id do provedor para `claude --resume <id>` / `codex resume <id>`. null abre nova. */
   resumeProviderSessionId: string | null
   /** Avisos pendentes da fila duravel; o launcher grava na caixa do gancho (so Claude) antes do spawn. */

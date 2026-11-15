@@ -96,6 +96,7 @@ function request(h: Harness, overrides: Partial<LeaderLaunchRequest> = {}): Lead
     model: null,
     cwd: h.cwd,
     initialPrompt: 'Você é o Líder.',
+  systemPrompt: null,
     resumeProviderSessionId: null,
     mcpServer: {
       name: 'eclipse',

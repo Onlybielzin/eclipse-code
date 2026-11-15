@@ -10,6 +10,7 @@ const request: LeaderLaunchRequest = {
   model: null,
   cwd: '/tmp/wt',
   initialPrompt: 'oi',
+systemPrompt: null,
   resumeProviderSessionId: null,
   mcpServer: { name: 'eclipse', command: 'n', args: [], env: {} },
   env: {},

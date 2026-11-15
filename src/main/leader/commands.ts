@@ -154,6 +154,9 @@ export function buildLeaderCommand(
     if (options.fullAccess) args.push('--dangerously-skip-permissions')
     if (model) args.push('--model', model)
     // --mcp-config e variadico: vem antes de outra opcao, nunca logo antes do prompt.
+    // A forma com '=' garante que texto comecando com '-' nao vire opcao.
+    const systemPrompt = (request.systemPrompt ?? '').trim()
+    if (systemPrompt.length > 0) args.push(`--append-system-prompt=${systemPrompt}`)
     args.push('--mcp-config', buildClaudeMcpConfigArg(request.mcpServer))
     if (options.claudeHookSettingsPath) args.push('--settings', options.claudeHookSettingsPath)
     if (resumeId) {

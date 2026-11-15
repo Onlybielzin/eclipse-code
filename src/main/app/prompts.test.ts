@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Subtask, Task, UserQuestion } from '@shared/domain'
 import {
+  composeLeaderKickoff,
   composeLeaderPrompt,
   composeMemberFirstPrompt,
   LEADER_FINISH_RULE,
@@ -128,5 +129,12 @@ describe('contexto do app no prompt do Líder', () => {
     expect(prompt.endsWith(LEADER_APP_CONTEXT)).toBe(true)
     expect(prompt).toContain('NÃO tem canvas')
     expect(prompt).toContain('pergunta_repassar')
+  })
+})
+
+describe('composeLeaderKickoff', () => {
+  it('título numa linha só', () => {
+    const task = { title: 'Login\n novo' } as Parameters<typeof composeLeaderKickoff>[0]
+    expect(composeLeaderKickoff(task)).toBe('Tarefa: Login novo. Comece.')
   })
 })

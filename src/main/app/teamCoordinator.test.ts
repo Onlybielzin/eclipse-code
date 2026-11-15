@@ -256,6 +256,25 @@ describe('aviso de reinício ao Líder retomado', () => {
   })
 })
 
+describe('Líder Claude: prompt de sistema', () => {
+  it('sessão nova: papel inteiro no systemPrompt e primeira mensagem curta', async () => {
+    const h = setup()
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const launch = h.launches.at(-1)
+    expect(launch?.systemPrompt).toContain('tarefa_concluir')
+    expect(launch?.initialPrompt).toBe(`Tarefa: ${h.fx.task.title}. Comece.`)
+  })
+
+  it('retomada: systemPrompt vai de novo e não há primeira mensagem', async () => {
+    const h = setup({ transcripts: new Set(['velho-1']) })
+    seedPreviousLeader(h, h.fx.task.id, 'velho-1')
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const launch = h.launches.at(-1)
+    expect(launch?.systemPrompt).toContain('tarefa_concluir')
+    expect(launch?.initialPrompt).toBeNull()
+  })
+})
+
 describe('Líder: retomada que não existe mais', () => {
   it('sem transcript do provedor abre sessão nova em vez de --resume', async () => {
     const h = setup()

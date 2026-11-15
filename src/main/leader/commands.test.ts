@@ -23,6 +23,7 @@ function request(overrides: Partial<LeaderLaunchRequest> = {}): LeaderLaunchRequ
     model: null,
     cwd: '/tmp/wt',
     initialPrompt: 'Planeje a tarefa',
+    systemPrompt: null,
     resumeProviderSessionId: null,
     mcpServer,
     env: { EXTRA: 'x' },
@@ -99,6 +100,26 @@ describe('buildLeaderCommand (Claude)', () => {
     expect(command.args).not.toContain('Planeje a tarefa')
   })
 
+  it('systemPrompt: --append-system-prompt antes de --mcp-config, posicional curto', () => {
+    const command = buildLeaderCommand(
+      request({ systemPrompt: '-Papel completo\nlinha 2', initialPrompt: 'Tarefa: X. Comece.' }),
+      options,
+    )
+    const i = command.args.indexOf('--append-system-prompt=-Papel completo\nlinha 2')
+    expect(i).toBeGreaterThan(-1)
+    expect(i).toBeLessThan(command.args.indexOf('--mcp-config'))
+    expect(command.args.at(-1)).toBe('Tarefa: X. Comece.')
+  })
+
+  it('systemPrompt no resume: presente e sem posicional', () => {
+    const command = buildLeaderCommand(
+      request({ systemPrompt: 'Papel', initialPrompt: null, resumeProviderSessionId: 'abc' }),
+      options,
+    )
+    expect(command.args).toContain('--append-system-prompt=Papel')
+    expect(command.args.slice(-2)).toEqual(['--resume', 'abc'])
+  })
+
   it('prompt que comeca com - vem depois de --', () => {
     const command = buildLeaderCommand(request({ initialPrompt: '-x perigoso' }), options)
     expect(command.args.slice(-2)).toEqual(['--', '-x perigoso'])
@@ -118,7 +139,11 @@ describe('buildLeaderCommand (Claude)', () => {
 
 describe('buildLeaderCommand (Codex)', () => {
   it('nova sessao: -c mcp_servers, modelo e prompt depois de --', () => {
-    const command = buildLeaderCommand(request({ provider: 'codex', model: 'gpt-5' }), options)
+    const command = buildLeaderCommand(
+      request({ provider: 'codex', model: 'gpt-5', systemPrompt: 'ignorado' }),
+      options,
+    )
+    expect(command.args.join(' ')).not.toContain('append-system-prompt')
     expect(command.command).toBe('codex')
     expect(command.args).toEqual([
       '--dangerously-bypass-approvals-and-sandbox',
