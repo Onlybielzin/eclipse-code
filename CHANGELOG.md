@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.6 - 2026-11-14
+
+- Terminal do Líder: selecionar texto já copia, Ctrl+C com seleção copia e Ctrl+V cola. Sem seleção, Ctrl+C continua interrompendo.
+- Saiu o botão Abrir no terminal e a seção Terminal das Configurações.
+
 ## 0.1.5 - 2026-11-14
 
 - Novo botão Abrir no terminal: abre a pasta da tarefa no terminal que você escolher nas Configurações.
