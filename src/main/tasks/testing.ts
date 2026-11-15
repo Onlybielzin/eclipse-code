@@ -45,6 +45,8 @@ export interface TeamFixture {
 
 export function seedTeam(service: SqliteTaskService, rootPath = '/repo/projeto'): TeamFixture {
   const project = service.addProject({ rootPath })
+  // Os testes montam o proprio time: tira o time padrao que o projeto novo ganha.
+  for (const role of service.listRoles(project.id)) service.deleteRole(role.id)
   const lead = service.saveRole({
     projectId: project.id,
     name: 'Líder',

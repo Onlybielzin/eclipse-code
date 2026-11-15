@@ -153,6 +153,9 @@ export function importLegacyProjects(
     else {
       project = service.addProject({ rootPath: lp.rootPath, name: lp.name })
       report.projectsCreated.push(project)
+      // O time do app antigo substitui o time padrao.
+      if (lp.roles.length > 0)
+        for (const r of service.listRoles(project.id)) service.deleteRole(r.id)
     }
     for (const skipped of lp.skippedRoles) {
       report.rolesSkipped.push({ project: lp.name, ...skipped })

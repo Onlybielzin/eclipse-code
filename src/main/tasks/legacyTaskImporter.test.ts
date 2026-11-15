@@ -101,6 +101,7 @@ describe('importação das tarefas do app antigo', () => {
     const project = service.addProject({ rootPath: '/repo/ereemby' })
     service.saveRole({
       projectId: project.id,
+      roleId: service.findRoleByName(project.id, 'Líder')?.id,
       name: 'Líder',
       description: '',
       provider: 'claude',
