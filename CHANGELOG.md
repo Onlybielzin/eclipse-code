@@ -2,6 +2,13 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.8 - 2026-11-15
+
+- Criar tarefa agora abre um modal com 3 tipos: Com Líder e time, Agente avulso e Terminal.
+- Novo tipo Terminal: abre só o shell, sem agente. Por padrão roda na pasta do projeto, sem worktree.
+- Tarefa com Líder e time pode rodar sem worktree, na pasta do projeto e na branch atual.
+- O modal mostra antes de criar a branch ou a pasta que a tarefa vai usar, e aceita uma branch de origem.
+
 ## 0.1.7 - 2026-11-14
 
 - Projeto novo já nasce com o time padrão: Líder, Dev e Revisor. Antes não dava para criar tarefa de time num projeto novo.

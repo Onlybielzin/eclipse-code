@@ -4,6 +4,7 @@ import {
   composeLeaderKickoff,
   composeLeaderPrompt,
   composeMemberFirstPrompt,
+  composeMemberResumePrompt,
   LEADER_FINISH_RULE,
   LEADER_APP_CONTEXT,
   composeQuestionNotice,
@@ -129,6 +130,34 @@ describe('contexto do app no prompt do Líder', () => {
     expect(prompt.endsWith(LEADER_APP_CONTEXT)).toBe(true)
     expect(prompt).toContain('NÃO tem canvas')
     expect(prompt).toContain('pergunta_repassar')
+    expect(prompt).toContain('A worktree e a branch desta tarefa já existem')
+  })
+
+  it('tarefa sem worktree troca a linha da worktree pelo aviso da pasta do projeto', () => {
+    const prompt = composeLeaderPrompt({
+      task: { ...t, worktreePath: null, branch: null } as typeof t,
+      cwd: '/repo',
+      template: 'Lidere {{tarefa}} na branch {{branch}}.',
+    })
+    expect(prompt).toContain('Esta tarefa não tem worktree')
+    expect(prompt).toContain('pasta do projeto, na branch atual')
+    expect(prompt).not.toContain('já existem')
+  })
+})
+
+describe('aviso de tarefa sem worktree', () => {
+  it('Líder sem prompt de papel também recebe o aviso', () => {
+    const prompt = composeLeaderPrompt({
+      task: { ...task, worktreePath: null, branch: null },
+      cwd: '/repo',
+      template: '',
+    })
+    expect(prompt).toContain('Esta tarefa não tem worktree')
+  })
+
+  it('prompt de retomada do membro diz onde ficou o trabalho', () => {
+    expect(composeMemberResumePrompt('siga', true)).toContain('continua na worktree')
+    expect(composeMemberResumePrompt('siga', false)).toContain('continua na pasta do projeto')
   })
 })
 

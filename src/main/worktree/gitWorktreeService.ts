@@ -8,6 +8,7 @@
  */
 import { appendFile, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { DEFAULT_BRANCH_PREFIX, slugify } from '@shared/branch'
 import { DomainError } from '@shared/domain'
 import type { CreateWorktreeRequest, WorktreeInfo, WorktreeService } from '@shared/ports'
 import {
@@ -18,22 +19,8 @@ import {
   type GitResult,
 } from './git'
 
-export const DEFAULT_BRANCH_PREFIX = 'feat/'
+export { DEFAULT_BRANCH_PREFIX, slugify }
 const MAX_SUFFIX = 99
-const MAX_SLUG_CHARS = 48
-
-/** "Corrigir Login Já!" -> "corrigir-login-ja". Vazio vira "tarefa". */
-export function slugify(text: string): string {
-  const slug = text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, MAX_SLUG_CHARS)
-    .replace(/-+$/g, '')
-  return slug.length > 0 ? slug : 'tarefa'
-}
 
 function requireAbsolute(path: string, label: string): string {
   const trimmed = path.trim()

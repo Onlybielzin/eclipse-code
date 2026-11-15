@@ -460,9 +460,6 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     if (record.worktreePath === null && (record.branch !== null || record.baseBranch !== null)) {
       throw new DomainError('invalid_input', 'branch sem worktree')
     }
-    if (record.kind === 'team' && record.worktreePath === null) {
-      throw new DomainError('invalid_input', 'tarefa de time precisa de worktree')
-    }
     return this.write(() => {
       this.getProject(record.projectId)
       let leadRoleId = record.leadRoleId
@@ -472,9 +469,6 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         if (!leadRoleId) {
           throw new DomainError('invalid_input', 'o projeto não tem papel de Líder')
         }
-      }
-      if (record.kind === 'solo' && !leadRoleId && !record.soloProvider) {
-        throw new DomainError('invalid_input', 'avulso precisa de papel ou de provedor')
       }
       const now = this.clock.now()
       const task: Task = {

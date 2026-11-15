@@ -100,7 +100,7 @@ export type PromptTemplateVariable = (typeof PROMPT_TEMPLATE_VARIABLES)[number]
 // Task (contextId no A2A)
 // ---------------------------------------------------------------------------
 
-/** 'team': Lider + subtarefas. 'solo': secao "Avulsos", tarefa de um item, so o terminal. */
+/** 'team': Lider + subtarefas. 'solo': secao "Avulsos": agente (papel ou provedor) ou Terminal (sem os dois). */
 export const TASK_KINDS = ['team', 'solo'] as const
 export type TaskKind = (typeof TASK_KINDS)[number]
 
@@ -157,7 +157,7 @@ export interface Task {
   kind: TaskKind
   /**
    * Pasta onde o Lider e os membros rodam. null = sem worktree propria, roda na
-   * raiz do projeto (permitido so para kind 'solo').
+   * raiz do projeto, na branch atual (vale para 'solo' e 'team').
    */
   worktreePath: string | null
   /** Branch da worktree. null quando worktreePath e null. */
@@ -166,7 +166,7 @@ export interface Task {
   baseBranch: string | null
   /** Papel usado para abrir o Lider (ou o agente avulso). */
   leadRoleId: RoleId | null
-  /** Provedor do agente avulso quando leadRoleId e null (kind 'solo'). */
+  /** Provedor do agente avulso quando leadRoleId e null (kind 'solo'); sem os dois = Terminal. */
   soloProvider: Provider | null
   status: TaskStatus
   /** Status de trabalho mostrado na lista (ver TASK_WORKFLOW_STATUSES). */
@@ -178,6 +178,11 @@ export interface Task {
   createdAt: EpochMs
   updatedAt: EpochMs
   archivedAt: EpochMs | null
+}
+
+/** Terminal: avulso sem agente (so o shell da aba Terminal, sem Sessão nem vaga). */
+export function isTerminalTask(task: Pick<Task, 'kind' | 'leadRoleId' | 'soloProvider'>): boolean {
+  return task.kind === 'solo' && !task.leadRoleId && !task.soloProvider
 }
 
 // ---------------------------------------------------------------------------

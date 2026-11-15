@@ -83,11 +83,11 @@ describe('AppStore', () => {
     expect(store.getState().error).toBe('git falhou ao criar a worktree')
   })
 
-  it('tarefa de time sempre pede worktree', async () => {
+  it('tarefa de time respeita useWorktree false', async () => {
     const { api, store } = await started()
     await store.createTask({ title: 'nova', kind: 'team', useWorktree: false })
     expect(api.callsTo('tasks.create')).toEqual([
-      { projectId: 'p1', title: 'nova', kind: 'team', useWorktree: true },
+      { projectId: 'p1', title: 'nova', kind: 'team', useWorktree: false },
     ])
   })
 

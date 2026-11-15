@@ -43,12 +43,12 @@ describe('parseIpcInvokeRequest', () => {
     expect(parseIpcInvokeRequest({ channel: 'settings.get', input: { x: 1 } }).ok).toBe(false)
   })
 
-  it('tarefa de time exige worktree', () => {
+  it('tarefa de time aceita useWorktree false (roda na raiz)', () => {
     const r = parseIpcInvokeRequest({
       channel: 'tasks.create',
       input: { projectId: 'p', title: 'x', kind: 'team', useWorktree: false },
     })
-    expect(r.ok).toBe(false)
+    expect(r.ok).toBe(true)
   })
 
   it('projeto exige caminho absoluto', () => {

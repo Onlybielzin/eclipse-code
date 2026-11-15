@@ -396,6 +396,8 @@ export class FakeApi implements EclipseApi {
       case 'tasks.create': {
         const task = makeTask(`t-new-${d.tasks.length + 1}`, String(input.title), {
           kind: input.kind as Task['kind'],
+          leadRoleId: input.kind === 'team' ? 'lead' : null,
+          soloProvider: (input.soloProvider as Task['soloProvider']) ?? null,
           createdAt: T0 + 10_000,
         })
         d.tasks.push(task)
