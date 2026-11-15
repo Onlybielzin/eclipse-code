@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.10 - 2026-11-15
+
+- Ao voltar para um projeto, o app reabre a última tarefa que estava selecionada nele, com a subtarefa que estava aberta.
+
 ## 0.1.9 - 2026-11-15
 
 - Ao abrir o app, os Líderes voltam com a conversa anterior, mas nenhum começa a trabalhar sozinho.
