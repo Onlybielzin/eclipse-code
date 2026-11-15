@@ -46,11 +46,11 @@ export function claudeHookPaths(hooksRoot: string, sessionId: string): ClaudeHoo
 
 /**
  * Script do gancho. Le o JSON do stdin, guarda so os campos que o app usa e
- * acrescenta uma linha ao arquivo de eventos. Em PostToolUse, UserPromptSubmit e Stop
+ * acrescenta uma linha ao arquivo de eventos. Em SessionStart, PostToolUse, UserPromptSubmit e Stop
  * tambem reivindica a caixa de avisos (inbox.json, renameSync: quem renomear primeiro
  * leva) e entrega o texto ao Claude. Nunca segura o Claude: sai em 2 s e sempre com
  * codigo 0. Entrega primeiro, registra NoticesDelivered depois: falha no meio duplica
- * o aviso (o app cola de novo), nunca o perde. Stop com entrega nao grava o evento Stop,
+ * o aviso (o app grava de novo), nunca o perde. Stop com entrega nao grava o evento Stop,
  * porque o Claude continua o turno.
  */
 export const CLAUDE_HOOK_SCRIPT = String.raw`
@@ -60,7 +60,7 @@ import { dirname, join } from 'node:path';
 const target = process.argv[2];
 const deadline = setTimeout(() => process.exit(0), 2000);
 const MAX_NOTICE_CHARS = 9000;
-const NOTICE_EVENTS = ['PostToolUse', 'UserPromptSubmit', 'Stop'];
+const NOTICE_EVENTS = ['SessionStart', 'PostToolUse', 'UserPromptSubmit', 'Stop'];
 function claimNotices() {
   const inbox = join(dirname(target), 'inbox.json');
   const mine = inbox + '.claimed-' + randomUUID();

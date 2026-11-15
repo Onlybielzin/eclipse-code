@@ -20,6 +20,7 @@ import {
   type ClaudeHookPaths,
 } from './claudeHooks'
 import { envValue } from '../terminal/spawnEnv'
+import { fitInbox, writeInbox } from './inbox'
 import { buildLeaderCommand, claudeSessionIdFor } from './commands'
 import { resolveExecutableOnPath, wrapWindowsScript } from './executable'
 import type { LeaderSessionRegistry } from './leaderSessions'
@@ -87,6 +88,11 @@ export function createLeaderLauncher(options: LeaderLauncherOptions): LeaderLaun
             `Não foi possível preparar os ganchos do Claude: ${error instanceof Error ? error.message : String(error)}`,
           )
         }
+      }
+      // Depois de limpar a caixa e antes do spawn: o SessionStart do Claude ja leva os avisos.
+      // Se falhar, o relay grava na proxima oferta (nunca cola).
+      if (hooks && request.initialNotices?.length) {
+        await writeInbox(hooks, fitInbox(request.initialNotices)).catch(() => undefined)
       }
       const startedAt: EpochMs = now()
       let spawned

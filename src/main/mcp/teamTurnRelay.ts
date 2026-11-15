@@ -191,8 +191,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
         if (pending.length === 0) return
         const leader = tasks.getLiveLeaderSession(taskId)
         if (!leader) return
-        // Lider Claude trabalhando: o aviso vai pela caixa do gancho e sai da fila so com
-        // notices-delivered. Do contrario (ocioso, Codex), cola o mais antigo.
+        // Lider Claude: o aviso vai so pela caixa do gancho e sai da fila com notices-delivered;
+        // nada e colado. So Codex (sem gancho) ou sessao encerrada devolve aviso para colar.
         const toPaste = relay.offer
           ? await relay.offer(
               leader.id,

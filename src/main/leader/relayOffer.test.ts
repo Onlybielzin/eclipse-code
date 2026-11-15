@@ -83,18 +83,19 @@ describe('LeaderRelay.offer', () => {
     expect(await claimInbox(h.hooks)).toEqual([A])
   })
 
-  it('Lider ocioso: recolhe a caixa e devolve tudo para colar', async () => {
+  it('Lider Claude ocioso: grava na caixa, devolve [] e nada e colado', async () => {
     const h = await setup()
     await h.hookEvent({ event: 'UserPromptSubmit' })
     await vi.waitFor(() => expect(h.registry.get('L1')?.activity).toBe('working'))
     await h.relay.offer!('L1', [A])
     await h.hookEvent({ event: 'Stop' })
     await vi.waitFor(() => expect(h.registry.get('L1')?.activity).toBe('idle'))
-    expect(await h.relay.offer!('L1', [A, B])).toEqual([A, B])
-    expect(await claimInbox(h.hooks)).toEqual([])
+    expect(await h.relay.offer!('L1', [A, B])).toEqual([])
+    expect(h.writes).toEqual([])
+    expect(await claimInbox(h.hooks)).toEqual([A, B])
   })
 
-  it('gancho levou a caixa e o Lider ficou ocioso antes do evento: nao cola de novo', async () => {
+  it('gancho levou a caixa e o Lider ficou ocioso antes do evento: nao regrava o aviso em voo', async () => {
     const h = await setup()
     await h.hookEvent({ event: 'UserPromptSubmit' })
     await vi.waitFor(() => expect(h.registry.get('L1')?.activity).toBe('working'))
@@ -102,7 +103,8 @@ describe('LeaderRelay.offer', () => {
     await claimInbox(h.hooks) // gancho levou, NoticesDelivered ainda nao lido
     await h.hookEvent({ event: 'Stop' })
     await vi.waitFor(() => expect(h.registry.get('L1')?.activity).toBe('idle'))
-    expect(await h.relay.offer!('L1', [A, B])).toEqual([B])
+    expect(await h.relay.offer!('L1', [A, B])).toEqual([])
+    expect(await claimInbox(h.hooks)).toEqual([B])
   })
 
   it('aviso descartado enquanto estava na caixa sai da caixa', async () => {

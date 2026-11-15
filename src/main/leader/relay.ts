@@ -3,8 +3,9 @@
  *
  * Espera o Lider ficar pronto (LeaderSessionRegistry.isReadyForInput), cola o texto com
  * bracketed paste, espera `submitDelayMs` e manda Enter. Entregas da mesma sessao saem
- * em fila, uma por vez. `offer` entrega pela caixa do gancho (inbox.ts) quando o Lider Claude
- * esta trabalhando; ver LeaderRelay em src/shared/ports.ts. Enquanto o Lider esta ocupado, tenta de novo a cada `retryDelayMs`
+ * em fila, uma por vez. `offer` entrega ao Lider Claude so pela caixa do gancho (inbox.ts),
+ * em qualquer atividade, e nada e colado; so o Codex (sem gancho) recebe colagem. Ver LeaderRelay em
+ * src/shared/ports.ts. Enquanto o Lider esta ocupado, tenta de novo a cada `retryDelayMs`
  * ate `maxAttempts`. Sessao desconhecida ou encerrada: { delivered: false }.
  */
 import type { SessionId } from '@shared/domain'
@@ -76,19 +77,19 @@ export function createLeaderRelay(options: LeaderRelayOptions): LeaderRelay {
       if (!boxedIds.has(id) && now() - at >= inFlightTtlMs) flying.delete(id)
     }
     const fresh = notices.filter((n) => !boxedIds.has(n.id) && !flying.has(n.id))
-    if (session.activity === 'working') {
+    if (session.activity !== 'exited') {
       const next = fitInbox([...boxed, ...fresh])
       try {
         await writeInbox(hooks, next)
       } catch (error) {
-        // Caixa nao gravada: o que foi reivindicado nao pode sumir; cola como antes.
+        // Caixa nao gravada: o que foi reivindicado volta a ser oferecido na proxima rodada.
         for (const n of boxed) flying.delete(n.id)
         throw error
       }
       for (const n of next) flying.set(n.id, flying.get(n.id) ?? now())
       return []
     }
-    // Nao esta trabalhando: o que estava na caixa volta a ser colavel (se o gancho nao levou).
+    // Sessao encerrada: nada a gravar; o que estava na caixa volta a ser oferecido na proxima abertura.
     for (const n of boxed) flying.delete(n.id)
     return notices.filter((n) => !flying.has(n.id))
   }

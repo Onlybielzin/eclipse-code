@@ -480,6 +480,8 @@ export interface LeaderLaunchRequest {
   initialPrompt: string | null
   /** Id do provedor para `claude --resume <id>` / `codex resume <id>`. null abre nova. */
   resumeProviderSessionId: string | null
+  /** Avisos pendentes da fila duravel; o launcher grava na caixa do gancho (so Claude) antes do spawn. */
+  initialNotices?: readonly { id: number; text: string }[]
   mcpServer: McpServerLaunch
   /** Variaveis extras (o launcher mescla com process.env e ENV.marker). */
   env: Record<string, string>
@@ -523,9 +525,9 @@ export interface LeaderRelay {
   deliver(sessionId: SessionId, text: string): Promise<{ delivered: boolean; attempts: number }>
   /**
    * Oferece os avisos pendentes (do mais antigo ao mais novo) antes de colar. Lider Claude
-   * trabalhando e com ganchos: grava na caixa do gancho e nao devolve nada; o aviso so sai da
-   * fila com o evento notices-delivered. Qualquer outro caso (ocioso, Codex, sem gancho):
-   * recolhe a caixa e devolve os avisos que o chamador ainda deve colar com deliver.
+   * com ganchos (qualquer atividade): grava na caixa do gancho e nao devolve nada; o aviso so sai
+   * da fila com o evento notices-delivered. Codex, sem gancho ou sessao encerrada: devolve os
+   * avisos que o chamador ainda deve colar com deliver.
    * Sem este metodo, o chamador cola tudo.
    */
   offer?(

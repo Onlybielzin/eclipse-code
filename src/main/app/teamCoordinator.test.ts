@@ -215,6 +215,47 @@ function seedPreviousLeader(
   return previous
 }
 
+describe('aviso de reinício ao Líder retomado', () => {
+  const openLostLeader = (h: ReturnType<typeof setup>) =>
+    h.tasks.openSession({
+      taskId: h.fx.task.id,
+      subtaskId: null,
+      roleId: null,
+      kind: 'leader-pty',
+      provider: 'claude',
+      model: null,
+      cwd: '/wt/corrigir-login',
+      providerSessionId: 'conv-1',
+    })
+
+  it('sem subtarefa parada: o Líder retomado recebe 1 aviso de reinício', async () => {
+    const h = setup({ transcripts: new Set(['conv-1']) })
+    openLostLeader(h)
+    const report = await h.coordinator.recover()
+    expect(report.leadersToResume).toHaveLength(1)
+    await h.settle()
+    expect(h.launches.at(-1)?.initialNotices).toHaveLength(1)
+    expect(h.launches.at(-1)?.initialNotices?.[0]?.text).toContain('Nenhuma subtarefa parou')
+  })
+
+  it('com subtarefa parada: só o aviso da subtarefa', async () => {
+    const h = setup({ transcripts: new Set(['conv-1']) })
+    openLostLeader(h)
+    const queued = h.tasks.createSubtask({
+      taskId: h.fx.task.id,
+      roleId: h.fx.dev.id,
+      title: 'na fila',
+      instructions: 'x',
+      referenceTaskIds: [],
+    })
+    await h.coordinator.recover()
+    await h.settle()
+    const texts = h.launches.at(-1)?.initialNotices?.map((n) => n.text) ?? []
+    expect(texts).toHaveLength(1)
+    expect(texts[0]).toContain(queued.id)
+  })
+})
+
 describe('Líder: retomada que não existe mais', () => {
   it('sem transcript do provedor abre sessão nova em vez de --resume', async () => {
     const h = setup()

@@ -1,8 +1,10 @@
+import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { buildClaudeHookSettings, claudeHookPaths, writeClaudeHookFiles } from './claudeHooks'
+import { writeInbox } from './inbox'
 
 const dirs: string[] = []
 afterEach(() => {
@@ -57,5 +59,30 @@ describe('ganchos do Claude', () => {
     const linux = claudeHookPaths(root, 'l')
     await writeClaudeHookFiles(linux, '/opt/app', 'linux')
     expect(() => readFileSync(linux.launcher)).toThrow()
+  })
+
+  it('SessionStart entrega a caixa como additionalContext e grava NoticesDelivered', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'hooks-'))
+    dirs.push(root)
+    const linux = claudeHookPaths(root, 'ss')
+    await writeClaudeHookFiles(linux, process.execPath, 'linux')
+    await writeInbox(linux, [{ id: 7, text: '[eclipse] o app reiniciou' }])
+    const run = spawnSync(process.execPath, [linux.script, linux.events], {
+      input: JSON.stringify({ hook_event_name: 'SessionStart', session_id: 's', source: 'resume' }),
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      encoding: 'utf8',
+    })
+    expect(JSON.parse(run.stdout)).toEqual({
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: '[eclipse] o app reiniciou',
+      },
+    })
+    const lines = readFileSync(linux.events, 'utf8')
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l) as { event: string; ids?: number[] })
+    expect(lines.map((l) => l.event)).toEqual(['NoticesDelivered', 'SessionStart'])
+    expect(lines[0]?.ids).toEqual([7])
   })
 })

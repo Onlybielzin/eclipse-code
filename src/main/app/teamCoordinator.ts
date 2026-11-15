@@ -77,6 +77,7 @@ import {
   composeMemberSystemPrompt,
   composeQuestionNotice,
   composeMemberStoppedNotice,
+  composeLeaderResumedNotice,
   composeSessionLostNotice,
   composeSpawnFailureNotice,
 } from './prompts'
@@ -405,6 +406,9 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
             ? null
             : composeLeaderPrompt({ task, cwd, template: role?.promptTemplate ?? null }),
         resumeProviderSessionId: resumeId,
+        initialNotices: this.tasks
+          .listPendingLeaderNotices(taskId)
+          .map(({ id, text }) => ({ id, text })),
         mcpServer: this.bridge.launchSpec(token),
         env: { ...this.deps.leaderEnv },
         cols: size.cols,
@@ -1001,7 +1005,12 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       composeLostNotice: (subtask) =>
         composeSessionLostNotice(subtask, this.findRole(subtask.roleId)?.name ?? subtask.roleId),
     })
+    const pausedTaskIds = new Set(report.pausedSubtasks.map((s) => s.taskId))
     for (const leader of report.leadersToResume) {
+      // Tarefa com subtarefa parada ja tem um aviso por subtarefa; as demais ganham o de reinicio.
+      if (!pausedTaskIds.has(leader.taskId)) {
+        this.notifyLeader(leader.taskId, composeLeaderResumedNotice())
+      }
       this.track(
         this.ensureLeader(leader.taskId).catch((error: unknown) =>
           this.log.warn('Líder não voltou com --resume', {

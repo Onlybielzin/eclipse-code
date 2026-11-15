@@ -66,7 +66,7 @@ export const LEADER_APP_CONTEXT = [
   '- A worktree e a branch desta tarefa já existem e são a sua pasta atual. Não crie outra.',
   '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
   '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
-  '- Quando um membro termina o turno, o aviso [eclipse] chega como linha no terminal ou como contexto do gancho.',
+  '- Quando um membro termina o turno, o aviso [eclipse] chega como contexto do gancho (Claude) ou como linha no terminal (Codex).',
   '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
   '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
   '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
@@ -193,6 +193,11 @@ export function composeMemberStoppedNotice(subtask: Subtask, roleName: string): 
  */
 export function composeSessionLostNotice(subtask: Subtask, roleName: string): string {
   return `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou no meio. O que o membro já alterou continua na worktree. Para continuar: subtarefa_responder com o que ele deve fazer (o app reabre o membro na mesma conversa). Para encerrar: subtarefa_cancelar.`
+}
+
+/** Aviso ao Lider retomado cuja tarefa nao teve subtarefa parada. */
+export function composeLeaderResumedNotice(): string {
+  return '[eclipse] O app reiniciou e esta sessão foi retomada. Nenhuma subtarefa parou. Continue de onde parou só se houver trabalho pendente; não comece nada novo sem pedido.'
 }
 
 function answerText(question: UserQuestion, answers: readonly QuestionAnswer[]): string {
