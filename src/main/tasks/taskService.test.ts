@@ -4,6 +4,7 @@ import {
   SUBTASK_STATES,
   SUBTASK_TRANSITIONS,
   isFinalSubtaskState,
+  isTerminalTask,
   type DomainEventEnvelope,
   type SubtaskState,
 } from '@shared/domain'
@@ -265,25 +266,38 @@ describe('TaskService: projetos, papéis e tarefas', () => {
     expect(service.getLeadRole(fx.project.id)?.id).toBe(fx.dev.id)
   })
 
-  it('tarefa de time sem papel usa o Líder do projeto; time sem worktree é recusado', () => {
+  it('tarefa de time sem papel usa o Líder do projeto; time sem worktree é aceito', () => {
     const { service } = createHarness()
     const fx = seedTeam(service)
     expect(fx.task.leadRoleId).toBe(fx.lead.id)
     expect(fx.task.contextId).not.toBe(fx.task.id)
-    expect(
-      errorCode(() =>
-        service.createTask({
-          projectId: fx.project.id,
-          title: 't',
-          kind: 'team',
-          worktreePath: null,
-          branch: null,
-          baseBranch: null,
-          leadRoleId: null,
-          soloProvider: null,
-        }),
-      ),
-    ).toBe('invalid_input')
+    const semWorktree = service.createTask({
+      projectId: fx.project.id,
+      title: 't',
+      kind: 'team',
+      worktreePath: null,
+      branch: null,
+      baseBranch: null,
+      leadRoleId: null,
+      soloProvider: null,
+    })
+    expect(semWorktree).toMatchObject({ kind: 'team', worktreePath: null, leadRoleId: fx.lead.id })
+  })
+
+  it('avulso sem papel e sem provedor vira tarefa Terminal', () => {
+    const { service } = createHarness()
+    const fx = seedTeam(service)
+    const task = service.createTask({
+      projectId: fx.project.id,
+      title: 'shell',
+      kind: 'solo',
+      worktreePath: null,
+      branch: null,
+      baseBranch: null,
+      leadRoleId: null,
+      soloProvider: null,
+    })
+    expect(isTerminalTask(task)).toBe(true)
   })
 
   it('arquivar cancela subtarefas abertas, descarta perguntas e bloqueia escrita nova', () => {

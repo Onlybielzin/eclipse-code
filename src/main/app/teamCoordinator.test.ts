@@ -132,7 +132,12 @@ function setup(
     launchSpec: () => ({ name: 'eclipse', command: 'node', args: [], env: {} }),
   } as unknown as McpBridgeServer
   const removedWorktrees: string[] = []
+  const createdWorktrees: unknown[] = []
   const worktrees = {
+    create: async (request: unknown) => {
+      createdWorktrees.push(request)
+      throw new Error('create não deveria ser chamado')
+    },
     remove: async (request: { worktreePath: string }) => {
       removedWorktrees.push(request.worktreePath)
     },
@@ -179,6 +184,7 @@ function setup(
     coordinator,
     emitLeader,
     removedWorktrees,
+    createdWorktrees,
     launches,
     killed,
     alive,
@@ -246,6 +252,43 @@ describe('Líder: retomada que não existe mais', () => {
     // E o próximo ensure não volta ao id velho.
     expect(await h.coordinator.ensureLeader(h.fx.task.id)).toMatchObject({ id: live?.id })
     expect(h.launches).toHaveLength(2)
+  })
+})
+
+describe('tarefa Terminal (avulso sem agente)', () => {
+  const terminal = (h: ReturnType<typeof setup>) =>
+    h.coordinator.createTask({
+      projectId: h.fx.project.id,
+      title: 'shell',
+      kind: 'solo',
+      useWorktree: false,
+    })
+
+  it('criar não abre Líder e ensureLeader recusa', async () => {
+    const h = setup()
+    const task = await terminal(h)
+    await h.settle()
+    expect(h.launches).toEqual([])
+    await expect(h.coordinator.ensureLeader(task.id)).rejects.toMatchObject({
+      code: 'invalid_input',
+      message: 'tarefa de terminal não tem agente',
+    })
+    expect(h.launches).toEqual([])
+  })
+
+  it('time sem worktree abre o Líder na raiz do projeto e não cria worktree', async () => {
+    const h = setup()
+    const task = await h.coordinator.createTask({
+      projectId: h.fx.project.id,
+      title: 't',
+      kind: 'team',
+      useWorktree: false,
+    })
+    await h.settle()
+    expect(task).toMatchObject({ kind: 'team', worktreePath: null, branch: null })
+    expect(h.createdWorktrees).toEqual([])
+    expect(h.launches).toHaveLength(1)
+    expect(h.launches[0]?.cwd).toBe('/repo/projeto')
   })
 })
 

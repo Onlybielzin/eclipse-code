@@ -368,33 +368,43 @@ describe('tela de 3 colunas', () => {
     )
   })
 
+  const openModal = () => {
+    fireEvent.click(screen.getByText('+ tarefa'))
+    return screen.getByRole('dialog', { name: 'Nova tarefa' })
+  }
+
   it('cria tarefa pelo nome e abre o terminal dela', async () => {
     await renderApp()
-    fireEvent.click(screen.getByText('+ tarefa'))
-    const form = screen.getByRole('form', { name: 'Nova tarefa' })
-    fireEvent.change(within(form).getByLabelText('Nome'), {
+    const dialog = openModal()
+    fireEvent.change(within(dialog).getByLabelText('Nome'), {
       target: { value: 'relatório por oferta' },
     })
-    expect(form.textContent).toContain('Cria uma worktree e uma branch')
-    fireEvent.click(within(form).getByText('Criar tarefa'))
+    expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
+      'Cria a branch feat/relatorio-por-oferta a partir de branch padrão',
+    )
+    fireEvent.click(within(dialog).getByText('Criar tarefa'))
     await waitFor(() =>
       expect(api.callsTo('tasks.create')).toEqual([
         { projectId: 'p1', title: 'relatório por oferta', kind: 'team', useWorktree: true },
       ]),
     )
     await waitFor(() => expect(api.callsTo('leader.ensure')).toContainEqual({ taskId: 't-new-4' }))
-    expect(screen.queryByRole('form', { name: 'Nova tarefa' })).toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'Nova tarefa' })).toBeNull()
   })
 
-  it('avulso sem worktree roda na raiz', async () => {
+  it('avulso na pasta do projeto, com Codex', async () => {
     await renderApp()
-    fireEvent.click(screen.getByText('+ tarefa'))
-    const form = screen.getByRole('form', { name: 'Nova tarefa' })
-    fireEvent.change(within(form).getByLabelText('Nome'), { target: { value: 'pergunta rápida' } })
-    fireEvent.click(within(form).getByLabelText(/Avulso/))
-    fireEvent.change(within(form).getByLabelText('Agente'), { target: { value: 'codex' } })
-    fireEvent.click(within(form).getByLabelText(/Criar worktree própria/))
-    fireEvent.click(within(form).getByText('Criar tarefa'))
+    const dialog = openModal()
+    fireEvent.change(within(dialog).getByLabelText('Nome'), {
+      target: { value: 'pergunta rápida' },
+    })
+    fireEvent.click(within(dialog).getByRole('radio', { name: /Agente avulso/ }))
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'Codex' }))
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'Pasta do projeto' }))
+    expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
+      'O agente mexe direto na branch atual do projeto',
+    )
+    fireEvent.click(within(dialog).getByText('Criar tarefa'))
     await waitFor(() =>
       expect(api.callsTo('tasks.create')).toEqual([
         {
@@ -406,6 +416,83 @@ describe('tela de 3 colunas', () => {
         },
       ]),
     )
+  })
+
+  it('Terminal: solo, na pasta do projeto, sem soloProvider e sem Líder', async () => {
+    await renderApp()
+    const dialog = openModal()
+    fireEvent.click(within(dialog).getByRole('radio', { name: /Terminal/ }))
+    expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
+      'Roda em /repo/ereemby, sem worktree',
+    )
+    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'shell' } })
+    // Ctrl+Enter cria.
+    fireEvent.keyDown(within(dialog).getByLabelText('Nome'), { key: 'Enter', ctrlKey: true })
+    await waitFor(() =>
+      expect(api.callsTo('tasks.create')).toEqual([
+        { projectId: 'p1', title: 'shell', kind: 'solo', useWorktree: false },
+      ]),
+    )
+    await waitFor(() => expect(within(middle()).getByTestId('shell-terminal')).toBeTruthy())
+    expect(api.callsTo('leader.ensure')).not.toContainEqual({ taskId: 't-new-4' })
+    expect(
+      within(middle())
+        .getAllByRole('tab')
+        .map((t) => t.textContent),
+    ).toEqual(['Terminal', 'Iniciar'])
+  })
+
+  it('Time na pasta do projeto: aviso âmbar e envia useWorktree false', async () => {
+    await renderApp()
+    const dialog = openModal()
+    const pasta = within(dialog).getByRole('radio', { name: 'Pasta do projeto' })
+    expect((pasta as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.click(pasta)
+    expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
+      'O Líder e os membros mexem direto na branch atual do projeto',
+    )
+    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'sem wt' } })
+    fireEvent.click(within(dialog).getByText('Criar tarefa'))
+    await waitFor(() =>
+      expect(api.callsTo('tasks.create')).toEqual([
+        { projectId: 'p1', title: 'sem wt', kind: 'team', useWorktree: false },
+      ]),
+    )
+  })
+
+  it('a escolha de Onde roda sobrevive à troca de tipo', async () => {
+    await renderApp()
+    const dialog = openModal()
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'Pasta do projeto' }))
+    fireEvent.click(within(dialog).getByRole('radio', { name: /Terminal/ }))
+    fireEvent.click(within(dialog).getByRole('radio', { name: /Com Líder e time/ }))
+    expect(
+      within(dialog).getByRole('radio', { name: 'Pasta do projeto' }).getAttribute('aria-checked'),
+    ).toBe('true')
+  })
+
+  it('Time com Worktree nova: a branch de origem vai no envio', async () => {
+    await renderApp()
+    const dialog = openModal()
+    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'x' } })
+    fireEvent.change(within(dialog).getByLabelText('Branch de origem'), {
+      target: { value: 'develop' },
+    })
+    fireEvent.click(within(dialog).getByText('Criar tarefa'))
+    await waitFor(() =>
+      expect(api.callsTo('tasks.create')).toEqual([
+        { projectId: 'p1', title: 'x', kind: 'team', useWorktree: true, baseBranch: 'develop' },
+      ]),
+    )
+  })
+
+  it('Esc fecha o modal e devolve o foco ao botão', async () => {
+    await renderApp()
+    const button = screen.getByText('+ tarefa')
+    openModal()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: 'Nova tarefa' })).toBeNull()
+    expect(document.activeElement).toBe(button)
   })
 })
 

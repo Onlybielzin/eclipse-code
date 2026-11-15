@@ -1,3 +1,4 @@
+import { isTerminalTask } from '@shared/domain'
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
 import { BrainView } from '../brain/BrainView'
@@ -13,6 +14,10 @@ const LEADER_TABS: { id: MidTab; label: string }[] = [
   { id: 'start', label: 'Iniciar' },
   { id: 'terminal', label: 'Terminal' },
 ]
+const TERMINAL_TABS: { id: MidTab; label: string }[] = [
+  { id: 'terminal', label: 'Terminal' },
+  { id: 'start', label: 'Iniciar' },
+]
 const SUBTASK_TABS: { id: MidTab; label: string }[] = [
   { id: 'delivery', label: 'Entrega' },
   { id: 'activity', label: 'Atividade' },
@@ -24,7 +29,7 @@ export function MiddlePane() {
   const store = useStore()
   const taskId = useAppState((s) => s.selectedTaskId)
   const subtaskId = useAppState((s) => s.selectedSubtaskId)
-  const tab = useAppState((s) => s.midTab)
+  const storeTab = useAppState((s) => s.midTab)
   const brainOpen = useAppState((s) => s.brainOpen)
   const wallOpen = useAppState((s) => s.wallOpen)
   // Cerebro e Parede ocupam o meio inteiro; o terminal do Lider segue montado, escondido.
@@ -69,9 +74,12 @@ export function MiddlePane() {
     )
   }
 
+  // Terminal não tem Líder: qualquer aba que não seja Iniciar mostra o shell.
+  const terminalOnly = !subtask && isTerminalTask(task)
+  const tab = terminalOnly && storeTab !== 'start' ? 'terminal' : storeTab
   const procTab = tab === 'start' || tab === 'terminal'
   const showLeader = subtask ? tab === 'leader' : !procTab
-  const tabs = subtask ? SUBTASK_TABS : LEADER_TABS
+  const tabs = subtask ? SUBTASK_TABS : terminalOnly ? TERMINAL_TABS : LEADER_TABS
   const midTitle = procTab ? (tab === 'start' ? 'Iniciar' : 'Terminal') : null
   const leaderTitle = task.kind === 'team' ? 'Líder · terminal' : 'Terminal'
 
@@ -123,23 +131,25 @@ export function MiddlePane() {
           </div>
         )}
         {wallOpen && <WallView />}
-        <div className="mid-layer" hidden={full || !showLeader}>
-          {task.status === 'archived' ? (
-            <div className="empty" data-testid="task-launched">
-              Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o status
-              no ícone da tarefa.
-            </div>
-          ) : (
-            <>
-              {leaderQuestion && (
-                <div className="leader-question" data-testid="leader-question">
-                  <QuestionBox key={leaderQuestion.id} question={leaderQuestion} />
-                </div>
-              )}
-              <LeaderTerminal key={task.id} task={task} />
-            </>
-          )}
-        </div>
+        {!terminalOnly && (
+          <div className="mid-layer" hidden={full || !showLeader}>
+            {task.status === 'archived' ? (
+              <div className="empty" data-testid="task-launched">
+                Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o
+                status no ícone da tarefa.
+              </div>
+            ) : (
+              <>
+                {leaderQuestion && (
+                  <div className="leader-question" data-testid="leader-question">
+                    <QuestionBox key={leaderQuestion.id} question={leaderQuestion} />
+                  </div>
+                )}
+                <LeaderTerminal key={task.id} task={task} />
+              </>
+            )}
+          </div>
+        )}
         {!full && procTab && (
           <div className="mid-layer">
             {task.status === 'archived' ? (

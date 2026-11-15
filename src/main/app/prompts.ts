@@ -47,30 +47,39 @@ export const LEADER_FINISH_RULE = [
   '"Pronto pra lançar" e "Concluída".',
 ].join(' ')
 
+const LEADER_NO_WORKTREE_LINE =
+  'Esta tarefa não tem worktree: você e os membros rodam na pasta do projeto, na branch atual. Não crie worktree nem branch sem o vings pedir. Os membros dividem a mesma pasta.'
+
 /**
  * Contexto do app que vai SEMPRE no fim do prompt do Lider. Os prompts importados do app
  * antigo (com canvas) falam de card, Space, janela e ferramentas que nao existem mais;
  * este bloco diz o que vale aqui, para o Lider nao procurar o que nao existe.
  */
-export const LEADER_APP_CONTEXT = [
-  '## Como é o app (vale mais que qualquer instrução acima)',
-  'Você está no Eclipse Code novo, que NÃO tem canvas. Não existem card no canvas, Space,',
-  'janela de agente, aba + nem as ferramentas pergunta_criar, perguntas_historico,',
-  'agente_criar, agente_mensagem, agentes_esperar, agente_ler, agente_encerrar e',
-  'feature_criar_space. Se o texto acima citar algo disso, use o equivalente:',
-  '- Perguntar ao usuário: pergunta_repassar. O cartão aparece em cima do seu terminal',
-  '  e no botão "precisa de você" do topo. Depois de repassar, termine o turno.',
-  '- Abrir um membro do time: subtarefa_criar (papel, titulo, instrucoes).',
-  '- Esperar membros e ler as entregas: subtarefas_esperar; ver a lista: subtarefas_ver.',
-  '- Responder a dúvida de um membro: subtarefa_responder. Parar um membro: subtarefa_cancelar.',
-  '- A worktree e a branch desta tarefa já existem e são a sua pasta atual. Não crie outra.',
-  '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
-  '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
-  '- Quando um membro termina o turno, o aviso [eclipse] chega como linha no terminal ou como contexto do gancho.',
-  '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
-  '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
-  '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
-].join('\n')
+export function leaderAppContext(withWorktree: boolean): string {
+  return [
+    '## Como é o app (vale mais que qualquer instrução acima)',
+    'Você está no Eclipse Code novo, que NÃO tem canvas. Não existem card no canvas, Space,',
+    'janela de agente, aba + nem as ferramentas pergunta_criar, perguntas_historico,',
+    'agente_criar, agente_mensagem, agentes_esperar, agente_ler, agente_encerrar e',
+    'feature_criar_space. Se o texto acima citar algo disso, use o equivalente:',
+    '- Perguntar ao usuário: pergunta_repassar. O cartão aparece em cima do seu terminal',
+    '  e no botão "precisa de você" do topo. Depois de repassar, termine o turno.',
+    '- Abrir um membro do time: subtarefa_criar (papel, titulo, instrucoes).',
+    '- Esperar membros e ler as entregas: subtarefas_esperar; ver a lista: subtarefas_ver.',
+    '- Responder a dúvida de um membro: subtarefa_responder. Parar um membro: subtarefa_cancelar.',
+    withWorktree
+      ? '- A worktree e a branch desta tarefa já existem e são a sua pasta atual. Não crie outra.'
+      : `- ${LEADER_NO_WORKTREE_LINE}`,
+    '- Subtarefa pronta, bloqueada ou cancelada é final. Não precisa cancelar nem esconder:',
+    '  o app guarda as bloqueadas e canceladas num grupo recolhido. Para refazer, crie outra.',
+    '- Quando um membro termina o turno, o aviso [eclipse] chega como linha no terminal ou como contexto do gancho.',
+    '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
+    '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
+    '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
+  ].join('\n')
+}
+
+export const LEADER_APP_CONTEXT = leaderAppContext(true)
 
 /** Prompt inicial do Lider: o prompt do papel com as variaveis da tarefa. */
 export function composeLeaderPrompt(input: {
@@ -83,7 +92,8 @@ export function composeLeaderPrompt(input: {
   const parts = [rendered || LEADER_TOOLS_HINT]
   if (!rendered.includes(input.task.title)) parts.push(`Tarefa: ${input.task.title}`)
   if (!rendered.includes('tarefa_concluir')) parts.push(LEADER_FINISH_RULE)
-  if (rendered) parts.push(LEADER_APP_CONTEXT)
+  if (rendered) parts.push(leaderAppContext(input.task.worktreePath !== null))
+  else if (input.task.worktreePath === null) parts.push(LEADER_NO_WORKTREE_LINE)
   return parts.join('\n\n')
 }
 
@@ -129,8 +139,8 @@ export function composeMemberAnswerPrompt(text: string): string {
  * Primeiro prompt do membro reaberto na MESMA conversa (session/load) depois do reinicio:
  * ele ja tem o contexto, so falta a mensagem do Lider.
  */
-export function composeMemberResumePrompt(text: string): string {
-  return `O app reiniciou e você parou no meio desta subtarefa. A conversa foi retomada; o que você já alterou continua na worktree. Mensagem do Líder:\n\n${text.trim()}\n\n${DELIVERY_RULE}`
+export function composeMemberResumePrompt(text: string, withWorktree = true): string {
+  return `O app reiniciou e você parou no meio desta subtarefa. A conversa foi retomada; o que você já alterou continua ${withWorktree ? 'na worktree' : 'na pasta do projeto'}. Mensagem do Líder:\n\n${text.trim()}\n\n${DELIVERY_RULE}`
 }
 
 const MAX_PROGRESS_CHARS = 4_000

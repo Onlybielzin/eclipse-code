@@ -239,8 +239,9 @@ export const ipcCommands = {
     z.object({ projectId: idSchema, includeArchived: z.boolean() }).strict(),
   ),
   /**
-   * Cria a tarefa. kind 'team': cria worktree + branch e abre o Lider (leadRoleId ou o
-   * papel isLead do projeto). kind 'solo': avulso; useWorktree=false roda na raiz.
+   * Cria a tarefa. kind 'team': abre o Lider (leadRoleId ou o papel isLead do projeto). kind
+   * 'solo': avulso. Nos dois, useWorktree=true cria worktree + branch e false roda na raiz.
+   * Solo sem leadRoleId e sem soloProvider = Terminal (shell, sem agente nem Lider).
    */
   'tasks.create': command<Task>()(
     z
@@ -253,11 +254,7 @@ export const ipcCommands = {
         baseBranch: z.string().trim().min(1).max(255).optional(),
         useWorktree: z.boolean(),
       })
-      .strict()
-      .refine((v) => v.kind === 'solo' || v.useWorktree, {
-        message: 'tarefa de time precisa de worktree',
-        path: ['useWorktree'],
-      }),
+      .strict(),
   ),
   /** Arquiva: fecha as sessoes vivas e, se removeWorktree, remove worktree e branch. */
   'tasks.archive': command<Task>()(

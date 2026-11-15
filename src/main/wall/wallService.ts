@@ -46,7 +46,7 @@ export async function buildWallSnapshot(
   let doneToday = 0
   let workingAgents = 0
   let openQuestions = 0
-  const pending: { base: Omit<WallTask, 'linesAdded' | 'linesRemoved' | 'lastFile' | 'lastLines'>; cwd: string; branch: string }[] = []
+  const pending: { base: Omit<WallTask, 'linesAdded' | 'linesRemoved' | 'lastFile' | 'lastLines'>; cwd: string | null; branch: string }[] = []
 
   for (const project of source.listProjects()) {
     const roles = new Map(source.listRoles(project.id).map((r) => [r.id, r.name]))
@@ -58,10 +58,10 @@ export async function buildWallSnapshot(
       doneToday += subtasks.filter(
         (s) => s.state === 'completed' && s.finishedAt !== null && s.finishedAt >= midnight,
       ).length
-      if (task.status !== 'open' || task.worktreePath === null) continue
+      if (task.status !== 'open') continue
       workingAgents += subtasks.filter((s) => s.state === 'working').length
       pending.push({
-        cwd: task.worktreePath,
+        cwd: task.worktreePath, // sem worktree: sem leitura de diff (a raiz do projeto mistura o trabalho de outras tarefas)
         branch: task.baseBranch ?? 'HEAD',
         base: {
           id: task.id,
@@ -85,7 +85,7 @@ export async function buildWallSnapshot(
 
   const tasks = await mapLimit(pending, GIT_PARALLEL, async (p) => ({
     ...p.base,
-    ...(await readDiff(p.cwd, p.branch).catch(() => NO_DIFF)),
+    ...(p.cwd === null ? NO_DIFF : await readDiff(p.cwd, p.branch).catch(() => NO_DIFF)),
   }))
   return {
     at: now,

@@ -156,6 +156,7 @@ export interface CreateTaskInput {
   kind: 'team' | 'solo'
   soloProvider?: 'claude' | 'codex'
   useWorktree: boolean
+  baseBranch?: string
 }
 
 export class AppStore {
@@ -479,10 +480,11 @@ export class AppStore {
         projectId,
         title: input.title,
         kind: input.kind,
-        useWorktree: input.kind === 'team' ? true : input.useWorktree,
+        useWorktree: input.useWorktree,
         ...(input.kind === 'solo' && input.soloProvider
           ? { soloProvider: input.soloProvider }
           : {}),
+        ...(input.baseBranch ? { baseBranch: input.baseBranch } : {}),
       })
       this.set((s) => ({
         tasks: upsertById(s.tasks, task),

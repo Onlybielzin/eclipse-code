@@ -4,6 +4,7 @@ import {
   DomainError,
   FINAL_SUBTASK_STATES,
   isFinalSubtaskState,
+  isTerminalTask,
   SUBTASK_STATE_LABELS,
   SUBTASK_STATES,
   toDomainErrorPayload,
@@ -46,5 +47,15 @@ describe('DomainError', () => {
       message: 'x',
     })
     expect(toDomainErrorPayload(new Error('boom'))).toEqual({ code: 'internal', message: 'boom' })
+  })
+})
+
+describe('isTerminalTask', () => {
+  it('só solo sem papel e sem provedor é Terminal', () => {
+    const base = { kind: 'solo', leadRoleId: null, soloProvider: null } as const
+    expect(isTerminalTask(base)).toBe(true)
+    expect(isTerminalTask({ ...base, soloProvider: 'claude' })).toBe(false)
+    expect(isTerminalTask({ ...base, leadRoleId: 'r1' })).toBe(false)
+    expect(isTerminalTask({ ...base, kind: 'team' })).toBe(false)
   })
 })

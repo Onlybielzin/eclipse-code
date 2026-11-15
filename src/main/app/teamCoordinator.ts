@@ -33,6 +33,7 @@ import { join } from 'node:path'
 import {
   DomainError,
   isFinalSubtaskState,
+  isTerminalTask,
   type Provider,
   type QuestionAnswer,
   type QuestionId,
@@ -227,9 +228,6 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   async createTask(input: CreateTaskInput): Promise<Task> {
     this.assertRunning()
     const project = this.tasks.getProject(input.projectId)
-    if (input.kind === 'team' && !input.useWorktree) {
-      throw new DomainError('invalid_input', 'tarefa de time precisa de worktree')
-    }
     if (input.kind === 'team' && !input.leadRoleId && !this.tasks.getLeadRole(project.id)) {
       throw new DomainError('invalid_input', 'o projeto não tem papel de Líder')
     }
@@ -269,6 +267,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       }
       throw error
     }
+    // Terminal (avulso sem agente) so tem o shell: nao abre Lider.
+    if (isTerminalTask(task)) return task
     // Abre o Lider em seguida. Erro aqui nao desfaz a tarefa: a tela chama leader.ensure
     // (que entra na mesma fila) e mostra o erro.
     this.track(
@@ -338,6 +338,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     this.assertRunning()
     const task = this.tasks.getTask(taskId)
     if (task.status !== 'open') throw new DomainError('invalid_input', 'tarefa arquivada')
+    if (isTerminalTask(task))
+      throw new DomainError('invalid_input', 'tarefa de terminal não tem agente')
 
     const live = this.tasks.getLiveLeaderSession(taskId)
     if (live) {
@@ -732,7 +734,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       }
       const resumed = handle !== null
       if (handle) {
-        prompt = composeMemberResumePrompt(answer)
+        prompt = composeMemberResumePrompt(answer, task.worktreePath !== null)
       } else {
         handle = await this.members.startSession({ ...request, resumeProviderSessionId: null })
         prompt = composeMemberReopenPrompt({

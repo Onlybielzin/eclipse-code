@@ -28,7 +28,7 @@ function source(tasks: Task[], subs: Subtask[], questions: UserQuestion[] = []):
 }
 
 describe('buildWallSnapshot', () => {
-  it('junta os projetos, soma os números e ignora tarefa sem worktree ou arquivada', async () => {
+  it('junta os projetos, soma os números e ignora tarefa arquivada', async () => {
     const tasks = [
       task('a', 'p1'),
       task('b', 'p2', { workflowStatus: 'em_revisao' }),
@@ -48,13 +48,25 @@ describe('buildWallSnapshot', () => {
         linesAdded: cwd === '/wt/a' ? 7 : 1, linesRemoved: 2, lastFile: 'x.ts', lastLines: ['+x'],
       }),
     })
-    expect(snap.tasks.map((t) => t.id).sort()).toEqual(['a', 'b'])
+    expect(snap.tasks.map((t) => t.id).sort()).toEqual(['a', 'b', 'solo'])
     const a = snap.tasks.find((t) => t.id === 'a')!
     expect(a).toMatchObject({ projectName: 'alfa', linesAdded: 7, linesRemoved: 2, openQuestions: 1 })
     expect(a.members.map((m) => [m.role, m.state])).toEqual([['Dev', 'working'], ['Dev', 'completed']])
     expect(snap).toMatchObject({
       workingAgents: 1, maxLiveAgents: 12, doneToday: 2, inReview: 1, openQuestions: 1, at: NOW,
     })
+  })
+
+  it('time sem worktree conta os agentes e aparece sem ler o diff', async () => {
+    const reads: string[] = []
+    const snap = await buildWallSnapshot(
+      source([task('t', 'p1', { worktreePath: null })], [sub('s1', 't')]),
+      { now: () => NOW, readDiff: async (cwd) => (reads.push(cwd), { linesAdded: 9, linesRemoved: 9, lastFile: null, lastLines: [] }) },
+    )
+    expect(snap.workingAgents).toBe(1)
+    expect(snap.tasks).toHaveLength(1)
+    expect(snap.tasks[0]).toMatchObject({ linesAdded: 0, linesRemoved: 0 })
+    expect(reads).toEqual([])
   })
 
   it('erro no git de uma tarefa não derruba o retrato e o limite é 4 em paralelo', async () => {

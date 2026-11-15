@@ -2348,3 +2348,119 @@ button[aria-pressed='true'] > .q-mark {
   font-weight: 700;
   padding: 10px 36px;
 }
+
+/* Modal "Nova tarefa" */
+.newtask-modal {
+  width: min(560px, 100%);
+}
+.nt-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.nt-type {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 12px;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  transition:
+    border-color var(--m-in) var(--ease),
+    transform var(--m-in) var(--ease);
+}
+.nt-type:hover {
+  transform: translateY(-1px);
+}
+.nt-type[aria-checked='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.nt-type small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.nt-ic {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  font-family: var(--f-mono);
+  font-weight: 600;
+}
+.nt-ic.team {
+  color: var(--violet);
+  background: rgb(167 139 250 / 16%);
+}
+.nt-ic.solo {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.nt-ic.term {
+  color: var(--st-teal);
+  background: rgb(45 212 191 / 14%);
+}
+.nt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.nt-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+}
+.nt-seg button {
+  padding: 6px 12px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+.nt-seg button[aria-checked='true'] {
+  color: var(--fg);
+  background: var(--raised);
+}
+.nt-seg button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.nt-more summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+.nt-more .modal-field {
+  margin-top: 10px;
+}
+.nt-preview {
+  display: grid;
+  gap: 3px;
+  padding: 9px 12px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+}
+.nt-warn {
+  color: var(--warn);
+}
+.nt-keys {
+  margin-right: auto;
+  color: var(--faint);
+  font-size: 12px;
+}
+@media (max-width: 560px) {
+  .nt-types {
+    grid-template-columns: 1fr;
+  }
+}
