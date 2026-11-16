@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.11 - 2026-11-16
+
+- O Líder Claude parado volta a trabalhar sozinho quando você responde um cartão de pergunta ou quando um membro termina o turno. Antes, a resposta ficava esperando até você digitar no terminal dele.
+- Aviso que já estava na fila quando o app abriu não acorda o Líder: as tarefas continuam sem começar sozinhas na abertura.
+
 ## 0.1.10 - 2026-11-15
 
 - Ao voltar para um projeto, o app reabre a última tarefa que estava selecionada nele, com a subtarefa que estava aberta.
