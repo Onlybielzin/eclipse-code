@@ -536,6 +536,12 @@ export interface LeaderRelay {
     sessionId: SessionId,
     notices: readonly { id: number; text: string }[],
   ): Promise<{ id: number; text: string }[]>
+  /**
+   * Acorda o Lider Claude ocioso: cola uma linha curta com Enter para o gancho UserPromptSubmit
+   * levar a caixa. So age se a sessao tem gancho e esta pronta para entrada agora (sem esperar).
+   * Devolve true se colou.
+   */
+  wake?(sessionId: SessionId): Promise<boolean>
 }
 
 // ---------------------------------------------------------------------------

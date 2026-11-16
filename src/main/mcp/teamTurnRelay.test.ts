@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 import type { LeaderRelay } from '@shared/ports'
 import {
   composeTurnNotice,
+  type LeaderActivityEvent,
   createMemoryLeaderNoticeStore,
   startTeamTurnRelay,
+  WAKE_RETRY_MS,
 } from './teamTurnRelay'
+import { MAX_INBOX_CHARS } from '../leader/inbox'
 import type { McpCaller } from '@shared/mcp'
 import { createMcpToolHandler } from './toolHandler'
 import { createFakeTaskService, leaderSession } from './testing/fakeTaskService'
@@ -336,7 +339,9 @@ describe('aviso pelo gancho (relay.offer)', () => {
   }
 
   function listeners() {
-    const set = new Set<(e: { type: string; sessionId: string; activity?: string; ids?: number[] }) => void>()
+    const set = new Set<
+      (e: { type: string; sessionId: string; activity?: string; ids?: number[] }) => void
+    >()
     return {
       leaderEvents: {
         onEvent(l: (e: never) => void) {
@@ -423,6 +428,193 @@ describe('aviso pelo gancho (relay.offer)', () => {
     await team.idle()
     expect(team.pending('task1')).toEqual(['aviso b'])
     expect(box.offered.at(-1)?.map((n) => n.text)).toEqual(['aviso b'])
+    team.stop()
+  })
+})
+
+describe('acordar o Lider Claude ocioso (relay.wake)', () => {
+  const leaderEvents = (() => {
+    const listeners = new Set<(e: LeaderActivityEvent) => void>()
+    return {
+      onEvent(l: (e: LeaderActivityEvent) => void) {
+        listeners.add(l)
+        return () => void listeners.delete(l)
+      },
+      emit(e: LeaderActivityEvent) {
+        for (const l of listeners) l(e)
+      },
+    }
+  })()
+
+  function wakeRelay(wakes: { n: number }, ok = true) {
+    const relay: LeaderRelay = {
+      async offer() {
+        return []
+      },
+      async deliver() {
+        return { delivered: true, attempts: 1 }
+      },
+      async wake() {
+        wakes.n += 1
+        return ok
+      },
+    }
+    return relay
+  }
+
+  it('aviso novo com Lider ocioso: acorda uma vez, sem repetir no proximo ocioso', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: wakeRelay(wakes),
+      leaderEvents,
+      retryIntervalMs: 0,
+    })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(wakes.n).toBe(1)
+    team.notify('task1', 'aviso 1 de novo?')
+    await team.idle()
+    expect(wakes.n).toBe(2) // aviso novo, nova colagem
+    leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(wakes.n).toBe(2) // mesmos avisos, ainda dentro do prazo: sem nova colagem
+    team.stop()
+  })
+
+  it('aviso criado antes do inicio da sessao nao acorda', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', { ...leaderSession('L1'), startedAt: Date.now() + 60_000 })
+    const wakes = { n: 0 }
+    const team = startTeamTurnRelay({ tasks, relay: wakeRelay(wakes), retryIntervalMs: 0 })
+    team.notify('task1', 'aviso velho')
+    await team.idle()
+    expect(wakes.n).toBe(0)
+    team.stop()
+  })
+
+  it('aviso ja entregue pelo gancho nao acorda', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    const notices = createMemoryLeaderNoticeStore()
+    const relay = wakeRelay(wakes)
+    const offer = relay.offer!
+    relay.offer = async (s, n) => {
+      for (const x of n) notices.markLeaderNoticeDelivered(x.id) // gancho entregou durante a oferta
+      return offer(s, n)
+    }
+    const team = startTeamTurnRelay({ tasks, relay, notices, retryIntervalMs: 0 })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(wakes.n).toBe(0)
+    team.stop()
+  })
+
+  it('Lider ocupado (wake devolve false): tenta de novo no proximo ocioso', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: wakeRelay(wakes, false),
+      leaderEvents,
+      retryIntervalMs: 0,
+    })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(wakes.n).toBe(1)
+    leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(wakes.n).toBe(2) // o aviso 1 volta sozinho, sem aviso novo
+    team.stop()
+  })
+
+  it('aviso com createdAt igual ao startedAt da sessao nao acorda', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', { ...leaderSession('L1'), startedAt: 5 })
+    const wakes = { n: 0 }
+    const base = createMemoryLeaderNoticeStore()
+    const notices = {
+      ...base,
+      listPendingLeaderNotices: (t: string) =>
+        base.listPendingLeaderNotices(t).map((n) => ({ ...n, createdAt: 5 })),
+    }
+    const team = startTeamTurnRelay({ tasks, relay: wakeRelay(wakes), notices, retryIntervalMs: 0 })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(wakes.n).toBe(0)
+    team.stop()
+  })
+
+  it('colagem que o gancho nao levou: tenta de novo so depois do prazo', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    let clock = 1_000_000
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: wakeRelay(wakes),
+      leaderEvents,
+      now: () => clock,
+      retryIntervalMs: 0,
+    })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(wakes.n).toBe(1)
+    clock += WAKE_RETRY_MS - 1
+    leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(wakes.n).toBe(1) // antes do prazo
+    clock += 1
+    leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(wakes.n).toBe(2) // prazo vencido, aviso ainda pendente
+    team.stop()
+  })
+
+  it('excesso da caixa (fitInbox) acorda de novo pelo resto', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    const notices = createMemoryLeaderNoticeStore()
+    const team = startTeamTurnRelay({
+      tasks,
+      relay: wakeRelay(wakes),
+      notices,
+      leaderEvents,
+      now: () => 1_000_000,
+      retryIntervalMs: 0,
+    })
+    const big = 'x'.repeat(MAX_INBOX_CHARS - 10)
+    team.notify('task1', big)
+    team.notify('task1', big)
+    await team.idle()
+    // O 1o acordou so o 1o aviso (o 2o nao cabe na caixa); a rodada seguinte acorda pelo resto.
+    expect(wakes.n).toBe(2)
+    leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+    await team.idle()
+    expect(wakes.n).toBe(2) // os dois ja acordaram e o prazo nao passou
+    team.stop()
+  })
+
+  it('Codex: offer devolve o aviso, cola com deliver e nao acorda', async () => {
+    const tasks = createFakeTaskService()
+    tasks.sessions.set('L1', leaderSession('L1'))
+    const wakes = { n: 0 }
+    const pasted: string[] = []
+    const relay: LeaderRelay = {
+      offer: async (_s, n) => [...n],
+      deliver: async (_s, t) => (pasted.push(t), { delivered: true, attempts: 1 }),
+      wake: async () => (wakes.n++, true),
+    }
+    const team = startTeamTurnRelay({ tasks, relay, retryIntervalMs: 0 })
+    team.notify('task1', 'aviso 1')
+    await team.idle()
+    expect(pasted).toEqual(['aviso 1'])
+    expect(wakes.n).toBe(0)
     team.stop()
   })
 })

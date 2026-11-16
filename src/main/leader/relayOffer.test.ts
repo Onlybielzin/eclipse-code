@@ -121,3 +121,25 @@ describe('LeaderRelay.offer', () => {
     expect(await h.relay.offer!('L1', [A, B])).toEqual([A, B])
   })
 })
+
+describe('LeaderRelay.wake', () => {
+  it('Claude ocioso: cola so a linha curta e o Enter', async () => {
+    const { relay, writes } = await setup()
+    expect(await relay.wake!('L1')).toBe(true)
+    expect(writes[0]).toBe('\x1b[200~[eclipse] Chegou aviso novo.\x1b[201~')
+    expect(writes[1]).toBe('\r')
+  })
+
+  it('Lider ocupado logo apos colar: nao cola de novo', async () => {
+    const { relay, writes } = await setup()
+    await relay.wake!('L1')
+    expect(await relay.wake!('L1')).toBe(false)
+    expect(writes).toHaveLength(2)
+  })
+
+  it('Codex (sem gancho): nao cola', async () => {
+    const { relay, writes } = await setup('codex')
+    expect(await relay.wake!('L1')).toBe(false)
+    expect(writes).toEqual([])
+  })
+})

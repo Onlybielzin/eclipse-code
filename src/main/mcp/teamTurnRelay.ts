@@ -1,6 +1,7 @@
 import {
   SUBTASK_STATE_LABELS,
   type Artifact,
+  type Session,
   type SessionId,
   type Subtask,
   type SubtaskId,
@@ -8,6 +9,7 @@ import {
   type Turn,
   type TurnId,
 } from '@shared/domain'
+import { fitInbox } from '../leader/inbox'
 import type {
   LeaderNotice,
   LeaderNoticeStore,
@@ -19,6 +21,9 @@ import { isPausedByRestart } from '@shared/subtaskRules'
 
 const MAX_SUMMARY_CHARS = 280
 const MAX_SEEN_TURNS = 2_000
+// Prazo para o gancho confirmar a colagem do wake (igual ao promptAckTimeoutMs do registro);
+// passado ele, aviso ainda pendente acorda o Lider de novo.
+export const WAKE_RETRY_MS = 15_000
 
 const TURN_ERROR_LABELS: Record<string, string> = {
   process_exited: 'processo morreu',
@@ -169,6 +174,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   const seenBySubtask = new Map<SubtaskId, number>()
   const draining = new Map<TaskId, Promise<void>>()
   const rerun = new Set<TaskId>()
+  // Avisos que ja acordaram o Lider desta sessao (id -> hora da colagem): sem repetir a cada ocioso.
+  const woken = new Map<SessionId, Map<number, number>>()
   let stopped = false
 
   const remember = (turnId: TurnId): boolean => {
@@ -176,6 +183,29 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     seen.add(turnId)
     if (seen.size > MAX_SEEN_TURNS) seen.delete(seen.values().next().value as TurnId)
     return true
+  }
+
+  // Aviso criado depois da abertura da sessao acorda o Lider ocioso; o que ja estava na fila
+  // (abertura do app, retomada) so anda pelo gancho. Reconfere a fila: o gancho pode ter entregado.
+  const wakeIdleLeader = async (taskId: TaskId, leader: Session): Promise<void> => {
+    if (!relay.wake) return
+    const sent = woken.get(leader.id) ?? new Map<number, number>()
+    const pending = notices.listPendingLeaderNotices(taskId)
+    const stillPending = new Set(pending.map((n) => n.id))
+    for (const id of sent.keys()) if (!stillPending.has(id)) sent.delete(id)
+    const at = now()
+    // Colagem so quer dizer Enter escrito: se o aviso segue pendente apos o prazo, tenta de novo.
+    const fresh = pending.filter((n) => {
+      const sentAt = sent.get(n.id)
+      return (
+        n.createdAt > leader.startedAt && (sentAt === undefined || at - sentAt >= WAKE_RETRY_MS)
+      )
+    })
+    if (fresh.length === 0) return
+    if (!(await relay.wake(leader.id))) return
+    // A caixa leva so o que cabe; o resto acorda de novo no proximo ocioso.
+    for (const n of fitInbox(fresh)) sent.set(n.id, at)
+    woken.set(leader.id, sent)
   }
 
   const drain = (taskId: TaskId): Promise<void> => {
@@ -191,8 +221,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
         if (pending.length === 0) return
         const leader = tasks.getLiveLeaderSession(taskId)
         if (!leader) return
-        // Lider Claude: o aviso vai so pela caixa do gancho e sai da fila com notices-delivered;
-        // nada e colado. So Codex (sem gancho) ou sessao encerrada devolve aviso para colar.
+        // Lider Claude: o aviso vai pela caixa do gancho e sai da fila com notices-delivered.
+        // So Codex (sem gancho) ou sessao encerrada devolve aviso para colar.
         const toPaste = relay.offer
           ? await relay.offer(
               leader.id,
@@ -200,7 +230,10 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
             )
           : pending
         const next = toPaste[0]
-        if (!next) return
+        if (!next) {
+          await wakeIdleLeader(taskId, leader)
+          return
+        }
         const result = await relay.deliver(leader.id, next.text)
         if (!result.delivered) return
         notices.markLeaderNoticeDelivered(next.id)
@@ -276,6 +309,9 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
       event.session.status === 'running'
     ) {
       void drain(event.session.taskId)
+    }
+    if (event.type === 'session.upserted' && event.session.status !== 'running') {
+      woken.delete(event.session.id)
     }
   })
 

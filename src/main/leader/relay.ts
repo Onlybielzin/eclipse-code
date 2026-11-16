@@ -4,7 +4,7 @@
  * Espera o Lider ficar pronto (LeaderSessionRegistry.isReadyForInput), cola o texto com
  * bracketed paste, espera `submitDelayMs` e manda Enter. Entregas da mesma sessao saem
  * em fila, uma por vez. `offer` entrega ao Lider Claude so pela caixa do gancho (inbox.ts),
- * em qualquer atividade, e nada e colado; so o Codex (sem gancho) recebe colagem. Ver LeaderRelay em
+ * em qualquer atividade; `wake` cola so uma linha para acordar o Lider ocioso; so o Codex (sem gancho) recebe colagem. Ver LeaderRelay em
  * src/shared/ports.ts. Enquanto o Lider esta ocupado, tenta de novo a cada `retryDelayMs`
  * ate `maxAttempts`. Sessao desconhecida ou encerrada: { delivered: false }.
  */
@@ -39,6 +39,9 @@ export function sanitizeRelayText(text: string): string {
       .trimEnd()
   )
 }
+
+/** Linha que acorda o Lider Claude ocioso; o gancho UserPromptSubmit leva o conteudo da caixa. */
+export const WAKE_TEXT = '[eclipse] Chegou aviso novo.'
 
 export function createLeaderRelay(options: LeaderRelayOptions): LeaderRelay {
   const sleep =
@@ -123,7 +126,28 @@ export function createLeaderRelay(options: LeaderRelayOptions): LeaderRelay {
     return { delivered: false, attempts: maxAttempts }
   }
 
+  const wakeNow = async (sessionId: SessionId): Promise<boolean> => {
+    const ptyId = alive(sessionId)
+    if (!ptyId || !options.registry.get(sessionId)?.claudeHooks) return false
+    if (!options.registry.isReadyForInput(sessionId)) return false
+    options.ptyHost.write(ptyId, `\x1b[200~${WAKE_TEXT}\x1b[201~`)
+    options.registry.markPromptSent(sessionId)
+    await sleep(submitDelayMs)
+    if (!alive(sessionId)) return false
+    options.ptyHost.write(ptyId, '\r')
+    return true
+  }
+
   return {
+    wake(sessionId) {
+      const previous = queues.get(sessionId) ?? Promise.resolve()
+      const next = previous.catch(() => undefined).then(() => wakeNow(sessionId))
+      queues.set(sessionId, next)
+      void next.finally(() => {
+        if (queues.get(sessionId) === next) queues.delete(sessionId)
+      })
+      return next
+    },
     // Sem fila propria: o TeamTurnRelay chama uma vez por vez por tarefa.
     offer: offerNow,
     deliver(sessionId, text) {
