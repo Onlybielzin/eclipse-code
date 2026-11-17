@@ -21,6 +21,10 @@
  *       `cancelGraceMs`, o processo e morto: nunca fica um agente rodando sem dono.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
 import { Readable, Writable } from 'node:stream'
 import {
   ClientSideConnection,
@@ -80,7 +84,22 @@ export interface AcpMemberRuntimeOptions {
   textFlushMs?: number
   /** Raizes alem da worktree onde o membro pode mexer sem perguntar. */
   extraAllowedRoots?: readonly string[]
+  /**
+   * Marca da conta Claude ativa no rodizio (null = sem rodizio). Quando muda entre turnos, o
+   * membro Claude reabre com session/load antes do proximo turno e pega a conta nova.
+   */
+  accountStamp?: () => string | null
   logger?: AcpRuntimeLogger
+}
+
+/** Hash do ~/.config/claude-rodizio/ativo.token (o wrapper do rodizio le esse arquivo na partida). */
+export function rodizioAccountStamp(): string | null {
+  try {
+    const token = readFileSync(join(homedir(), '.config/claude-rodizio/ativo.token'), 'utf8').trim()
+    return token ? createHash('sha256').update(token).digest('hex') : null
+  } catch {
+    return null
+  }
 }
 
 interface ActiveTurn {
@@ -110,6 +129,10 @@ interface MemberSession {
   inflight: Promise<unknown> | null
   /** Encerramento do grupo de processos em curso (close, dispose ou queda do adaptador). */
   reaping: Promise<void> | null
+  /** Conta do rodizio na partida (accountStamp). */
+  account: string | null
+  /** Reaberto para trocar de conta: a saida deste processo nao e avisada aos ouvintes. */
+  replaced: boolean
 }
 
 const STDERR_TAIL_CHARS = 4_000
@@ -166,6 +189,10 @@ export class AcpMemberRuntime implements MemberRuntime {
   private readonly killGraceMs: number
   private readonly textFlushMs: number
   private readonly extraAllowedRoots: readonly string[]
+  private readonly accountStamp: () => string | null
+  private readonly rotating = new Set<SessionId>()
+  /** close() chegou no meio da troca de conta: fecha o membro novo assim que ele abrir. */
+  private readonly closeAfterRotation = new Set<SessionId>()
   private readonly logger: AcpRuntimeLogger
 
   constructor(
@@ -178,6 +205,7 @@ export class AcpMemberRuntime implements MemberRuntime {
     this.killGraceMs = options.killGraceMs ?? 3_000
     this.textFlushMs = options.textFlushMs ?? 400
     this.extraAllowedRoots = options.extraAllowedRoots ?? []
+    this.accountStamp = options.accountStamp ?? rodizioAccountStamp
     this.logger = options.logger ?? noopLogger
   }
 
@@ -253,6 +281,8 @@ export class AcpMemberRuntime implements MemberRuntime {
       active: null,
       inflight: null,
       reaping: null,
+      account: request.provider === 'claude' ? this.accountStamp() : null,
+      replaced: false,
     }
     this.sessions.set(request.sessionId, session)
 
@@ -277,6 +307,7 @@ export class AcpMemberRuntime implements MemberRuntime {
       // Adaptador caiu sozinho: os netos do grupo (claude CLI, MCP, Bash do membro) ficariam
       // orfaos mexendo na worktree. close() reaproveita este mesmo encerramento.
       if (!session.closing) void this.reapGroup(session)
+      if (session.replaced) return
       for (const listener of this.exitListeners) {
         try {
           listener(session.id, exit)
@@ -380,11 +411,13 @@ export class AcpMemberRuntime implements MemberRuntime {
   // -------------------------------------------------------------------------
 
   async prompt(sessionId: SessionId, input: { turnId: TurnId; text: string }): Promise<TurnResult> {
-    const session = this.sessions.get(sessionId)
-    if (!session) throw new DomainError('not_found', `Sessão ${sessionId} não existe.`)
-    if (session.active) {
+    const current = this.sessions.get(sessionId)
+    if (!current) throw new DomainError('not_found', `Sessão ${sessionId} não existe.`)
+    if (current.active || this.rotating.has(sessionId)) {
       throw new DomainError('conflict', `A sessão ${sessionId} já tem um turno em andamento.`)
     }
+    // Sem troca de conta segue sincrono: o segundo prompt simultaneo ve session.active (I1).
+    const session = this.accountChanged(current) ? await this.reopenForAccount(current) : current
     const activity = new TurnActivity(
       { sessionId, subtaskId: session.request.subtaskId, turnId: input.turnId },
       this.deps.clock,
@@ -502,6 +535,54 @@ export class AcpMemberRuntime implements MemberRuntime {
           },
         })
       }
+    }
+  }
+
+  /**
+   * O rodizio trocou de conta desde a partida: reabre o membro Claude (session/load) para o
+   * proximo turno sair na conta nova. So entre turnos; um turno em curso termina na conta velha.
+   */
+  private accountChanged(session: MemberSession): boolean {
+    if (session.request.provider !== 'claude' || !session.alive || !session.providerSessionId) {
+      return false
+    }
+    const stamp = this.accountStamp()
+    return stamp !== null && stamp !== session.account
+  }
+
+  private async reopenForAccount(session: MemberSession): Promise<MemberSession> {
+    this.logger.info('acp: rodízio trocou de conta; reabrindo o membro', { sessionId: session.id })
+    this.rotating.add(session.id)
+    try {
+      session.replaced = true
+      session.closing = true
+      await this.terminate(session)
+      this.sessions.delete(session.id)
+      try {
+        await this.startSession({
+          ...session.request,
+          resumeProviderSessionId: session.providerSessionId,
+        })
+      } catch (error) {
+        // Sem membro: avisa como queda de processo, como seria sem a troca.
+        const exit = session.exit ?? { exitCode: null, signal: null }
+        for (const listener of this.exitListeners) {
+          try {
+            listener(session.id, exit)
+          } catch (listenerError) {
+            this.logger.warn('acp: ouvinte de saída falhou', { error: errorMessage(listenerError) })
+          }
+        }
+        throw error
+      }
+      if (this.closeAfterRotation.has(session.id)) {
+        await this.close(session.id)
+        throw new DomainError('conflict', ERROR_TEXT.session_closed)
+      }
+      return this.sessions.get(session.id)!
+    } finally {
+      this.rotating.delete(session.id)
+      this.closeAfterRotation.delete(session.id)
     }
   }
 
@@ -632,6 +713,7 @@ export class AcpMemberRuntime implements MemberRuntime {
   // -------------------------------------------------------------------------
 
   async close(sessionId: SessionId): Promise<void> {
+    if (this.rotating.has(sessionId)) this.closeAfterRotation.add(sessionId)
     const session = this.sessions.get(sessionId)
     if (!session) return
     session.closing = true

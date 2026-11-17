@@ -13,8 +13,11 @@ const FAKE_AGENT = resolve(__dirname, '../fixtures/fake-acp-agent.mjs')
 let workdir: string
 let runtime: AcpMemberRuntime | null = null
 let counter = 0
+/** Conta ativa do rodizio vista pelo runtime nos testes. */
+let account: string | null = null
 
 beforeEach(() => {
+  account = null
   workdir = mkdtempSync(join(tmpdir(), 'eclipse-acp-'))
   mkdirSync(join(workdir, 'worktree'))
 })
@@ -56,6 +59,7 @@ function makeRuntime(
       cancelGraceMs: options.cancelGraceMs ?? 300,
       killGraceMs: 500,
       textFlushMs: 50,
+      accountStamp: () => account,
     },
   )
   rt.onActivity((draft) => {
@@ -303,6 +307,28 @@ describe('AcpMemberRuntime com agente falso', () => {
     expect(h.activity).toEqual([])
     const result = await h.runtime.prompt(request.sessionId, { turnId: 't1', text: 'oi' })
     expect(result.outcome).toEqual({ kind: 'stopped', stopReason: 'end_turn' })
+  })
+
+  it('rodízio trocou de conta: o próximo turno reabre o membro com session/load', async () => {
+    account = 'conta-a'
+    const h = makeRuntime()
+    const request = startRequest('normal')
+    const handle = await h.runtime.startSession(request)
+    await h.runtime.prompt(request.sessionId, { turnId: 't1', text: 'oi' })
+    expect(recorded().filter((c) => c.method === 'session/load')).toEqual([])
+
+    account = 'conta-b'
+    const result = await h.runtime.prompt(request.sessionId, { turnId: 't2', text: 'de novo' })
+    expect(result.outcome).toEqual({ kind: 'stopped', stopReason: 'end_turn' })
+    const loads = recorded().filter((c) => c.method === 'session/load')
+    expect(loads.map((c) => c.params.sessionId)).toEqual([handle.providerSessionId])
+    // A troca nao parece queda do membro para o coordenador.
+    expect(h.exits).toEqual([])
+    expect(h.runtime.liveCount()).toBe(1)
+
+    // Mesma conta: nao reabre de novo.
+    await h.runtime.prompt(request.sessionId, { turnId: 't3', text: 'mais' })
+    expect(recorded().filter((c) => c.method === 'session/load')).toHaveLength(1)
   })
 
   it('falha na partida vira DomainError unavailable e não deixa sessão viva', async () => {
