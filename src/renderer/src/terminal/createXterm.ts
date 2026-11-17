@@ -6,6 +6,7 @@ import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebglAddon } from '@xterm/addon-webgl'
 import '@xterm/xterm/css/xterm.css'
+import { findUrls } from './findUrls'
 import { clipboardKeyAction, isImageOnlyPaste } from './clipboardKeys'
 
 export interface XtermHandle {
@@ -17,8 +18,15 @@ export interface XtermHandle {
   dispose(): void
 }
 
+const isMac = (): boolean => navigator.platform.toLowerCase().includes('mac')
+// Ctrl (Cmd no mac) + clique abre; o main manda a URL ao navegador padrao.
+const openOnModifier = (event: MouseEvent, uri: string): void => {
+  if (isMac() ? event.metaKey : event.ctrlKey) window.open(uri)
+}
+
 export function createXterm(container: HTMLElement): XtermHandle {
   const term = new Terminal({
+    linkHandler: { activate: openOnModifier },
     cursorBlink: true,
     fontFamily: '"Geist Mono Variable", ui-monospace, Menlo, monospace',
     fontSize: 13,
@@ -48,9 +56,21 @@ export function createXterm(container: HTMLElement): XtermHandle {
   } catch {
     // sem WebGL: o xterm segue com o renderizador DOM
   }
+  term.registerLinkProvider({
+    provideLinks: (y, callback) => {
+      const line = term.buffer.active.getLine(y - 1)?.translateToString(true) ?? ''
+      const links = findUrls(line).map((u) => ({
+        text: u.text,
+        range: { start: { x: u.start + 1, y }, end: { x: u.end, y } },
+        activate: openOnModifier,
+      }))
+      callback(links.length ? links : undefined)
+    },
+  })
   // Selecionar copia na hora; erro de permissao da area de transferencia e ignorado.
   term.onSelectionChange(() => {
-    if (term.hasSelection()) void navigator.clipboard?.writeText(term.getSelection()).catch(() => {})
+    if (term.hasSelection())
+      void navigator.clipboard?.writeText(term.getSelection()).catch(() => {})
   })
   term.attachCustomKeyEventHandler((e) => {
     const action = clipboardKeyAction({
@@ -68,6 +88,12 @@ export function createXterm(container: HTMLElement): XtermHandle {
       e.preventDefault()
       void navigator.clipboard?.writeText(term.getSelection()).catch(() => {})
       term.clearSelection()
+      return false
+    }
+    if (action === 'deleteWord') {
+      // ^W apaga a palavra antes do cursor no bash, no zsh e no Claude Code.
+      e.preventDefault()
+      term.input('\x17', true)
       return false
     }
     // 'paste': sem preventDefault, o navegador dispara o 'paste' que o xterm ja trata.

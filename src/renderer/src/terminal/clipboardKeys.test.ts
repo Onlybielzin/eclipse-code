@@ -26,6 +26,17 @@ describe('clipboardKeyAction', () => {
     expect(clipboardKeyAction({ ...base, key: 'v' })).toBe('paste')
     expect(clipboardKeyAction({ ...base, key: 'V' })).toBe('paste')
   })
+  it('Ctrl+Backspace apaga a palavra', () => {
+    expect(clipboardKeyAction({ ...base, key: 'Backspace' })).toBe('deleteWord')
+  })
+  it('Backspace sozinho e Ctrl+Shift+Backspace passam', () => {
+    expect(clipboardKeyAction({ ...base, ctrl: false, key: 'Backspace' })).toBe('pass')
+    expect(clipboardKeyAction({ ...base, shift: true, key: 'Backspace' })).toBe('pass')
+  })
+  it('Ctrl+Backspace em keyup ou no mac passa', () => {
+    expect(clipboardKeyAction({ ...base, key: 'Backspace', type: 'keyup' })).toBe('pass')
+    expect(clipboardKeyAction({ ...base, key: 'Backspace', platform: 'darwin' })).toBe('pass')
+  })
   it('keyup passa', () => {
     expect(clipboardKeyAction({ ...base, key: 'v', type: 'keyup' })).toBe('pass')
   })

@@ -10,13 +10,14 @@ export interface ClipboardKeyInput {
   platform: string
 }
 
-export function clipboardKeyAction(i: ClipboardKeyInput): 'copy' | 'paste' | 'pass' {
+export function clipboardKeyAction(i: ClipboardKeyInput): 'copy' | 'paste' | 'deleteWord' | 'pass' {
   // No macOS o Cmd+C/Cmd+V padrao do xterm ja funciona.
   if (i.type !== 'keydown' || i.platform === 'darwin') return 'pass'
   if (!i.ctrl || i.shift || i.alt || i.meta) return 'pass'
   const key = i.key.toLowerCase()
   if (key === 'c' && i.hasSelection) return 'copy'
   if (key === 'v') return 'paste'
+  if (key === 'backspace') return 'deleteWord'
   return 'pass'
 }
 

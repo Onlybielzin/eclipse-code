@@ -1,4 +1,12 @@
-import { app, BrowserWindow, dialog, ipcMain, safeStorage, type OpenDialogOptions } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  safeStorage,
+  shell,
+  type OpenDialogOptions,
+} from 'electron'
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
@@ -20,6 +28,7 @@ import {
   type AppServices,
 } from './app'
 import { autoUpdater } from 'electron-updater'
+import { attachExternalLinks } from './app/externalLinks'
 import { applyLoginShellPath } from './app/loginShellPath'
 import { DomainError } from '@shared/domain'
 import { createUpdater, createWhatsNew } from './app/updater'
@@ -79,9 +88,13 @@ function createMainWindow(): BrowserWindow {
   window.webContents.on('did-start-navigation', (details) => {
     if (details.isMainFrame && !details.isSameDocument) releaseWindow(id)
   })
+  const devUrl = process.env['ELECTRON_RENDERER_URL']
+  attachExternalLinks(window.webContents, {
+    openExternal: (url) => shell.openExternal(url),
+    isAppUrl: (url) => url.startsWith('file:') || (!!devUrl && url.startsWith(devUrl)),
+  })
   if (!isTestRun) window.once('ready-to-show', () => window.show())
 
-  const devUrl = process.env['ELECTRON_RENDERER_URL']
   if (devUrl) void window.loadURL(devUrl)
   else void window.loadFile(join(__dirname, '../renderer/index.html'))
   return window
