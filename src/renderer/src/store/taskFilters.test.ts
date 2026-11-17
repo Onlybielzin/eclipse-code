@@ -7,7 +7,6 @@ import {
   applyPreset,
   EMPTY_TASK_FILTERS,
   filterTasks,
-  includeStatus,
   normalizeTaskFilters,
   parseTaskFilters,
   removeTaskFilter,
@@ -91,16 +90,6 @@ describe('presets e normalização', () => {
     expect(
       normalizeTaskFilters({ ...EMPTY_TASK_FILTERS, statuses: ['lancado', 'a_fazer'] }).statuses,
     ).toEqual(['a_fazer', 'lancado'])
-  })
-
-  it('includeStatus inclui só quando o status está escondido', () => {
-    const f: TaskFilters = { ...EMPTY_TASK_FILTERS, statuses: ['a_fazer'] }
-    expect(includeStatus(f, 'a_fazer')).toBe(f)
-    expect(includeStatus(EMPTY_TASK_FILTERS, 'lancado')).toBe(EMPTY_TASK_FILTERS)
-    expect(includeStatus(f, 'lancado').statuses).toEqual(['a_fazer', 'lancado'])
-    // Abertas + Concluída + Cancelada = todos = sem filtro.
-    const aberta = includeStatus(applyPreset(f, 'open'), 'lancado')
-    expect(includeStatus(aberta, 'cancelado').statuses).toEqual([])
   })
 })
 

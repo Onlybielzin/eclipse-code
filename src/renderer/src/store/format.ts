@@ -1,6 +1,6 @@
 import {
+  isArchivedWorkflowStatus,
   SUBTASK_STATE_LABELS,
-  TASK_WORKFLOW_STATUS_LABELS,
   TASK_WORKFLOW_STATUSES,
   type Role,
   type Subtask,
@@ -66,24 +66,17 @@ export function openQuestions(questions: readonly UserQuestion[]): UserQuestion[
   return questions.filter((q) => q.status === 'open')
 }
 
-export interface TaskGroup {
-  status: TaskWorkflowStatus
-  label: string
-  tasks: Task[]
-}
-
 /**
- * Agrupa por status de trabalho, na ordem de TASK_WORKFLOW_STATUSES. Grupo vazio some.
- * Time e avulso ficam juntos no grupo do status. Dentro do grupo, mais recentes primeiro.
+ * Ordem plana da lista lateral: abertas numa lista so e as arquivadas (Concluída e
+ * Cancelada) a parte, para o bloco "Encerradas". Em cada uma, mais recentes primeiro.
  */
-export function groupTasks(tasks: readonly Task[]): TaskGroup[] {
+export function splitTasks(tasks: readonly Task[]): { open: Task[]; archived: Task[] } {
   const byRecent = (a: Task, b: Task) => b.updatedAt - a.updatedAt || b.createdAt - a.createdAt
-  return TASK_WORKFLOW_STATUSES.flatMap((status) => {
-    const list = tasks.filter((t) => t.workflowStatus === status).sort(byRecent)
-    return list.length > 0
-      ? [{ status, label: TASK_WORKFLOW_STATUS_LABELS[status], tasks: list }]
-      : []
-  })
+  const sorted = [...tasks].sort(byRecent)
+  return {
+    open: sorted.filter((t) => !isArchivedWorkflowStatus(t.workflowStatus)),
+    archived: sorted.filter((t) => isArchivedWorkflowStatus(t.workflowStatus)),
+  }
 }
 
 /** Numero de tarefas por status, sempre com os 6 status (0 quando vazio). */

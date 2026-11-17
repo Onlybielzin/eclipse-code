@@ -92,12 +92,6 @@ export function statusVisible(filters: TaskFilters, status: TaskWorkflowStatus):
   return filters.statuses.length === 0 || filters.statuses.includes(status)
 }
 
-/** Inclui o status no filtro se ele estiver escondido (usado pelo painel Status). */
-export function includeStatus(filters: TaskFilters, status: TaskWorkflowStatus): TaskFilters {
-  if (statusVisible(filters, status)) return filters
-  return normalizeTaskFilters({ ...filters, statuses: [...filters.statuses, status] })
-}
-
 /** Algum membro trabalhando ou na fila (subtarefa 'working' ou 'submitted'). */
 export function hasRunningAgent(subtasks: readonly Subtask[] | undefined): boolean {
   return (subtasks ?? []).some((s) => s.state === 'working' || s.state === 'submitted')

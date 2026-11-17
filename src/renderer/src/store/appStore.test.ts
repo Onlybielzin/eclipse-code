@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppStore } from './appStore'
-import { formatElapsed, groupTasks, subtaskRowLabel } from './format'
-import { FakeApi, makeActivity, makeProject, makeSubtask, makeTask, mockupData } from '../test/fakeApi'
+import { formatElapsed, splitTasks, subtaskRowLabel } from './format'
+import {
+  FakeApi,
+  makeActivity,
+  makeProject,
+  makeSubtask,
+  makeTask,
+  mockupData,
+} from '../test/fakeApi'
 
 async function started() {
   const api = new FakeApi(mockupData())
@@ -179,23 +186,18 @@ describe('format', () => {
     expect(formatElapsed(0, 120 * 60_000)).toBe('2 h')
   })
 
-  it('agrupa por status na ordem fixa e esconde grupo vazio', () => {
+  it('separa abertas das arquivadas, cada lado do mais recente para o mais antigo', () => {
     const tasks = [
-      ...mockupData().tasks,
-      makeTask('r1', 'revisar', { workflowStatus: 'em_revisao' }),
-      makeTask('p1t', 'pronta', { workflowStatus: 'pronto_lancar' }),
-      makeTask('q1t', 'perguntando', { workflowStatus: 'pergunta' }),
+      makeTask('velha', 'velha', { updatedAt: 1, createdAt: 1 }),
+      makeTask('nova', 'nova', { workflowStatus: 'em_revisao', updatedAt: 9, createdAt: 1 }),
+      makeTask('empate', 'empate', { workflowStatus: 'a_fazer', updatedAt: 9, createdAt: 5 }),
+      makeTask('conc', 'conc', { workflowStatus: 'lancado', updatedAt: 50, createdAt: 1 }),
+      makeTask('canc', 'canc', { workflowStatus: 'cancelado', updatedAt: 60, createdAt: 1 }),
     ]
-    const groups = groupTasks(tasks)
-    expect(groups.map((g) => [g.label, g.tasks.map((t) => t.id)])).toEqual([
-      ['A fazer', ['solo1']],
-      ['Em andamento', ['t1']],
-      ['Pergunta para você', ['q1t']],
-      ['Em revisão', ['r1']],
-      ['Pronto pra lançar', ['p1t']],
-      ['Concluída', ['old1']],
-    ])
-    expect(groupTasks([makeTask('a', 'a')]).map((g) => g.status)).toEqual(['em_andamento'])
+    const { open, archived } = splitTasks(tasks)
+    expect(open.map((t) => t.id)).toEqual(['empate', 'nova', 'velha'])
+    expect(archived.map((t) => t.id)).toEqual(['canc', 'conc'])
+    expect(splitTasks([])).toEqual({ open: [], archived: [] })
   })
 })
 

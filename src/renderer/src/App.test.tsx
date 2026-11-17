@@ -255,10 +255,10 @@ describe('tela de 3 colunas', () => {
     expect(within(row).queryByText('conversa solta')).toBeNull()
   })
 
-  it('mostra tarefas por status, subtarefas e o contador "precisa de você"', async () => {
+  it('mostra a lista, subtarefas e o contador "precisa de você"', async () => {
     await renderApp()
     const list = screen.getByRole('region', { name: 'Tarefas' })
-    expect(within(list).getByText('Em andamento')).toBeTruthy()
+    expect(within(list).queryByText('Em andamento')).toBeNull()
     expect(within(list).getByText('conversa solta')).toBeTruthy()
     expect(
       within(list).getByTestId('task-solo1').querySelector('.m')?.getAttribute('title'),
@@ -517,23 +517,26 @@ describe('status da tarefa na lista', () => {
       .map((g) => g.getAttribute('aria-label'))
   }
 
-  it('agrupa na ordem dos status, com contador, sem grupo vazio e Concluída recolhido', async () => {
+  it('lista única de abertas, com Encerradas recolhido no fim e com contador', async () => {
     await renderApp()
-    expect(groupLabels()).toEqual(['A fazer', 'Em andamento', 'Concluída'])
-    expect(within(list()).queryByText('Em revisão')).toBeNull()
-    expect(within(screen.getByTestId('group-a_fazer')).getByText('1')).toBeTruthy()
-    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('false')
+    expect(groupLabels()).toEqual(['Encerradas'])
+    expect(within(list()).queryByText('Em andamento')).toBeNull()
+    expect(screen.getByTestId('task-solo1')).toBeTruthy()
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+    expect(within(screen.getByTestId('group-encerradas')).getByText('1')).toBeTruthy()
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('false')
     expect(screen.queryByTestId('task-old1')).toBeNull()
 
-    fireEvent.click(screen.getByTestId('group-lancado'))
-    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(screen.getByTestId('group-encerradas'))
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('true')
     expect(screen.getByTestId('task-old1').textContent).toContain('checkout antigo')
 
-    fireEvent.click(screen.getByTestId('group-em_andamento'))
-    expect(screen.queryByTestId('task-t1')).toBeNull()
+    fireEvent.click(screen.getByTestId('group-encerradas'))
+    expect(screen.queryByTestId('task-old1')).toBeNull()
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
   })
 
-  it('ícone abre menu com os 7 status e a troca vai ao main e move a tarefa de grupo', async () => {
+  it('ícone abre menu com os 7 status e a troca vai ao main e atualiza a tarefa', async () => {
     await renderApp()
     const row = screen.getByTestId('task-t1')
     fireEvent.click(within(row).getByRole('button', { name: /Status de feat-orfer-e-up/ }))
@@ -557,10 +560,12 @@ describe('status da tarefa na lista', () => {
     await waitFor(() =>
       expect(api.callsTo('tasks.setStatus')).toEqual([{ taskId: 't1', status: 'em_revisao' }]),
     )
-    await waitFor(() => expect(groupLabels()).toEqual(['A fazer', 'Em revisão', 'Concluída']))
-    expect(
-      within(screen.getByRole('group', { name: 'Em revisão' })).getByText('feat-orfer-e-up'),
-    ).toBeTruthy()
+    await waitFor(() =>
+      expect(
+        within(screen.getByTestId('task-t1')).getByRole('button', { name: /Status de/ }),
+      ).toHaveProperty('title', expect.stringContaining('Em revisão')),
+    )
+    expect(groupLabels()).toEqual(['Encerradas'])
   })
 
   it('escolher o status atual ou apertar Esc não chama o main', async () => {
@@ -584,8 +589,8 @@ describe('status da tarefa na lista', () => {
     )
     fireEvent.click(within(screen.getByRole('menu')).getByText('Concluída'))
     await waitFor(() => expect(within(middle()).getByTestId('task-launched')).toBeTruthy())
-    expect(groupLabels()).toEqual(['A fazer', 'Concluída'])
-    expect(within(screen.getByTestId('group-lancado')).getByText('2')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(within(screen.getByTestId('group-encerradas')).getByText('2')).toBeTruthy()
   })
 })
 
@@ -1046,17 +1051,19 @@ describe('painéis do rodape da coluna esquerda', () => {
     }
   })
 
-  it('clicar em Concluída expande o grupo recolhido e foca o cabeçalho dele', async () => {
+  it('clicar em Concluída filtra por ela e abre o bloco Encerradas; A fazer filtra só ela', async () => {
     await renderApp()
-    expect(screen.getByTestId('group-lancado').getAttribute('aria-expanded')).toBe('false')
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(statusRow('lancado'))
-    const group = screen.getByTestId('group-lancado')
-    expect(group.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('true')
     expect(screen.getByTestId('task-old1')).toBeTruthy()
-    expect(document.activeElement).toBe(group)
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(screen.getByTestId('chip-status').textContent).toContain('Concluída')
 
     fireEvent.click(statusRow('a_fazer'))
-    expect(document.activeElement).toBe(screen.getByTestId('group-a_fazer'))
+    expect(screen.getByTestId('task-solo1')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(screen.queryByTestId('group-encerradas')).toBeNull()
     expect(api.callsTo('tasks.setStatus')).toEqual([])
   })
 
@@ -1256,7 +1263,9 @@ describe('filtros da lista de tarefas', () => {
     expect(screen.queryByTestId('filter-count')).toBeNull()
     const pop = openFilters()
     fireEvent.click(within(pop).getByRole('button', { name: 'Abertas' }))
-    expect(groupLabels()).toEqual(['A fazer', 'Em andamento'])
+    expect(groupLabels()).toEqual([])
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+    expect(screen.queryByTestId('task-old1')).toBeNull()
     expect(screen.getByTestId('chip-status').textContent).toContain('Sem Concluída')
     expect(screen.getByTestId('filter-count').textContent).toBe('1')
     expect(within(pop).getByRole('button', { name: 'Abertas' }).getAttribute('aria-pressed')).toBe(
@@ -1297,10 +1306,12 @@ describe('filtros da lista de tarefas', () => {
     await renderApp()
     const pop = openFilters()
     fireEvent.click(within(pop).getByLabelText('A fazer'))
-    expect(groupLabels()).toEqual(['A fazer'])
+    expect(screen.getByTestId('task-solo1')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
     expect(within(pop).getAllByRole('checkbox')).toHaveLength(11)
     fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
-    expect(groupLabels()).toEqual(['A fazer', 'Em andamento', 'Concluída'])
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+    expect(groupLabels()).toEqual(['Encerradas'])
   })
 
   it('busca filtra enquanto digita e Esc limpa', async () => {
@@ -1351,31 +1362,39 @@ describe('filtros da lista de tarefas', () => {
 
     await act(() => store.openProject('p2'))
     expect(screen.queryByTestId('chip-status')).toBeNull()
-    expect(groupLabels()).toContain('Concluída')
+    expect(groupLabels()).toContain('Encerradas')
 
     await act(() => store.openProject('p1'))
     expect(screen.getByTestId('chip-status')).toBeTruthy()
-    expect(groupLabels()).not.toContain('Concluída')
+    expect(groupLabels()).not.toContain('Encerradas')
 
     view.unmount()
     await renderApp(data)
     expect(screen.getByTestId('chip-status').textContent).toContain('Sem Concluída')
   })
 
-  it('STATUS conta tudo e clicar num status escondido inclui ele no filtro', async () => {
+  it('STATUS conta tudo e clicar num status escondido troca o filtro só por ele', async () => {
     await renderApp()
     fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.getByTestId('status-row-lancado').textContent).toBe('Concluída1')
-    expect(screen.queryByTestId('group-lancado')).toBeNull()
+    expect(screen.queryByTestId('group-encerradas')).toBeNull()
 
     fireEvent.click(screen.getByTestId('status-row-lancado'))
-    const group = screen.getByTestId('group-lancado')
-    expect(group.getAttribute('aria-expanded')).toBe('true')
-    expect(document.activeElement).toBe(group)
-    // Abertas + Concluída ainda esconde Cancelada (linha com 0 fica desabilitada).
-    expect(screen.getByTestId('chip-status').textContent).toContain('Sem Cancelada')
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByTestId('task-old1')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(screen.getByTestId('chip-status').textContent).toContain('Concluída')
+  })
 
+  it('filtro só de Concluída no popover mostra a tarefa sem abrir o bloco à mão', async () => {
+    await renderApp()
+    const pop = openFilters()
+    const box = within(pop).getByRole('checkbox', { name: /Concluída/ })
+    fireEvent.click(box)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByTestId('task-old1')).toBeTruthy()
+    expect(screen.queryByTestId('task-t1')).toBeNull()
   })
 
   it('sem localStorage os filtros funcionam igual', async () => {
@@ -1388,7 +1407,8 @@ describe('filtros da lista de tarefas', () => {
     try {
       await renderApp()
       fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))
-      expect(groupLabels()).toEqual(['A fazer', 'Em andamento'])
+      expect(groupLabels()).toEqual([])
+      expect(screen.getByTestId('task-t1')).toBeTruthy()
     } finally {
       get.mockRestore()
       set.mockRestore()
