@@ -2,6 +2,12 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.12 - 2026-11-17
+
+- O papel agora vale de verdade. O Revisor não edita arquivo, e o Dev e o Revisor não fazem commit, push nem merge. Antes, essas regras existiam só no prompt.
+- Os papéis que já existem recebem o acesso pelo nome: Revisor fica só leitura, Dev fica sem commit, e os outros ficam com acesso total.
+- Limite: o Claude só leitura ainda grava arquivo por comando no terminal, e o Codex sem commit ainda não tem trava.
+
 ## 0.1.11 - 2026-11-16
 
 - O Líder Claude parado volta a trabalhar sozinho quando você responde um cartão de pergunta ou quando um membro termina o turno. Antes, a resposta ficava esperando até você digitar no terminal dele.
