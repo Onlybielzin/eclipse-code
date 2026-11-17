@@ -2,6 +2,14 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.14 - 2026-11-17
+
+- A tarefa tem um nome curto, separado do pedido. O Líder dá e troca o nome; a busca acha pelo nome ou pelo pedido.
+- Status novo "Cancelada": arquiva a tarefa como "Concluída". Os agentes fecham, o terminal some e a worktree fica.
+- No terminal, Ctrl+clique num link abre o navegador padrão, sem janela do app.
+- Ctrl+Backspace apaga a palavra, e Shift+Enter quebra a linha no Claude e no Codex sem enviar.
+- Soltar um arquivo no terminal escreve o caminho dele.
+
 ## 0.1.13 - 2026-11-17
 
 - Dá para renomear e excluir um projeto. No seletor do topo (Ctrl+O), clique no lápis do projeto, aperte F2 ou use "Editar projeto" no rodapé.
