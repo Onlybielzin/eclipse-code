@@ -23,11 +23,39 @@ function handlersFor(service: AppServices['tasks']) {
       tasks: service,
       coordinator: {} as AppServices['coordinator'],
       brain: {} as AppServices['brain'],
+      worktrees: {} as AppServices['worktrees'],
       taskProcesses: { owns: () => false } as unknown as AppServices['taskProcesses'],
     },
     { homeDir: '/home/vings' },
   )
 }
+
+describe('projects.add', () => {
+  it('pasta já cadastrada com initGit dá conflict antes de mexer no disco', async () => {
+    const { service } = createHarness()
+    service.addProject({ rootPath: '/repo/a' })
+    let initCalls = 0
+    const handlers = createIpcHandlers(
+      {
+        tasks: service,
+        coordinator: {} as AppServices['coordinator'],
+        brain: {} as AppServices['brain'],
+        worktrees: {
+          initRepository: async () => {
+            initCalls += 1
+          },
+        } as unknown as AppServices['worktrees'],
+        taskProcesses: { owns: () => false } as unknown as AppServices['taskProcesses'],
+      },
+      { homeDir: '/home/vings' },
+    )
+    const result = await handlers['projects.add']({ rootPath: '/repo/a', initGit: true }).catch(
+      (e: unknown) => e,
+    )
+    expect(result).toMatchObject({ code: 'conflict' })
+    expect(initCalls).toBe(0)
+  })
+})
 
 describe('projects.summary', () => {
   it('conta tarefas não arquivadas e perguntas abertas de cada projeto', async () => {

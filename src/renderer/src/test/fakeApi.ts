@@ -246,6 +246,15 @@ export class FakeApi implements EclipseApi {
         d.projects.push(project)
         return project
       }
+      case 'projects.update': {
+        const project = d.projects.find((p) => p.id === input.projectId)
+        if (!project) throw new Error('projeto não encontrado')
+        project.name = String(input.name)
+        return project
+      }
+      case 'projects.remove':
+        d.projects = d.projects.filter((p) => p.id !== input.projectId)
+        return undefined
       case 'update.state':
         return this.updateState
       case 'update.check':

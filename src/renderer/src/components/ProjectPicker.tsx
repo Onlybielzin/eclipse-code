@@ -12,6 +12,7 @@ import type { Project } from '@shared/domain'
 import type { ProjectSummary, ProjectsSummary } from '@shared/ipc'
 import { matchesProject, shortenPath } from '../store/projectPicker'
 import { useAppState, useStore } from '../store/context'
+import { ProjectEditModal } from './ProjectEditModal'
 
 function ChevronIcon() {
   return (
@@ -41,6 +42,19 @@ function CheckIcon() {
   )
 }
 
+function PencilIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M11 2.5l2.5 2.5L5.5 13H3v-2.5z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 /** Ctrl+O (Cmd+O no Mac), fora do terminal e sem modal aberto. */
 function isOpenShortcut(e: KeyboardEvent): boolean {
   if (e.defaultPrevented || e.shiftKey || e.altKey || !(e.ctrlKey || e.metaKey)) return false
@@ -63,6 +77,7 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const [summary, setSummary] = useState<ProjectsSummary | null>(null)
+  const [editing, setEditing] = useState<Project | null>(null)
   const [pos, setPos] = useState<CSSProperties>({})
   const buttonRef = useRef<HTMLButtonElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
@@ -156,6 +171,8 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
     el?.scrollIntoView?.({ block: 'nearest' })
   }, [open, active])
 
+  const activeProject = filtered[Math.min(active, filtered.length - 1)]
+
   const choose = (project: Project) => {
     close(true)
     if (project.id !== projectId) void store.openProject(project.id)
@@ -180,6 +197,10 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
         e.preventDefault()
         setActive(Math.max(0, last))
         return
+      case 'F2':
+        e.preventDefault()
+        if (activeProject) edit(activeProject)
+        return
       case 'Enter': {
         e.preventDefault()
         const target = filtered[Math.min(active, last)]
@@ -189,12 +210,16 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
     }
   }
 
+  const edit = (project: Project) => {
+    close(false)
+    setEditing(project)
+  }
+
   const add = () => {
     close(false)
     onAddProject()
   }
 
-  const activeProject = filtered[Math.min(active, filtered.length - 1)]
   const optionId = (id: string) => `${listId}-opt-${id}`
   const homeDir = summary?.homeDir ?? null
 
@@ -313,6 +338,20 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
                           </span>
                         </span>
                       )}
+                      <button
+                        type="button"
+                        className="proj-edit"
+                        // So atalho de mouse: teclado e leitor de tela usam F2 e o botao do rodape.
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        title="Editar projeto"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          edit(p)
+                        }}
+                      >
+                        <PencilIcon />
+                      </button>
                     </li>
                   )
                 })}
@@ -324,9 +363,18 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
             <button type="button" className="proj-add" onClick={add}>
               + Adicionar projeto
             </button>
+            <button
+              type="button"
+              className="proj-add proj-edit-active"
+              disabled={!activeProject}
+              onClick={() => activeProject && edit(activeProject)}
+            >
+              Editar projeto <kbd className="proj-kbd">F2</kbd>
+            </button>
           </div>
         </div>
       )}
+      {editing && <ProjectEditModal project={editing} onClose={() => setEditing(null)} />}
     </>
   )
 }

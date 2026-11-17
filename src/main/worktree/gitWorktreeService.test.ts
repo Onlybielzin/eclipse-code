@@ -87,6 +87,62 @@ describe('parseWorktreePorcelain', () => {
   })
 })
 
+describe('GitWorktreeService.initRepository', () => {
+  const identity = {
+    GIT_AUTHOR_NAME: 'Teste',
+    GIT_AUTHOR_EMAIL: 'teste@example.invalid',
+    GIT_COMMITTER_NAME: 'Teste',
+    GIT_COMMITTER_EMAIL: 'teste@example.invalid',
+  }
+  const saved: Record<string, string | undefined> = {}
+  beforeEach(() => {
+    for (const [k, v] of Object.entries(identity)) {
+      saved[k] = process.env[k]
+      process.env[k] = v
+    }
+  })
+  afterEach(() => {
+    for (const k of Object.keys(identity)) {
+      if (saved[k] === undefined) delete process.env[k]
+      else process.env[k] = saved[k]
+    }
+  })
+
+  it('pasta vazia vira repositório com HEAD válido; repetir não falha', async () => {
+    const empty = join(base, 'vazia')
+    mkdirSync(empty)
+    expect(await service.isGitRepository(empty)).toBe(false)
+    await service.initRepository(empty)
+    expect(await service.isGitRepository(empty)).toBe(true)
+    expect(git(empty, 'rev-parse', '--verify', 'HEAD')).toMatch(/^[0-9a-f]{40}$/)
+    expect(git(empty, 'log', '-1', '--format=%s')).toBe('Início do repositório')
+    const head = git(empty, 'rev-parse', 'HEAD')
+    await service.initRepository(empty)
+    expect(git(empty, 'rev-parse', 'HEAD')).toBe(head)
+    await service.initRepository(repo)
+  })
+
+  it('commit inicial falha: erro em português com stderr nos details; repetir com identidade conserta', async () => {
+    const dir = join(base, 'sem-identidade')
+    mkdirSync(dir)
+    process.env.GIT_COMMITTER_NAME = ''
+    const err = await service.initRepository(dir).catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(DomainError)
+    const failure = err as DomainError
+    expect(failure.message).toContain('primeiro commit falhou')
+    expect(failure.message).not.toContain('fatal')
+    expect(JSON.stringify(failure.details)).toContain('stderr')
+    expect(await service.isGitRepository(dir)).toBe(true)
+    process.env.GIT_COMMITTER_NAME = 'Teste'
+    await service.initRepository(dir)
+    expect(git(dir, 'rev-parse', '--verify', 'HEAD')).toMatch(/^[0-9a-f]{40}$/)
+  })
+
+  it('recusa caminho relativo', async () => {
+    expect(await code(service.initRepository('rel/x'))).toBe('invalid_input')
+  })
+})
+
 describe('GitWorktreeService', () => {
   it('reconhece repositório e branch padrão', async () => {
     expect(await service.isGitRepository(repo)).toBe(true)

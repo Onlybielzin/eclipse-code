@@ -219,6 +219,49 @@ code {
 .proj-item.active {
   background: var(--raised);
 }
+.proj-edit {
+  flex: none;
+  display: inline-flex;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+}
+.proj-item:hover .proj-edit,
+.proj-item.active .proj-edit,
+.proj-edit:focus-visible {
+  opacity: 1;
+}
+.proj-edit:hover {
+  color: var(--fg);
+  background: var(--raised);
+}
+.modal-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.modal-danger {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+button.danger {
+  justify-self: start;
+  border: 1px solid var(--bad);
+  background: var(--bad-soft);
+  color: var(--bad);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
 .proj-check {
   flex: none;
   width: 14px;
@@ -288,6 +331,23 @@ code {
 .proj-foot {
   border-top: 1px solid var(--line);
   padding: 4px;
+  display: flex;
+  gap: 4px;
+}
+.proj-foot .proj-add {
+  width: auto;
+  flex: 1;
+}
+.proj-edit-active {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--fg);
+}
+.proj-edit-active:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 .proj-add {
   width: 100%;

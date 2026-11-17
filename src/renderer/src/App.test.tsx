@@ -760,7 +760,108 @@ describe('seletor de projeto do topo', () => {
   })
 })
 
+describe('editar e excluir projeto', () => {
+  const openEdit = () => {
+    fireEvent.click(screen.getByRole('button', { name: /^Projeto: / }))
+    const pick = screen.getByRole('dialog', { name: 'Trocar projeto' })
+    fireEvent.click(within(pick).getByRole('button', { name: /^Editar projeto/ }))
+    return screen.getByRole('dialog', { name: 'Editar projeto' })
+  }
+
+  it('F2 na busca abre a edição do projeto ativo', async () => {
+    await renderApp()
+    fireEvent.click(screen.getByRole('button', { name: /^Projeto: / }))
+    const pick = screen.getByRole('dialog', { name: 'Trocar projeto' })
+    expect(pick.querySelector('.proj-edit')?.getAttribute('aria-hidden')).toBe('true')
+    expect(pick.querySelector('.proj-edit')?.getAttribute('tabindex')).toBe('-1')
+    fireEvent.keyDown(within(pick).getByRole('combobox'), { key: 'F2' })
+    expect(screen.getByRole('dialog', { name: 'Editar projeto' })).toBeTruthy()
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+  })
+
+  it('renomeia pelo picker sem selecionar o projeto', async () => {
+    await renderApp()
+    const dialog = openEdit()
+    expect(screen.queryByRole('dialog', { name: 'Trocar projeto' })).toBeNull()
+    const save = within(dialog).getByRole('button', { name: 'Salvar' }) as HTMLButtonElement
+    expect(save.disabled).toBe(true)
+    fireEvent.change(within(dialog).getByLabelText('Nome do projeto'), {
+      target: { value: 'Outro nome' },
+    })
+    fireEvent.click(save)
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.callsTo('projects.update')).toEqual([
+      { projectId: expect.any(String), name: 'Outro nome' },
+    ])
+    expect(api.callsTo('projects.remove')).toHaveLength(0)
+  })
+
+  it('excluir pede confirmação antes de chamar projects.remove', async () => {
+    await renderApp()
+    const dialog = openEdit()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir projeto' }))
+    expect(api.callsTo('projects.remove')).toHaveLength(0)
+    expect(
+      within(dialog).getByText(/A pasta e as worktrees no disco ficam como estão/),
+    ).toBeTruthy()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Voltar' }))
+    expect(within(dialog).getByRole('button', { name: 'Excluir projeto' })).toBeTruthy()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir projeto' }))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir de vez' }))
+    await waitFor(() => expect(api.callsTo('projects.remove')).toHaveLength(1))
+  })
+})
+
 describe('modal Adicionar projeto', () => {
+  it('pasta sem git mostra o checkbox marcado e manda initGit', async () => {
+    await renderApp()
+    openAddProject()
+    const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
+    api.nextPickedFolder = {
+      path: '/data/Projects/novo',
+      name: 'novo',
+      isGitRepo: false,
+      alreadyAdded: false,
+    }
+    fireEvent.click(within(dialog).getByRole('button', { name: /Escolher pasta/ }))
+    const box = (await within(dialog).findByLabelText(
+      'Iniciar git nesta pasta',
+    )) as HTMLInputElement
+    expect(box.checked).toBe(true)
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Adicionar projeto' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.callsTo('projects.add')).toEqual([
+      { rootPath: '/data/Projects/novo', name: 'novo', initGit: true },
+    ])
+  })
+
+  it('erro ao adicionar (git) mantém a modal aberta', async () => {
+    await renderApp()
+    openAddProject()
+    const dialog = screen.getByRole('dialog', { name: 'Adicionar projeto' })
+    api.nextPickedFolder = {
+      path: '/data/Projects/novo',
+      name: 'novo',
+      isGitRepo: false,
+      alreadyAdded: false,
+    }
+    api.overrides.set('projects.add', () => ({
+      ok: false,
+      error: { code: 'internal', message: 'git init feito, mas o primeiro commit falhou.' },
+    }))
+    fireEvent.click(within(dialog).getByRole('button', { name: /Escolher pasta/ }))
+    await within(dialog).findByLabelText('Iniciar git nesta pasta')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Adicionar projeto' }))
+    await waitFor(() => expect(api.callsTo('projects.add')).toHaveLength(1))
+    await waitFor(() =>
+      expect(
+        (within(dialog).getByRole('button', { name: 'Adicionar projeto' }) as HTMLButtonElement)
+          .disabled,
+      ).toBe(false),
+    )
+    expect(screen.getByRole('dialog', { name: 'Adicionar projeto' })).toBeTruthy()
+  })
+
   it('abre o explorador, mostra a pasta e adiciona com o nome editado', async () => {
     await renderApp()
     openAddProject()

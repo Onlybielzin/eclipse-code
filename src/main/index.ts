@@ -24,6 +24,7 @@ import { applyLoginShellPath } from './app/loginShellPath'
 import { DomainError } from '@shared/domain'
 import { createUpdater, createWhatsNew } from './app/updater'
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
+import { runGit } from './worktree'
 
 // Pasta de dados propria: nunca a do app antigo. Precisa vir antes de 'ready'.
 // --user-data-dir (switch do Chromium) troca a pasta inteira, banco e socket inclusive.
@@ -154,7 +155,10 @@ async function boot(): Promise<AppServices> {
       return {
         path: root,
         name: basename(root) || root,
-        isGitRepo: existsSync(join(root, '.git')),
+        // .git sem HEAD (commit inicial falhou) conta como sem git: a tela oferece o init de novo.
+        isGitRepo:
+          existsSync(join(root, '.git')) &&
+          (await runGit(['rev-parse', '--verify', 'HEAD'], root, 'observation')).exitCode === 0,
         alreadyAdded: services.tasks.listProjects().some((p) => p.rootPath === root),
       }
     },

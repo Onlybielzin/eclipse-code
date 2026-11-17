@@ -656,6 +656,7 @@ describe('pergunta respondida no terminal do Líder', () => {
         tasks: h.tasks,
         coordinator: h.coordinator,
         brain: {} as AppServices['brain'],
+        worktrees: {} as AppServices['worktrees'],
         taskProcesses: { owns: () => false } as unknown as AppServices['taskProcesses'],
       }),
     )

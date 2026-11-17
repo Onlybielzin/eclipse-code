@@ -322,6 +322,21 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     return this.store.getProjectByRoot(normalizeRootPath(rootPath))
   }
 
+  renameProject(id: ProjectId, name: string): Project {
+    const trimmed = name.trim()
+    if (!trimmed) throw new DomainError('invalid_input', 'o nome do projeto não pode ficar vazio')
+    return this.write(() => {
+      const project: Project = {
+        ...this.getProject(id),
+        name: trimmed,
+        updatedAt: this.clock.now(),
+      }
+      this.store.updateProject(project)
+      this.emit({ type: 'project.upserted', project })
+      return project
+    })
+  }
+
   removeProject(id: ProjectId): void {
     this.write(() => {
       this.getProject(id)

@@ -12,6 +12,7 @@ export function AddProjectModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [picking, setPicking] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [initGit, setInitGit] = useState(true)
   const pickButton = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -41,8 +42,7 @@ export function AddProjectModal({ onClose }: { onClose: () => void }) {
     if (!folder || folder.alreadyAdded) return
     setSaving(true)
     try {
-      await store.addProject(folder.path, name)
-      onClose()
+      if (await store.addProject(folder.path, name, !folder.isGitRepo && initGit)) onClose()
     } finally {
       setSaving(false)
     }
@@ -106,10 +106,27 @@ export function AddProjectModal({ onClose }: { onClose: () => void }) {
           </p>
         )}
         {folder && !folder.alreadyAdded && !folder.isGitRepo && (
-          <p className="modal-note warn">
-            Essa pasta não tem git. Dá para adicionar, mas as tarefas precisam de um repositório
-            para criar a worktree.
-          </p>
+          <>
+            <label className="modal-check">
+              <input
+                type="checkbox"
+                checked={initGit}
+                onChange={(e) => setInitGit(e.target.checked)}
+              />
+              <span>Iniciar git nesta pasta</span>
+            </label>
+            {initGit ? (
+              <p className="modal-note ok">
+                Cria o repositório e um primeiro commit vazio. Sem git, as tarefas não criam
+                worktree.
+              </p>
+            ) : (
+              <p className="modal-note warn">
+                Essa pasta não tem git. Dá para adicionar, mas as tarefas precisam de um repositório
+                para criar a worktree.
+              </p>
+            )}
+          </>
         )}
         {folder && !folder.alreadyAdded && folder.isGitRepo && (
           <p className="modal-note ok">Repositório git encontrado.</p>

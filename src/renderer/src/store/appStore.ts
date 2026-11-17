@@ -377,15 +377,41 @@ export class AppStore {
     return this.call('brain.setKey', { key })
   }
 
-  async addProject(rootPath: string, name?: string): Promise<void> {
-    await this.guard(async () => {
-      const project = await this.call(
-        'projects.add',
-        name && name.trim() ? { rootPath, name: name.trim() } : { rootPath },
-      )
-      this.set((s) => ({ projects: upsertById(s.projects, project) }))
-      await this.openProject(project.id)
-    })
+  /** Devolve true se adicionou; o erro do main aparece pelo guard. */
+  async addProject(rootPath: string, name?: string, initGit?: boolean): Promise<boolean> {
+    return (
+      (await this.guard(async () => {
+        const project = await this.call('projects.add', {
+          rootPath,
+          ...(name && name.trim() ? { name: name.trim() } : {}),
+          ...(initGit ? { initGit: true } : {}),
+        })
+        this.set((s) => ({ projects: upsertById(s.projects, project) }))
+        await this.openProject(project.id)
+        return true
+      })) ?? false
+    )
+  }
+
+  /** Devolve true se salvou; o erro do main aparece pelo guard. */
+  async renameProject(projectId: string, name: string): Promise<boolean> {
+    return (
+      (await this.guard(async () => {
+        const project = await this.call('projects.update', { projectId, name: name.trim() })
+        this.set((s) => ({ projects: upsertById(s.projects, project) }))
+        return true
+      })) ?? false
+    )
+  }
+
+  /** Devolve true se excluiu; 'project.removed' tira da lista e troca de projeto. */
+  async removeProject(projectId: string): Promise<boolean> {
+    return (
+      (await this.guard(async () => {
+        await this.call('projects.remove', { projectId })
+        return true
+      })) ?? false
+    )
   }
 
   // -- selecao ----------------------------------------------------------------

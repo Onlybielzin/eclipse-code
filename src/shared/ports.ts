@@ -240,6 +240,8 @@ export interface TaskService {
   listProjects(): Project[]
   getProject(id: ProjectId): Project
   addProject(input: { rootPath: string; name?: string | undefined }): Project
+  /** Troca o nome (trim; vazio = invalid_input). Emite project.upserted. */
+  renameProject(id: ProjectId, name: string): Project
   removeProject(id: ProjectId): void
   /**
    * Contadores de cada projeto, na ordem de listProjects: tarefas nao arquivadas e
@@ -637,6 +639,8 @@ export interface CreateWorktreeRequest {
 
 export interface WorktreeService {
   isGitRepository(path: string): Promise<boolean>
+  /** git init + commit inicial vazio (a worktree precisa de HEAD). Se ja e repositorio, nao faz nada. */
+  initRepository(path: string): Promise<void>
   getDefaultBranch(projectRoot: string): Promise<string | null>
   /**
    * Cria worktree + branch. Nome em conflito ganha sufixo. Respeita symlinks

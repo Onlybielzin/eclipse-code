@@ -71,6 +71,17 @@ describe('parseIpcInvokeRequest', () => {
     expect(r.ok).toBe(true)
   })
 
+  it('projects.update exige nome e recusa campo extra; projects.add aceita initGit', () => {
+    const update = (input: unknown) =>
+      parseIpcInvokeRequest({ channel: 'projects.update', input }).ok
+    expect(update({ projectId: 'p1', name: 'Novo' })).toBe(true)
+    expect(update({ projectId: 'p1', name: '' })).toBe(false)
+    expect(update({ projectId: 'p1', name: 'Novo', extra: 1 })).toBe(false)
+    const add = (input: unknown) => parseIpcInvokeRequest({ channel: 'projects.add', input }).ok
+    expect(add({ rootPath: '/abs/x', initGit: true })).toBe(true)
+    expect(add({ rootPath: '/abs/x', initGit: 'sim' })).toBe(false)
+  })
+
   it('projeto exige caminho absoluto', () => {
     expect(
       parseIpcInvokeRequest({ channel: 'projects.add', input: { rootPath: 'rel/x' } }).ok,

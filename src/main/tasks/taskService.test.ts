@@ -230,6 +230,19 @@ describe('TaskService: projetos, papéis e tarefas', () => {
     expect(errorCode(() => service.addProject({ rootPath: '/home/u/meu-repo' }))).toBe('conflict')
   })
 
+  it('renameProject troca o nome, emite o evento e recusa nome vazio e id inexistente', () => {
+    const { service } = createHarness()
+    const p = service.addProject({ rootPath: '/repo/velho' })
+    const events: string[] = []
+    service.subscribe((env) => events.push(env.event.type))
+    const renamed = service.renameProject(p.id, '  Novo nome  ')
+    expect(renamed.name).toBe('Novo nome')
+    expect(service.getProject(p.id).name).toBe('Novo nome')
+    expect(events).toEqual(['project.upserted'])
+    expect(errorCode(() => service.renameProject(p.id, '   '))).toBe('invalid_input')
+    expect(errorCode(() => service.renameProject('nao-existe', 'x'))).toBe('not_found')
+  })
+
   it('projeto novo nasce com Líder, Dev e Revisor e aceita tarefa de time', () => {
     const { service } = createHarness()
     const p = service.addProject({ rootPath: '/repo/novo' })

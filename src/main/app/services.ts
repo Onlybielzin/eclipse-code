@@ -37,7 +37,7 @@ import {
 import { createPtyHost, TaskProcesses, type PtyHostOptions } from '../terminal'
 import { createWorktreeService } from '../worktree'
 import { AppTeamCoordinator, silentLogger, type AppLogger } from './teamCoordinator'
-import type { McpBridgeServer, PtyHost } from '@shared/ports'
+import type { McpBridgeServer, PtyHost, WorktreeService } from '@shared/ports'
 
 export interface AppServicesOptions {
   paths: Pick<AppPaths, 'database' | 'runtime' | 'worktrees' | 'userData'>
@@ -73,6 +73,7 @@ export interface AppServices {
   coordinator: AppTeamCoordinator
   ptyHost: PtyHost
   taskProcesses: TaskProcesses
+  worktrees: WorktreeService
   leader: LeaderModule
   members: AcpMemberRuntime
   turnRelay: TeamTurnRelay
@@ -156,13 +157,14 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     tasks,
     ...(options.terminalSize ? { size: options.terminalSize } : {}),
   })
+  const worktrees = createWorktreeService()
   const coordinator = new AppTeamCoordinator({
     tasks,
     ptyHost,
     taskProcesses,
     leader,
     members,
-    worktrees: createWorktreeService(),
+    worktrees,
     bridge,
     worktreesRoot: options.paths.worktrees,
     leaderNotices: turnRelay,
@@ -236,6 +238,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     coordinator,
     ptyHost,
     taskProcesses,
+    worktrees,
     leader,
     members,
     turnRelay,

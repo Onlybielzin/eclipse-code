@@ -4,6 +4,7 @@
  * ao TeamCoordinator.
  */
 import { homedir } from 'node:os'
+import { DomainError } from '@shared/domain'
 import type { IpcCommandHandlers } from '@shared/ipc'
 import { buildWallSnapshot, coalesced } from '../wall'
 import type { AppServices } from './services'
@@ -14,7 +15,7 @@ export interface IpcHandlerOptions {
 }
 
 export function createIpcHandlers(
-  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'taskProcesses'>,
+  services: Pick<AppServices, 'tasks' | 'coordinator' | 'brain' | 'taskProcesses' | 'worktrees'>,
   options: IpcHandlerOptions = {},
 ): Omit<
   IpcCommandHandlers,
@@ -26,12 +27,21 @@ export function createIpcHandlers(
   | 'update.install'
   | 'update.check'
 > {
-  const { tasks, coordinator, brain, taskProcesses } = services
+  const { tasks, coordinator, brain, taskProcesses, worktrees } = services
   const homeDir = options.homeDir ?? homedir()
   const wallSnapshot = coalesced(() => buildWallSnapshot(tasks))
   return {
     'projects.list': async () => tasks.listProjects(),
-    'projects.add': async (input) => tasks.addProject(input),
+    'projects.add': async ({ initGit, ...input }) => {
+      if (initGit) {
+        if (tasks.getProjectByRoot(input.rootPath)) {
+          throw new DomainError('conflict', `projeto já existe nesta pasta: ${input.rootPath}`)
+        }
+        await worktrees.initRepository(input.rootPath)
+      }
+      return tasks.addProject(input)
+    },
+    'projects.update': async (input) => tasks.renameProject(input.projectId, input.name),
     'projects.remove': async (input) => tasks.removeProject(input.projectId),
     'projects.summary': async () => ({ homeDir, projects: tasks.summarizeProjects() }),
 

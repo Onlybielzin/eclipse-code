@@ -114,6 +114,34 @@ export class GitWorktreeService implements WorktreeService {
     }
   }
 
+  async initRepository(path: string): Promise<void> {
+    const root = requireAbsolute(path, 'a pasta do projeto')
+    if (!(await this.isGitRepository(root))) {
+      const init = await runGit(['init'], root, 'mutation')
+      if (init.exitCode !== 0) {
+        throw new DomainError('internal', 'Não deu para iniciar o git nesta pasta.', {
+          exitCode: init.exitCode,
+          stderr: init.stderr.trim(),
+        })
+      }
+    }
+    // Sem HEAD (init passou e o commit falhou antes): repetir refaz o commit inicial.
+    const head = await runGit(['rev-parse', '--verify', 'HEAD'], root, 'observation')
+    if (head.exitCode === 0) return
+    const commit = await runGit(
+      ['commit', '--allow-empty', '-m', 'Início do repositório'],
+      root,
+      'mutation',
+    )
+    if (commit.exitCode !== 0) {
+      throw new DomainError(
+        'internal',
+        'git init feito, mas o primeiro commit falhou. Configure user.name e user.email do git e tente de novo.',
+        { exitCode: commit.exitCode, stderr: commit.stderr.trim() },
+      )
+    }
+  }
+
   private async ensureRepo(projectRoot: string): Promise<void> {
     if (!(await this.isGitRepository(projectRoot))) {
       throw new DomainError('invalid_input', 'a pasta não é um repositório git', {

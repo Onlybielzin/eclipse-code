@@ -209,7 +209,17 @@ export const ipcCommands = {
   'projects.list': command<Project[]>()(emptyInput),
   'projects.pickFolder': command<PickedFolder | null>()(emptyInput),
   'projects.add': command<Project>()(
-    z.object({ rootPath: absolutePathSchema, name: titleSchema.optional() }).strict(),
+    z
+      .object({
+        rootPath: absolutePathSchema,
+        name: titleSchema.optional(),
+        /** Pasta sem git: roda git init e o primeiro commit vazio antes de adicionar. */
+        initGit: z.boolean().optional(),
+      })
+      .strict(),
+  ),
+  'projects.update': command<Project>()(
+    z.object({ projectId: idSchema, name: titleSchema }).strict(),
   ),
   'projects.remove': command<void>()(z.object({ projectId: idSchema }).strict()),
   /** Tarefas abertas e perguntas abertas de cada projeto (seletor de projeto do topo). */
