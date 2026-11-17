@@ -125,11 +125,13 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
  *
  *   a_fazer -> em_andamento -> (pergunta <-> em_andamento) -> em_revisao
  *     -> pronto_lancar -> lancado
+ *   (cancelado fica depois de lancado: abandona a tarefa, com o mesmo efeito de arquivar)
  *
  * Invariantes:
- *   W1. pronto_lancar e lancado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
- *   W2. lancado e final para a automacao: nada automatico tira a tarefa de la.
- *   W3. status 'archived' <=> workflowStatus 'lancado' (lancar arquiva; sair de lancado desarquiva).
+ *   W1. pronto_lancar, lancado e cancelado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
+ *   W2. lancado e cancelado sao finais para a automacao: nada automatico tira a tarefa de la.
+ *   W3. status 'archived' <=> workflowStatus em ('lancado','cancelado') (lancar ou cancelar
+ *       arquiva; sair dos dois para um status aberto desarquiva).
  */
 export const TASK_WORKFLOW_STATUSES = [
   'a_fazer',
@@ -138,6 +140,7 @@ export const TASK_WORKFLOW_STATUSES = [
   'em_revisao',
   'pronto_lancar',
   'lancado',
+  'cancelado',
 ] as const
 export type TaskWorkflowStatus = (typeof TASK_WORKFLOW_STATUSES)[number]
 
@@ -148,10 +151,16 @@ export const TASK_WORKFLOW_STATUS_LABELS: Record<TaskWorkflowStatus, string> = {
   em_revisao: 'Em revisão',
   pronto_lancar: 'Pronto pra lançar',
   lancado: 'Concluída',
+  cancelado: 'Cancelada',
+}
+
+/** Status que arquivam a tarefa (W3). */
+export function isArchivedWorkflowStatus(status: TaskWorkflowStatus): boolean {
+  return status === 'lancado' || status === 'cancelado'
 }
 
 /** Status que agente e automacao nunca escrevem (W1). */
-export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'lancado'] as const
+export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'lancado', 'cancelado'] as const
 
 /** Quem pede a mudanca de status: o usuario (tela) ou um agente (MCP). */
 export type TaskWorkflowActor = 'user' | 'agent'
@@ -165,7 +174,12 @@ export interface Task {
   projectId: ProjectId
   /** contextId do A2A. Estavel; agrupa subtarefas, mensagens e entregas da tarefa. */
   contextId: string
+  /**
+   * Pedido original do usuario. Nao muda e e o que vai nos prompts.
+   */
   title: string
+  /** Nome curto mostrado na tela. Comeca igual ao title; o Lider troca com tarefa_renomear. Nunca vazio. */
+  name: string
   kind: TaskKind
   /**
    * Pasta onde o Lider e os membros rodam. null = sem worktree propria, roda na

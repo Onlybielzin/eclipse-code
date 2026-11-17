@@ -337,6 +337,9 @@
 .wall-chip.st-lancado {
   color: var(--st-green);
 }
+.wall-chip.st-cancelado {
+  opacity: 0.6;
+}
 .wall-title {
   font-size: 13.5px;
   font-weight: 600;

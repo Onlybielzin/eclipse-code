@@ -56,12 +56,21 @@ describe('filterTasks', () => {
     expect(ids(EMPTY_TASK_FILTERS, '  check ')).toEqual(['b'])
     expect(ids(EMPTY_TASK_FILTERS, 'nada')).toEqual([])
   })
+
+  it('busca casa o nome ou o pedido original', () => {
+    const one = [makeTask('n', 'pedido longo do vings', { name: 'Nome curto' })]
+    const find = (q: string) => filterTasks(one, EMPTY_TASK_FILTERS, q, {}).length
+    expect(find('pedido')).toBe(1)
+    expect(find('curto')).toBe(1)
+    expect(find('nada')).toBe(0)
+  })
 })
 
 describe('presets e normalização', () => {
-  it('"Abertas" esconde só Concluída; "Todas" limpa os status', () => {
+  it('"Abertas" esconde Concluída e Cancelada; "Todas" limpa os status', () => {
     const open = applyPreset({ ...EMPTY_TASK_FILTERS, kinds: ['team'] }, 'open')
     expect(open.statuses).not.toContain('lancado')
+    expect(open.statuses).not.toContain('cancelado')
     expect(open.statuses).toHaveLength(5)
     expect(open.kinds).toEqual(['team'])
     expect(activePreset(open)).toBe('open')
@@ -89,8 +98,9 @@ describe('presets e normalização', () => {
     expect(includeStatus(f, 'a_fazer')).toBe(f)
     expect(includeStatus(EMPTY_TASK_FILTERS, 'lancado')).toBe(EMPTY_TASK_FILTERS)
     expect(includeStatus(f, 'lancado').statuses).toEqual(['a_fazer', 'lancado'])
-    // Abertas + Concluída = todos = sem filtro.
-    expect(includeStatus(applyPreset(f, 'open'), 'lancado').statuses).toEqual([])
+    // Abertas + Concluída + Cancelada = todos = sem filtro.
+    const aberta = includeStatus(applyPreset(f, 'open'), 'lancado')
+    expect(includeStatus(aberta, 'cancelado').statuses).toEqual([])
   })
 })
 
@@ -103,7 +113,7 @@ describe('chips', () => {
       showDoneSubtasks: false,
     }
     expect(taskFilterChips(f)).toEqual([
-      { key: 'status', label: 'Sem Concluída' },
+      { key: 'status', label: 'Sem Concluída, Cancelada' },
       { key: 'kind', label: 'Avulso' },
       { key: 'running', label: 'Agente rodando' },
     ])

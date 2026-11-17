@@ -16,7 +16,7 @@ import {
 } from './TaskFilters'
 
 /** Grupos recolhidos ao abrir a tela. */
-const COLLAPSED_BY_DEFAULT: Partial<Record<TaskWorkflowStatus, boolean>> = { lancado: true }
+const COLLAPSED_BY_DEFAULT: Partial<Record<TaskWorkflowStatus, boolean>> = { lancado: true, cancelado: true }
 
 /**
  * Coluna esquerda: tarefas agrupadas por status (ordem de TASK_WORKFLOW_STATUSES), com
@@ -212,11 +212,13 @@ export function TaskList() {
                           </span>
                           <TaskStatusMenu
                             status={task.workflowStatus}
-                            taskTitle={task.title}
+                            taskTitle={task.name}
                             onChange={(status) => void store.setTaskStatus(task.id, status)}
                             openAt={statusMenuAt?.taskId === task.id ? statusMenuAt : null}
                           />
-                          <span className="t">{task.title}</span>
+                          <span className="t" title={task.title}>
+                            {task.name}
+                          </span>
                           <span className="m" title={leadMeta(task)}>
                             <ShortAgo at={task.updatedAt} />
                           </span>

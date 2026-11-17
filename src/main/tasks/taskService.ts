@@ -16,7 +16,7 @@
  *   I5. Uma subtarefa tem no maximo uma sessao de membro (seq de atividade e por sessao).
  *   I6. Status de trabalho da tarefa (W1-W3 em domain.ts): so muda aqui, na mesma transacao
  *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
- *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado; lancado <=> arquivada.
+ *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado/cancelado; lancado ou cancelado <=> arquivada.
  */
 import { DEFAULT_ROLES } from './defaultRoles'
 import { basename, isAbsolute, resolve } from 'node:path'
@@ -25,6 +25,7 @@ import {
   DomainError,
   MAX_ACTIVITY_TEXT_CHARS,
   canTransitionSubtask,
+  isArchivedWorkflowStatus,
   isFinalSubtaskState,
   isUserOnlyTaskWorkflowStatus,
   TASK_WORKFLOW_STATUS_LABELS,
@@ -497,6 +498,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         projectId: record.projectId,
         contextId: this.ids.newId(),
         title,
+        name: title,
         kind: record.kind,
         worktreePath: record.worktreePath,
         branch: record.branch,
@@ -521,7 +523,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
    * Arquiva a tarefa. Recusa ('conflict') se ainda houver sessao aberta: o
    * TeamCoordinator fecha os agentes antes. Subtarefas nao finais viram 'canceled'.
    */
-  markTaskArchived(id: TaskId): Task {
+  markTaskArchived(id: TaskId, finalStatus: 'lancado' | 'cancelado' = 'lancado'): Task {
     return this.write(() => {
       const task = this.getTask(id)
       if (task.status === 'archived') return task
@@ -545,7 +547,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       const archived: Task = {
         ...this.getTask(id),
         status: 'archived',
-        workflowStatus: 'lancado',
+        workflowStatus: finalStatus,
         archivedAt: now,
         updatedAt: now,
       }
@@ -570,18 +572,23 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
             { taskId: id, to },
           )
         }
-        if (task.workflowStatus === 'lancado') {
-          throw new DomainError('invalid_transition', 'tarefa lançada não muda por automação', {
-            taskId: id,
-          })
+        if (isArchivedWorkflowStatus(task.workflowStatus)) {
+          throw new DomainError(
+            'invalid_transition',
+            'tarefa lançada ou cancelada não muda por automação',
+            { taskId: id },
+          )
         }
       }
       if (task.workflowStatus === to) return task
       // Lancar arquiva (W3): fecha subtarefas e perguntas pelo mesmo caminho do arquivar.
-      if (to === 'lancado') return this.markTaskArchived(id)
+      if (isArchivedWorkflowStatus(to) && task.status !== 'archived') {
+        return this.markTaskArchived(id, to as 'lancado' | 'cancelado')
+      }
       const now = this.clock.now()
+      // Ja arquivada e indo para o outro status final: so troca o rotulo (continua arquivada).
       const next: Task =
-        task.status === 'archived'
+        task.status === 'archived' && !isArchivedWorkflowStatus(to)
           ? { ...task, status: 'open', archivedAt: null, workflowStatus: to, updatedAt: now }
           : { ...task, workflowStatus: to, updatedAt: now }
       this.store.updateTask(next)
@@ -611,6 +618,17 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     })
   }
 
+  renameTask(id: TaskId, name: string): Task {
+    const trimmed = name.trim()
+    if (!trimmed) throw new DomainError('invalid_input', 'a tarefa precisa de um nome')
+    return this.write(() => {
+      const next: Task = { ...this.getTask(id), name: trimmed, updatedAt: this.clock.now() }
+      this.store.updateTask(next)
+      this.emit({ type: 'task.upserted', task: next })
+      return next
+    })
+  }
+
   markTaskWorkStarted(id: TaskId): Task {
     return this.write(() => this.applyTaskSignal(id, 'work_started'))
   }
@@ -618,8 +636,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   concludeTask(id: TaskId): Task {
     return this.write(() => {
       const task = this.getTask(id)
-      if (task.workflowStatus === 'lancado') {
-        throw new DomainError('invalid_transition', 'a tarefa já foi lançada', { taskId: id })
+      if (isArchivedWorkflowStatus(task.workflowStatus)) {
+        throw new DomainError('invalid_transition', 'a tarefa já foi lançada ou cancelada', { taskId: id })
       }
       const open = this.store.countOpenQuestions(id)
       if (open > 0) {

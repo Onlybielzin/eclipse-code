@@ -122,6 +122,12 @@ export const mcpToolInputSchemas = {
       resumo: textSchema.min(1).describe('O que foi entregue na tarefa, para o usuário revisar.'),
     })
     .strict(),
+  /** Lider: troca o nome curto da tarefa mostrado na lista. O pedido original (title) nao muda. */
+  tarefa_renomear: z
+    .object({
+      nome: z.string().trim().min(1).max(80).describe('Nome curto da tarefa, como aparece na lista.'),
+    })
+    .strict(),
 } as const
 
 export type McpToolName = keyof typeof mcpToolInputSchemas
@@ -139,6 +145,7 @@ export const MCP_TOOL_ROLES: Record<McpToolName, readonly McpCallerRole[]> = {
   subtarefas_esperar: ['leader'],
   pergunta_repassar: ['leader'],
   tarefa_concluir: ['leader'],
+  tarefa_renomear: ['leader'],
 }
 
 export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
@@ -156,6 +163,8 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
     'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta. Uma pergunta nova substitui as que ainda estavam abertas nesta tarefa.',
   tarefa_concluir:
     'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
+  tarefa_renomear:
+    'Troca o nome curto da tarefa mostrado na lista. O pedido original não muda.',
 }
 
 export function isMcpToolName(value: unknown): value is McpToolName {

@@ -274,8 +274,8 @@ export const ipcCommands = {
     z.object({ taskId: idSchema, removeWorktree: z.boolean() }).strict(),
   ),
   /**
-   * Status escolhido pelo usuario no menu da lista. Qualquer um dos 6; 'lancado' arquiva
-   * (fecha agentes, mantem a worktree) e sair de 'lancado' reabre a tarefa.
+   * Status escolhido pelo usuario no menu da lista. Qualquer um dos 7; 'lancado' e 'cancelado'
+   * arquivam (fecha agentes, mantem a worktree) e sair deles reabre a tarefa.
    */
   'tasks.setStatus': command<Task>()(
     z.object({ taskId: idSchema, status: taskWorkflowStatusSchema }).strict(),

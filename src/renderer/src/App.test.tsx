@@ -244,6 +244,17 @@ afterEach(() => {
 })
 
 describe('tela de 3 colunas', () => {
+  it('a lista mostra o nome da tarefa e o pedido original fica no title', async () => {
+    const d = mockupData()
+    const task = d.tasks.find((t) => t.id === 'solo1')!
+    task.name = 'Nome curto'
+    await renderApp(d)
+    const row = screen.getByTestId('task-solo1')
+    const label = within(row).getByText('Nome curto')
+    expect(label.getAttribute('title')).toBe('conversa solta')
+    expect(within(row).queryByText('conversa solta')).toBeNull()
+  })
+
   it('mostra tarefas por status, subtarefas e o contador "precisa de você"', async () => {
     await renderApp()
     const list = screen.getByRole('region', { name: 'Tarefas' })
@@ -522,7 +533,7 @@ describe('status da tarefa na lista', () => {
     expect(screen.queryByTestId('task-t1')).toBeNull()
   })
 
-  it('ícone abre menu com os 6 status e a troca vai ao main e move a tarefa de grupo', async () => {
+  it('ícone abre menu com os 7 status e a troca vai ao main e move a tarefa de grupo', async () => {
     await renderApp()
     const row = screen.getByTestId('task-t1')
     fireEvent.click(within(row).getByRole('button', { name: /Status de feat-orfer-e-up/ }))
@@ -535,6 +546,7 @@ describe('status da tarefa na lista', () => {
       'Em revisão',
       'Pronto pra lançar',
       'Concluída',
+      'Cancelada',
     ])
     expect(options[1]?.getAttribute('aria-checked')).toBe('true')
     // Abrir o menu nao seleciona a tarefa nem muda nada.
@@ -959,7 +971,7 @@ describe('painéis do rodape da coluna esquerda', () => {
     return screen.getByTestId(`status-row-${status}`)
   }
 
-  it('Status mostra os 6 status na ordem, com 0 nos vazios e o total de abertas', async () => {
+  it('Status mostra os 7 status na ordem, com 0 nos vazios e o total de abertas', async () => {
     await renderApp()
     const panel = screen.getByRole('region', { name: 'Status' })
     const rows = within(panel).getAllByRole('button').slice(1)
@@ -970,6 +982,7 @@ describe('painéis do rodape da coluna esquerda', () => {
       'Em revisão0',
       'Pronto pra lançar0',
       'Concluída1',
+      'Cancelada0',
     ])
     expect(rows.every((r) => r.querySelector('.ic') !== null)).toBe(true)
     // Abertas: t1 e solo1 (old1 está lançada).
@@ -1285,7 +1298,7 @@ describe('filtros da lista de tarefas', () => {
     const pop = openFilters()
     fireEvent.click(within(pop).getByLabelText('A fazer'))
     expect(groupLabels()).toEqual(['A fazer'])
-    expect(within(pop).getAllByRole('checkbox')).toHaveLength(10)
+    expect(within(pop).getAllByRole('checkbox')).toHaveLength(11)
     fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
     expect(groupLabels()).toEqual(['A fazer', 'Em andamento', 'Concluída'])
   })
@@ -1360,8 +1373,9 @@ describe('filtros da lista de tarefas', () => {
     const group = screen.getByTestId('group-lancado')
     expect(group.getAttribute('aria-expanded')).toBe('true')
     expect(document.activeElement).toBe(group)
-    // Abertas + Concluída = todos: o filtro de status sai.
-    expect(screen.queryByTestId('chip-status')).toBeNull()
+    // Abertas + Concluída ainda esconde Cancelada (linha com 0 fica desabilitada).
+    expect(screen.getByTestId('chip-status').textContent).toContain('Sem Cancelada')
+
   })
 
   it('sem localStorage os filtros funcionam igual', async () => {

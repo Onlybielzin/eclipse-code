@@ -25,13 +25,14 @@
  *       dela com entrega confirmada.
  *   C6. Um providerSessionId que falhou no --resume nao e tentado de novo: a sessao fica com
  *       providerSessionId null e o Lider abre sessao nova.
- *   C7. Lancar pela tela usa o mesmo fluxo do arquivar (fecha agentes, nao remove worktree).
- *       Tirar de lancado so reabre se a worktree da tarefa ainda existe.
+ *   C7. Lancar ou cancelar pela tela usa o mesmo fluxo do arquivar (fecha agentes, nao remove
+ *       worktree). Tirar de lancado/cancelado so reabre se a worktree da tarefa ainda existe.
  */
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   DomainError,
+  isArchivedWorkflowStatus,
   isFinalSubtaskState,
   isTerminalTask,
   type Provider,
@@ -284,7 +285,11 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     return task
   }
 
-  async archiveTask(taskId: TaskId, options: { removeWorktree: boolean }): Promise<Task> {
+  async archiveTask(
+    taskId: TaskId,
+    options: { removeWorktree: boolean },
+    finalStatus: 'lancado' | 'cancelado' = 'lancado',
+  ): Promise<Task> {
     const task = this.tasks.getTask(taskId)
     this.deps.taskProcesses?.stopTask(taskId)
     for (const session of this.tasks.listSessions(taskId)) {
@@ -292,7 +297,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       if (session.kind === 'member-acp') await this.closeMember(session.id)
       else this.stopLeader(session.id)
     }
-    const archived = this.tasks.markTaskArchived(taskId)
+    const archived = this.tasks.markTaskArchived(taskId, finalStatus)
     if (options.removeWorktree && task.worktreePath) {
       const project = this.tasks.getProject(task.projectId)
       await this.worktrees.remove({
@@ -307,13 +312,17 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   }
 
   /**
-   * Status escolhido pelo usuario no menu da lista. 'lancado' passa pelo archiveTask
-   * (fecha agentes; worktree fica). Sair de 'lancado' reabre a tarefa arquivada (C7).
+   * Status escolhido pelo usuario no menu da lista. 'lancado' e 'cancelado' passam pelo
+   * archiveTask (fecha agentes; worktree fica). Sair deles reabre a tarefa arquivada (C7).
    */
   async setTaskStatus(taskId: TaskId, status: TaskWorkflowStatus): Promise<Task> {
     const task = this.tasks.getTask(taskId)
     if (task.workflowStatus === status) return task
-    if (status === 'lancado') return this.archiveTask(taskId, { removeWorktree: false })
+    if (isArchivedWorkflowStatus(status)) {
+      // Ja arquivada (lancado <-> cancelado): so troca o rotulo, sem fechar nada de novo.
+      if (task.status === 'archived') return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
+      return this.archiveTask(taskId, { removeWorktree: false }, status as 'lancado' | 'cancelado')
+    }
     if (task.status === 'archived' && task.worktreePath && !existsSync(task.worktreePath)) {
       throw new DomainError(
         'unavailable',

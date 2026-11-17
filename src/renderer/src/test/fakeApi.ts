@@ -15,6 +15,7 @@ import type {
   UserQuestion,
 } from '@shared/domain'
 import type { WallSnapshot } from '@shared/wall'
+import { isArchivedWorkflowStatus } from '@shared/domain'
 import type {
   TaskProcessState,
   EclipseApi,
@@ -57,6 +58,7 @@ export function makeTask(id: string, title: string, extra: Partial<Task> = {}): 
     projectId: 'p1',
     contextId: `ctx-${id}`,
     title,
+    name: title,
     kind: 'team',
     worktreePath: `/repo/wt/${id}`,
     branch: id,
@@ -420,8 +422,8 @@ export class FakeApi implements EclipseApi {
         const next: Task = {
           ...current,
           workflowStatus: status,
-          status: status === 'lancado' ? 'archived' : 'open',
-          archivedAt: status === 'lancado' ? T0 + 60_000 : null,
+          status: isArchivedWorkflowStatus(status) ? 'archived' : 'open',
+          archivedAt: isArchivedWorkflowStatus(status) ? T0 + 60_000 : null,
           updatedAt: current.updatedAt + 1,
         }
         d.tasks = d.tasks.map((t) => (t.id === next.id ? next : t))

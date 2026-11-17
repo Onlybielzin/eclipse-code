@@ -332,6 +332,17 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
         data: { tarefa_id: task.id, status: task.workflowStatus, resumo: input.resumo },
       }
     },
+
+    async tarefa_renomear(caller: McpCaller, input: McpToolInput<'tarefa_renomear'>) {
+      if (caller.role !== 'leader' || caller.subtaskId !== null) {
+        throw new DomainError('forbidden', 'so o Lider renomeia a tarefa')
+      }
+      const task = tasks.renameTask(caller.taskId, input.nome)
+      return {
+        text: `Tarefa renomeada para "${task.name}".`,
+        data: { tarefa_id: task.id, nome: task.name },
+      }
+    },
   } satisfies {
     [N in McpToolName]: (caller: McpCaller, input: McpToolInput<N>) => Promise<McpToolResult>
   }

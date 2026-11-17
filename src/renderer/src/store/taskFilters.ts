@@ -13,6 +13,7 @@
  */
 import {
   TASK_KINDS,
+  isArchivedWorkflowStatus,
   TASK_WORKFLOW_STATUS_LABELS,
   TASK_WORKFLOW_STATUSES,
   type Subtask,
@@ -48,7 +49,7 @@ export const TASK_FILTER_PRESETS: readonly {
   label: string
   statuses: readonly TaskWorkflowStatus[]
 }[] = [
-  { id: 'open', label: 'Abertas', statuses: TASK_WORKFLOW_STATUSES.filter((s) => s !== 'lancado') },
+  { id: 'open', label: 'Abertas', statuses: TASK_WORKFLOW_STATUSES.filter((s) => !isArchivedWorkflowStatus(s)) },
   { id: 'needs_me', label: 'Precisam de mim', statuses: ['pergunta', 'em_revisao'] },
   { id: 'all', label: 'Todas', statuses: [] },
 ]
@@ -119,7 +120,7 @@ export function filterTasks(
       statusVisible(filters, t.workflowStatus) &&
       (filters.kinds.length === 0 || filters.kinds.includes(t.kind)) &&
       (!filters.runningOnly || hasRunningAgent(subtasks[t.id])) &&
-      (needle === '' || foldText(t.title).includes(needle)),
+      (needle === '' || foldText(t.name).includes(needle) || foldText(t.title).includes(needle)),
   )
 }
 

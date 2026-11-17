@@ -100,12 +100,12 @@ export function MiddlePane() {
             <TaskStatusMenu
               variant="pill"
               status={task.workflowStatus}
-              taskTitle={task.title}
+              taskTitle={task.name}
               onChange={(status) => void store.setTaskStatus(task.id, status)}
             />
           </span>
         )}
-        {!full && !subtask && <span className="mid-task">{task.title}</span>}
+        {!full && !subtask && <span className="mid-task">{task.name}</span>}
         {!full && (
           <span className="sp tabs" role="tablist" aria-label="Visão do meio">
             {tabs.map((t) => (
@@ -135,8 +135,9 @@ export function MiddlePane() {
           <div className="mid-layer" hidden={full || !showLeader}>
             {task.status === 'archived' ? (
               <div className="empty" data-testid="task-launched">
-                Tarefa concluída e arquivada. Os agentes foram fechados. Para reabrir, troque o
-                status no ícone da tarefa.
+                Tarefa {task.workflowStatus === 'cancelado' ? 'cancelada' : 'concluída'} e
+                arquivada. Os agentes foram fechados. Para reabrir, troque o status no ícone da
+                tarefa.
               </div>
             ) : (
               <>

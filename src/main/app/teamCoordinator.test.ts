@@ -617,6 +617,18 @@ describe('status da tarefa', () => {
     expect(h.removedWorktrees).toEqual([])
   })
 
+  it('usuário marca Cancelada: fecha o Líder como Lançado e arquiva', async () => {
+    const h = setup()
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'cancelado')
+    expect(task).toMatchObject({ status: 'archived', workflowStatus: 'cancelado' })
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+    expect(h.killed).toEqual(['pty-1'])
+    expect(h.removedWorktrees).toEqual([])
+    const trocada = await h.coordinator.setTaskStatus(h.fx.task.id, 'lancado')
+    expect(trocada).toMatchObject({ status: 'archived', workflowStatus: 'lancado' })
+  })
+
   it('tirar de Lançado sem a worktree no disco é recusado', async () => {
     const h = setup()
     await h.coordinator.setTaskStatus(h.fx.task.id, 'lancado')

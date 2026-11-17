@@ -226,6 +226,7 @@ describe('servidor MCP com cliente MCP falso (ponta a ponta sem modelo)', () => 
           'subtarefas_esperar',
           'subtarefas_ver',
           'tarefa_concluir',
+          'tarefa_renomear',
         ].sort(),
       )
       const criar = leaderTools.find((t) => t.name === 'subtarefa_criar')

@@ -780,6 +780,27 @@ describe('limites de agentes salvos', () => {
   })
 })
 
+describe('nome da tarefa', () => {
+  it('começa igual ao title; renomear muda só o name e emite task.upserted', () => {
+    const { service } = createHarness()
+    const fx = seedTeam(service)
+    expect(fx.task.name).toBe(fx.task.title)
+    const events: string[] = []
+    service.subscribe((env) => events.push(env.event.type))
+    const renamed = service.renameTask(fx.task.id, '  Login  ')
+    expect(renamed).toMatchObject({ name: 'Login', title: 'Corrigir login' })
+    expect(service.getTask(fx.task.id).name).toBe('Login')
+    expect(events).toEqual(['task.upserted'])
+  })
+
+  it('nome em branco falha', () => {
+    const { service } = createHarness()
+    const fx = seedTeam(service)
+    expect(errorCode(() => service.renameTask(fx.task.id, '   '))).toBe('invalid_input')
+    expect(service.getTask(fx.task.id).name).toBe('Corrigir login')
+  })
+})
+
 describe('comando de iniciar por tarefa', () => {
   it('guarda por tarefa, limpa a subpasta sem comando e recusa subpasta fora', () => {
     const { service } = createHarness()

@@ -263,16 +263,18 @@ export interface TaskService {
   listTasks(projectId: ProjectId, options: { includeArchived: boolean }): Task[]
   getTask(id: TaskId): Task
   createTask(record: CreateTaskRecord): Task
-  /** Arquiva e marca 'lancado' (W3). */
-  markTaskArchived(id: TaskId): Task
+  /** Arquiva e marca 'lancado' (padrao) ou 'cancelado' (W3). */
+  markTaskArchived(id: TaskId, finalStatus?: 'lancado' | 'cancelado'): Task
   /**
    * Muda o status de trabalho a pedido de alguem. 'agent' nunca escreve pronto_lancar
-   * nem lancado ('forbidden') e nao tira de lancado. 'user' escolhe qualquer um:
-   * lancado arquiva (mesma regra do markTaskArchived) e sair de lancado desarquiva.
+   * lancado nem cancelado ('forbidden') e nao tira deles. 'user' escolhe qualquer um:
+   * lancado e cancelado arquivam (mesma regra do markTaskArchived) e sair deles desarquiva.
    */
   setTaskWorkflowStatus(id: TaskId, to: TaskWorkflowStatus, actor: TaskWorkflowActor): Task
   /** Comando da aba Iniciar (null limpa) e subpasta relativa. Recusa subpasta absoluta ou com `..`. */
   setTaskStartCommand(id: TaskId, command: string | null, dir: string | null): Task
+  /** Troca o nome curto mostrado na tela (title nao muda). Nome vazio = 'invalid_input'. */
+  renameTask(id: TaskId, name: string): Task
   /** Lider ou membro comecou a trabalhar: a_fazer | em_revisao -> em_andamento. */
   markTaskWorkStarted(id: TaskId): Task
   /**

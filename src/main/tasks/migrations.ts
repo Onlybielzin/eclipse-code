@@ -271,6 +271,28 @@ export const MIGRATIONS: readonly Migration[] = [
       UPDATE roles SET access = 'no_commit' WHERE name_key = 'dev' AND is_lead = 0;
     `,
   },
+  {
+    version: 9,
+    name: 'nome da tarefa',
+    sql: `
+      ALTER TABLE tasks ADD COLUMN name TEXT NOT NULL DEFAULT '';
+      UPDATE tasks SET name = title;
+    `,
+  },
+  {
+    version: 10,
+    name: 'status cancelado',
+    // O CHECK da coluna (migracao 3) recusa 'cancelado'. Nao recria tasks (FKs com CASCADE):
+    // troca so a coluna. Nenhum indice ou trigger usa workflow_status.
+    sql: `
+      ALTER TABLE tasks ADD COLUMN workflow_status_v10 TEXT NOT NULL DEFAULT 'a_fazer'
+        CHECK (workflow_status_v10 IN
+          ('a_fazer', 'em_andamento', 'pergunta', 'em_revisao', 'pronto_lancar', 'lancado', 'cancelado'));
+      UPDATE tasks SET workflow_status_v10 = workflow_status;
+      ALTER TABLE tasks DROP COLUMN workflow_status;
+      ALTER TABLE tasks RENAME COLUMN workflow_status_v10 TO workflow_status;
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

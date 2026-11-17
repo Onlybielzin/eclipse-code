@@ -8,9 +8,10 @@
  *   questions_cleared  Nao ha mais pergunta aberta: pergunta -> em_andamento.
  *   leader_concluded   Lider chamou tarefa_concluir: qualquer -> em_revisao.
  *
- * Em todos: lancado nao muda (W2). A automacao nunca produz pronto_lancar nem lancado (W1).
+ * Em todos: lancado e cancelado nao mudam (W2). A automacao nunca produz pronto_lancar,
+ * lancado nem cancelado (W1).
  */
-import type { TaskWorkflowStatus } from './domain'
+import { isArchivedWorkflowStatus, type TaskWorkflowStatus } from './domain'
 
 export type TaskWorkflowSignal =
   'work_started' | 'question_opened' | 'questions_cleared' | 'leader_concluded'
@@ -19,7 +20,7 @@ export function nextTaskWorkflowStatus(
   current: TaskWorkflowStatus,
   signal: TaskWorkflowSignal,
 ): TaskWorkflowStatus | null {
-  if (current === 'lancado') return null
+  if (isArchivedWorkflowStatus(current)) return null
   let next: TaskWorkflowStatus | null
   switch (signal) {
     case 'work_started':

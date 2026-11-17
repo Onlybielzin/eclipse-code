@@ -44,6 +44,7 @@ export function createFakeTaskService(): FakeTaskService {
     projectId: 'proj1',
     contextId: 'ctx1',
     title: 'Tarefa',
+    name: 'Tarefa',
     kind: 'team',
     worktreePath: '/tmp/wt',
     branch: 'eclipse/x',
@@ -118,6 +119,12 @@ export function createFakeTaskService(): FakeTaskService {
         throw new DomainError('conflict', 'pergunta aberta')
       }
       task = { ...task, workflowStatus: 'em_revisao' }
+      emit({ type: 'task.upserted', task })
+      return task
+    },
+    renameTask(id, name) {
+      if (id !== task.id) throw new DomainError('not_found', 'tarefa')
+      task = { ...task, name: name.trim() }
       emit({ type: 'task.upserted', task })
       return task
     },

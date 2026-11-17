@@ -44,6 +44,22 @@ describe('SqliteTaskStore', () => {
     expect(access).toEqual({ rev: 'read_only', dev: 'no_commit', outro: 'full', lid: 'full' })
   })
 
+  it('migração 9: tarefa criada antes da v9 fica com name = title', () => {
+    const db = new Database(':memory:')
+    db.pragma('foreign_keys = ON')
+    for (const m of MIGRATIONS.filter((x) => x.version <= 8)) db.exec(m.sql)
+    db.pragma('user_version = 8')
+    db.exec(`
+      INSERT INTO projects VALUES ('p', 'p', '/p', 1, 1);
+      INSERT INTO tasks (id, project_id, context_id, title, kind, status, workflow_status,
+        created_at, updated_at) VALUES ('t', 'p', 'c', 'Pedido antigo', 'solo', 'open', 'a_fazer', 1, 1);
+    `)
+    expect(migrate(db)).toBe(LATEST_SCHEMA_VERSION)
+    expect(db.prepare("SELECT name FROM tasks WHERE id = 't'").get()).toEqual({
+      name: 'Pedido antigo',
+    })
+  })
+
   it('entrega e atividade gravadas não mudam', () => {
     const { service, store } = createHarness()
     const fx = seedTeam(service)

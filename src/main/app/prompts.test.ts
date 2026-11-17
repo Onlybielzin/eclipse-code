@@ -16,6 +16,7 @@ const task: Task = {
   projectId: 'p1',
   contextId: 'c1',
   title: 'Login novo',
+  name: 'Login novo',
   kind: 'team',
   worktreePath: '/wt/login',
   branch: 'feat/login-novo',

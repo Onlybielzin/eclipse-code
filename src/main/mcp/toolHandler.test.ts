@@ -32,6 +32,7 @@ describe('autorizacao pelo papel do token', () => {
       'subtarefas_esperar',
       'pergunta_repassar',
       'tarefa_concluir',
+      'tarefa_renomear',
     ] as const) {
       await expect(handler.callTool(member, name, {})).rejects.toMatchObject({ code: 'forbidden' })
     }
@@ -83,6 +84,33 @@ describe('tarefa_concluir', () => {
       handler.callTool(leader, 'tarefa_concluir', { resumo: 'x', status: 'lancado' }),
     ).rejects.toMatchObject({ code: 'invalid_input' })
     expect(tasks.getTask('task1').workflowStatus).toBe('em_andamento')
+  })
+})
+
+describe('tarefa_renomear', () => {
+  it('Lider renomeia e o title fica', async () => {
+    const { handler, tasks } = setup()
+    const result = await handler.callTool(leader, 'tarefa_renomear', { nome: '  Login novo ' })
+    expect(tasks.getTask('task1')).toMatchObject({ name: 'Login novo', title: 'Tarefa' })
+    expect(result.text).toBe('Tarefa renomeada para "Login novo".')
+    expect(result.data).toEqual({ tarefa_id: 'task1', nome: 'Login novo' })
+  })
+
+  it('membro é recusado', async () => {
+    const { handler, tasks } = setup()
+    await expect(handler.callTool(member, 'tarefa_renomear', { nome: 'x' })).rejects.toMatchObject({
+      code: 'forbidden',
+    })
+    expect(tasks.getTask('task1').name).toBe('Tarefa')
+  })
+
+  it('nome com 81 letras ou em branco dá invalid_input', async () => {
+    const { handler } = setup()
+    for (const nome of ['a'.repeat(81), '   ']) {
+      await expect(handler.callTool(leader, 'tarefa_renomear', { nome })).rejects.toMatchObject({
+        code: 'invalid_input',
+      })
+    }
   })
 })
 

@@ -573,7 +573,8 @@ button.danger {
 .st-failed {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><circle cx='7' cy='7' r='5.5' fill='none' stroke='%23f87171' stroke-width='1.5'/><path d='M7 3.6v4' stroke='%23f87171' stroke-width='1.6' stroke-linecap='round'/><circle cx='7' cy='10' r='.9' fill='%23f87171'/></svg>");
 }
-.st-canceled {
+.st-canceled,
+.ts-canceled {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><circle cx='7' cy='7' r='5.5' fill='none' stroke='%238891a1' stroke-width='1.5'/><path d='M3.2 10.8 10.8 3.2' stroke='%238891a1' stroke-width='1.5'/></svg>");
 }
 

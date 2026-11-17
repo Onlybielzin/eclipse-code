@@ -21,6 +21,7 @@ export const TASK_STATUS_ICON_CLASS: Record<TaskWorkflowStatus, string> = {
   em_revisao: 'ts-review',
   pronto_lancar: 'ts-ready',
   lancado: 'ts-launched',
+  cancelado: 'ts-canceled',
 }
 
 /** Classe CSS do icone de estado da subtarefa (mesma familia visual do status da tarefa). */

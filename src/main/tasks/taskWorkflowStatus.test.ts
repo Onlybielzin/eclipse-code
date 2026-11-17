@@ -67,8 +67,8 @@ describe('regra pura nextTaskWorkflowStatus', () => {
     for (const from of TASK_WORKFLOW_STATUSES) {
       for (const signal of signals) {
         const to = nextTaskWorkflowStatus(from, signal)
-        expect(to === 'pronto_lancar' || to === 'lancado').toBe(false)
-        if (from === 'lancado') expect(to).toBeNull()
+        expect(to === 'pronto_lancar' || to === 'lancado' || to === 'cancelado').toBe(false)
+        if (from === 'lancado' || from === 'cancelado') expect(to).toBeNull()
       }
     }
   })
@@ -157,11 +157,11 @@ describe('TaskService: status automático da tarefa', () => {
     expect(statusOf(service, fx)).toBe('pergunta')
   })
 
-  it('lancado é final para a automação', () => {
+  it.each(['lancado', 'cancelado'] as const)('%s é final para a automação', (final) => {
     const { service, fx } = setup()
-    force(service, fx, 'lancado')
+    force(service, fx, final)
     expect(service.getTask(fx.task.id).status).toBe('archived')
-    expect(service.markTaskWorkStarted(fx.task.id).workflowStatus).toBe('lancado')
+    expect(service.markTaskWorkStarted(fx.task.id).workflowStatus).toBe(final)
     expect(errorCode(() => service.concludeTask(fx.task.id))).toBe('invalid_transition')
     expect(
       errorCode(() => service.setTaskWorkflowStatus(fx.task.id, 'em_andamento', 'agent')),
@@ -172,12 +172,12 @@ describe('TaskService: status automático da tarefa', () => {
         service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: ITEMS }),
       ),
     ).toBe('conflict')
-    expect(statusOf(service, fx)).toBe('lancado')
+    expect(statusOf(service, fx)).toBe(final)
   })
 })
 
 describe('TaskService: quem pode escolher o status', () => {
-  it.each(['pronto_lancar', 'lancado'] as const)('agente não marca %s', (to) => {
+  it.each(['pronto_lancar', 'lancado', 'cancelado'] as const)('agente não marca %s', (to) => {
     const { service, fx } = setup()
     service.markTaskWorkStarted(fx.task.id)
     expect(errorCode(() => service.setTaskWorkflowStatus(fx.task.id, to, 'agent'))).toBe(
@@ -209,6 +209,38 @@ describe('TaskService: quem pode escolher o status', () => {
       workflowStatus: 'em_revisao',
       archivedAt: null,
     })
+  })
+
+  it('cancelado arquiva como lancado, fecha subtarefas e perguntas; trocar entre os dois mantém arquivada', () => {
+    const { service, fx } = setup()
+    const id = startSubtask(service, fx)
+    const q = service.createQuestion({ taskId: fx.task.id, subtaskId: null, items: ITEMS })
+    const cancelada = service.setTaskWorkflowStatus(fx.task.id, 'cancelado', 'user')
+    expect(cancelada).toMatchObject({ status: 'archived', workflowStatus: 'cancelado' })
+    expect(cancelada.archivedAt).not.toBeNull()
+    expect(service.getSubtask(id).state).toBe('canceled')
+    expect(service.getQuestion(q.id).status).toBe('dismissed')
+
+    const lancada = service.setTaskWorkflowStatus(fx.task.id, 'lancado', 'user')
+    expect(lancada).toMatchObject({
+      status: 'archived',
+      workflowStatus: 'lancado',
+      archivedAt: cancelada.archivedAt,
+    })
+    expect(service.setTaskWorkflowStatus(fx.task.id, 'cancelado', 'user')).toMatchObject({
+      status: 'archived',
+      workflowStatus: 'cancelado',
+    })
+    expect(service.setTaskWorkflowStatus(fx.task.id, 'a_fazer', 'user')).toMatchObject({
+      status: 'open',
+      workflowStatus: 'a_fazer',
+      archivedAt: null,
+    })
+  })
+
+  it('arquivar pode marcar cancelado', () => {
+    const { service, fx } = setup()
+    expect(service.markTaskArchived(fx.task.id, 'cancelado').workflowStatus).toBe('cancelado')
   })
 
   it('lancar com agente aberto é recusado como no arquivar', () => {
@@ -261,5 +293,36 @@ describe('migração 3', () => {
     expect(() =>
       db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
     ).toThrow(/CHECK/)
+  })
+})
+
+describe('migração 10', () => {
+  it('aceita cancelado e mantém tarefas, subtarefas e sessões', () => {
+    const db = new Database(':memory:')
+    db.pragma('foreign_keys = ON')
+    for (const m of MIGRATIONS.filter((x) => x.version <= 9)) db.exec(m.sql)
+    db.pragma('user_version = 9')
+    db.exec(`
+      INSERT INTO projects VALUES ('p', 'p', '/p', 1, 1);
+      INSERT INTO tasks (id, project_id, context_id, title, kind, status, created_at, updated_at, archived_at)
+        VALUES ('aberta', 'p', 'c1', 'A', 'solo', 'open', 1, 1, NULL),
+               ('velha', 'p', 'c2', 'B', 'solo', 'archived', 1, 1, 2);
+      INSERT INTO sessions (id, task_id, kind, provider, cwd, status, started_at)
+        VALUES ('s1', 'aberta', 'leader-pty', 'claude', '/wt', 'exited', 1);
+    `)
+    db.exec("UPDATE tasks SET workflow_status = 'lancado' WHERE id = 'velha'")
+    const subtasks = db.prepare('SELECT COUNT(*) AS n FROM subtasks').get() as { n: number }
+    expect(migrate(db)).toBeGreaterThanOrEqual(10)
+    expect(db.prepare('SELECT COUNT(*) AS n FROM sessions').get()).toEqual({ n: 1 })
+    expect(db.prepare('SELECT COUNT(*) AS n FROM subtasks').get()).toEqual(subtasks)
+    const store = new SqliteTaskStore(db)
+    expect(store.getTask('aberta')?.workflowStatus).toBe('a_fazer')
+    expect(store.getTask('velha')?.workflowStatus).toBe('lancado')
+    db.prepare("UPDATE tasks SET workflow_status = 'cancelado' WHERE id = 'aberta'").run()
+    expect(store.getTask('aberta')?.workflowStatus).toBe('cancelado')
+    expect(() =>
+      db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
+    ).toThrow(/CHECK/)
+    expect(db.pragma('foreign_key_check')).toEqual([])
   })
 })

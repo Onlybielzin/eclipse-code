@@ -67,7 +67,7 @@ export async function buildWallSnapshot(
           id: task.id,
           projectId: project.id,
           projectName: project.name,
-          title: task.title,
+          title: task.name,
           workflowStatus: task.workflowStatus,
           branch: task.branch,
           updatedAt: task.updatedAt,
