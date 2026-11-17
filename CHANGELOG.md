@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.15 - 2026-11-17
+
+- Os subagentes Claude seguem o rodízio de contas. Quando o rodízio troca de conta, o subagente reabre na conta nova antes do próximo turno e continua a mesma conversa.
+
 ## 0.1.14 - 2026-11-17
 
 - A tarefa tem um nome curto, separado do pedido. O Líder dá e troca o nome; a busca acha pelo nome ou pelo pedido.
