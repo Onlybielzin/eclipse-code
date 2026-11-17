@@ -2,6 +2,14 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.16 - 2026-11-17
+
+- A lista de tarefas da esquerda não agrupa mais por status. As tarefas abertas ficam numa lista só, com a mais recente em cima. A bolinha mostra o status.
+- Tarefa com pergunta para você fica sempre no topo da lista.
+- Concluída e Cancelada ficam no bloco "Encerradas", recolhido no fim da lista.
+- No botão "Filtros", escolha a ordem (Atualizada, Criada, Nome ou Status) e se quer agrupar por status. A escolha fica salva por projeto, e "Limpar filtros" não muda a ordem.
+- No painel Status, clicar num status filtra a lista por esse status.
+
 ## 0.1.15 - 2026-11-17
 
 - Os subagentes Claude seguem o rodízio de contas. Quando o rodízio troca de conta, o subagente reabre na conta nova antes do próximo turno e continua a mesma conversa.
