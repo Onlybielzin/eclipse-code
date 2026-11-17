@@ -1373,6 +1373,98 @@ describe('filtros da lista de tarefas', () => {
     expect(screen.getByTestId('chip-status').textContent).toContain('Sem Concluída')
   })
 
+  function rowIds() {
+    return within(within(list()).getByRole('tree'))
+      .queryAllByTestId(/^task-/)
+      .map((r) => r.getAttribute('data-testid'))
+  }
+
+  it('trocar a ordem no popover reordena as linhas; Pergunta para você fica em cima', async () => {
+    const data = mockupData()
+    data.tasks.push(
+      makeTask('perg', 'zzz pergunta', { workflowStatus: 'pergunta', updatedAt: 1 }),
+      makeTask('ab', 'abacaxi', { workflowStatus: 'a_fazer', updatedAt: 2 }),
+    )
+    await renderApp(data)
+    expect(rowIds()).toEqual(['task-perg', 'task-t1', 'task-solo1', 'task-ab'])
+    fireEvent.click(within(openFilters()).getByRole('radio', { name: 'Nome' }))
+    expect(rowIds()).toEqual(['task-perg', 'task-ab', 'task-solo1', 'task-t1'])
+    expect(screen.queryByTestId('filter-count')).toBeNull()
+    expect(screen.queryByTestId('chip-status')).toBeNull()
+  })
+
+  it('"Por status" mostra os cabeçalhos; a escolha fica salva e Limpar não a zera', async () => {
+    const data = mockupData()
+    data.tasks.push(makeTask('perg', 'pergunta', { workflowStatus: 'pergunta' }))
+    const { view } = await renderApp(data)
+    const pop = openFilters()
+    fireEvent.click(within(pop).getByRole('radio', { name: 'Status' }))
+    fireEvent.click(within(pop).getByRole('radio', { name: 'Por status' }))
+    expect(groupLabels()).toEqual(['Pergunta para você', 'Em andamento', 'A fazer', 'Encerradas'])
+    fireEvent.click(screen.getByTestId('group-em_andamento'))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    const saved = JSON.parse(localStorage.getItem('eclipse.taskFilters.p1') ?? '{}')
+    expect(saved.sort).toBe('status')
+    expect(saved.groupByStatus).toBe(true)
+
+    fireEvent.click(within(pop).getByRole('button', { name: 'Abertas' }))
+    fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
+    expect(
+      (within(pop).getByRole('radio', { name: 'Por status' }) as HTMLInputElement).checked,
+    ).toBe(true)
+    expect(JSON.parse(localStorage.getItem('eclipse.taskFilters.p1') ?? '{}').sort).toBe('status')
+
+    view.unmount()
+    await renderApp(data)
+    expect(groupLabels()).toContain('Em andamento')
+    const again = openFilters()
+    expect(
+      (within(again).getByRole('radio', { name: 'Por status' }) as HTMLInputElement).checked,
+    ).toBe(true)
+  })
+
+  it('abrir Filtros deixa o foco no radio da ordem atual', async () => {
+    await renderApp()
+    const pop = openFilters()
+    const sort = within(pop).getAllByRole('radio').find((r) => (r as HTMLInputElement).checked)
+    expect(sort).toBeTruthy()
+    expect(document.activeElement).toBe(sort)
+    expect(sort?.getAttribute('name')).toBe('task-sort')
+  })
+
+  it('Por status: recolher todos os grupos abertos abre Encerradas sem mudar o estado salvo', async () => {
+    await renderApp()
+    const pop = openFilters()
+    fireEvent.click(within(pop).getByRole('radio', { name: 'Por status' }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(screen.getByTestId('group-em_andamento'))
+    // Ainda há o grupo "A fazer" aberto: Encerradas segue recolhida.
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(screen.getByTestId('group-a_fazer'))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByTestId('task-old1')).toBeTruthy()
+    // Reabrir um grupo devolve o estado salvo (Encerradas recolhida).
+    fireEvent.click(screen.getByTestId('group-em_andamento'))
+    expect(screen.getByTestId('task-t1')).toBeTruthy()
+    expect(screen.getByTestId('group-encerradas').getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('trocar de projeto zera os grupos recolhidos', async () => {
+    const { store } = await renderApp(threeProjects())
+    fireEvent.click(within(openFilters()).getByRole('radio', { name: 'Por status' }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    localStorage.setItem('eclipse.taskFilters.p2', localStorage.getItem('eclipse.taskFilters.p1')!)
+    fireEvent.click(screen.getByTestId('group-em_andamento'))
+    expect(screen.queryByTestId('task-t1')).toBeNull()
+    await act(async () => {
+      await store.openProject('p2')
+    })
+    await screen.findByTestId('task-a1')
+    expect(screen.getByTestId('group-em_andamento').getAttribute('aria-expanded')).toBe('true')
+  })
+
   it('STATUS conta tudo e clicar num status escondido troca o filtro só por ele', async () => {
     await renderApp()
     fireEvent.click(within(openFilters()).getByRole('button', { name: 'Abertas' }))

@@ -22,12 +22,26 @@ import {
   type TaskWorkflowStatus,
 } from '@shared/domain'
 
+export const TASK_SORTS = ['updated', 'created', 'name', 'status'] as const
+export type TaskSort = (typeof TASK_SORTS)[number]
+
+export const TASK_SORT_LABELS: Record<TaskSort, string> = {
+  updated: 'Atualizada',
+  created: 'Criada',
+  name: 'Nome',
+  status: 'Status',
+}
+
 export interface TaskFilters {
   statuses: TaskWorkflowStatus[]
   kinds: TaskKind[]
   runningOnly: boolean
   /** Opcao de visao (nao conta como filtro): mostra as subtarefas encerradas na lista. */
   showDoneSubtasks: boolean
+  /** Opcao de visao: ordem da lista. */
+  sort: TaskSort
+  /** Opcao de visao: separa as abertas em grupos por status. */
+  groupByStatus: boolean
 }
 
 export const EMPTY_TASK_FILTERS: TaskFilters = {
@@ -35,6 +49,8 @@ export const EMPTY_TASK_FILTERS: TaskFilters = {
   kinds: [],
   runningOnly: false,
   showDoneSubtasks: false,
+  sort: 'updated',
+  groupByStatus: false,
 }
 
 export const TASK_KIND_FILTER_LABELS: Record<TaskKind, string> = {
@@ -49,7 +65,11 @@ export const TASK_FILTER_PRESETS: readonly {
   label: string
   statuses: readonly TaskWorkflowStatus[]
 }[] = [
-  { id: 'open', label: 'Abertas', statuses: TASK_WORKFLOW_STATUSES.filter((s) => !isArchivedWorkflowStatus(s)) },
+  {
+    id: 'open',
+    label: 'Abertas',
+    statuses: TASK_WORKFLOW_STATUSES.filter((s) => !isArchivedWorkflowStatus(s)),
+  },
   { id: 'needs_me', label: 'Precisam de mim', statuses: ['pergunta', 'em_revisao'] },
   { id: 'all', label: 'Todas', statuses: [] },
 ]
@@ -63,7 +83,14 @@ export function normalizeTaskFilters(filters: TaskFilters): TaskFilters {
     kinds: kinds.length === TASK_KINDS.length ? [] : kinds,
     runningOnly: filters.runningOnly,
     showDoneSubtasks: filters.showDoneSubtasks === true,
+    sort: TASK_SORTS.includes(filters.sort) ? filters.sort : EMPTY_TASK_FILTERS.sort,
+    groupByStatus: filters.groupByStatus === true,
   }
+}
+
+/** "Limpar filtros": zera os filtros e mantem a ordenacao e o agrupamento. */
+export function clearTaskFilters(filters: TaskFilters): TaskFilters {
+  return { ...EMPTY_TASK_FILTERS, sort: filters.sort, groupByStatus: filters.groupByStatus }
 }
 
 export function toggleValue<T>(list: readonly T[], value: T): T[] {
@@ -189,6 +216,8 @@ export function parseTaskFilters(raw: string | null | undefined): TaskFilters {
       ),
       runningOnly: obj.runningOnly === true,
       showDoneSubtasks: obj.showDoneSubtasks === true,
+      sort: TASK_SORTS.find((x) => x === obj.sort) ?? EMPTY_TASK_FILTERS.sort,
+      groupByStatus: obj.groupByStatus === true,
     })
   } catch {
     return EMPTY_TASK_FILTERS
@@ -207,7 +236,12 @@ export function readTaskFilters(projectId: string | null): TaskFilters {
 export function saveTaskFilters(projectId: string | null, filters: TaskFilters): void {
   if (projectId === null) return
   try {
-    if (activeTaskFilterCount(filters) === 0) {
+    const { sort, groupByStatus } = EMPTY_TASK_FILTERS
+    if (
+      activeTaskFilterCount(filters) === 0 &&
+      filters.sort === sort &&
+      filters.groupByStatus === groupByStatus
+    ) {
       globalThis.localStorage?.removeItem(taskFiltersKey(projectId))
     } else {
       globalThis.localStorage?.setItem(taskFiltersKey(projectId), JSON.stringify(filters))

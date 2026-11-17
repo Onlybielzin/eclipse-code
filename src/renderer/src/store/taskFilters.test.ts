@@ -5,6 +5,7 @@ import {
   activePreset,
   activeTaskFilterCount,
   applyPreset,
+  clearTaskFilters,
   EMPTY_TASK_FILTERS,
   filterTasks,
   normalizeTaskFilters,
@@ -46,6 +47,8 @@ describe('filterTasks', () => {
         kinds: ['solo'],
         runningOnly: true,
         showDoneSubtasks: false,
+        sort: 'updated',
+        groupByStatus: false,
       }),
     ).toEqual(['c'])
   })
@@ -85,6 +88,8 @@ describe('presets e normalização', () => {
         kinds: ['solo', 'team'],
         runningOnly: false,
         showDoneSubtasks: false,
+        sort: 'updated',
+        groupByStatus: false,
       }),
     ).toEqual(EMPTY_TASK_FILTERS)
     expect(
@@ -100,6 +105,8 @@ describe('chips', () => {
       kinds: ['solo'],
       runningOnly: true,
       showDoneSubtasks: false,
+      sort: 'updated',
+      groupByStatus: false,
     }
     expect(taskFilterChips(f)).toEqual([
       { key: 'status', label: 'Sem Concluída, Cancelada' },
@@ -121,6 +128,8 @@ describe('chips', () => {
       kinds: ['team'],
       runningOnly: true,
       showDoneSubtasks: false,
+      sort: 'updated',
+      groupByStatus: false,
     }
     expect(removeTaskFilter(f, 'kind')).toEqual({ ...f, kinds: [] })
     expect(removeTaskFilter(f, 'status')).toEqual({ ...f, statuses: [] })
@@ -128,6 +137,45 @@ describe('chips', () => {
       ...f,
       runningOnly: false,
       showDoneSubtasks: false,
+      sort: 'updated',
+      groupByStatus: false,
+    })
+  })
+})
+
+describe('ordenação e agrupamento', () => {
+  it('não viram chip nem contam no badge', () => {
+    const f: TaskFilters = { ...EMPTY_TASK_FILTERS, sort: 'name', groupByStatus: true }
+    expect(taskFilterChips(f)).toEqual([])
+    expect(activeTaskFilterCount(f)).toBe(0)
+  })
+
+  it('Limpar filtros mantém ordem e agrupamento', () => {
+    const f: TaskFilters = {
+      ...EMPTY_TASK_FILTERS,
+      statuses: ['a_fazer'],
+      sort: 'status',
+      groupByStatus: true,
+    }
+    expect(clearTaskFilters(f)).toEqual({
+      ...EMPTY_TASK_FILTERS,
+      sort: 'status',
+      groupByStatus: true,
+    })
+  })
+
+  it('valor salvo antigo, ausente ou inválido vira o padrão', () => {
+    expect(parseTaskFilters(JSON.stringify({ statuses: ['a_fazer'] }))).toEqual({
+      ...EMPTY_TASK_FILTERS,
+      statuses: ['a_fazer'],
+    })
+    expect(parseTaskFilters(JSON.stringify({ sort: 'xx', groupByStatus: 'sim' }))).toEqual(
+      EMPTY_TASK_FILTERS,
+    )
+    expect(parseTaskFilters(JSON.stringify({ sort: 'created', groupByStatus: true }))).toEqual({
+      ...EMPTY_TASK_FILTERS,
+      sort: 'created',
+      groupByStatus: true,
     })
   })
 })
@@ -141,6 +189,8 @@ describe('parseTaskFilters', () => {
           kinds: ['solo'],
           runningOnly: true,
           showDoneSubtasks: false,
+          sort: 'updated',
+          groupByStatus: false,
         }),
       ),
     ).toEqual({
@@ -148,6 +198,8 @@ describe('parseTaskFilters', () => {
       kinds: ['solo'],
       runningOnly: true,
       showDoneSubtasks: false,
+      sort: 'updated',
+      groupByStatus: false,
     })
     expect(parseTaskFilters('{quebrado')).toEqual(EMPTY_TASK_FILTERS)
     expect(parseTaskFilters('null')).toEqual(EMPTY_TASK_FILTERS)

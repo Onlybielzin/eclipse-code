@@ -6,9 +6,9 @@ import {
   type Task,
   type TaskWorkflowStatus,
 } from '@shared/domain'
-import { formatShortElapsed, splitTasks, STATE_ICON_CLASS } from '../store/format'
+import { formatShortElapsed, groupOpenTasks, splitTasks, STATE_ICON_CLASS } from '../store/format'
 import { useNow } from '../store/useNow'
-import { EMPTY_TASK_FILTERS, filterTasks, normalizeTaskFilters } from '../store/taskFilters'
+import { clearTaskFilters, filterTasks, normalizeTaskFilters } from '../store/taskFilters'
 import { useAppState, useStore } from '../store/context'
 import { NewTaskModal } from './NewTaskModal'
 import { SidePanels } from './SidePanels'
@@ -61,9 +61,23 @@ export function TaskList() {
     () => filterTasks(tasks, filters, query, subtasks),
     [tasks, filters, query, subtasks],
   )
-  const { open: openTasks, archived } = useMemo(() => splitTasks(visibleTasks), [visibleTasks])
+  const { open: openTasks, archived } = useMemo(
+    () => splitTasks(visibleTasks, filters.sort),
+    [visibleTasks, filters.sort],
+  )
+  const groups = useMemo(
+    () => (filters.groupByStatus ? groupOpenTasks(openTasks) : []),
+    [filters.groupByStatus, openTasks],
+  )
+  // Grupos que o usuario recolheu (so da sessao); troca de projeto zera.
+  const [collapsed, setCollapsed] = useState<Partial<Record<TaskWorkflowStatus, boolean>>>({})
+  const [collapsedProject, setCollapsedProject] = useState(projectId)
+  if (collapsedProject !== projectId) {
+    setCollapsedProject(projectId)
+    setCollapsed({})
+  }
   const clearFilters = () => {
-    setFilters(EMPTY_TASK_FILTERS)
+    setFilters(clearTaskFilters(filters))
     setQuery('')
   }
   /** Painel Status: filtra a lista so por esse status; Concluída e Cancelada abrem o bloco. */
@@ -73,7 +87,10 @@ export function TaskList() {
     scrollRef.current?.scrollTo?.({ top: 0 })
   }
   // Sem tarefa aberta visivel, o bloco abre sozinho (a lista nao parece vazia); o estado salvo fica.
-  const archivedShown = !archivedCollapsed || (openTasks.length === 0 && archived.length > 0)
+  const openVisible = filters.groupByStatus
+    ? groups.some((g) => collapsed[g.status] !== true)
+    : openTasks.length > 0
+  const archivedShown = !archivedCollapsed || (!openVisible && archived.length > 0)
 
   const leadMeta = (task: Task): string => {
     const role = task.leadRoleId ? roles[task.leadRoleId] : undefined
@@ -245,7 +262,31 @@ export function TaskList() {
               </button>
             </div>
           )}
-          {openTasks.map(renderTask)}
+          {filters.groupByStatus
+            ? groups.map((group) => {
+                const isCollapsed = collapsed[group.status] === true
+                return (
+                  <div key={group.status} role="group" aria-label={group.label}>
+                    <button
+                      type="button"
+                      className="grp"
+                      aria-expanded={!isCollapsed}
+                      data-testid={`group-${group.status}`}
+                      onClick={() => setCollapsed((c) => ({ ...c, [group.status]: !isCollapsed }))}
+                    >
+                      <span className="grp-chev" aria-hidden="true">
+                        {isCollapsed ? '›' : '⌄'}
+                      </span>
+                      <span className="grp-label">{group.label}</span>
+                      <span className="grp-count" aria-label={`${group.tasks.length} tarefas`}>
+                        {group.tasks.length}
+                      </span>
+                    </button>
+                    {!isCollapsed && group.tasks.map(renderTask)}
+                  </div>
+                )
+              })
+            : openTasks.map(renderTask)}
           {archived.length > 0 && (
             <div role="group" aria-label="Encerradas">
               <button

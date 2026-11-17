@@ -9,11 +9,14 @@ import {
   activePreset,
   activeTaskFilterCount,
   applyPreset,
+  clearTaskFilters,
   EMPTY_TASK_FILTERS,
   normalizeTaskFilters,
   readTaskFilters,
   saveTaskFilters,
   TASK_FILTER_PRESETS,
+  TASK_SORT_LABELS,
+  TASK_SORTS,
   TASK_KIND_FILTER_LABELS,
   taskFilterChips,
   toggleValue,
@@ -91,7 +94,10 @@ export function TaskFilterButton({
     }
     document.addEventListener('mousedown', onDown)
     document.addEventListener('keydown', onKey)
-    popRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    const first =
+      popRef.current?.querySelector<HTMLElement>('fieldset input:checked') ??
+      popRef.current?.querySelector<HTMLElement>('button')
+    first?.focus()
     return () => {
       document.removeEventListener('mousedown', onDown)
       document.removeEventListener('keydown', onKey)
@@ -132,6 +138,37 @@ export function TaskFilterButton({
           aria-label="Filtros de tarefas"
           style={pos}
         >
+          <fieldset className="filter-sec">
+            <legend>Ordenar por</legend>
+            {TASK_SORTS.map((k) => (
+              <label key={k} className="filter-opt">
+                <input
+                  type="radio"
+                  name="task-sort"
+                  checked={filters.sort === k}
+                  onChange={() => onChange({ ...filters, sort: k })}
+                />
+                {TASK_SORT_LABELS[k]}
+              </label>
+            ))}
+          </fieldset>
+          <fieldset className="filter-sec">
+            <legend>Agrupar</legend>
+            {[
+              { by: false, label: 'Sem grupos' },
+              { by: true, label: 'Por status' },
+            ].map((o) => (
+              <label key={o.label} className="filter-opt">
+                <input
+                  type="radio"
+                  name="task-group"
+                  checked={filters.groupByStatus === o.by}
+                  onChange={() => onChange({ ...filters, groupByStatus: o.by })}
+                />
+                {o.label}
+              </label>
+            ))}
+          </fieldset>
           <div className="filter-presets" role="group" aria-label="Atalhos">
             {TASK_FILTER_PRESETS.map((p) => (
               <button
@@ -203,7 +240,7 @@ export function TaskFilterButton({
               type="button"
               className="linkish"
               disabled={count === 0}
-              onClick={() => onChange(EMPTY_TASK_FILTERS)}
+              onClick={() => onChange(clearTaskFilters(filters))}
             >
               Limpar filtros
             </button>

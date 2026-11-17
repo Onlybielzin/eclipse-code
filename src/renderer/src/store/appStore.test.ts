@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppStore } from './appStore'
-import { formatElapsed, splitTasks, subtaskRowLabel } from './format'
+import { formatElapsed, groupOpenTasks, sortTasks, splitTasks, subtaskRowLabel } from './format'
 import {
   FakeApi,
   makeActivity,
@@ -198,6 +198,47 @@ describe('format', () => {
     expect(open.map((t) => t.id)).toEqual(['empate', 'nova', 'velha'])
     expect(archived.map((t) => t.id)).toEqual(['canc', 'conc'])
     expect(splitTasks([])).toEqual({ open: [], archived: [] })
+  })
+})
+
+describe('sortTasks e groupOpenTasks', () => {
+  const tasks = [
+    makeTask('a', 'Zebra', { workflowStatus: 'a_fazer', updatedAt: 5, createdAt: 1 }),
+    makeTask('b', 'abacaxi', { workflowStatus: 'em_andamento', updatedAt: 9, createdAt: 2 }),
+    makeTask('c', 'Água', { workflowStatus: 'pronto_lancar', updatedAt: 7, createdAt: 3 }),
+    makeTask('q', 'zzz pergunta', { workflowStatus: 'pergunta', updatedAt: 1, createdAt: 0 }),
+    makeTask('r', 'revisar', { workflowStatus: 'em_revisao', updatedAt: 6, createdAt: 4 }),
+    makeTask('x', 'encerrada', { workflowStatus: 'lancado', updatedAt: 99, createdAt: 99 }),
+  ]
+  const ids = (list: { id: string }[]) => list.map((t) => t.id)
+
+  it('cada ordem, sempre com Pergunta para você em cima', () => {
+    expect(ids(sortTasks(tasks, 'updated'))).toEqual(['q', 'x', 'b', 'c', 'r', 'a'])
+    expect(ids(sortTasks(tasks, 'created'))).toEqual(['q', 'x', 'r', 'c', 'b', 'a'])
+    // pt-BR sem acento nem caixa: Água, abacaxi, encerrada, revisar, Zebra.
+    expect(ids(sortTasks(tasks, 'name'))).toEqual(['q', 'b', 'c', 'x', 'r', 'a'])
+    expect(ids(sortTasks(tasks, 'status'))).toEqual(['q', 'b', 'r', 'a', 'c', 'x'])
+  })
+
+  it('splitTasks usa a ordem e separa as encerradas', () => {
+    const { open, archived } = splitTasks(tasks, 'name')
+    expect(ids(open)).toEqual(['q', 'b', 'c', 'r', 'a'])
+    expect(ids(archived)).toEqual(['x'])
+  })
+
+  it('grupos na ordem dos status abertos, com a ordem escolhida dentro e sem grupo vazio', () => {
+    const more = [...tasks, makeTask('d', 'dois', { workflowStatus: 'a_fazer', updatedAt: 8 })]
+    const groups = groupOpenTasks(splitTasks(more, 'updated').open)
+    expect(groups.map((g) => g.status)).toEqual([
+      'pergunta',
+      'em_andamento',
+      'em_revisao',
+      'a_fazer',
+      'pronto_lancar',
+    ])
+    expect(groups[0]?.label).toBe('Pergunta para você')
+    expect(ids(groups[3]!.tasks)).toEqual(['d', 'a'])
+    expect(groupOpenTasks([])).toEqual([])
   })
 })
 
