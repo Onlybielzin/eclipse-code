@@ -2,6 +2,12 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.13 - 2026-11-17
+
+- Dá para renomear e excluir um projeto. No seletor do topo (Ctrl+O), clique no lápis do projeto, aperte F2 ou use "Editar projeto" no rodapé.
+- Excluir tira do app o projeto, as tarefas e o histórico. A pasta e as worktrees ficam no disco. Com agente aberto, o app não exclui.
+- Ao adicionar uma pasta sem git, a opção "Iniciar git nesta pasta" cria o repositório e um primeiro commit vazio. Se o commit falhar por falta de user.name ou user.email, configure o git e tente de novo.
+
 ## 0.1.12 - 2026-11-17
 
 - O papel agora vale de verdade. O Revisor não edita arquivo, e o Dev e o Revisor não fazem commit, push nem merge. Antes, essas regras existiam só no prompt.
