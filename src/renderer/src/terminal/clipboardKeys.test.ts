@@ -45,6 +45,22 @@ describe('clipboardKeyAction', () => {
   })
 })
 
+describe('clipboardKeyAction Shift+Enter', () => {
+  const enter = { ...base, ctrl: false, shift: true, key: 'Enter' }
+  it('Shift+Enter em keydown quebra linha, tambem no mac', () => {
+    expect(clipboardKeyAction(enter)).toBe('newline')
+    expect(clipboardKeyAction({ ...enter, platform: 'darwin' })).toBe('newline')
+  })
+  it('Enter sozinho e Ctrl+Shift+Enter passam', () => {
+    expect(clipboardKeyAction({ ...enter, shift: false })).toBe('pass')
+    expect(clipboardKeyAction({ ...enter, ctrl: true })).toBe('pass')
+  })
+  it('keypress e keyup de Shift+Enter ficam presos (nao mandam \\r)', () => {
+    expect(clipboardKeyAction({ ...enter, type: 'keypress' })).toBe('swallow')
+    expect(clipboardKeyAction({ ...enter, type: 'keyup' })).toBe('swallow')
+  })
+})
+
 describe('isImageOnlyPaste', () => {
   const dt = (types: string[], text = '', kinds: string[] = []) =>
     ({

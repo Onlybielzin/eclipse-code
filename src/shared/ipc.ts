@@ -451,4 +451,6 @@ export interface EclipseApi {
   ): Promise<IpcResult<IpcCommandOutput<C>>>
   /** Assina um evento. Devolve a funcao que cancela a assinatura. */
   on<C extends IpcEventChannel>(channel: C, listener: (payload: IpcEvents[C]) => void): () => void
+  /** Caminho no disco de um arquivo solto no app (File.path nao existe no Electron 41). */
+  pathForFile(file: File): string
 }

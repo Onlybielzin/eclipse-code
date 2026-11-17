@@ -10,7 +10,13 @@ export interface ClipboardKeyInput {
   platform: string
 }
 
-export function clipboardKeyAction(i: ClipboardKeyInput): 'copy' | 'paste' | 'deleteWord' | 'pass' {
+export function clipboardKeyAction(
+  i: ClipboardKeyInput,
+): 'copy' | 'paste' | 'deleteWord' | 'newline' | 'swallow' | 'pass' {
+  // Shift+Enter (vale no mac): keydown vira Ctrl+J; keypress/keyup sao engolidos para nao sair \r.
+  if (i.key === 'Enter' && i.shift && !i.ctrl && !i.alt && !i.meta) {
+    return i.type === 'keydown' ? 'newline' : 'swallow'
+  }
   // No macOS o Cmd+C/Cmd+V padrao do xterm ja funciona.
   if (i.type !== 'keydown' || i.platform === 'darwin') return 'pass'
   if (!i.ctrl || i.shift || i.alt || i.meta) return 'pass'

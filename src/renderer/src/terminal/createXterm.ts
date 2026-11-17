@@ -7,6 +7,7 @@ import { FitAddon } from '@xterm/addon-fit'
 import { WebglAddon } from '@xterm/addon-webgl'
 import '@xterm/xterm/css/xterm.css'
 import { findUrls } from './findUrls'
+import { dropPathsText } from './dropPaths'
 import { clipboardKeyAction, isImageOnlyPaste } from './clipboardKeys'
 
 export interface XtermHandle {
@@ -96,6 +97,13 @@ export function createXterm(container: HTMLElement): XtermHandle {
       term.input('\x17', true)
       return false
     }
+    if (action === 'newline') {
+      // ^J (LF) e nova linha no Claude Code e no Codex; Enter (\r) enviaria a mensagem.
+      e.preventDefault()
+      term.input('\n', true)
+      return false
+    }
+    if (action === 'swallow') return false
     // 'paste': sem preventDefault, o navegador dispara o 'paste' que o xterm ja trata.
     return action === 'pass'
   })
@@ -110,6 +118,17 @@ export function createXterm(container: HTMLElement): XtermHandle {
     },
     true,
   )
+  // Soltar arquivo escreve o caminho no pty; sem o preventDefault o Electron navegaria ate ele.
+  container.addEventListener('dragover', (e) => {
+    if (e.dataTransfer?.types.includes('Files')) e.preventDefault()
+  })
+  container.addEventListener('drop', (e) => {
+    const files = Array.from(e.dataTransfer?.files ?? [])
+    if (!files.length) return
+    e.preventDefault()
+    const text = dropPathsText(files.map((f) => window.eclipse.pathForFile(f)).filter(Boolean))
+    if (text) term.input(text, true)
+  })
   return {
     write: (data) => term.write(data),
     onData: (listener) => {

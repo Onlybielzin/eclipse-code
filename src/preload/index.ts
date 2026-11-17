@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import {
   IPC_EVENT_CHANNEL,
   IPC_EVENT_CHANNELS,
@@ -24,6 +24,7 @@ const api: EclipseApi = {
       ipcRenderer.removeListener(IPC_EVENT_CHANNEL, handler)
     }
   },
+  pathForFile: (file) => webUtils.getPathForFile(file),
 }
 
 contextBridge.exposeInMainWorld('eclipse', api)

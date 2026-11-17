@@ -147,6 +147,7 @@ export class FakeApi implements EclipseApi {
   readonly calls: { channel: string; input: unknown }[] = []
   private readonly listeners = new Map<string, Set<Listener>>()
   private revision = 0
+  pathForFile = (file: File): string => `/fake/${file.name}`
   /** Respostas fixas que sobrescrevem a logica padrao. */
   readonly overrides = new Map<string, (input: unknown) => IpcResult<unknown>>()
 
