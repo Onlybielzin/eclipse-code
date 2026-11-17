@@ -93,6 +93,7 @@ function startRequest(mode: string, extra: Partial<MemberSessionStart> = {}): Me
     model: null,
     cwd: join(workdir, 'worktree'),
     systemPrompt: 'Você é o Revisor.',
+    access: 'full',
     mcpServer: {
       name: 'eclipse',
       command: process.execPath,

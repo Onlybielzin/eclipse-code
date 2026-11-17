@@ -1,5 +1,6 @@
+import Database from 'better-sqlite3'
 import { describe, expect, it } from 'vitest'
-import { LATEST_SCHEMA_VERSION } from './migrations'
+import { LATEST_SCHEMA_VERSION, MIGRATIONS } from './migrations'
 import { EVENT_RETENTION, migrate, roleNameKey } from './sqliteTaskStore'
 import { createHarness, sampleDelivery, seedTeam, seedWorkingSubtask } from './testing'
 
@@ -18,6 +19,29 @@ describe('SqliteTaskStore', () => {
     )
     expect(cols).toEqual(expect.arrayContaining(['start_command', 'start_dir']))
     expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(7)
+  })
+
+  it('migração 8: Revisor vira read_only, Dev no_commit, o resto full (Líder nunca muda)', () => {
+    const db = new Database(':memory:')
+    db.pragma('foreign_keys = ON')
+    for (const m of MIGRATIONS.filter((x) => x.version <= 7)) db.exec(m.sql)
+    db.pragma('user_version = 7')
+    const role = (id: string, name: string, key: string, lead: number, project = 'p') =>
+      `('${id}', '${project}', '${name}', '${key}', '', 'claude', NULL, '', ${lead}, 1, 1, NULL)`
+    db.exec(`
+      INSERT INTO projects VALUES ('p', 'p', '/p', 1, 1), ('q', 'q', '/q', 1, 1);
+      INSERT INTO roles (id, project_id, name, name_key, description, provider, model,
+        prompt_template, is_lead, created_at, updated_at, deleted_at) VALUES
+        ${role('rev', 'Revisor', 'revisor', 0)}, ${role('dev', 'Dev', 'dev', 0)},
+        ${role('outro', 'Frontend', 'frontend', 0)}, ${role('lid', 'Dev', 'dev', 1, 'q')};
+    `)
+    expect(migrate(db)).toBe(LATEST_SCHEMA_VERSION)
+    const access = Object.fromEntries(
+      (db.prepare('SELECT id, access FROM roles').all() as { id: string; access: string }[]).map(
+        (r) => [r.id, r.access],
+      ),
+    )
+    expect(access).toEqual({ rev: 'read_only', dev: 'no_commit', outro: 'full', lid: 'full' })
   })
 
   it('entrega e atividade gravadas não mudam', () => {

@@ -10,6 +10,26 @@ describe('parseIpcInvokeRequest', () => {
     expect(r.ok).toBe(true)
   })
 
+  it('roles.save: access é opcional, validado e devolvido ao main', () => {
+    const base = {
+      projectId: 'p1',
+      name: 'Revisor',
+      description: '',
+      provider: 'claude',
+      model: null,
+      promptTemplate: 'x',
+      isLead: false,
+    }
+    const parse = (extra: object) =>
+      parseIpcInvokeRequest({ channel: 'roles.save', input: { ...base, ...extra } })
+    const semCampo = parse({})
+    // Ausente fica ausente: o TaskService decide (criação 'full', edição mantém o atual).
+    expect(semCampo.ok && (semCampo.input as { access?: string }).access).toBeUndefined()
+    const lido = parse({ access: 'read_only' })
+    expect(lido.ok && (lido.input as { access: string }).access).toBe('read_only')
+    expect(parse({ access: 'root' }).ok).toBe(false)
+  })
+
   it('recusa canal desconhecido e prototipo', () => {
     for (const channel of ['nao.existe', '__proto__', 'toString']) {
       const r = parseIpcInvokeRequest({ channel, input: {} })

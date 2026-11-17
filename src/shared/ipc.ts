@@ -10,6 +10,7 @@
  * A tela so le e pede operacoes. Quem escreve tarefas, subtarefas e entregas e o main.
  */
 import { z } from 'zod'
+import { ROLE_ACCESS } from './domain'
 import type {
   ActivityEvent,
   Artifact,
@@ -190,6 +191,8 @@ const roleFields = {
   model: z.string().trim().min(1).max(120).nullable(),
   promptTemplate: textSchema,
   isLead: z.boolean(),
+  // Ausente: criacao vira 'full' e edicao mantem o atual (TaskService). O Lider so aceita 'full'.
+  access: z.enum(ROLE_ACCESS).optional(),
 }
 
 export const ipcCommands = {

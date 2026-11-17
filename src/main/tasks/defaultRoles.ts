@@ -1,4 +1,6 @@
+import type { RoleAccess } from '@shared/domain'
 import type { SaveRoleInput } from '@shared/ports'
+import { roleNameKey } from './sqliteTaskStore'
 
 type DefaultRole = Omit<SaveRoleInput, 'projectId' | 'roleId'>
 
@@ -10,6 +12,7 @@ export const DEFAULT_ROLES: readonly DefaultRole[] = [
     provider: 'claude',
     model: null,
     isLead: true,
+    access: 'full',
     promptTemplate: [
       'Você é o Líder do time nesta tarefa: {{tarefa}}',
       'A worktree da tarefa é {{worktree}} e a branch é {{branch}}.',
@@ -28,6 +31,7 @@ export const DEFAULT_ROLES: readonly DefaultRole[] = [
     provider: 'claude',
     model: null,
     isLead: false,
+    access: 'no_commit',
     promptTemplate: [
       'Você é o Dev do time. A tarefa é: {{tarefa}}',
       'Trabalhe só na worktree {{worktree}}.',
@@ -44,6 +48,7 @@ export const DEFAULT_ROLES: readonly DefaultRole[] = [
     provider: 'claude',
     model: null,
     isLead: false,
+    access: 'read_only',
     promptTemplate: [
       'Você é o Revisor do time. A tarefa é: {{tarefa}}',
       'Revise o diff da branch {{branch}} na worktree {{worktree}}.',
@@ -55,3 +60,10 @@ export const DEFAULT_ROLES: readonly DefaultRole[] = [
     ].join('\n'),
   },
 ]
+
+/** Acesso padrao pelo nome do papel (mesma regra da migracao 8). O Lider e sempre full. */
+export function defaultAccessFor(name: string, isLead: boolean): RoleAccess {
+  if (isLead) return 'full'
+  const key = roleNameKey(name)
+  return key === 'revisor' ? 'read_only' : key === 'dev' ? 'no_commit' : 'full'
+}

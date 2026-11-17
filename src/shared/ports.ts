@@ -51,6 +51,7 @@ import type {
   TaskWorkflowActor,
   TaskWorkflowStatus,
   Turn,
+  RoleAccess,
   TurnId,
   TurnResult,
   UserQuestion,
@@ -163,6 +164,8 @@ export interface SaveRoleInput {
   model: string | null
   promptTemplate: string
   isLead: boolean
+  /** O Lider (isLead) so aceita 'full'. Ausente: criacao 'full', edicao mantem o atual. */
+  access?: RoleAccess | undefined
 }
 
 /** Tarefa ja com worktree resolvida (o TeamCoordinator cria a worktree antes). */
@@ -557,6 +560,8 @@ export interface MemberSessionStart {
   cwd: string
   /** Prompt do papel renderizado; vira prompt de sistema/instrucoes da sessao. */
   systemPrompt: string
+  /** Acesso do papel da subtarefa; o app o impoe na sessao ACP. */
+  access: RoleAccess
   mcpServer: McpServerLaunch
   env: Record<string, string>
   /** Retoma com session/load quando nao e null. */

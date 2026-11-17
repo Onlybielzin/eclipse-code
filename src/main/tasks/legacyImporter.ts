@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import type { Project, Provider, Role } from '@shared/domain'
+import { defaultAccessFor } from './defaultRoles'
 import type { SqliteTaskService } from './taskService'
 
 export const LEGACY_DATABASE_PATH = join(homedir(), '.config', 'eclipse-code', 'eclipse-code.db')
@@ -177,6 +178,7 @@ export function importLegacyProjects(
           model: role.model,
           promptTemplate: role.promptTemplate,
           isLead,
+          access: defaultAccessFor(role.name, isLead),
         }),
       )
     }

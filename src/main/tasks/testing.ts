@@ -55,6 +55,7 @@ export function seedTeam(service: SqliteTaskService, rootPath = '/repo/projeto')
     model: 'opus',
     promptTemplate: 'Você é o Líder de {{tarefa}}',
     isLead: true,
+    access: 'full',
   })
   const dev = service.saveRole({
     projectId: project.id,
@@ -64,6 +65,7 @@ export function seedTeam(service: SqliteTaskService, rootPath = '/repo/projeto')
     model: null,
     promptTemplate: 'Você é o Dev',
     isLead: false,
+    access: 'no_commit',
   })
   const task = service.createTask({
     projectId: project.id,

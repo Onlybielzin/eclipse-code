@@ -149,6 +149,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       model: null,
       promptTemplate: 'Lidere a tarefa {{tarefa}} em {{worktree}}.',
       isLead: true,
+      access: 'full',
     })
     tasks.saveRole({
       projectId: project.id,
@@ -159,6 +160,7 @@ describe('time de ponta a ponta (Lider falso + membros ACP falsos)', () => {
       model: 'haiku',
       promptTemplate: 'Você é dev. Subtarefa: {{subtarefa}}.',
       isLead: false,
+      access: 'no_commit',
     })
 
     const task = await services.coordinator.createTask({

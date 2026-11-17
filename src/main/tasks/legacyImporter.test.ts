@@ -4,6 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { defaultAccessFor } from './defaultRoles'
 import { LEGACY_DATABASE_PATH, importLegacyProjects, readLegacyProjects } from './legacyImporter'
 import { createHarness } from './testing'
 
@@ -122,6 +123,17 @@ describe('importador do app antigo', () => {
     expect(service.listRoles(project.id)).toHaveLength(4)
   })
 
+  it('papel importado recebe o acesso padrão pelo nome, como a migração 8', () => {
+    const { service } = createHarness()
+    const report = importLegacyProjects(service, readLegacyProjects(legacyPath))
+    const access = Object.fromEntries(report.rolesCreated.map((r) => [r.name, r.access]))
+    expect(access).toMatchObject({ Líder: 'full', Revisor: 'read_only', 'Sem modelo': 'full' })
+    expect(defaultAccessFor('Dev', false)).toBe('no_commit')
+    expect(defaultAccessFor(' DEV ', false)).toBe('no_commit')
+    expect(defaultAccessFor('Dev', true)).toBe('full')
+    expect(defaultAccessFor('Dev 1', false)).toBe('full')
+  })
+
   it('projeto que já tem Líder recebe o Líder antigo como papel comum', () => {
     const { service } = createHarness()
     const p = service.addProject({ rootPath: '/home/u/ereemby' })
@@ -133,6 +145,7 @@ describe('importador do app antigo', () => {
       model: null,
       promptTemplate: '',
       isLead: true,
+      access: 'full',
     })
     const report = importLegacyProjects(service, readLegacyProjects(legacyPath))
     expect(report.projectsMatched.map((x) => x.id)).toEqual([p.id])

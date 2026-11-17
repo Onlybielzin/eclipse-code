@@ -593,6 +593,7 @@ export class AcpMemberRuntime implements MemberRuntime {
     if (!turn || turn.cancelRequested) return { outcome: { outcome: 'cancelled' } }
     const decision = decidePermission(params, {
       cwd: session.request.cwd,
+      access: session.request.access,
       extraRoots: this.extraAllowedRoots,
     })
     if (!decision.allow || decision.reason.startsWith('fora')) {

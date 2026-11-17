@@ -260,6 +260,17 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE tasks ADD COLUMN start_dir TEXT;
     `,
   },
+  {
+    version: 8,
+    name: 'acesso por papel',
+    // name_key segue roleNameKey: sem acento e minusculo. O Lider nunca muda.
+    sql: `
+      ALTER TABLE roles ADD COLUMN access TEXT NOT NULL DEFAULT 'full'
+        CHECK (access IN ('full','no_commit','read_only'));
+      UPDATE roles SET access = 'read_only' WHERE name_key = 'revisor' AND is_lead = 0;
+      UPDATE roles SET access = 'no_commit' WHERE name_key = 'dev' AND is_lead = 0;
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

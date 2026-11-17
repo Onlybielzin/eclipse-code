@@ -68,6 +68,7 @@ export function createFakeTaskService(): FakeTaskService {
     model: null,
     promptTemplate: '',
     isLead,
+    access: 'full',
     createdAt: 1,
     updatedAt: 1,
   })

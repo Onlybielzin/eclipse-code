@@ -108,6 +108,7 @@ describe('importação das tarefas do app antigo', () => {
       model: 'claude-opus-5-5',
       promptTemplate: 'lidere',
       isLead: true,
+      access: 'full',
     })
     const exists = (p: string) => !p.endsWith('feat-sumiu')
     const deps = { exists, branchOf: () => 'feat/orfer' }

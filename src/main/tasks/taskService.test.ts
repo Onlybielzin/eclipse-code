@@ -265,9 +265,54 @@ describe('TaskService: projetos, papéis e tarefas', () => {
           model: null,
           promptTemplate: '',
           isLead: false,
+          access: 'no_commit',
         }),
       ),
     ).toBe('conflict')
+  })
+
+  it('saveRole grava e devolve access; o Líder só aceita full', () => {
+    const { service } = createHarness()
+    const fx = seedTeam(service)
+    const base = {
+      projectId: fx.project.id,
+      description: '',
+      provider: 'claude' as const,
+      model: null,
+      promptTemplate: '',
+    }
+    const rev = service.saveRole({ ...base, name: 'Revisor 2', isLead: false, access: 'read_only' })
+    expect(rev.access).toBe('read_only')
+    expect(service.getRole(rev.id).access).toBe('read_only')
+    const edited = service.saveRole({
+      ...base,
+      roleId: rev.id,
+      name: 'Revisor 2',
+      isLead: false,
+      access: 'full',
+    })
+    expect(service.getRole(edited.id).access).toBe('full')
+    expect(
+      errorCode(() =>
+        service.saveRole({ ...base, name: 'Chefe', isLead: true, access: 'read_only' }),
+      ),
+    ).toBe('invalid_input')
+    expect(service.getRole(fx.dev.id).access).toBe('no_commit')
+    // Ausente: criação vira full; edição mantém o valor atual.
+    const semCampo = service.saveRole({ ...base, name: 'Novo', isLead: false })
+    expect(semCampo.access).toBe('full')
+    const mantido = service.saveRole({
+      ...base,
+      roleId: rev.id,
+      name: 'Revisor 2',
+      description: 'editado',
+      isLead: false,
+    })
+    expect(mantido.access).toBe('full')
+    const ro = service.saveRole({ ...base, name: 'RO', isLead: false, access: 'read_only' })
+    const roEditado = service.saveRole({ ...base, roleId: ro.id, name: 'RO', isLead: false })
+    expect(roEditado.access).toBe('read_only')
+    expect(service.getLeadRole(fx.project.id)?.access).toBe('full')
   })
 
   it('só um Líder por projeto: escolher outro tira a marca do anterior', () => {
@@ -282,6 +327,7 @@ describe('TaskService: projetos, papéis e tarefas', () => {
       model: null,
       promptTemplate: 'p',
       isLead: true,
+      access: 'full',
     })
     expect(novo.isLead).toBe(true)
     expect(service.getRole(fx.lead.id).isLead).toBe(false)

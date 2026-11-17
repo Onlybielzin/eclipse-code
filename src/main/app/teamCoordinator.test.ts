@@ -546,6 +546,7 @@ describe('subtarefa parada pelo reinício do app', () => {
       subtaskId: subtask.id,
       provider: 'codex',
       cwd: '/wt/corrigir-login',
+      access: 'no_commit',
       resumeProviderSessionId: 'acp-1',
     })
     expect(members.prompts).toHaveLength(1)
@@ -567,6 +568,7 @@ describe('subtarefa parada pelo reinício do app', () => {
     await h.settle()
 
     expect(members.starts.map((s) => s.resumeProviderSessionId)).toEqual(['acp-1', null])
+    expect(members.starts.map((s) => s.access)).toEqual(['no_commit', 'no_commit'])
     // As duas tentativas usam a mesma sessão do app.
     expect(new Set(members.starts.map((s) => s.sessionId)).size).toBe(1)
     const text = members.prompts[0]!.text
@@ -714,6 +716,33 @@ describe('limites de agentes configuráveis', () => {
     })
     // Baixar o limite não derrubou o Líder vivo.
     expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).not.toBeNull()
+  })
+
+  it('abrir o membro passa o access do papel da subtarefa ao startSession', async () => {
+    const members = fakeMembers()
+    const h = setup({ members: members.runtime })
+    const rev = h.tasks.saveRole({
+      projectId: h.fx.project.id,
+      name: 'Revisor 2',
+      description: '',
+      provider: 'claude',
+      model: null,
+      promptTemplate: '',
+      isLead: false,
+      access: 'read_only',
+    })
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const caller: McpCaller = {
+      role: 'leader',
+      sessionId: 'x',
+      taskId: h.fx.task.id,
+      subtaskId: null,
+    }
+    const base = { title: 'a', instructions: 'b', referenceTaskIds: [] }
+    await h.coordinator.createSubtask(caller, { ...base, roleId: rev.id })
+    await h.coordinator.createSubtask(caller, { ...base, roleId: h.fx.dev.id })
+    await h.settle()
+    expect(members.starts.map((s) => s.access)).toEqual(['read_only', 'no_commit'])
   })
 
   it('maxLiveMembersPerTask lido da configuração; voltar a null libera a criação', async () => {

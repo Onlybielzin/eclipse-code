@@ -44,6 +44,7 @@ export function makeRole(id: string, name: string, extra: Partial<Role> = {}): R
     model: 'sonnet',
     promptTemplate: '',
     isLead: false,
+    access: 'full',
     createdAt: T0,
     updatedAt: T0,
     ...extra,

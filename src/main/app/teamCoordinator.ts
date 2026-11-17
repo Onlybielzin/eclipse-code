@@ -721,6 +721,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         provider: role.provider,
         model: role.model,
         cwd,
+        access: role.access,
         systemPrompt: composeMemberSystemPrompt({
           task,
           subtask,
@@ -858,6 +859,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         provider: role.provider,
         model: role.model,
         cwd,
+        access: role.access,
         systemPrompt: composeMemberSystemPrompt({
           task,
           subtask,

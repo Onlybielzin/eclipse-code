@@ -379,6 +379,11 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
           throw new DomainError('invalid_input', 'papel pertence a outro projeto')
         }
       }
+      const access = input.access ?? existing?.access ?? 'full'
+      // O Lider roda com permissao total: acesso restrito a ele nao teria efeito.
+      if (input.isLead && access !== 'full') {
+        throw new DomainError('invalid_input', 'o Líder precisa de acesso total')
+      }
       const clash = this.findRoleByName(input.projectId, name)
       if (clash && clash.id !== existing?.id) {
         throw new DomainError('conflict', `já existe um papel chamado "${clash.name}"`)
@@ -401,6 +406,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         model: input.model,
         promptTemplate: input.promptTemplate,
         isLead: input.isLead,
+        access,
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
       }

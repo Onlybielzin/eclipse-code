@@ -22,8 +22,16 @@
  *   - Le ~/.codex/config.toml sozinho (MCPs e preferencias do usuario).
  *   - CLI: CODEX_PATH aponta para o primeiro `codex` do PATH, como o Lider usa.
  *   - CODEX_CONFIG (JSON) sobrepoe chaves: model e developer_instructions (prompt do papel).
- *   - Permissao total como o Lider: sandbox_mode danger-full-access e approval_policy never
- *     no CODEX_CONFIG. Pedido que ainda chegue como session/request_permission e aceito.
+ *   - Acesso do papel: sandbox_mode danger-full-access (read-only no papel read_only) e
+ *     approval_policy never no CODEX_CONFIG. Pedido que chegue como session/request_permission
+ *     passa por decidePermission (permissionPolicy.ts).
+ *
+ * Acesso por papel (Role.access): decisao de 2026-11-17, trocou o "libera pra todos" de 2026-11-13.
+ * Claude read_only perde as ferramentas de escrita (disallowedTools); o resto da trava esta em
+ * decidePermission.
+ * shortcut: o Claude read_only ainda escreve arquivo pelo Bash (sed -i, echo >), porque o pedido
+ * chega como execute e a politica so barra git de escrita; so o Codex tem sandbox read-only de
+ * verdade. Fechar isso exige analisar o comando ou rodar o Claude em sandbox.
  */
 import { createRequire } from 'node:module'
 import type { McpServer } from '@agentclientprotocol/sdk'
@@ -42,6 +50,9 @@ export interface AgentCommand {
   /** Variaveis extras; o runtime mescla com process.env e MemberSessionStart.env. */
   env: Record<string, string>
 }
+
+/** Ferramentas de escrita que o Claude perde no papel read_only. */
+export const READ_ONLY_DISALLOWED_TOOLS = ['Edit', 'Write', 'MultiEdit', 'NotebookEdit'] as const
 
 /** Fontes de configuracao do usuario que o Claude deve carregar. */
 export const CLAUDE_SETTING_SOURCES = ['user', 'project', 'local'] as const
@@ -63,7 +74,7 @@ export function resolveAcpAgentScript(provider: Provider): string {
  * depender de um `node` no PATH do usuario.
  */
 export function buildAgentCommand(
-  request: Pick<MemberSessionStart, 'provider' | 'model' | 'systemPrompt'>,
+  request: Pick<MemberSessionStart, 'provider' | 'model' | 'systemPrompt' | 'access'>,
   options: {
     nodeBinary?: string
     scriptPath?: string
@@ -100,8 +111,10 @@ export function buildAgentCommand(
     const config: Record<string, unknown> = { ...existing }
     if (request.model) config.model = request.model
     if (request.systemPrompt.trim()) config.developer_instructions = request.systemPrompt
-    // Permissao total, como o Lider (--dangerously-bypass-approvals-and-sandbox).
-    config.sandbox_mode = 'danger-full-access'
+    // Permissao total como o Lider, salvo read_only (sandbox sem escrita no disco).
+    // shortcut: no_commit no Codex nao tem trava: ele nao pede permissao (approval never) e o
+    // sandbox nao separa git commit de outra escrita; so o prompt do papel pede, ate haver hook.
+    config.sandbox_mode = request.access === 'read_only' ? 'read-only' : 'danger-full-access'
     config.approval_policy = 'never'
     if (Object.keys(config).length > 0) env.CODEX_CONFIG = JSON.stringify(config)
   }
@@ -110,12 +123,13 @@ export function buildAgentCommand(
 
 /** _meta do session/new e session/load. */
 export function buildSessionMeta(
-  request: Pick<MemberSessionStart, 'provider' | 'systemPrompt'>,
+  request: Pick<MemberSessionStart, 'provider' | 'systemPrompt' | 'access'>,
 ): Record<string, unknown> | undefined {
   if (request.provider !== 'claude') return undefined
-  const meta: Record<string, unknown> = {
-    claudeCode: { options: { settingSources: [...CLAUDE_SETTING_SOURCES] } },
-  }
+  const options: Record<string, unknown> = { settingSources: [...CLAUDE_SETTING_SOURCES] }
+  // O adaptador soma estes aos dele (acp-agent.js, disallowedTools). Vale no session/load tambem.
+  if (request.access === 'read_only') options.disallowedTools = [...READ_ONLY_DISALLOWED_TOOLS]
+  const meta: Record<string, unknown> = { claudeCode: { options } }
   if (request.systemPrompt.trim()) meta.systemPrompt = { append: request.systemPrompt }
   return meta
 }

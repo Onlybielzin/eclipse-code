@@ -41,6 +41,7 @@ import type {
   TaskWorkflowStatus,
   Turn,
   TurnError,
+  RoleAccess,
   TurnId,
   UserQuestion,
   UserQuestionStatus,
@@ -119,6 +120,7 @@ function toRole(r: Row): Role {
     model: strOrNull(r['model']),
     promptTemplate: str(r['prompt_template']),
     isLead: num(r['is_lead']) === 1,
+    access: str(r['access']) as RoleAccess,
     createdAt: num(r['created_at']),
     updatedAt: num(r['updated_at']),
   }
@@ -373,9 +375,9 @@ export class SqliteTaskStore implements TaskStore {
   insertRole(r: Role): void {
     this.run(
       `INSERT INTO roles (id, project_id, name, name_key, description, provider, model,
-         prompt_template, is_lead, created_at, updated_at, deleted_at)
+         prompt_template, is_lead, access, created_at, updated_at, deleted_at)
        VALUES (@id, @projectId, @name, @nameKey, @description, @provider, @model,
-         @promptTemplate, @isLead, @createdAt, @updatedAt, NULL)`,
+         @promptTemplate, @isLead, @access, @createdAt, @updatedAt, NULL)`,
       { ...r, nameKey: roleNameKey(r.name), isLead: r.isLead ? 1 : 0 },
     )
   }
@@ -383,7 +385,7 @@ export class SqliteTaskStore implements TaskStore {
     this.run(
       `UPDATE roles SET name = @name, name_key = @nameKey, description = @description,
          provider = @provider, model = @model, prompt_template = @promptTemplate,
-         is_lead = @isLead, updated_at = @updatedAt
+         is_lead = @isLead, access = @access, updated_at = @updatedAt
        WHERE id = @id`,
       { ...r, nameKey: roleNameKey(r.name), isLead: r.isLead ? 1 : 0 },
     )

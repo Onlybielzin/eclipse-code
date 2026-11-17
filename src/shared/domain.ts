@@ -47,6 +47,16 @@ export type JsonObject = { [key: string]: JsonValue }
 export const PROVIDERS = ['claude', 'codex'] as const
 export type Provider = (typeof PROVIDERS)[number]
 
+/**
+ * Acesso do papel, imposto pelo app ao membro (nao so pedido no prompt):
+ *   full      = tudo.
+ *   no_commit = nao faz git commit, push nem merge.
+ *   read_only = nao edita arquivo e tambem nao faz commit, push nem merge.
+ * O Lider e sempre 'full'.
+ */
+export const ROLE_ACCESS = ['full', 'no_commit', 'read_only'] as const
+export type RoleAccess = (typeof ROLE_ACCESS)[number]
+
 export const PROVIDER_LABELS: Record<Provider, string> = {
   claude: 'Claude',
   codex: 'Codex',
@@ -83,6 +93,8 @@ export interface Role {
   promptTemplate: string
   /** true para o papel de Lider. No maximo um por projeto. */
   isLead: boolean
+  /** Acesso imposto ao membro deste papel. O Lider e sempre 'full'. */
+  access: RoleAccess
   createdAt: EpochMs
   updatedAt: EpochMs
 }
