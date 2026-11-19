@@ -102,14 +102,18 @@ describe('recuperação no boot', () => {
     expect(closedTurn?.error?.code).toBe('app_restarted')
     expect(closedTurn?.finalText).toBe('trabalhando... STATUS: PRONTO')
 
-    // Rodar de novo não muda nada.
+    // Rodar de novo não muda o estado: o relatório só repete as subtarefas ainda paradas.
     const second = h2.service.recoverAfterRestart()
-    expect(second).toEqual({
-      lostSessions: [],
-      pausedSubtasks: [],
-      deliveredSubtasks: [],
-      leadersToResume: [],
-    })
+    expect(second.lostSessions).toEqual([])
+    expect(second.deliveredSubtasks).toEqual([])
+    expect(second.leadersToResume).toEqual([])
+    expect(second.pausedSubtasks.map((s) => s.id).sort()).toEqual(
+      h2.service
+        .listSubtasks(fx.task.id)
+        .filter((s) => s.state === 'input_required')
+        .map((s) => s.id)
+        .sort(),
+    )
     h2.store.close()
   })
 
@@ -144,24 +148,30 @@ describe('recuperação no boot', () => {
     const notices = h2.service.listPendingLeaderNotices(fx.task.id).map((n) => n.text)
     expect(notices.sort()).toEqual([...expected].sort())
 
-    // Gravado no SQLite: sobrevive a outro reinício até ser entregue, e o segundo reinício
-    // não repete o aviso da subtarefa que continua parada.
+    // Gravado no SQLite: sobrevive a outro reinício até ser entregue. O segundo reinício, sem
+    // decisão do Líder, avisa de novo (o Líder novo não viu o primeiro). O aviso antigo
+    // pendente fica: a fila nunca descarta (pode ser uma dúvida do membro).
     const h3 = reboot(h2, 'c')
     const again = h3.service.recoverAfterRestart({ composeLostNotice: () => 'repetido' })
-    expect(again.pausedSubtasks).toEqual([])
-    const pending = h3.service.listPendingLeaderNotices(fx.task.id)
-    expect(pending).toHaveLength(3)
-    expect(h3.service.listTasksWithPendingLeaderNotices()).toEqual([fx.task.id])
-    h3.service.markLeaderNoticeDelivered(pending[0]!.id)
-    expect(h3.service.listPendingLeaderNotices(fx.task.id)).toHaveLength(2)
-    // O aviso guarda a subtarefa; descartar por subtarefa tira so os avisos dela (e sobrevive ao reinício).
-    expect(pending.map((n) => n.subtaskId).sort()).toEqual(
+    expect(again.pausedSubtasks.map((s) => s.id).sort()).toEqual(
       [midTurn.subtask.id, waiting.subtask.id, queued.id].sort(),
     )
-    h3.service.discardPendingLeaderNoticesForSubtasks(fx.task.id, [pending[1]!.subtaskId!])
-    expect(h3.service.listPendingLeaderNotices(fx.task.id).map((n) => n.id)).toEqual([
-      pending[2]!.id,
-    ])
+    const pending = h3.service.listPendingLeaderNotices(fx.task.id)
+    expect(pending).toHaveLength(6)
+    expect(pending.filter((n) => n.text === 'repetido')).toHaveLength(3)
+    expect(h3.service.listTasksWithPendingLeaderNotices()).toEqual([fx.task.id])
+    h3.service.markLeaderNoticeDelivered(pending[0]!.id)
+    expect(h3.service.listPendingLeaderNotices(fx.task.id)).toHaveLength(5)
+    // O aviso guarda a subtarefa; descartar por subtarefa tira so os avisos dela (e sobrevive ao reinício).
+    const ids = [midTurn.subtask.id, waiting.subtask.id, queued.id]
+    expect(pending.map((n) => n.subtaskId).sort()).toEqual([...ids, ...ids].sort())
+    const target = pending[1]!.subtaskId!
+    h3.service.discardPendingLeaderNoticesForSubtasks(fx.task.id, [target])
+    const left = h3.service.listPendingLeaderNotices(fx.task.id)
+    expect(left.some((n) => n.subtaskId === target)).toBe(false)
+    expect(left.map((n) => n.id)).toEqual(
+      pending.slice(1).filter((n) => n.subtaskId !== target).map((n) => n.id),
+    )
     h3.store.close()
   })
 

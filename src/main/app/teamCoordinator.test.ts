@@ -260,6 +260,36 @@ describe('aviso de reinício ao Líder retomado', () => {
     expect(texts).toHaveLength(1)
     expect(texts[0]).toContain(queued.id)
   })
+
+  it('segundo reinício sem decisão do Líder: avisa de novo, sem "Nenhuma subtarefa parou"', async () => {
+    const h = setup({ transcripts: new Set(['conv-1']) })
+    const queued = h.tasks.createSubtask({
+      taskId: h.fx.task.id,
+      roleId: h.fx.dev.id,
+      title: 'na fila',
+      instructions: 'x',
+      referenceTaskIds: [],
+    })
+    openLostLeader(h)
+    await h.coordinator.recover()
+    await h.settle()
+    const first = h.launches.at(-1)?.initialNotices?.map((n) => n.text) ?? []
+    expect(first).toHaveLength(1)
+
+    // Outra partida: o Líder anterior caiu de novo e a subtarefa continua parada.
+    h.tasks.endSession(h.tasks.getLatestLeaderSession(h.fx.task.id)!.id, {
+      reason: 'lost_on_restart',
+      exitCode: null,
+    })
+    openLostLeader(h)
+    const report = await h.coordinator.recover()
+    await h.settle()
+    expect(report.pausedSubtasks.map((s) => s.id)).toEqual([queued.id])
+    const texts = h.launches.at(-1)?.initialNotices?.map((n) => n.text) ?? []
+    expect(texts).toHaveLength(1)
+    expect(texts[0]).toContain(queued.id)
+    expect(texts[0]).not.toContain('Nenhuma subtarefa parou')
+  })
 })
 
 describe('Líder Claude: prompt de sistema', () => {

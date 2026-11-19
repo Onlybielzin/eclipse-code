@@ -1380,7 +1380,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
    * Com `composeLostNotice`, cada subtarefa parada deixa UM aviso na fila duravel
    * (leader_notices), na mesma transacao. O fim de turno 'app_restarted' de subtarefa parada
    * nao gera outro aviso no TeamTurnRelay. Subtarefa que ja estava parada por um reinicio
-   * anterior nao gera aviso de novo.
+   * anterior, sem decisao do Lider, entra de novo no relatorio e ganha aviso nesta partida:
+   * o aviso antigo foi para outro Lider.
    * Lideres nao viram erro: voltam em leadersToResume para o --resume.
    * Uma transacao so: ou recupera tudo, ou nada muda.
    */
@@ -1428,14 +1429,10 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         report.lostSessions.push(ended)
       }
 
-      // Inclui as que o laco acima acabou de parar: o aviso sai aqui, um por subtarefa.
-      const pausedNow = new Set(
-        report.lostSessions.map((s) => s.subtaskId).filter((id): id is SubtaskId => !!id),
-      )
+      // Inclui as que o laco acima acabou de parar e as ja paradas por um reinicio anterior:
+      // o Lider desta partida e novo e precisa do aviso de novo. Um por subtarefa.
       for (const subtask of this.store.listUnfinishedSubtasks()) {
         if (subtask.sessionId !== null && survivors.has(subtask.sessionId)) continue
-        // Parada por um reinicio anterior e ainda sem decisao do Lider: o aviso ja saiu.
-        if (isPausedByRestart(subtask) && !pausedNow.has(subtask.id)) continue
         const paused = this.pauseAfterRestart(subtask)
         report.pausedSubtasks.push(paused)
         if (input.composeLostNotice) {
