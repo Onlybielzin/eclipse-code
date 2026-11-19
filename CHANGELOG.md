@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.19 - 2026-11-19
+
+- A lista de tarefas fica na ordem da última atividade. Conversa com o Líder, subtarefa e pergunta agora sobem a tarefa para o topo. A opção de ordem "Atualizada" virou "Última atividade".
+
 ## 0.1.18 - 2026-11-19
 
 - Subtarefa que já estava parada por um reinício anterior também volta sozinha no reinício seguinte. Antes, o Líder recebia "Nenhuma subtarefa parou" e não retomava.
