@@ -600,6 +600,137 @@ describe('acordar o Lider Claude ocioso (relay.wake)', () => {
     team.stop()
   })
 
+  describe('subtarefa parada pelo reinicio', () => {
+    const paused = { state: 'input_required' as const, statusMessage: 'parada: o app reiniciou' }
+
+    it('acorda o Lider uma vez por sessao, mesmo com varios ociosos', async () => {
+      const tasks = createFakeTaskService()
+      tasks.sessions.set('L1', leaderSession('L1'))
+      tasks.seedSubtask({ id: 'p1', ...paused })
+      const wakes = { n: 0 }
+      const team = startTeamTurnRelay({
+        tasks,
+        relay: wakeRelay(wakes),
+        leaderEvents,
+        retryIntervalMs: 0,
+      })
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      expect(wakes.n).toBe(1)
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      expect(wakes.n).toBe(1)
+      team.stop()
+    })
+
+    it('wake devolve false: tenta de novo no proximo ocioso', async () => {
+      const tasks = createFakeTaskService()
+      tasks.sessions.set('L1', leaderSession('L1'))
+      tasks.seedSubtask({ id: 'p1', ...paused })
+      const wakes = { n: 0 }
+      const team = startTeamTurnRelay({
+        tasks,
+        relay: wakeRelay(wakes, false),
+        leaderEvents,
+        retryIntervalMs: 0,
+      })
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      expect(wakes.n).toBe(2)
+      team.stop()
+    })
+
+    it('wake falha no ocioso: o sweep tenta de novo sem novo ocioso e para ao dar certo', async () => {
+      vi.useFakeTimers()
+      try {
+        const tasks = createFakeTaskService()
+        tasks.sessions.set('L1', leaderSession('L1'))
+        tasks.seedSubtask({ id: 'p1', ...paused })
+        const wakes = { n: 0 }
+        let ok = false
+        const relay = wakeRelay(wakes)
+        relay.wake = async () => {
+          wakes.n += 1
+          return ok
+        }
+        const team = startTeamTurnRelay({ tasks, relay, leaderEvents, retryIntervalMs: 1000 })
+        leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+        await team.idle()
+        expect(wakes.n).toBe(1)
+        await vi.advanceTimersByTimeAsync(1000)
+        expect(wakes.n).toBe(2)
+        ok = true
+        await vi.advanceTimersByTimeAsync(1000)
+        expect(wakes.n).toBe(3)
+        await vi.advanceTimersByTimeAsync(5000)
+        expect(wakes.n).toBe(3)
+        team.stop()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('para de tentar quando a sessao sai de running', async () => {
+      vi.useFakeTimers()
+      try {
+        const tasks = createFakeTaskService()
+        tasks.sessions.set('L1', leaderSession('L1'))
+        tasks.seedSubtask({ id: 'p1', ...paused })
+        const wakes = { n: 0 }
+        const team = startTeamTurnRelay({
+          tasks,
+          relay: wakeRelay(wakes, false),
+          leaderEvents,
+          retryIntervalMs: 1000,
+        })
+        leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+        await team.idle()
+        tasks.sessions.set('L1', leaderSession('L1', 'task1', 'exited'))
+        await vi.advanceTimersByTimeAsync(3000)
+        expect(wakes.n).toBe(1)
+        team.stop()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('relay.wake que rejeita vai para o onError, sem rejeicao solta', async () => {
+      const tasks = createFakeTaskService()
+      tasks.sessions.set('L1', leaderSession('L1'))
+      tasks.seedSubtask({ id: 'p1', ...paused })
+      const relay = wakeRelay({ n: 0 })
+      relay.wake = async () => {
+        throw new Error('wake quebrou')
+      }
+      const onError = vi.fn()
+      const team = startTeamTurnRelay({ tasks, relay, leaderEvents, onError, retryIntervalMs: 0 })
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(onError.mock.calls[0]?.[0]).toBeInstanceOf(Error)
+      team.stop()
+    })
+
+    it('sem subtarefa parada pelo reinicio: nao acorda por esse motivo', async () => {
+      const tasks = createFakeTaskService()
+      tasks.sessions.set('L1', leaderSession('L1'))
+      tasks.seedSubtask({ id: 'q1', state: 'input_required', statusMessage: 'pergunta do membro' })
+      const wakes = { n: 0 }
+      const team = startTeamTurnRelay({
+        tasks,
+        relay: wakeRelay(wakes),
+        leaderEvents,
+        retryIntervalMs: 0,
+      })
+      leaderEvents.emit({ type: 'activity', sessionId: 'L1', activity: 'idle' })
+      await team.idle()
+      expect(wakes.n).toBe(0)
+      team.stop()
+    })
+  })
+
   it('Codex: offer devolve o aviso, cola com deliver e nao acorda', async () => {
     const tasks = createFakeTaskService()
     tasks.sessions.set('L1', leaderSession('L1'))

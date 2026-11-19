@@ -519,7 +519,7 @@ describe('subtarefa parada pelo reinício do app', () => {
     })
     const pending = h.tasks.listPendingLeaderNotices(h.fx.task.id).map((n) => n.text)
     expect(pending).toEqual([
-      `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (Dev 1: Implementar rota) parou no meio. O que o membro já alterou continua na worktree. Para continuar: subtarefa_responder com o que ele deve fazer (o app reabre o membro na mesma conversa). Para encerrar: subtarefa_cancelar.`,
+      `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (Dev 1: Implementar rota) parou no meio. O que o membro já alterou continua na worktree. Retome agora: chame subtarefa_responder nela dizendo para continuar de onde parou (o app reabre o membro na mesma conversa). Cancele com subtarefa_cancelar só se ela não fizer mais sentido.`,
     ])
     // Quando o Líder abre, recebe exatamente esse aviso (e não o "terminou o turno").
     await h.coordinator.ensureLeader(h.fx.task.id)

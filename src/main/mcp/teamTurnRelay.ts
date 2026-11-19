@@ -176,6 +176,11 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   const rerun = new Set<TaskId>()
   // Avisos que ja acordaram o Lider desta sessao (id -> hora da colagem): sem repetir a cada ocioso.
   const woken = new Map<SessionId, Map<number, number>>()
+  // Lideres ja acordados por subtarefa parada pelo reinicio (uma vez por sessao).
+  const wokenByRestart = new Set<SessionId>()
+  // Lideres com subtarefa parada pelo reinicio e sem wake bem-sucedido (sessao -> tarefa): o sweep tenta de novo.
+  const restartCandidates = new Map<SessionId, TaskId>()
+  const restartWaking = new Map<SessionId, Promise<void>>()
   let stopped = false
 
   const remember = (turnId: TurnId): boolean => {
@@ -248,6 +253,30 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     return job
   }
 
+  // O aviso do reinicio entra pelo SessionStart (nao comeca turno): so o wake vira turno.
+  // O wake falha enquanto o Lider nao esta pronto; a sessao fica candidata e o sweep repete.
+  const wakeByRestart = (sessionId: SessionId, taskId: TaskId): void => {
+    if (!relay.wake || stopped || restartWaking.has(sessionId)) return
+    const job = (async () => {
+      if (
+        wokenByRestart.has(sessionId) ||
+        tasks.getSession(sessionId).status !== 'running' ||
+        !tasks.listSubtasks(taskId).some(isPausedByRestart)
+      ) {
+        restartCandidates.delete(sessionId)
+        return
+      }
+      restartCandidates.set(sessionId, taskId)
+      if (await relay.wake?.(sessionId)) {
+        wokenByRestart.add(sessionId)
+        restartCandidates.delete(sessionId)
+      }
+    })()
+      .catch(onError)
+      .finally(() => restartWaking.delete(sessionId))
+    restartWaking.set(sessionId, job)
+  }
+
   const enqueue = (taskId: TaskId, text: string, subtaskId?: SubtaskId): void => {
     notices.enqueueLeaderNotice(taskId, text, subtaskId)
     void drain(taskId)
@@ -281,6 +310,7 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     if (stopped) return
     try {
       for (const taskId of notices.listTasksWithPendingLeaderNotices()) void drain(taskId)
+      for (const [sessionId, taskId] of restartCandidates) wakeByRestart(sessionId, taskId)
     } catch (error) {
       onError(error)
     }
@@ -312,6 +342,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     }
     if (event.type === 'session.upserted' && event.session.status !== 'running') {
       woken.delete(event.session.id)
+      wokenByRestart.delete(event.session.id)
+      restartCandidates.delete(event.session.id)
     }
   })
 
@@ -330,7 +362,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     } catch {
       return
     }
-    void drain(taskId)
+    const sessionId = event.sessionId
+    void drain(taskId).then(() => wakeByRestart(sessionId, taskId))
   })
 
   const timer = retryIntervalMs > 0 ? setInterval(sweep, retryIntervalMs) : null
@@ -339,6 +372,7 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
   return {
     stop() {
       stopped = true
+      restartCandidates.clear()
       unsubscribe()
       offLeader?.()
       if (timer) clearInterval(timer)
@@ -346,8 +380,8 @@ export function startTeamTurnRelay(deps: TeamTurnRelayDeps): TeamTurnRelay {
     async idle() {
       // Espera microtarefas pendentes e qualquer envio em curso.
       await Promise.resolve()
-      while (draining.size > 0) {
-        await Promise.all([...draining.values()])
+      while (draining.size > 0 || restartWaking.size > 0) {
+        await Promise.all([...draining.values(), ...restartWaking.values()])
       }
     },
     pending(taskId) {

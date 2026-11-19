@@ -209,7 +209,7 @@ export function composeMemberStoppedNotice(subtask: Subtask, roleName: string): 
  * Um por subtarefa: o fim de turno fechado pela recuperacao nao gera outro.
  */
 export function composeSessionLostNotice(subtask: Subtask, roleName: string): string {
-  return `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou no meio. O que o membro já alterou continua na worktree. Para continuar: subtarefa_responder com o que ele deve fazer (o app reabre o membro na mesma conversa). Para encerrar: subtarefa_cancelar.`
+  return `[eclipse] O app reiniciou e a subtarefa ${subtask.id} (${roleName}: ${oneLine(subtask.title, 80)}) parou no meio. O que o membro já alterou continua na worktree. Retome agora: chame subtarefa_responder nela dizendo para continuar de onde parou (o app reabre o membro na mesma conversa). Cancele com subtarefa_cancelar só se ela não fizer mais sentido.`
 }
 
 /** Aviso ao Lider retomado cuja tarefa nao teve subtarefa parada. */
