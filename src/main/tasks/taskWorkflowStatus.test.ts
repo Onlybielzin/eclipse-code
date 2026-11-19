@@ -147,7 +147,8 @@ describe('TaskService: status automático da tarefa', () => {
     const events: DomainEventEnvelope[] = []
     service.subscribe((e) => events.push(e))
     expect(service.concludeTask(fx.task.id).workflowStatus).toBe('em_revisao')
-    expect(events).toEqual([])
+    // O status nao muda, mas o sinal conta como atividade (updatedAt).
+    expect(events.map((e) => e.event.type)).toEqual(['task.upserted'])
   })
 
   it('Líder não conclui com pergunta pendente', () => {
@@ -324,5 +325,41 @@ describe('migração 10', () => {
       db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
     ).toThrow(/CHECK/)
     expect(db.pragma('foreign_key_check')).toEqual([])
+  })
+})
+
+describe('TaskService: última atividade', () => {
+  function setupClock() {
+    const { service } = createHarness()
+    return { service, fx: seedTeam(service) }
+  }
+
+  it('sinal sem mudança de status avança o updatedAt', () => {
+    const { service, fx } = setupClock()
+    service.markTaskWorkStarted(fx.task.id)
+    const before = service.getTask(fx.task.id).updatedAt
+    const task = service.markTaskWorkStarted(fx.task.id)
+    expect(task.workflowStatus).toBe('em_andamento')
+    expect(task.updatedAt).toBeGreaterThan(before)
+  })
+
+  it('touchTask avança o updatedAt, emite e não muda status nem arquivamento', () => {
+    const { service, fx } = setupClock()
+    const events: DomainEventEnvelope[] = []
+    service.subscribe((e) => events.push(e))
+    const before = service.getTask(fx.task.id)
+    const task = service.touchTask(fx.task.id)
+    expect(task.updatedAt).toBeGreaterThan(before.updatedAt)
+    expect(task).toMatchObject({ workflowStatus: before.workflowStatus, status: before.status })
+    expect(events.map((e) => e.event.type)).toEqual(['task.upserted'])
+  })
+
+  it('subtarefa indo a estado final avança o updatedAt da tarefa', () => {
+    const { service, fx } = setupClock()
+    const id = startSubtask(service, fx)
+    service.transitionSubtask(id, 'working')
+    const before = service.getTask(fx.task.id).updatedAt
+    service.transitionSubtask(id, 'completed')
+    expect(service.getTask(fx.task.id).updatedAt).toBeGreaterThan(before)
   })
 })

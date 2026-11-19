@@ -204,6 +204,11 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
           this.safely('marcar tarefa em andamento', () =>
             this.tasks.markTaskWorkStarted(this.tasks.getSession(event.sessionId).taskId),
           )
+        } else if (event.type === 'activity' && event.activity === 'idle') {
+          // Fim do turno do Lider tambem e atividade (ordem da lista).
+          this.safely('marcar atividade da tarefa', () =>
+            this.tasks.touchTask(this.tasks.getSession(event.sessionId).taskId),
+          )
         }
       }),
       this.members.onActivity((draft) => {

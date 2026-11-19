@@ -655,11 +655,26 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   private applyTaskSignal(id: TaskId, signal: TaskWorkflowSignal): Task {
     const task = this.getTask(id)
     const to = nextTaskWorkflowStatus(task.workflowStatus, signal)
-    if (to === null) return task
-    const next: Task = { ...task, workflowStatus: to, updatedAt: this.clock.now() }
+    // Todo sinal e atividade: grava o updatedAt mesmo sem mudar o status.
+    return this.touch(task, to ?? task.workflowStatus)
+  }
+
+  /** Grava updatedAt (e o status, se vier). Nao mexe em archivedAt. Dentro de write(). */
+  private touch(task: Task, workflowStatus: TaskWorkflowStatus): Task {
+    const next: Task = { ...task, workflowStatus, updatedAt: this.clock.now() }
     this.store.updateTask(next)
     this.emit({ type: 'task.upserted', task: next })
     return next
+  }
+
+  /** Marca atividade na tarefa (ordem da lista por ultima atividade). */
+  touchTask(id: TaskId): Task {
+    return this.write(() => this.touchTaskInWrite(id))
+  }
+
+  private touchTaskInWrite(id: TaskId): Task {
+    const task = this.getTask(id)
+    return this.touch(task, task.workflowStatus)
   }
 
   // -------------------------------------------------------------------------
@@ -766,6 +781,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     this.store.updateSubtask(next)
     this.emit({ type: 'subtask.upserted', subtask: next })
     if (to === 'working') this.applyTaskSignal(subtask.taskId, 'work_started')
+    else this.touchTaskInWrite(subtask.taskId)
     return next
   }
 

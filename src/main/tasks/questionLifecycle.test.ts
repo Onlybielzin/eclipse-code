@@ -39,7 +39,12 @@ describe('pergunta nova substitui a aberta', () => {
     expect(service.getQuestion(q1.id).answeredAt).not.toBeNull()
     expect(service.listOpenQuestions(fx.project.id).map((q) => q.id)).toEqual([q2.id])
     // Uma escrita so: a substituida e a nova saem juntas, a tarefa nao pisca para em_andamento.
-    expect(events.map((e) => e.event.type)).toEqual(['question.upserted', 'question.upserted'])
+    // O task.upserted (um so) e a atividade da pergunta nova: updatedAt, sem mudar o status.
+    expect(events.map((e) => e.event.type)).toEqual([
+      'question.upserted',
+      'question.upserted',
+      'task.upserted',
+    ])
     expect(service.getTask(fx.task.id).workflowStatus).toBe('pergunta')
   })
 

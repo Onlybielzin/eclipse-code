@@ -277,6 +277,8 @@ export interface TaskService {
   renameTask(id: TaskId, name: string): Task
   /** Lider ou membro comecou a trabalhar: a_fazer | em_revisao -> em_andamento. */
   markTaskWorkStarted(id: TaskId): Task
+  /** Conta como atividade: so avanca o updatedAt (status e arquivamento ficam). */
+  touchTask(id: TaskId): Task
   /**
    * Lider declarou a tarefa terminada (tarefa_concluir): -> em_revisao. Recusa com
    * pergunta aberta ('conflict') ou tarefa ja lancada ('invalid_transition').

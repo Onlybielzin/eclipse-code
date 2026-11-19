@@ -26,7 +26,7 @@ export const TASK_SORTS = ['updated', 'created', 'name', 'status'] as const
 export type TaskSort = (typeof TASK_SORTS)[number]
 
 export const TASK_SORT_LABELS: Record<TaskSort, string> = {
-  updated: 'Atualizada',
+  updated: 'Última atividade',
   created: 'Criada',
   name: 'Nome',
   status: 'Status',

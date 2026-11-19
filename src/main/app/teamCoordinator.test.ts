@@ -637,6 +637,16 @@ describe('status da tarefa', () => {
     expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('em_andamento')
   })
 
+  it('fim do turno do Líder conta como atividade, sem mudar o status', async () => {
+    const h = setup()
+    const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    const before = h.tasks.getTask(h.fx.task.id)
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'idle' })
+    const after = h.tasks.getTask(h.fx.task.id)
+    expect(after.updatedAt).toBeGreaterThan(before.updatedAt)
+    expect(after.workflowStatus).toBe(before.workflowStatus)
+  })
+
   it('usuário marca Lançado: fecha o Líder, arquiva e não remove a worktree', async () => {
     const h = setup()
     await h.coordinator.ensureLeader(h.fx.task.id)
