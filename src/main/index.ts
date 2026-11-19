@@ -3,6 +3,7 @@ import {
   BrowserWindow,
   dialog,
   ipcMain,
+  Menu,
   safeStorage,
   shell,
   type OpenDialogOptions,
@@ -62,6 +63,8 @@ let releaseWindow: (id: number) => void = () => {}
 let updater: ReturnType<typeof createUpdater> | null = null
 
 function createMainWindow(): BrowserWindow {
+  // Sem a barra File/Edit/View/Window padrao do Electron (a tela tem o proprio topo).
+  Menu.setApplicationMenu(null)
   const window = new BrowserWindow({
     width: 1400,
     height: 900,
