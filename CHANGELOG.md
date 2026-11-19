@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.17 - 2026-11-19
+
+- Depois de reiniciar o PC ou o app, o Líder que tinha subtarefa rodando acorda sozinho e manda o membro continuar de onde parou. Antes, ele esperava você escrever no terminal.
+
 ## 0.1.16 - 2026-11-17
 
 - A lista de tarefas da esquerda não agrupa mais por status. As tarefas abertas ficam numa lista só, com a mais recente em cima. A bolinha mostra o status.
