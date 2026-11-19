@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.18 - 2026-11-19
+
+- Subtarefa que já estava parada por um reinício anterior também volta sozinha no reinício seguinte. Antes, o Líder recebia "Nenhuma subtarefa parou" e não retomava.
+
 ## 0.1.17 - 2026-11-19
 
 - Depois de reiniciar o PC ou o app, o Líder que tinha subtarefa rodando acorda sozinho e manda o membro continuar de onde parou. Antes, ele esperava você escrever no terminal.
