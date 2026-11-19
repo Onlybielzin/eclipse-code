@@ -154,6 +154,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private readonly log: AppLogger
   private readonly toolHandler: DisposableMcpToolHandler
   private readonly unsubscribers: Unsubscribe[] = []
+  private readonly lastActivity = new Map<SessionId, string>()
 
   /** Lider: sessionId <-> ptyId. Mantido depois da saida para repintar o scrollback. */
   private readonly leaderPtys = new Map<SessionId, string>()
@@ -191,6 +192,11 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
     this.unsubscribers.push(
       this.leader.sessions.onEvent((event) => {
+        // Ultima atividade por sessao: so o fim de um turno de verdade ('working' -> 'idle') conta.
+        const previous =
+          event.type === 'activity' ? this.lastActivity.get(event.sessionId) : undefined
+        if (event.type === 'activity') this.lastActivity.set(event.sessionId, event.activity)
+        else if (event.type === 'exit') this.lastActivity.delete(event.sessionId)
         if (event.type === 'provider-session-id') {
           this.safely('gravar id de sessão do Líder', () =>
             this.tasks.updateSession(event.sessionId, {
@@ -204,8 +210,12 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
           this.safely('marcar tarefa em andamento', () =>
             this.tasks.markTaskWorkStarted(this.tasks.getSession(event.sessionId).taskId),
           )
-        } else if (event.type === 'activity' && event.activity === 'idle') {
-          // Fim do turno do Lider tambem e atividade (ordem da lista).
+        } else if (
+          event.type === 'activity' &&
+          event.activity === 'idle' &&
+          previous === 'working'
+        ) {
+          // Fim do turno do Lider tambem e atividade (ordem da lista); 'starting' -> 'idle' (reinicio) nao.
           this.safely('marcar atividade da tarefa', () =>
             this.tasks.touchTask(this.tasks.getSession(event.sessionId).taskId),
           )
@@ -325,7 +335,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     if (task.workflowStatus === status) return task
     if (isArchivedWorkflowStatus(status)) {
       // Ja arquivada (lancado <-> cancelado): so troca o rotulo, sem fechar nada de novo.
-      if (task.status === 'archived') return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
+      if (task.status === 'archived')
+        return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
       return this.archiveTask(taskId, { removeWorktree: false }, status as 'lancado' | 'cancelado')
     }
     if (task.status === 'archived' && task.worktreePath && !existsSync(task.worktreePath)) {

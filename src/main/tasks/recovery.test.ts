@@ -41,6 +41,24 @@ describe('recuperação no boot', () => {
     h2.store.close()
   })
 
+  it('a parada pelo reinício não conta como atividade da tarefa', () => {
+    const h1 = createHarness(dbPath, 'a')
+    const fx = seedTeam(h1.service)
+    const working = seedWorkingSubtask(h1.service, fx, 'no meio do turno')
+    // Turno aberto: a recuperação passa por applyFinishTurn, não só por pauseAfterRestart.
+    h1.service.startTurn({
+      sessionId: working.session.id,
+      subtaskId: working.subtask.id,
+      author: 'leader',
+      parts: [{ kind: 'text', text: 'vai' }],
+    })
+    const before = h1.service.getTask(fx.task.id)
+    const h2 = reboot(h1, 'b')
+    h2.service.recoverAfterRestart()
+    expect(h2.service.getSubtask(working.subtask.id).state).toBe('input_required')
+    expect(h2.service.getTask(fx.task.id).updatedAt).toBe(before.updatedAt)
+  })
+
   it('membro que não volta: sessão encerrada, subtarefa parada esperando o Líder, turno fechado', () => {
     const h1 = createHarness(dbPath, 'a')
     const fx = seedTeam(h1.service)
@@ -170,7 +188,10 @@ describe('recuperação no boot', () => {
     const left = h3.service.listPendingLeaderNotices(fx.task.id)
     expect(left.some((n) => n.subtaskId === target)).toBe(false)
     expect(left.map((n) => n.id)).toEqual(
-      pending.slice(1).filter((n) => n.subtaskId !== target).map((n) => n.id),
+      pending
+        .slice(1)
+        .filter((n) => n.subtaskId !== target)
+        .map((n) => n.id),
     )
     h3.store.close()
   })

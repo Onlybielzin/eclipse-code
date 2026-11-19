@@ -637,7 +637,9 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     return this.write(() => {
       const task = this.getTask(id)
       if (isArchivedWorkflowStatus(task.workflowStatus)) {
-        throw new DomainError('invalid_transition', 'a tarefa já foi lançada ou cancelada', { taskId: id })
+        throw new DomainError('invalid_transition', 'a tarefa já foi lançada ou cancelada', {
+          taskId: id,
+        })
       }
       const open = this.store.countOpenQuestions(id)
       if (open > 0) {
@@ -750,6 +752,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     subtask: Subtask,
     to: SubtaskState,
     patch: TransitionSubtaskPatch = {},
+    touchTask = true,
   ): Subtask {
     if (isFinalSubtaskState(subtask.state)) {
       throw new DomainError(
@@ -781,7 +784,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     this.store.updateSubtask(next)
     this.emit({ type: 'subtask.upserted', subtask: next })
     if (to === 'working') this.applyTaskSignal(subtask.taskId, 'work_started')
-    else this.touchTaskInWrite(subtask.taskId)
+    else if (touchTask) this.touchTaskInWrite(subtask.taskId)
     return next
   }
 
@@ -1174,7 +1177,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
     if (from === state || !canTransitionSubtask(from, state)) {
       return { turn: endedTurn, subtask, fallbackArtifact, transitioned: false }
     }
-    const next = this.applyTransition(subtask, state, { statusMessage, failureCode })
+    // Reinicio nao e atividade: nao mexe no updatedAt da tarefa.
+    const next = this.applyTransition(subtask, state, { statusMessage, failureCode }, !afterRestart)
     return { turn: endedTurn, subtask: next, fallbackArtifact, transitioned: true }
   }
 
@@ -1474,9 +1478,13 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   private pauseAfterRestart(subtask: Subtask): Subtask {
     if (isPausedByRestart(subtask)) return subtask
     if (subtask.state !== 'input_required') {
-      return this.applyTransition(subtask, 'input_required', {
-        statusMessage: RESTART_PAUSE_MESSAGE,
-      })
+      // Parar por reinicio nao e atividade: nao mexe no updatedAt da tarefa.
+      return this.applyTransition(
+        subtask,
+        'input_required',
+        { statusMessage: RESTART_PAUSE_MESSAGE },
+        false,
+      )
     }
     const next: Subtask = {
       ...subtask,

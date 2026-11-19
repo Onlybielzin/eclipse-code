@@ -640,11 +640,21 @@ describe('status da tarefa', () => {
   it('fim do turno do Líder conta como atividade, sem mudar o status', async () => {
     const h = setup()
     const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'working' })
     const before = h.tasks.getTask(h.fx.task.id)
     h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'idle' })
     const after = h.tasks.getTask(h.fx.task.id)
     expect(after.updatedAt).toBeGreaterThan(before.updatedAt)
     expect(after.workflowStatus).toBe(before.workflowStatus)
+  })
+
+  it('Líder que sobe do reinício (starting -> idle) não conta como atividade', async () => {
+    const h = setup()
+    const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'starting' })
+    const before = h.tasks.getTask(h.fx.task.id)
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'idle' })
+    expect(h.tasks.getTask(h.fx.task.id).updatedAt).toBe(before.updatedAt)
   })
 
   it('usuário marca Lançado: fecha o Líder, arquiva e não remove a worktree', async () => {
