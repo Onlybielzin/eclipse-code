@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.21 - 2026-11-19
+
+- A janela não mostra mais a barra de menu File, Edit, View e Window. Os atalhos dela (zoom, recarregar e ferramentas de desenvolvedor) saíram junto.
+
 ## 0.1.20 - 2026-11-19
 
 - Reiniciar o app não faz mais todas as tarefas subirem na lista. Só a atividade de verdade (turno do Líder, subtarefa, pergunta) muda a ordem.
