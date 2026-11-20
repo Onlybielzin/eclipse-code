@@ -16,7 +16,7 @@
  *   I5. Uma subtarefa tem no maximo uma sessao de membro (seq de atividade e por sessao).
  *   I6. Status de trabalho da tarefa (W1-W3 em domain.ts): so muda aqui, na mesma transacao
  *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
- *       pedido do usuario). Agente nunca escreve pronto_lancar/lancado/cancelado; lancado ou cancelado <=> arquivada.
+ *       pedido do usuario). Agente nunca escreve pronto_lancar/em_espera/lancado/cancelado; lancado ou cancelado <=> arquivada.
  */
 import { DEFAULT_ROLES } from './defaultRoles'
 import { basename, isAbsolute, resolve } from 'node:path'
@@ -1465,7 +1465,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       )
       for (const taskId of lostLeaderTasks) {
         const task = this.store.getTask(taskId)
-        if (!task || task.status !== 'open') continue
+        if (!task || task.status !== 'open' || task.workflowStatus === 'em_espera') continue
         if (this.getLiveLeaderSession(taskId)) continue
         const latest = this.getLatestLeaderSession(taskId)
         if (latest && latest.providerSessionId) report.leadersToResume.push(latest)

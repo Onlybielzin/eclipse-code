@@ -306,12 +306,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     finalStatus: 'lancado' | 'cancelado' = 'lancado',
   ): Promise<Task> {
     const task = this.tasks.getTask(taskId)
-    this.deps.taskProcesses?.stopTask(taskId)
-    for (const session of this.tasks.listSessions(taskId)) {
-      if (session.status === 'exited') continue
-      if (session.kind === 'member-acp') await this.closeMember(session.id)
-      else this.stopLeader(session.id)
-    }
+    await this.closeTaskAgents(taskId)
     const archived = this.tasks.markTaskArchived(taskId, finalStatus)
     if (options.removeWorktree && task.worktreePath) {
       const project = this.tasks.getProject(task.projectId)
@@ -326,6 +321,15 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     return archived
   }
 
+  private async closeTaskAgents(taskId: TaskId): Promise<void> {
+    this.deps.taskProcesses?.stopTask(taskId)
+    for (const session of this.tasks.listSessions(taskId)) {
+      if (session.status === 'exited') continue
+      if (session.kind === 'member-acp') await this.closeMember(session.id)
+      else this.stopLeader(session.id)
+    }
+  }
+
   /**
    * Status escolhido pelo usuario no menu da lista. 'lancado' e 'cancelado' passam pelo
    * archiveTask (fecha agentes; worktree fica). Sair deles reabre a tarefa arquivada (C7).
@@ -338,6 +342,10 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       if (task.status === 'archived')
         return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
       return this.archiveTask(taskId, { removeWorktree: false }, status as 'lancado' | 'cancelado')
+    }
+    if (status === 'em_espera') {
+      // Fecha Lider e membros como o arquivar, mas a tarefa segue aberta e a worktree fica.
+      await this.closeTaskAgents(taskId)
     }
     if (task.status === 'archived' && task.worktreePath && !existsSync(task.worktreePath)) {
       throw new DomainError(

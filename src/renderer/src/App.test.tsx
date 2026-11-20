@@ -536,7 +536,7 @@ describe('status da tarefa na lista', () => {
     expect(screen.getByTestId('task-t1')).toBeTruthy()
   })
 
-  it('ícone abre menu com os 7 status e a troca vai ao main e atualiza a tarefa', async () => {
+  it('ícone abre menu com os 8 status e a troca vai ao main e atualiza a tarefa', async () => {
     await renderApp()
     const row = screen.getByTestId('task-t1')
     fireEvent.click(within(row).getByRole('button', { name: /Status de feat-orfer-e-up/ }))
@@ -548,6 +548,7 @@ describe('status da tarefa na lista', () => {
       'Pergunta para você',
       'Em revisão',
       'Pronto pra lançar',
+      'Em espera',
       'Concluída',
       'Cancelada',
     ])
@@ -976,7 +977,7 @@ describe('painéis do rodape da coluna esquerda', () => {
     return screen.getByTestId(`status-row-${status}`)
   }
 
-  it('Status mostra os 7 status na ordem, com 0 nos vazios e o total de abertas', async () => {
+  it('Status mostra os 8 status na ordem, com 0 nos vazios e o total de abertas', async () => {
     await renderApp()
     const panel = screen.getByRole('region', { name: 'Status' })
     const rows = within(panel).getAllByRole('button').slice(1)
@@ -986,6 +987,7 @@ describe('painéis do rodape da coluna esquerda', () => {
       'Pergunta para você0',
       'Em revisão0',
       'Pronto pra lançar0',
+      'Em espera0',
       'Concluída1',
       'Cancelada0',
     ])
@@ -1308,7 +1310,7 @@ describe('filtros da lista de tarefas', () => {
     fireEvent.click(within(pop).getByLabelText('A fazer'))
     expect(screen.getByTestId('task-solo1')).toBeTruthy()
     expect(screen.queryByTestId('task-t1')).toBeNull()
-    expect(within(pop).getAllByRole('checkbox')).toHaveLength(11)
+    expect(within(pop).getAllByRole('checkbox')).toHaveLength(12)
     fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
     expect(screen.getByTestId('task-t1')).toBeTruthy()
     expect(groupLabels()).toEqual(['Encerradas'])
@@ -1358,7 +1360,7 @@ describe('filtros da lista de tarefas', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(
       JSON.parse(localStorage.getItem('eclipse.taskFilters.p1') ?? '{}').statuses,
-    ).toHaveLength(5)
+    ).toHaveLength(6)
 
     await act(() => store.openProject('p2'))
     expect(screen.queryByTestId('chip-status')).toBeNull()

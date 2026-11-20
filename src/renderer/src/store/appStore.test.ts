@@ -208,21 +208,22 @@ describe('sortTasks e groupOpenTasks', () => {
     makeTask('c', 'Água', { workflowStatus: 'pronto_lancar', updatedAt: 7, createdAt: 3 }),
     makeTask('q', 'zzz pergunta', { workflowStatus: 'pergunta', updatedAt: 1, createdAt: 0 }),
     makeTask('r', 'revisar', { workflowStatus: 'em_revisao', updatedAt: 6, createdAt: 4 }),
+    makeTask('e', 'espera', { workflowStatus: 'em_espera', updatedAt: 2, createdAt: 5 }),
     makeTask('x', 'encerrada', { workflowStatus: 'lancado', updatedAt: 99, createdAt: 99 }),
   ]
   const ids = (list: { id: string }[]) => list.map((t) => t.id)
 
   it('cada ordem, sempre com Pergunta para você em cima', () => {
-    expect(ids(sortTasks(tasks, 'updated'))).toEqual(['q', 'x', 'b', 'c', 'r', 'a'])
-    expect(ids(sortTasks(tasks, 'created'))).toEqual(['q', 'x', 'r', 'c', 'b', 'a'])
+    expect(ids(sortTasks(tasks, 'updated'))).toEqual(['q', 'x', 'b', 'c', 'r', 'a', 'e'])
+    expect(ids(sortTasks(tasks, 'created'))).toEqual(['q', 'x', 'e', 'r', 'c', 'b', 'a'])
     // pt-BR sem acento nem caixa: Água, abacaxi, encerrada, revisar, Zebra.
-    expect(ids(sortTasks(tasks, 'name'))).toEqual(['q', 'b', 'c', 'x', 'r', 'a'])
-    expect(ids(sortTasks(tasks, 'status'))).toEqual(['q', 'b', 'r', 'a', 'c', 'x'])
+    expect(ids(sortTasks(tasks, 'name'))).toEqual(['q', 'b', 'c', 'x', 'e', 'r', 'a'])
+    expect(ids(sortTasks(tasks, 'status'))).toEqual(['q', 'b', 'r', 'a', 'c', 'e', 'x'])
   })
 
   it('splitTasks usa a ordem e separa as encerradas', () => {
     const { open, archived } = splitTasks(tasks, 'name')
-    expect(ids(open)).toEqual(['q', 'b', 'c', 'r', 'a'])
+    expect(ids(open)).toEqual(['q', 'b', 'c', 'e', 'r', 'a'])
     expect(ids(archived)).toEqual(['x'])
   })
 
@@ -235,8 +236,10 @@ describe('sortTasks e groupOpenTasks', () => {
       'em_revisao',
       'a_fazer',
       'pronto_lancar',
+      'em_espera',
     ])
     expect(groups[0]?.label).toBe('Pergunta para você')
+    expect(groups[5]?.label).toBe('Em espera')
     expect(ids(groups[3]!.tasks)).toEqual(['d', 'a'])
     expect(groupOpenTasks([])).toEqual([])
   })

@@ -63,11 +63,20 @@ describe('regra pura nextTaskWorkflowStatus', () => {
     'leader_concluded',
   ]
 
+  it('em_espera sai só por work_started, question_opened ou leader_concluded', () => {
+    expect(nextTaskWorkflowStatus('em_espera', 'work_started')).toBe('em_andamento')
+    expect(nextTaskWorkflowStatus('em_espera', 'question_opened')).toBe('pergunta')
+    expect(nextTaskWorkflowStatus('em_espera', 'leader_concluded')).toBe('em_revisao')
+    expect(nextTaskWorkflowStatus('em_espera', 'questions_cleared')).toBeNull()
+  })
+
   it('automação nunca produz pronto_lancar nem lancado e nunca tira de lancado', () => {
     for (const from of TASK_WORKFLOW_STATUSES) {
       for (const signal of signals) {
         const to = nextTaskWorkflowStatus(from, signal)
-        expect(to === 'pronto_lancar' || to === 'lancado' || to === 'cancelado').toBe(false)
+        expect(
+          to === 'pronto_lancar' || to === 'lancado' || to === 'cancelado' || to === 'em_espera',
+        ).toBe(false)
         if (from === 'lancado' || from === 'cancelado') expect(to).toBeNull()
       }
     }
@@ -178,7 +187,7 @@ describe('TaskService: status automático da tarefa', () => {
 })
 
 describe('TaskService: quem pode escolher o status', () => {
-  it.each(['pronto_lancar', 'lancado', 'cancelado'] as const)('agente não marca %s', (to) => {
+  it.each(['pronto_lancar', 'lancado', 'cancelado', 'em_espera'] as const)('agente não marca %s', (to) => {
     const { service, fx } = setup()
     service.markTaskWorkStarted(fx.task.id)
     expect(errorCode(() => service.setTaskWorkflowStatus(fx.task.id, to, 'agent'))).toBe(
@@ -294,6 +303,45 @@ describe('migração 3', () => {
     expect(() =>
       db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
     ).toThrow(/CHECK/)
+  })
+})
+
+describe('TaskService: em_espera', () => {
+  it('usuário marca, work_started tira para em_andamento e a tarefa segue aberta', () => {
+    const { service, fx } = setup()
+    force(service, fx, 'em_espera')
+    expect(service.getTask(fx.task.id).status).toBe('open')
+    expect(service.markTaskWorkStarted(fx.task.id).workflowStatus).toBe('em_andamento')
+  })
+})
+
+describe('migração 11', () => {
+  it('aceita em_espera e mantém tarefas, sessões e status', () => {
+    const db = new Database(':memory:')
+    db.pragma('foreign_keys = ON')
+    for (const m of MIGRATIONS.filter((x) => x.version <= 10)) db.exec(m.sql)
+    db.pragma('user_version = 10')
+    db.exec(`
+      INSERT INTO projects VALUES ('p', 'p', '/p', 1, 1);
+      INSERT INTO tasks (id, project_id, context_id, title, kind, status, created_at, updated_at, archived_at)
+        VALUES ('aberta', 'p', 'c1', 'A', 'solo', 'open', 1, 1, NULL),
+               ('velha', 'p', 'c2', 'B', 'solo', 'archived', 1, 1, 2);
+      INSERT INTO sessions (id, task_id, kind, provider, cwd, status, started_at)
+        VALUES ('s1', 'aberta', 'leader-pty', 'claude', '/wt', 'exited', 1);
+    `)
+    db.exec("UPDATE tasks SET workflow_status = 'cancelado' WHERE id = 'velha'")
+    db.exec("UPDATE tasks SET workflow_status = 'pronto_lancar' WHERE id = 'aberta'")
+    expect(migrate(db)).toBeGreaterThanOrEqual(11)
+    expect(db.prepare('SELECT COUNT(*) AS n FROM sessions').get()).toEqual({ n: 1 })
+    const store = new SqliteTaskStore(db)
+    expect(store.getTask('aberta')?.workflowStatus).toBe('pronto_lancar')
+    expect(store.getTask('velha')?.workflowStatus).toBe('cancelado')
+    db.prepare("UPDATE tasks SET workflow_status = 'em_espera' WHERE id = 'aberta'").run()
+    expect(store.getTask('aberta')?.workflowStatus).toBe('em_espera')
+    expect(() =>
+      db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
+    ).toThrow(/CHECK/)
+    expect(db.pragma('foreign_key_check')).toEqual([])
   })
 })
 

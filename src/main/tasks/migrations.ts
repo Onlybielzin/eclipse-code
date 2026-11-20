@@ -293,6 +293,19 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE tasks RENAME COLUMN workflow_status_v10 TO workflow_status;
     `,
   },
+  {
+    version: 11,
+    name: 'status em espera',
+    // Mesmo metodo da migracao 10: o CHECK recusa 'em_espera', entao troca so a coluna.
+    sql: `
+      ALTER TABLE tasks ADD COLUMN workflow_status_v11 TEXT NOT NULL DEFAULT 'a_fazer'
+        CHECK (workflow_status_v11 IN
+          ('a_fazer', 'em_andamento', 'pergunta', 'em_revisao', 'pronto_lancar', 'em_espera', 'lancado', 'cancelado'));
+      UPDATE tasks SET workflow_status_v11 = workflow_status;
+      ALTER TABLE tasks DROP COLUMN workflow_status;
+      ALTER TABLE tasks RENAME COLUMN workflow_status_v11 TO workflow_status;
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

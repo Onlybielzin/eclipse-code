@@ -267,7 +267,7 @@ export interface TaskService {
   markTaskArchived(id: TaskId, finalStatus?: 'lancado' | 'cancelado'): Task
   /**
    * Muda o status de trabalho a pedido de alguem. 'agent' nunca escreve pronto_lancar
-   * lancado nem cancelado ('forbidden') e nao tira deles. 'user' escolhe qualquer um:
+   * em_espera, lancado nem cancelado ('forbidden') e nao tira deles. 'user' escolhe qualquer um:
    * lancado e cancelado arquivam (mesma regra do markTaskArchived) e sair deles desarquiva.
    */
   setTaskWorkflowStatus(id: TaskId, to: TaskWorkflowStatus, actor: TaskWorkflowActor): Task

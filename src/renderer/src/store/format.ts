@@ -22,6 +22,7 @@ export const TASK_STATUS_ICON_CLASS: Record<TaskWorkflowStatus, string> = {
   pergunta: 'ts-question',
   em_revisao: 'ts-review',
   pronto_lancar: 'ts-ready',
+  em_espera: 'ts-waiting',
   lancado: 'ts-launched',
   cancelado: 'ts-canceled',
 }
@@ -75,6 +76,7 @@ const OPEN_STATUS_ORDER: readonly TaskWorkflowStatus[] = [
   'em_revisao',
   'a_fazer',
   'pronto_lancar',
+  'em_espera',
 ]
 
 /**

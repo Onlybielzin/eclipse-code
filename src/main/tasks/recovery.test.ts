@@ -301,6 +301,30 @@ describe('recuperação no boot', () => {
       providerSessionId: null,
     })
 
+    // Tarefa em espera não reabre o Líder no reinício.
+    const waiting = h1.service.createTask({
+      projectId: fx.project.id,
+      title: 'Em espera',
+      kind: 'solo',
+      worktreePath: null,
+      branch: null,
+      baseBranch: null,
+      leadRoleId: null,
+      soloProvider: 'codex',
+    })
+    const waitingLeader = h1.service.openSession({
+      taskId: waiting.id,
+      subtaskId: null,
+      roleId: null,
+      kind: 'leader-pty',
+      provider: 'codex',
+      model: null,
+      cwd: '/repo/projeto',
+      providerSessionId: null,
+    })
+    h1.service.updateSession(waitingLeader.id, { status: 'running', providerSessionId: 'codex-w' })
+    h1.service.setTaskWorkflowStatus(waiting.id, 'em_espera', 'user')
+
     const h2 = reboot(h1, 'b')
     const report = h2.service.recoverAfterRestart()
     expect(report.leadersToResume.map((s) => [s.taskId, s.providerSessionId])).toEqual([

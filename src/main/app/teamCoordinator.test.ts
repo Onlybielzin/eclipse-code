@@ -688,6 +688,28 @@ describe('status da tarefa', () => {
     expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('lancado')
   })
 
+  it('usuário marca Em espera: fecha Líder e membros, para processos e não arquiva', async () => {
+    const stopped: string[] = []
+    const closed: string[] = []
+    const members = {
+      onActivity: () => () => undefined,
+      onSessionExit: () => () => undefined,
+      isAlive: () => false,
+      close: async (id: string) => void closed.push(id),
+      dispose: async () => undefined,
+    } as unknown as MemberRuntime
+    const h = setup({ members, taskProcesses: { stopTask: (id) => void stopped.push(id) } })
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    const working = seedWorkingSubtask(h.tasks, h.fx)
+    const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'em_espera')
+    expect(task).toMatchObject({ status: 'open', workflowStatus: 'em_espera', archivedAt: null })
+    expect(stopped).toEqual([h.fx.task.id])
+    expect(closed).toEqual([working.session.id])
+    expect(h.killed).toEqual(['pty-1'])
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+    expect(h.removedWorktrees).toEqual([])
+  })
+
   it('usuário troca entre status abertos sem abrir nem fechar agentes', async () => {
     const h = setup()
     const task = await h.coordinator.setTaskStatus(h.fx.task.id, 'pronto_lancar')

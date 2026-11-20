@@ -126,9 +126,10 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
  *   a_fazer -> em_andamento -> (pergunta <-> em_andamento) -> em_revisao
  *     -> pronto_lancar -> lancado
  *   (cancelado fica depois de lancado: abandona a tarefa, com o mesmo efeito de arquivar)
+ *   (em_espera: o usuario deixa a tarefa de lado; fecha os agentes mas a tarefa segue aberta)
  *
  * Invariantes:
- *   W1. pronto_lancar, lancado e cancelado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
+ *   W1. pronto_lancar, em_espera, lancado e cancelado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
  *   W2. lancado e cancelado sao finais para a automacao: nada automatico tira a tarefa de la.
  *   W3. status 'archived' <=> workflowStatus em ('lancado','cancelado') (lancar ou cancelar
  *       arquiva; sair dos dois para um status aberto desarquiva).
@@ -139,6 +140,7 @@ export const TASK_WORKFLOW_STATUSES = [
   'pergunta',
   'em_revisao',
   'pronto_lancar',
+  'em_espera',
   'lancado',
   'cancelado',
 ] as const
@@ -150,6 +152,7 @@ export const TASK_WORKFLOW_STATUS_LABELS: Record<TaskWorkflowStatus, string> = {
   pergunta: 'Pergunta para você',
   em_revisao: 'Em revisão',
   pronto_lancar: 'Pronto pra lançar',
+  em_espera: 'Em espera',
   lancado: 'Concluída',
   cancelado: 'Cancelada',
 }
@@ -160,7 +163,7 @@ export function isArchivedWorkflowStatus(status: TaskWorkflowStatus): boolean {
 }
 
 /** Status que agente e automacao nunca escrevem (W1). */
-export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'lancado', 'cancelado'] as const
+export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'em_espera', 'lancado', 'cancelado'] as const
 
 /** Quem pede a mudanca de status: o usuario (tela) ou um agente (MCP). */
 export type TaskWorkflowActor = 'user' | 'agent'
