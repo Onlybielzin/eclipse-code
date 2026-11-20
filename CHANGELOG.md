@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.22 - 2026-11-20
+
+- Status novo "Em espera" no menu da tarefa. Ele fecha o Líder e os membros, mas a tarefa continua aberta e a worktree fica. O botão "Retomar" traz o Líder de volta.
+- Configurações: "Colocar em espera após N horas sem atividade". Vem desligado (0). O app não mexe em tarefa com agente trabalhando ou com pergunta aberta para você.
+
 ## 0.1.21 - 2026-11-19
 
 - A janela não mostra mais a barra de menu File, Edit, View e Window. Os atalhos dela (zoom, recarregar e ferramentas de desenvolvedor) saíram junto.
