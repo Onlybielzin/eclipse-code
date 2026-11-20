@@ -9,8 +9,9 @@
  *   leader_concluded   Lider chamou tarefa_concluir: qualquer -> em_revisao.
  *
  * Em todos: lancado e cancelado nao mudam (W2). A automacao nunca produz pronto_lancar,
- * em_espera, lancado nem cancelado (W1). So work_started, question_opened e leader_concluded
- * tiram de em_espera.
+ * em_espera, lancado nem cancelado (W1); a espera automatica por inatividade nao e sinal daqui:
+ * e o TeamCoordinator, com a configuracao ligada, no mesmo caminho do usuario.
+ * So work_started, question_opened e leader_concluded tiram de em_espera.
  */
 import { isArchivedWorkflowStatus, type TaskWorkflowStatus } from './domain'
 

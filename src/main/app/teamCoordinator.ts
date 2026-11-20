@@ -357,6 +357,37 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     return this.tasks.setTaskWorkflowStatus(taskId, status, 'user')
   }
 
+  /**
+   * Espera automatica: poe em Em espera (mesmo caminho do usuario, fecha os agentes) a tarefa
+   * aberta parada ha mais que idleStandbyHours. Atividade = task.updatedAt. Pula Terminal,
+   * tarefa em espera/lancada/cancelada e tarefa com subtarefa no meio de um turno.
+   * Configuracao 0 = nada. Devolve as tarefas colocadas em espera.
+   */
+  async standbyIdleTasks(): Promise<TaskId[]> {
+    const hours = this.tasks.getAgentLimitSettings().idleStandbyHours
+    if (hours <= 0 || this.shuttingDown) return []
+    const limit = hours * 3_600_000
+    const moved: TaskId[] = []
+    for (const project of this.tasks.listProjects()) {
+      for (const task of this.tasks.listTasks(project.id, { includeArchived: false })) {
+        if (task.status !== 'open' || isTerminalTask(task)) continue
+        if (task.workflowStatus === 'em_espera' || isArchivedWorkflowStatus(task.workflowStatus)) continue
+        if (this.now() - task.updatedAt < limit) continue
+        const working =
+          this.tasks.listSubtasks(task.id).some((s) => s.state === 'working' || s.state === 'submitted') ||
+          this.tasks.listSessions(task.id).some((s) => s.status !== 'exited' && s.activeTurnId !== null)
+        if (working) continue
+        try {
+          await this.setTaskStatus(task.id, 'em_espera')
+          moved.push(task.id)
+        } catch (error) {
+          this.log.warn('espera automática falhou', { taskId: task.id, error: errorMessage(error) })
+        }
+      }
+    }
+    return moved
+  }
+
   // -------------------------------------------------------------------------
   // Lider
   // -------------------------------------------------------------------------

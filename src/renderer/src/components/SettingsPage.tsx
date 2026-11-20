@@ -15,12 +15,21 @@ function parseLimit(text: string): number | null | undefined {
   return Number.isInteger(n) && n >= 1 && n <= 100 ? n : undefined
 }
 
+const IDLE_ERROR = 'Informe um número inteiro de horas, de 0 a 720 (0 desliga).'
+
+/** Horas de espera automática: inteiro de 0 a 720; undefined se o texto não serve. */
+function parseIdleHours(text: string): number | undefined {
+  const n = Number(text.trim() === '' ? '0' : text.trim())
+  return Number.isInteger(n) && n >= 0 && n <= 720 ? n : undefined
+}
+
 /** Página "Configurações": ocupa o meio e a direita; limites no botão, chave e cérebro na hora. */
 export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const store = useStore()
   const look = useAppState((s) => s.brainLook)
   const [maxAgents, setMaxAgents] = useState('')
   const [maxMembers, setMaxMembers] = useState('')
+  const [idleHours, setIdleHours] = useState('0')
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +41,7 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const [checking, setChecking] = useState(false)
   const [updateMsg, setUpdateMsg] = useState<{ text: string; bad: boolean } | null>(null)
   /** Texto dos limites como estão salvos no main: base do "Descartar" e do aviso de alteração. */
-  const [saved, setSaved] = useState({ agents: '', members: '' })
+  const [saved, setSaved] = useState({ agents: '', members: '', idle: '0' })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -53,7 +62,8 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
           limits.maxLiveMembersPerTask === null ? '' : String(limits.maxLiveMembersPerTask)
         setMaxAgents(agents)
         setMaxMembers(members)
-        setSaved({ agents, members })
+        setIdleHours(String(limits.idleStandbyHours))
+        setSaved({ agents, members, idle: String(limits.idleStandbyHours) })
         setLoaded(true)
       })
       .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
@@ -114,10 +124,14 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
     if (window.confirm(message)) void store.installUpdate()
   }
 
-  const dirty = maxAgents.trim() !== saved.agents || maxMembers.trim() !== saved.members
+  const dirty =
+    maxAgents.trim() !== saved.agents ||
+    maxMembers.trim() !== saved.members ||
+    idleHours.trim() !== saved.idle
   const discard = () => {
     setMaxAgents(saved.agents)
     setMaxMembers(saved.members)
+    setIdleHours(saved.idle)
     setError(null)
   }
 
@@ -129,11 +143,21 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
       setError(LIMIT_ERROR)
       return
     }
+    const idleStandbyHours = parseIdleHours(idleHours)
+    if (idleStandbyHours === undefined) {
+      setError(IDLE_ERROR)
+      return
+    }
     setSaving(true)
     setError(null)
     try {
-      await store.saveAgentLimits({ maxLiveAgents, maxLiveMembersPerTask })
-      setSaved({ agents: maxAgents.trim(), members: maxMembers.trim() })
+      await store.saveAgentLimits({ maxLiveAgents, maxLiveMembersPerTask, idleStandbyHours })
+      setSaved({
+        agents: maxAgents.trim(),
+        members: maxMembers.trim(),
+        idle: String(idleStandbyHours),
+      })
+      setIdleHours(String(idleStandbyHours))
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -221,6 +245,27 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
                       disabled={!loaded}
                       onChange={(e) => setMaxMembers(e.target.value)}
                     />
+                  }
+                />
+                <Row
+                  label="Colocar em espera após"
+                  hint="0 desliga."
+                  tag="btn"
+                  control={
+                    <span>
+                      <input
+                        className="field num"
+                        type="number"
+                        min={0}
+                        max={720}
+                        step={1}
+                        aria-label="Horas sem atividade para colocar em espera"
+                        value={idleHours}
+                        disabled={!loaded}
+                        onChange={(e) => setIdleHours(e.target.value)}
+                      />{' '}
+                      horas sem atividade
+                    </span>
                   }
                 />
                 {error && (

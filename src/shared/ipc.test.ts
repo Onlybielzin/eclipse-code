@@ -57,6 +57,11 @@ describe('parseIpcInvokeRequest', () => {
       expect(save({ ...ok, maxLiveAgents: bad })).toBe(false)
       expect(save({ ...ok, maxLiveMembersPerTask: bad })).toBe(false)
     }
+    expect(save({ ...ok, idleStandbyHours: 0 })).toBe(true)
+    expect(save({ ...ok, idleStandbyHours: 720 })).toBe(true)
+    for (const bad of [-1, 721, 1.5, '5', Infinity]) {
+      expect(save({ ...ok, idleStandbyHours: bad })).toBe(false)
+    }
     expect(save({ ...ok, extra: 1 })).toBe(false)
     expect(save({ maxLiveAgents: 3 })).toBe(false)
     expect(parseIpcInvokeRequest({ channel: 'settings.get', input: {} }).ok).toBe(true)

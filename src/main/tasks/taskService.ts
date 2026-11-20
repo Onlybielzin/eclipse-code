@@ -16,7 +16,8 @@
  *   I5. Uma subtarefa tem no maximo uma sessao de membro (seq de atividade e por sessao).
  *   I6. Status de trabalho da tarefa (W1-W3 em domain.ts): so muda aqui, na mesma transacao
  *       do fato que o causou (subtarefa em working, pergunta aberta/fechada, tarefa_concluir,
- *       pedido do usuario). Agente nunca escreve pronto_lancar/em_espera/lancado/cancelado; lancado ou cancelado <=> arquivada.
+ *       pedido do usuario). Agente nunca escreve pronto_lancar/em_espera/lancado/cancelado
+ *       (unica excecao: a espera automatica por inatividade, ligada na configuracao, em TeamCoordinator.standbyIdleTasks); lancado ou cancelado <=> arquivada.
  */
 import { DEFAULT_ROLES } from './defaultRoles'
 import { basename, isAbsolute, resolve } from 'node:path'
@@ -246,7 +247,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   /** Limites de agentes gravados; valor ausente ou ilegivel = sem limite. */
   getAgentLimitSettings(): AgentLimitSettings {
     const raw = this.store.getSetting(AGENT_LIMITS_KEY)
-    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null }
+    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0 }
     if (raw === null) return none
     try {
       const parsed = agentLimitSettingsSchema.safeParse(JSON.parse(raw))

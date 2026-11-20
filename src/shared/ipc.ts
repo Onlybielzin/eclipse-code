@@ -72,9 +72,14 @@ const emptyInput = z.object({}).strict()
 /** Limite de agentes: inteiro de 1 a 100, ou null para sem limite. */
 const agentLimitSchema = z.number().int().min(1).max(100).nullable()
 
-/** Os dois limites gravados; o main também usa para ler o valor do SQLite. */
+/** Os limites e a espera automática gravados; o main também usa para ler o valor do SQLite. */
 export const agentLimitSettingsSchema = z
-  .object({ maxLiveAgents: agentLimitSchema, maxLiveMembersPerTask: agentLimitSchema })
+  .object({
+    maxLiveAgents: agentLimitSchema,
+    maxLiveMembersPerTask: agentLimitSchema,
+    // Inteiro de 0 a 720 (30 dias); 0 desliga. Ausente (valor salvo antes do campo) = 0.
+    idleStandbyHours: z.number().int().min(0).max(720).default(0),
+  })
   .strict()
 
 // ---------------------------------------------------------------------------

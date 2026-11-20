@@ -49,7 +49,7 @@ function setup(
     taskProcesses?: { stopTask(taskId: string): void }
   } = {},
 ) {
-  const { service: tasks } = createHarness()
+  const { service: tasks, clock } = createHarness()
   const fx = seedTeam(tasks)
   const alive = new Set<string>()
   const killed: string[] = []
@@ -158,6 +158,7 @@ function setup(
     bridge,
     worktreesRoot: '/wt',
     leaderNotices: turnRelay,
+    now: () => clock.now(),
     ...(options.taskProcesses ? { taskProcesses: options.taskProcesses } : {}),
     ...(options.limits ? { limits: options.limits } : {}),
   })
@@ -181,6 +182,7 @@ function setup(
   return {
     tasks,
     fx,
+    clock,
     coordinator,
     emitLeader,
     removedWorktrees,
@@ -718,6 +720,68 @@ describe('status da tarefa', () => {
   })
 })
 
+describe('em espera automática por inatividade', () => {
+  const HOUR = 3_600_000
+
+  function idleSetup(hours: number, members?: MemberRuntime) {
+    const h = setup(members ? { members } : {})
+    h.tasks.saveAgentLimitSettings({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+      idleStandbyHours: hours,
+    })
+    return h
+  }
+
+  it('tarefa parada além do limite vai para Em espera e fecha os agentes', async () => {
+    const h = idleSetup(2)
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    h.clock.time += 3 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([h.fx.task.id])
+    expect(h.tasks.getTask(h.fx.task.id)).toMatchObject({ status: 'open', workflowStatus: 'em_espera' })
+    expect(h.killed).toEqual(['pty-1'])
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+  })
+
+  it('não muda: abaixo do limite, configuração 0, já em espera ou arquivada', async () => {
+    const h = idleSetup(2)
+    h.clock.time += 1 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    h.tasks.saveAgentLimitSettings({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+      idleStandbyHours: 0,
+    })
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).not.toBe('em_espera')
+
+    h.tasks.saveAgentLimitSettings({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+      idleStandbyHours: 2,
+    })
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'em_espera')
+    const before = h.tasks.getTask(h.fx.task.id).updatedAt
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).updatedAt).toBe(before)
+
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'cancelado')
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('cancelado')
+  })
+
+  it('não muda a tarefa com subtarefa trabalhando', async () => {
+    const h = idleSetup(2)
+    seedWorkingSubtask(h.tasks, h.fx)
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).not.toBe('em_espera')
+  })
+})
+
 describe('pergunta respondida no terminal do Líder', () => {
   const ITEM = {
     id: 'i1',
@@ -795,7 +859,7 @@ describe('limites de agentes configuráveis', () => {
     }
     const input = { roleId: h.fx.dev.id, title: 'a', instructions: 'b', referenceTaskIds: [] }
     // Sem configuração = sem limite: o limite 1 com 1 Líder vivo ainda não foi salvo.
-    h.tasks.saveAgentLimitSettings({ maxLiveAgents: 1, maxLiveMembersPerTask: null })
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: 1, maxLiveMembersPerTask: null, idleStandbyHours: 0 })
     await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
       code: 'unavailable',
     })
@@ -840,12 +904,12 @@ describe('limites de agentes configuráveis', () => {
       subtaskId: null,
     }
     const input = { roleId: h.fx.dev.id, title: 'a', instructions: 'b', referenceTaskIds: [] }
-    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 1 })
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 1, idleStandbyHours: 0 })
     await h.coordinator.createSubtask(caller, input)
     await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
       code: 'unavailable',
     })
-    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null })
+    h.tasks.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0 })
     await expect(h.coordinator.createSubtask(caller, input)).resolves.toBeDefined()
   })
 })

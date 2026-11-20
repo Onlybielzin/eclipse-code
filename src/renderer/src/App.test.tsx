@@ -118,7 +118,7 @@ describe('Configurações', () => {
 
   it('abre com os limites atuais e salva vazio como sem limite, sem fechar a página', async () => {
     await renderApp()
-    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null }
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null, idleStandbyHours: 0 }
     openSettings()
     const agents = await agentsField()
     await waitFor(() => expect(agents).toHaveProperty('value', '12'))
@@ -134,15 +134,35 @@ describe('Configurações', () => {
       await within(page()).findByText(/Limites salvos: sem limite de agentes, 3 por tarefa/),
     ).toBeTruthy()
     expect(api.callsTo('settings.save')).toEqual([
-      { maxLiveAgents: null, maxLiveMembersPerTask: 3 },
+      { maxLiveAgents: null, maxLiveMembersPerTask: 3, idleStandbyHours: 0 },
     ])
     expect(page()).toBeTruthy()
     expect(save).toHaveProperty('disabled', true)
   })
 
+  it('salva as horas de espera automática e recusa valor inválido', async () => {
+    await renderApp()
+    openSettings()
+    const hours = await within(page()).findByLabelText(/Horas sem atividade para colocar em espera/)
+    await waitFor(() => expect(hours).toHaveProperty('disabled', false))
+    expect(within(page()).getByText('0 desliga.')).toBeTruthy()
+    const save = within(page()).getByRole('button', { name: 'Salvar limites' })
+    fireEvent.change(hours, { target: { value: '-1' } })
+    fireEvent.click(save)
+    expect((await within(page()).findByRole('alert')).textContent).toContain('0 a 720')
+    expect(api.callsTo('settings.save')).toEqual([])
+    fireEvent.change(hours, { target: { value: '24' } })
+    fireEvent.click(save)
+    await waitFor(() =>
+      expect(api.callsTo('settings.save')).toEqual([
+        { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 24 },
+      ]),
+    )
+  })
+
   it('Descartar volta aos valores carregados', async () => {
     await renderApp()
-    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: 4 }
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: 4, idleStandbyHours: 0 }
     openSettings()
     const agents = await agentsField()
     await waitFor(() => expect(agents).toHaveProperty('value', '12'))

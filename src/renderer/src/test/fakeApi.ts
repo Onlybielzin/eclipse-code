@@ -155,7 +155,12 @@ export class FakeApi implements EclipseApi {
   nextPickedFolder: PickedFolder | null = null
 
   /** Limites devolvidos por settings.get / gravados por settings.save. */
-  agentLimits: { maxLiveAgents: number | null; maxLiveMembersPerTask: number | null } = {
+  agentLimits: {
+    maxLiveAgents: number | null
+    maxLiveMembersPerTask: number | null
+    idleStandbyHours: number
+  } = {
+    idleStandbyHours: 0,
     maxLiveAgents: null,
     maxLiveMembersPerTask: null,
   }

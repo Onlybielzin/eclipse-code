@@ -130,6 +130,8 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
  *
  * Invariantes:
  *   W1. pronto_lancar, em_espera, lancado e cancelado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
+ *       Excecao: com a configuracao "Colocar em espera apos X horas" ligada, o app poe em_espera
+ *       a tarefa parada (TeamCoordinator.standbyIdleTasks, mesmo caminho do usuario). Agente via MCP nunca escreve.
  *   W2. lancado e cancelado sao finais para a automacao: nada automatico tira a tarefa de la.
  *   W3. status 'archived' <=> workflowStatus em ('lancado','cancelado') (lancar ou cancelar
  *       arquiva; sair dos dois para um status aberto desarquiva).

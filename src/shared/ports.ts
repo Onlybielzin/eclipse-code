@@ -384,6 +384,8 @@ export interface AgentLimits {
 export interface AgentLimitSettings {
   maxLiveMembersPerTask: number | null
   maxLiveAgents: number | null
+  /** Horas sem atividade para a tarefa ir sozinha a Em espera; 0 = desligado. */
+  idleStandbyHours: number
 }
 
 /**

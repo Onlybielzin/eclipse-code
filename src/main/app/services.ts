@@ -88,6 +88,8 @@ export interface AppServices {
   dispose(): Promise<void>
 }
 
+const IDLE_STANDBY_CHECK_MS = 5 * 60_000
+
 const unavailableCipher: BrainCipher = {
   isEncryptionAvailable: () => false,
   encryptString: () => {
@@ -169,6 +171,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     worktreesRoot: options.paths.worktrees,
     leaderNotices: turnRelay,
     limits: options.limits ?? (() => tasks.getAgentLimits()),
+    now: () => clock.now(),
     ...(options.terminalSize ? { terminalSize: options.terminalSize } : {}),
     ...(options.leaderEnv ? { leaderEnv: options.leaderEnv } : {}),
     ...(options.memberEnv ? { memberEnv: options.memberEnv } : {}),
@@ -195,6 +198,19 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     pausedSubtasks: recovery.pausedSubtasks.length,
     leadersToResume: recovery.leadersToResume.length,
   })
+
+  // Espera automatica por inatividade: uma vez apos a recuperacao e a cada 5 minutos.
+  const standbyTick = () =>
+    void coordinator
+      .standbyIdleTasks()
+      .catch((error: unknown) =>
+        log.warn('espera automática falhou', {
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      )
+  standbyTick()
+  const standbyTimer = setInterval(standbyTick, IDLE_STANDBY_CHECK_MS)
+  standbyTimer.unref?.()
 
   const uiListeners = new Set<(message: IpcEventMessage) => void>()
   const emitUi = (message: IpcEventMessage) => {
@@ -257,6 +273,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     },
     dispose() {
       disposed ??= (async () => {
+        clearInterval(standbyTimer)
         brain.dispose()
         await coordinator.shutdown()
         turnRelay.stop()
