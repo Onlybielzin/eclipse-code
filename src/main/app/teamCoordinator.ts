@@ -159,6 +159,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   /** Lider: sessionId <-> ptyId. Mantido depois da saida para repintar o scrollback. */
   private readonly leaderPtys = new Map<SessionId, string>()
   private readonly ptyLeaders = new Map<string, SessionId>()
+  private readonly closeEpoch = new Map<TaskId, number>()
   private readonly leaderLocks = new Map<TaskId, Promise<Session>>()
   private readonly closingLeaders = new Set<SessionId>()
   /** Lideres abertos com --resume e quando abriram (para detectar retomada que falhou). */
@@ -322,6 +323,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   }
 
   private async closeTaskAgents(taskId: TaskId): Promise<void> {
+    // Avisa a abertura de Lider pendente (ainda sem sessao, ex.: canResume) que ela perdeu a vez.
+    this.closeEpoch.set(taskId, (this.closeEpoch.get(taskId) ?? 0) + 1)
     this.deps.taskProcesses?.stopTask(taskId)
     for (const session of this.tasks.listSessions(taskId)) {
       if (session.status === 'exited') continue
@@ -377,6 +380,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
           this.tasks.listSubtasks(task.id).some((s) => s.state === 'working' || s.state === 'submitted') ||
           this.tasks.listSessions(task.id).some((s) => s.status !== 'exited' && s.activeTurnId !== null)
         if (working) continue
+        const leader = this.tasks.getLiveLeaderSession(task.id)
+        if (leader && this.lastActivity.get(leader.id) === 'working') continue
         try {
           await this.setTaskStatus(task.id, 'em_espera')
           moved.push(task.id)
@@ -407,6 +412,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     if (isTerminalTask(task))
       throw new DomainError('invalid_input', 'tarefa de terminal não tem agente')
 
+    const epoch = this.closeEpoch.get(taskId) ?? 0
     const live = this.tasks.getLiveLeaderSession(taskId)
     if (live) {
       const ptyId = this.leaderPtys.get(live.id)
@@ -442,6 +448,9 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       resumeId = null
     }
     this.assertRunning()
+    // Em espera/arquivar fechou os agentes durante o await: nao cria Lider depois do fechamento.
+    if ((this.closeEpoch.get(taskId) ?? 0) !== epoch)
+      throw new DomainError('invalid_input', 'a tarefa foi fechada ou posta em espera durante a abertura')
 
     const session = this.tasks.openSession({
       taskId,

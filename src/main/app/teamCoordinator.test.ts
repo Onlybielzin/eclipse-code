@@ -71,6 +71,7 @@ function setup(
 
   const launches: LeaderLaunchRequest[] = []
   let gate: Deferred<void> | null = null
+  let resumeGate: Deferred<void> | null = null
   const sessionListeners = new Set<(event: LeaderSessionEvent) => void>()
   const delivered: { sessionId: string; text: string }[] = []
   const transcripts = options.transcripts ?? new Set<string>()
@@ -112,6 +113,7 @@ function setup(
       noteUserInput: () => undefined,
     },
     async canResume(input: { provider: Provider; providerSessionId: string; cwd: string }) {
+      if (resumeGate) await resumeGate.promise
       return transcripts.has(input.providerSessionId)
     },
     dispose: async () => undefined,
@@ -199,6 +201,11 @@ function setup(
     hold: () => {
       gate = deferred<void>()
       return gate
+    },
+    /** Segura canResume (a abertura ainda nao criou a sessao). */
+    holdResume: () => {
+      resumeGate = deferred<void>()
+      return resumeGate
     },
   }
 }
@@ -408,6 +415,27 @@ describe('Líder encerrado durante a abertura', () => {
     expect(session.status).toBe('exited')
     expect(h.killed).toEqual(['pty-1'])
     expect(h.alive.size).toBe(0)
+  })
+})
+
+describe('Em espera durante a abertura do Líder', () => {
+  it('a abertura pendente desiste e não cria o Líder; o Retomar depois abre', async () => {
+    const h = setup()
+    seedPreviousLeader(h, h.fx.task.id, 'prov-1')
+    h.transcripts.add('prov-1')
+    const gate = h.holdResume()
+    const opening = h.coordinator.ensureLeader(h.fx.task.id)
+    await new Promise((r) => setTimeout(r, 0))
+    const rejected = expect(opening).rejects.toThrow('durante a abertura')
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'em_espera')
+    gate.resolve()
+    await rejected
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+    expect(h.alive.size).toBe(0)
+    // O ensure que vem depois da troca de status (botao Retomar) abre o Lider.
+    const resumed = await h.coordinator.ensureLeader(h.fx.task.id)
+    expect(resumed.status).not.toBe('exited')
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('em_espera')
   })
 })
 
@@ -771,6 +799,18 @@ describe('em espera automática por inatividade', () => {
     h.clock.time += 100 * HOUR
     expect(await h.coordinator.standbyIdleTasks()).toEqual([])
     expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('cancelado')
+  })
+
+  it('não muda a tarefa cujo Líder está no meio de um turno', async () => {
+    const h = idleSetup(2)
+    const leader = await h.coordinator.ensureLeader(h.fx.task.id)
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'working' })
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).not.toBe('em_espera')
+    h.emitLeader({ type: 'activity', sessionId: leader.id, activity: 'idle' })
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([h.fx.task.id])
   })
 
   it('não muda a tarefa com subtarefa trabalhando', async () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { isTerminalTask } from '@shared/domain'
 import type { MidTab } from '../store/appStore'
 import { useAppState, useStore } from '../store/context'
@@ -48,6 +49,9 @@ export function MiddlePane() {
       null,
   )
 
+  // Em espera nao abre o Lider so por estar selecionada: o usuario clica em Retomar.
+  const [resumedId, setResumedId] = useState<string | null>(null)
+  if (resumedId && task?.workflowStatus !== 'em_espera') setResumedId(null)
   const closeBrain = (
     <button
       type="button"
@@ -138,6 +142,13 @@ export function MiddlePane() {
                 Tarefa {task.workflowStatus === 'cancelado' ? 'cancelada' : 'concluída'} e
                 arquivada. Os agentes foram fechados. Para reabrir, troque o status no ícone da
                 tarefa.
+              </div>
+            ) : task.workflowStatus === 'em_espera' && resumedId !== task.id ? (
+              <div className="empty" data-testid="task-standby">
+                <p>Tarefa em espera. Os agentes estão fechados.</p>
+                <button type="button" onClick={() => setResumedId(task.id)}>
+                  Retomar
+                </button>
               </div>
             ) : (
               <>
