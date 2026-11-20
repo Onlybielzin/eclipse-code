@@ -160,6 +160,8 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private readonly leaderPtys = new Map<SessionId, string>()
   private readonly ptyLeaders = new Map<string, SessionId>()
   private readonly closeEpoch = new Map<TaskId, number>()
+  /** Tarefas no meio de closeTaskAgents: abrir Lider agora escaparia da lista que o fechamento leu. */
+  private readonly closingTasks = new Set<TaskId>()
   private readonly leaderLocks = new Map<TaskId, Promise<Session>>()
   private readonly closingLeaders = new Set<SessionId>()
   /** Lideres abertos com --resume e quando abriram (para detectar retomada que falhou). */
@@ -325,11 +327,16 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private async closeTaskAgents(taskId: TaskId): Promise<void> {
     // Avisa a abertura de Lider pendente (ainda sem sessao, ex.: canResume) que ela perdeu a vez.
     this.closeEpoch.set(taskId, (this.closeEpoch.get(taskId) ?? 0) + 1)
-    this.deps.taskProcesses?.stopTask(taskId)
-    for (const session of this.tasks.listSessions(taskId)) {
-      if (session.status === 'exited') continue
-      if (session.kind === 'member-acp') await this.closeMember(session.id)
-      else this.stopLeader(session.id)
+    this.closingTasks.add(taskId)
+    try {
+      this.deps.taskProcesses?.stopTask(taskId)
+      for (const session of this.tasks.listSessions(taskId)) {
+        if (session.status === 'exited') continue
+        if (session.kind === 'member-acp') await this.closeMember(session.id)
+        else this.stopLeader(session.id)
+      }
+    } finally {
+      this.closingTasks.delete(taskId)
     }
   }
 
@@ -374,12 +381,23 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     for (const project of this.tasks.listProjects()) {
       for (const task of this.tasks.listTasks(project.id, { includeArchived: false })) {
         if (task.status !== 'open' || isTerminalTask(task)) continue
-        if (task.workflowStatus === 'em_espera' || isArchivedWorkflowStatus(task.workflowStatus)) continue
+        if (task.workflowStatus === 'em_espera' || isArchivedWorkflowStatus(task.workflowStatus))
+          continue
         if (this.now() - task.updatedAt < limit) continue
         const working =
-          this.tasks.listSubtasks(task.id).some((s) => s.state === 'working' || s.state === 'submitted') ||
-          this.tasks.listSessions(task.id).some((s) => s.status !== 'exited' && s.activeTurnId !== null)
+          this.tasks
+            .listSubtasks(task.id)
+            .some((s) => s.state === 'working' || s.state === 'submitted') ||
+          this.tasks
+            .listSessions(task.id)
+            .some((s) => s.status !== 'exited' && s.activeTurnId !== null)
         if (working) continue
+        // A tela de espera esconde a QuestionBox: a pergunta ficaria sem resposta.
+        if (
+          task.workflowStatus === 'pergunta' ||
+          this.tasks.listOpenQuestions(project.id).some((q) => q.taskId === task.id)
+        )
+          continue
         const leader = this.tasks.getLiveLeaderSession(task.id)
         if (leader && this.lastActivity.get(leader.id) === 'working') continue
         try {
@@ -405,8 +423,17 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     return job
   }
 
+  private assertNotClosing(taskId: TaskId): void {
+    if (this.closingTasks.has(taskId))
+      throw new DomainError(
+        'invalid_input',
+        'a tarefa foi fechada ou posta em espera durante a abertura',
+      )
+  }
+
   private async openLeader(taskId: TaskId): Promise<Session> {
     this.assertRunning()
+    this.assertNotClosing(taskId)
     const task = this.tasks.getTask(taskId)
     if (task.status !== 'open') throw new DomainError('invalid_input', 'tarefa arquivada')
     if (isTerminalTask(task))
@@ -449,8 +476,12 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     }
     this.assertRunning()
     // Em espera/arquivar fechou os agentes durante o await: nao cria Lider depois do fechamento.
+    this.assertNotClosing(taskId)
     if ((this.closeEpoch.get(taskId) ?? 0) !== epoch)
-      throw new DomainError('invalid_input', 'a tarefa foi fechada ou posta em espera durante a abertura')
+      throw new DomainError(
+        'invalid_input',
+        'a tarefa foi fechada ou posta em espera durante a abertura',
+      )
 
     const session = this.tasks.openSession({
       taskId,
