@@ -2,6 +2,12 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.25 - 2026-11-23
+
+- Status novo "Lançada": o chat continua aberto depois de lançar. Depois de 24 horas sem atividade, a tarefa vai sozinha para "Concluída". O prazo muda em Configurações ("Concluir lançadas após"); 0 desliga.
+- Tarefa que espera outra: peça ao Líder para iniciar uma tarefa "depois de" outra (`depois_de` no tarefa_iniciar, `--depois-de` na linha de comando). Ela fica em "Esperando outra", sem Líder. Quando a outra vai para "Lançada" ou "Concluída", a branch dela é atualizada pela base e o Líder abre sozinho. O botão "Iniciar agora" começa antes.
+- Aviso rápido: o Líder avisa quando termina algo (ferramenta avisar), e o app avisa sozinho quando uma tarefa vai para "Em revisão". O aviso aparece no canto da tela e, com a janela sem foco, como notificação do sistema.
+
 ## 0.1.24 - 2026-11-23
 
 - Comando de linha novo: `eclipse-code tarefa iniciar --projeto <nome> --titulo "..."`. Ele cria uma tarefa com Líder no app aberto, e o Líder começa sozinho. Aceita `--descricao` (ou `-` para ler do stdin), `--sem-worktree` e `--json`. `--help` mostra a ajuda.
