@@ -34,6 +34,7 @@ const LEADER_TOOLS_HINT = [
   '- subtarefas_ver, subtarefa_responder, subtarefa_cancelar, pergunta_repassar.',
   '- tarefa_concluir (resumo): declara a tarefa terminada.',
   '- tarefa_renomear (nome): dê à tarefa um nome curto (até 80 letras) logo no começo; troque se o foco mudar.',
+  '- tarefa_iniciar (projeto, pedido, worktree?): cria uma tarefa com Líder em outro projeto (id ou nome); o Líder dela começa sozinho.',
   'O app avisa quando o turno de um membro acaba: linha [eclipse] no terminal ou contexto do gancho.',
 ].join('\n')
 
@@ -77,6 +78,7 @@ export function leaderAppContext(withWorktree: boolean): string {
     '- Se o app reiniciar, subtarefas em andamento param e você recebe aviso: responda com',
     '  subtarefa_responder para retomar ou cancele com subtarefa_cancelar.',
     '- tarefa_renomear (nome): dê à tarefa um nome curto (até 80 letras) logo no começo; troque se o foco mudar.',
+    '- tarefa_iniciar (projeto, pedido, worktree?): cria uma tarefa com Líder em outro projeto (id ou nome); o Líder dela começa sozinho.',
     '- Ao terminar tudo: tarefa_concluir (resumo). A tarefa vai para "Em revisão".',
   ].join('\n')
 }

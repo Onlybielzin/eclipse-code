@@ -14,6 +14,14 @@ function setup() {
     ),
     answerSubtask: vi.fn(async (_c, id) => tasks.setState(id, 'working')),
     cancelSubtask: vi.fn(async (_c, id) => tasks.setState(id, 'canceled')),
+    createTask: vi.fn(async (input) => ({
+      ...tasks.getTask('task1'),
+      id: 'nova',
+      projectId: input.projectId,
+      title: input.title,
+      name: input.title,
+      branch: input.useWorktree ? 'eclipse/nova' : null,
+    })),
   }
   const handler = createMcpToolHandler({ tasks, actions })
   return { tasks, actions, handler }
@@ -33,6 +41,7 @@ describe('autorizacao pelo papel do token', () => {
       'pergunta_repassar',
       'tarefa_concluir',
       'tarefa_renomear',
+      'tarefa_iniciar',
     ] as const) {
       await expect(handler.callTool(member, name, {})).rejects.toMatchObject({ code: 'forbidden' })
     }
@@ -111,6 +120,62 @@ describe('tarefa_renomear', () => {
         code: 'invalid_input',
       })
     }
+  })
+})
+
+describe('tarefa_iniciar', () => {
+  it('acha o projeto pelo nome sem caixa e cria tarefa de time com worktree', async () => {
+    const { handler, actions } = setup()
+    const result = await handler.callTool(leader, 'tarefa_iniciar', {
+      projeto: '  ereemby ',
+      pedido: 'Ajustar o login',
+    })
+    expect(actions.createTask).toHaveBeenCalledWith({
+      projectId: 'proj2',
+      title: 'Ajustar o login',
+      kind: 'team',
+      useWorktree: true,
+    })
+    expect(result.text).toContain('Ereemby')
+    expect(result.data).toEqual({
+      tarefa_id: 'nova',
+      projeto_id: 'proj2',
+      projeto: 'Ereemby',
+      nome: 'Ajustar o login',
+      branch: 'eclipse/nova',
+    })
+  })
+
+  it('acha pelo id e aceita worktree false (branch null)', async () => {
+    const { handler, actions } = setup()
+    const result = await handler.callTool(leader, 'tarefa_iniciar', {
+      projeto: 'proj1',
+      pedido: 'x',
+      worktree: false,
+    })
+    expect(actions.createTask).toHaveBeenCalledWith(
+      expect.objectContaining({ projectId: 'proj1', useWorktree: false }),
+    )
+    expect(result.data).toMatchObject({ branch: null })
+  })
+
+  it('projeto inexistente dá not_found com os nomes existentes', async () => {
+    const { handler, actions } = setup()
+    await expect(
+      handler.callTool(leader, 'tarefa_iniciar', { projeto: 'nada', pedido: 'x' }),
+    ).rejects.toMatchObject({
+      code: 'not_found',
+      message: expect.stringContaining('Eclipse Code, Ereemby'),
+    })
+    expect(actions.createTask).not.toHaveBeenCalled()
+  })
+
+  it('membro é recusado', async () => {
+    const { handler, actions } = setup()
+    await expect(
+      handler.callTool(member, 'tarefa_iniciar', { projeto: 'ereemby', pedido: 'x' }),
+    ).rejects.toMatchObject({ code: 'forbidden' })
+    expect(actions.createTask).not.toHaveBeenCalled()
   })
 })
 

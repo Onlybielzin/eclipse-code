@@ -9,6 +9,7 @@ import {
   type Subtask,
   type SubtaskId,
   type SubtaskState,
+  type Task,
   type TaskId,
 } from '@shared/domain'
 import {
@@ -34,6 +35,13 @@ export interface McpTeamActions {
   ): Promise<Subtask>
   answerSubtask(caller: McpCaller, subtaskId: SubtaskId, text: string): Promise<Subtask>
   cancelSubtask(caller: McpCaller, subtaskId: SubtaskId, reason: string | null): Promise<Subtask>
+  /** Cria tarefa (worktree, registro e Lider) num projeto. */
+  createTask(input: {
+    projectId: string
+    title: string
+    kind: 'team'
+    useWorktree: boolean
+  }): Promise<Task>
 }
 
 export interface McpToolHandlerDeps {
@@ -341,6 +349,39 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       return {
         text: `Tarefa renomeada para "${task.name}".`,
         data: { tarefa_id: task.id, nome: task.name },
+      }
+    },
+
+    async tarefa_iniciar(caller: McpCaller, input: McpToolInput<'tarefa_iniciar'>) {
+      if (caller.role !== 'leader' || caller.subtaskId !== null) {
+        throw new DomainError('forbidden', 'so o Lider inicia tarefa em outro projeto')
+      }
+      const wanted = input.projeto.toLowerCase()
+      const projects = tasks.listProjects()
+      const project = projects.find(
+        (p) => p.id === input.projeto || p.name.trim().toLowerCase() === wanted,
+      )
+      if (!project) {
+        throw new DomainError(
+          'not_found',
+          `projeto "${input.projeto}" nao existe. Projetos: ${projects.map((p) => p.name).join(', ')}`,
+        )
+      }
+      const task = await actions.createTask({
+        projectId: project.id,
+        title: input.pedido,
+        kind: 'team',
+        useWorktree: input.worktree ?? true,
+      })
+      return {
+        text: `Tarefa criada no projeto ${project.name}: "${task.name}". O Líder dela já está abrindo.`,
+        data: {
+          tarefa_id: task.id,
+          projeto_id: project.id,
+          projeto: project.name,
+          nome: task.name,
+          branch: task.branch,
+        },
       }
     },
   } satisfies {

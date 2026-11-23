@@ -1448,7 +1448,9 @@ describe('filtros da lista de tarefas', () => {
   it('abrir Filtros deixa o foco no radio da ordem atual', async () => {
     await renderApp()
     const pop = openFilters()
-    const sort = within(pop).getAllByRole('radio').find((r) => (r as HTMLInputElement).checked)
+    const sort = within(pop)
+      .getAllByRole('radio')
+      .find((r) => (r as HTMLInputElement).checked)
     expect(sort).toBeTruthy()
     expect(document.activeElement).toBe(sort)
     expect(sort?.getAttribute('name')).toBe('task-sort')
@@ -1539,7 +1541,14 @@ describe('subtarefas encerradas na lista', () => {
     const toggle = within(list).getByRole('button', { name: /1 encerrada$/ })
     expect(within(list).queryByText(/group_by=offer em report.ts/)).toBeNull()
     fireEvent.click(toggle)
-    expect(within(list).getByRole('button', { name: 'esconder encerradas' })).toBeTruthy()
+    const hide = within(list).getByRole('button', { name: 'esconder encerradas' })
+    // o mesmo botão troca o texto e fica acima da primeira subtarefa
+    const firstSub = within(list)
+      .getByText(/Cobrir by_offer/)
+      .closest('.child')!
+    expect(hide.compareDocumentPosition(firstSub) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    fireEvent.click(hide)
+    expect(within(list).getByRole('button', { name: /1 encerrada$/ })).toBeTruthy()
   })
 })
 

@@ -125,7 +125,30 @@ export const mcpToolInputSchemas = {
   /** Lider: troca o nome curto da tarefa mostrado na lista. O pedido original (title) nao muda. */
   tarefa_renomear: z
     .object({
-      nome: z.string().trim().min(1).max(80).describe('Nome curto da tarefa, como aparece na lista.'),
+      nome: z
+        .string()
+        .trim()
+        .min(1)
+        .max(80)
+        .describe('Nome curto da tarefa, como aparece na lista.'),
+    })
+    .strict(),
+  /** Lider: cria uma tarefa com Lider e time em outro projeto (ou no mesmo). O Lider dela abre sozinho. */
+  tarefa_iniciar: z
+    .object({
+      projeto: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .describe('Id ou nome do projeto (sem diferenciar maiúsculas).'),
+      pedido: titleSchema.describe(
+        'Pedido inicial: vira o título da tarefa e o prompt do Líder dela.',
+      ),
+      worktree: z
+        .boolean()
+        .optional()
+        .describe('Cria worktree e branch para a tarefa. Padrão true.'),
     })
     .strict(),
 } as const
@@ -146,6 +169,7 @@ export const MCP_TOOL_ROLES: Record<McpToolName, readonly McpCallerRole[]> = {
   pergunta_repassar: ['leader'],
   tarefa_concluir: ['leader'],
   tarefa_renomear: ['leader'],
+  tarefa_iniciar: ['leader'],
 }
 
 export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
@@ -163,8 +187,9 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
     'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta. Uma pergunta nova substitui as que ainda estavam abertas nesta tarefa.',
   tarefa_concluir:
     'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
-  tarefa_renomear:
-    'Troca o nome curto da tarefa mostrado na lista. O pedido original não muda.',
+  tarefa_renomear: 'Troca o nome curto da tarefa mostrado na lista. O pedido original não muda.',
+  tarefa_iniciar:
+    'Cria uma tarefa com Líder e time no projeto indicado (id ou nome). O Líder dela começa sozinho e roda o pedido, sem esperar o usuário.',
 }
 
 export function isMcpToolName(value: unknown): value is McpToolName {

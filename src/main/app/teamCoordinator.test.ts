@@ -937,6 +937,30 @@ describe('pergunta respondida no terminal do Líder', () => {
   })
 })
 
+describe('tarefa_iniciar (Líder cria tarefa em outro projeto)', () => {
+  it('cria a tarefa no outro projeto e abre o Líder dela', async () => {
+    const h = setup()
+    const other = h.tasks.addProject({ rootPath: '/repo/outro' })
+    const caller: McpCaller = {
+      role: 'leader',
+      sessionId: 'x',
+      taskId: h.fx.task.id,
+      subtaskId: null,
+    }
+    const result = await h.coordinator.callTool(caller, 'tarefa_iniciar', {
+      projeto: other.name.toUpperCase(),
+      pedido: 'Fazer a coisa',
+      worktree: false,
+    })
+    await h.settle()
+    const created = h.tasks.listTasks(other.id, { includeArchived: false })
+    expect(created).toHaveLength(1)
+    expect(created[0]).toMatchObject({ title: 'Fazer a coisa', kind: 'team' })
+    expect(result.data).toMatchObject({ tarefa_id: created[0]?.id, projeto_id: other.id })
+    expect(h.launches.some((l) => l.cwd === '/repo/outro')).toBe(true)
+  })
+})
+
 describe('limites de agentes configuráveis', () => {
   it('limite salvo vale na próxima checagem, sem recriar o coordenador', async () => {
     const h = setup({ limits: () => h.tasks.getAgentLimits() })

@@ -129,6 +129,19 @@ export function foldText(text: string): string {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 
+export function isDoneSubtask(state: string): boolean {
+  return state === 'completed' || state === 'failed' || state === 'canceled'
+}
+
+/** Em andamento primeiro (criada mais recente antes), depois as encerradas (finalizada mais recente antes). */
+export function orderSubtasks(subs: readonly Subtask[]): Subtask[] {
+  const live = subs.filter((s) => !isDoneSubtask(s.state)).sort((a, b) => b.createdAt - a.createdAt)
+  const done = subs
+    .filter((s) => isDoneSubtask(s.state))
+    .sort((a, b) => (b.finishedAt ?? b.updatedAt) - (a.finishedAt ?? a.updatedAt))
+  return [...live, ...done]
+}
+
 export function filterTasks(
   tasks: readonly Task[],
   filters: TaskFilters,

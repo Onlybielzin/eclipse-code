@@ -8,7 +8,13 @@ import {
 } from '@shared/domain'
 import { formatShortElapsed, groupOpenTasks, splitTasks, STATE_ICON_CLASS } from '../store/format'
 import { useNow } from '../store/useNow'
-import { clearTaskFilters, filterTasks, normalizeTaskFilters } from '../store/taskFilters'
+import {
+  clearTaskFilters,
+  filterTasks,
+  isDoneSubtask,
+  normalizeTaskFilters,
+  orderSubtasks,
+} from '../store/taskFilters'
 import { useAppState, useStore } from '../store/context'
 import { NewTaskModal } from './NewTaskModal'
 import { SidePanels } from './SidePanels'
@@ -165,7 +171,27 @@ export function TaskList() {
           </span>
         </div>
         {open &&
-          shown.map((sub) => {
+          !filters.showDoneSubtasks &&
+          (doneOpen[task.id] ? done.length > 0 : hiddenDone > 0) && (
+            <button
+              type="button"
+              className="row child done-toggle"
+              onClick={() => setDoneOpen((d) => ({ ...d, [task.id]: !d[task.id] }))}
+            >
+              {!doneOpen[task.id] && (
+                <span className="done-ic" aria-hidden="true">
+                  ✓
+                </span>
+              )}
+              <span className="t">
+                {doneOpen[task.id]
+                  ? 'esconder encerradas'
+                  : `${hiddenDone} encerrada${hiddenDone === 1 ? '' : 's'}`}
+              </span>
+            </button>
+          )}
+        {open &&
+          orderSubtasks(shown).map((sub) => {
             const subSel = selectedSubtaskId === sub.id
             const role = roles[sub.roleId]
             return (
@@ -191,29 +217,6 @@ export function TaskList() {
               </div>
             )
           })}
-        {open && hiddenDone > 0 && (
-          <button
-            type="button"
-            className="row child done-toggle"
-            onClick={() => setDoneOpen((d) => ({ ...d, [task.id]: !d[task.id] }))}
-          >
-            <span className="done-ic" aria-hidden="true">
-              ✓
-            </span>
-            <span className="t">
-              {hiddenDone} encerrada{hiddenDone === 1 ? '' : 's'}
-            </span>
-          </button>
-        )}
-        {open && !filters.showDoneSubtasks && doneOpen[task.id] && done.length > 0 && (
-          <button
-            type="button"
-            className="row child done-toggle"
-            onClick={() => setDoneOpen((d) => ({ ...d, [task.id]: false }))}
-          >
-            <span className="t">esconder encerradas</span>
-          </button>
-        )}
       </div>
     )
   }
@@ -317,8 +320,4 @@ export function TaskList() {
 /** Tempo da linha: o relogio de 30 s redesenha so este trecho, nao a lista toda. */
 function ShortAgo({ at }: { at: number }) {
   return <>{formatShortElapsed(at, useNow())}</>
-}
-
-function isDoneSubtask(state: string): boolean {
-  return state === 'completed' || state === 'failed' || state === 'canceled'
 }

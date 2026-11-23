@@ -197,6 +197,7 @@ describe('servidor MCP com cliente MCP falso (ponta a ponta sem modelo)', () => 
         createSubtask: async () => tasks.seedSubtask({ id: 'n1' }),
         answerSubtask: async (_c, id) => tasks.getSubtask(id),
         cancelSubtask: async (_c, id) => tasks.getSubtask(id),
+        createTask: async () => tasks.getTask('task1'),
       },
     })
     ;({ socketPath } = await bridge.start(handler))
@@ -226,6 +227,7 @@ describe('servidor MCP com cliente MCP falso (ponta a ponta sem modelo)', () => 
           'subtarefas_esperar',
           'subtarefas_ver',
           'tarefa_concluir',
+          'tarefa_iniciar',
           'tarefa_renomear',
         ].sort(),
       )

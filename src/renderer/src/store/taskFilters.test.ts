@@ -9,6 +9,7 @@ import {
   EMPTY_TASK_FILTERS,
   filterTasks,
   normalizeTaskFilters,
+  orderSubtasks,
   parseTaskFilters,
   removeTaskFilter,
   taskFilterChips,
@@ -205,5 +206,23 @@ describe('parseTaskFilters', () => {
     expect(parseTaskFilters('{quebrado')).toEqual(EMPTY_TASK_FILTERS)
     expect(parseTaskFilters('null')).toEqual(EMPTY_TASK_FILTERS)
     expect(parseTaskFilters(null)).toEqual(EMPTY_TASK_FILTERS)
+  })
+})
+
+describe('orderSubtasks', () => {
+  it('em andamento primeiro por criação desc; encerradas por finalização desc (cai para updatedAt)', () => {
+    const mk = (
+      id: string,
+      state: 'working' | 'completed' | 'failed' | 'input_required',
+      o: object,
+    ) => makeSubtask(id, 'a', { state, ...o })
+    const out = orderSubtasks([
+      mk('d-old', 'completed', { finishedAt: 100, updatedAt: 900 }),
+      mk('w-old', 'working', { createdAt: 10 }),
+      mk('d-null', 'failed', { finishedAt: null, updatedAt: 500 }),
+      mk('w-new', 'input_required', { createdAt: 50 }),
+      mk('d-new', 'completed', { finishedAt: 700, updatedAt: 700 }),
+    ])
+    expect(out.map((s) => s.id)).toEqual(['w-new', 'w-old', 'd-new', 'd-null', 'd-old'])
   })
 })

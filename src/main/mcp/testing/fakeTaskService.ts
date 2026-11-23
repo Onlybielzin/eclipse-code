@@ -128,6 +128,10 @@ export function createFakeTaskService(): FakeTaskService {
       emit({ type: 'task.upserted', task })
       return task
     },
+    listProjects: () => [
+      { id: 'proj1', name: 'Eclipse Code', rootPath: '/tmp/p1', createdAt: 1, updatedAt: 1 },
+      { id: 'proj2', name: 'Ereemby', rootPath: '/tmp/p2', createdAt: 1, updatedAt: 1 },
+    ],
     listRoles: () => roles,
     getRole(id) {
       const r = roles.find((x) => x.id === id)

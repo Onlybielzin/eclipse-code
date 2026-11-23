@@ -239,7 +239,12 @@ describe('aviso de subtarefa que o Lider ja viu', () => {
     const tasks = createFakeTaskService()
     const { relay, sent } = relaySpy()
     const team = startTeamTurnRelay({ tasks, relay, now: () => 1_000 })
-    const actions = { createSubtask: vi.fn(), answerSubtask: vi.fn(), cancelSubtask: vi.fn() }
+    const actions = {
+      createSubtask: vi.fn(),
+      answerSubtask: vi.fn(),
+      cancelSubtask: vi.fn(),
+      createTask: vi.fn(),
+    }
     const handler = createMcpToolHandler({ tasks, actions, notices: team })
     return { tasks, team, handler, sent }
   }
