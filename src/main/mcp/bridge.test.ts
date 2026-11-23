@@ -1,4 +1,14 @@
-import { mkdtempSync, rmSync, statSync } from 'node:fs'
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { connect } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -41,6 +51,87 @@ beforeEach(() => {
 afterEach(async () => {
   await bridge.stop()
   rmSync(dir, { recursive: true, force: true })
+})
+
+describe('token de CLI (task.create)', () => {
+  async function ask(socketPath: string, message: unknown): Promise<Record<string, unknown>> {
+    const socket = connect(socketPath)
+    await new Promise<void>((r) => socket.once('connect', () => r()))
+    const reply = new Promise<Record<string, unknown>>((resolve) =>
+      socket.once('data', (d) => resolve(JSON.parse(d.toString()))),
+    )
+    socket.write(`${JSON.stringify(message)}\n`)
+    const out = await reply
+    socket.destroy()
+    return out
+  }
+  const params = { projeto: 'p', titulo: 't', worktree: true }
+
+  it('cli.token 0600 com o start e apagado no stop', async () => {
+    ;({ socketPath } = await bridge.start(spyHandler().handler))
+    const file = join(dir, 'run', 'cli.token')
+    expect(statSync(file).mode & 0o777).toBe(0o600)
+    expect(readFileSync(file, 'utf8')).toHaveLength(43)
+    await bridge.stop()
+    expect(existsSync(file)).toBe(false)
+  })
+
+  it('cli.token não segue symlink plantado no lugar', async () => {
+    const target = join(dir, 'alvo.txt')
+    writeFileSync(target, 'intacto')
+    mkdirSync(join(dir, 'run'), { recursive: true })
+    symlinkSync(target, join(dir, 'run', 'cli.token'))
+    ;({ socketPath } = await bridge.start(spyHandler().handler))
+    expect(readFileSync(target, 'utf8')).toBe('intacto')
+    expect(lstatSync(join(dir, 'run', 'cli.token')).isSymbolicLink()).toBe(false)
+  })
+
+  it('token de CLI cria tarefa; recusado em hello e tool.call; token de sessao recusado em task.create', async () => {
+    const startTaskFromCli = vi.fn(async () => ({ text: 'ok', data: { tarefa_id: 'n' } }))
+    ;({ socketPath } = await bridge.start({ callTool: vi.fn(), startTaskFromCli }))
+    const cli = readFileSync(join(dir, 'run', 'cli.token'), 'utf8')
+    const session = bridge.issueToken({
+      role: 'leader',
+      sessionId: 's',
+      taskId: 't',
+      subtaskId: null,
+    })
+    const v = 1
+
+    const created = await ask(socketPath, { v, id: 1, token: cli, method: 'task.create', params })
+    expect(created).toMatchObject({ ok: true, result: { data: { tarefa_id: 'n' } } })
+    expect(startTaskFromCli).toHaveBeenCalledWith(params)
+
+    const hello = await ask(socketPath, { v, id: 2, token: cli, method: 'hello' })
+    expect(hello).toMatchObject({ ok: false, error: { code: 'forbidden' } })
+    const call = await ask(socketPath, {
+      v,
+      id: 3,
+      token: cli,
+      method: 'tool.call',
+      params: { name: 'tarefa_iniciar', arguments: {} },
+    })
+    expect(call).toMatchObject({ ok: false, error: { code: 'forbidden' } })
+
+    const viaSession = await ask(socketPath, {
+      v,
+      id: 4,
+      token: session,
+      method: 'task.create',
+      params,
+    })
+    expect(viaSession).toMatchObject({ ok: false, error: { code: 'forbidden' } })
+    expect(startTaskFromCli).toHaveBeenCalledTimes(1)
+
+    const bad = await ask(socketPath, {
+      v,
+      id: 5,
+      token: cli,
+      method: 'task.create',
+      params: { ...params, extra: 1 },
+    })
+    expect(bad).toMatchObject({ ok: false, error: { code: 'invalid_input' } })
+  })
 })
 
 describe('McpBridgeServer', () => {

@@ -57,7 +57,14 @@ import type {
   UserQuestion,
 } from './domain'
 import type { ActivityPage, ProjectSummary, SubtaskDetail } from './ipc'
-import type { McpCaller, McpCallerRole, McpHelloResult, McpToolName, McpToolResult } from './mcp'
+import type {
+  McpCaller,
+  McpCliTaskInput,
+  McpCallerRole,
+  McpHelloResult,
+  McpToolName,
+  McpToolResult,
+} from './mcp'
 
 export type Unsubscribe = () => void
 
@@ -683,6 +690,8 @@ export interface McpToolHandler {
    * MCP_TOOL_ROLES contra caller.role ('forbidden' se nao puder).
    */
   callTool(caller: McpCaller, name: McpToolName, args: unknown): Promise<McpToolResult>
+  /** Comando de linha (token de CLI): cria tarefa de time num projeto. O data tem o formato do tarefa_iniciar. */
+  startTaskFromCli?(input: McpCliTaskInput): Promise<McpToolResult>
 }
 
 /**

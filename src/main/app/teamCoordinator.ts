@@ -52,7 +52,7 @@ import {
   type UserQuestion,
 } from '@shared/domain'
 import type { TerminalAttachResult } from '@shared/ipc'
-import type { McpCaller, McpToolName, McpToolResult } from '@shared/mcp'
+import type { McpCaller, McpCliTaskInput, McpToolName, McpToolResult } from '@shared/mcp'
 import type {
   AgentLimits,
   McpBridgeServer,
@@ -241,6 +241,10 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
 
   callTool(caller: McpCaller, name: McpToolName, args: unknown): Promise<McpToolResult> {
     return this.toolHandler.callTool(caller, name, args)
+  }
+
+  startTaskFromCli(input: McpCliTaskInput): Promise<McpToolResult> {
+    return this.toolHandler.startTaskFromCli(input)
   }
 
   // -------------------------------------------------------------------------

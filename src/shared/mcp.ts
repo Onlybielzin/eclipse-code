@@ -256,9 +256,27 @@ export const mcpBridgeRequestSchema = z.discriminatedUnion('method', [
       params: z.object({ name: z.string().min(1).max(64), arguments: z.unknown() }).strict(),
     })
     .strict(),
+  /** So o token de CLI (cli.token) chama; token de sessao e recusado. */
+  z
+    .object({
+      v: z.literal(MCP_BRIDGE_PROTOCOL_VERSION),
+      id: z.number().int().nonnegative(),
+      token: z.string().min(16).max(256),
+      method: z.literal('task.create'),
+      params: z
+        .object({
+          projeto: z.string().trim().min(1).max(200),
+          titulo: titleSchema,
+          descricao: z.string().max(MAX_DESCRIPTION_CHARS).optional(),
+          worktree: z.boolean(),
+        })
+        .strict(),
+    })
+    .strict(),
 ])
 
 export type McpBridgeRequest = z.output<typeof mcpBridgeRequestSchema>
+export type McpCliTaskInput = Extract<McpBridgeRequest, { method: 'task.create' }>['params']
 
 /** Resposta do 'hello': quem e o chamador e quais ferramentas ele ve. */
 export interface McpHelloResult {

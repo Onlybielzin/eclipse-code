@@ -1,5 +1,5 @@
-import { randomBytes } from 'node:crypto'
-import { chmodSync, mkdirSync, rmSync } from 'node:fs'
+import { randomBytes, timingSafeEqual } from 'node:crypto'
+import { chmodSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer, type Server, type Socket } from 'node:net'
 import { join } from 'node:path'
 import { ENV } from '@shared/app'
@@ -31,6 +31,9 @@ export interface McpBridgeServerOptions {
   platform?: NodeJS.Platform
 }
 
+/** Arquivo (0600, em runtimeDir) com o token do comando de linha; existe so com a ponte de pe. */
+export const CLI_TOKEN_FILE_NAME = 'cli.token'
+
 /** Win32 nao tem socket Unix: named pipe com sufixo aleatorio, gerado a cada start. */
 export function mcpSocketPath(
   runtimeDir: string,
@@ -53,6 +56,14 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
   const sockets = new Set<Socket>()
   let server: Server | null = null
   let handler: McpToolHandler | null = null
+  // Token do comando de linha: nao vira McpCaller e so serve para task.create.
+  let cliToken = ''
+  const cliTokenPath = join(options.runtimeDir, CLI_TOKEN_FILE_NAME)
+  const isCliToken = (token: string): boolean => {
+    const a = Buffer.from(token)
+    const b = Buffer.from(cliToken)
+    return cliToken !== '' && a.length === b.length && timingSafeEqual(a, b)
+  }
 
   const respond = (socket: Socket, response: McpBridgeResponse) => writeLine(socket, response)
 
@@ -80,6 +91,24 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
       return
     }
     const request = parsed.data
+    if (request.method === 'task.create' || isCliToken(request.token)) {
+      if (request.method !== 'task.create' || !isCliToken(request.token)) {
+        fail(socket, request.id, new DomainError('forbidden', 'token nao serve para este metodo'))
+        return
+      }
+      const current = handler
+      if (!current?.startTaskFromCli) {
+        fail(socket, request.id, new DomainError('unavailable', 'ponte parada'))
+        return
+      }
+      current
+        .startTaskFromCli(request.params)
+        .then((result) =>
+          respond(socket, { v: MCP_BRIDGE_PROTOCOL_VERSION, id: request.id, ok: true, result }),
+        )
+        .catch((error: unknown) => fail(socket, request.id, error))
+      return
+    }
     const caller = tokens.get(request.token)
     if (!caller) {
       fail(socket, request.id, new DomainError('forbidden', 'token desconhecido ou revogado'))
@@ -150,6 +179,11 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
         })
       })
       if (!isWindows) chmodSync(socketPath, 0o600)
+      cliToken = randomBytes(32).toString('base64url')
+      // shortcut: no Windows o pipe tem nome aleatorio que o comando nao descobre; so unix usa cli.token. Resolver quando o comando for ao Windows.
+      rmSync(cliTokenPath, { force: true })
+      // 'wx' falha se alguem plantar um symlink entre o rmSync e a escrita.
+      writeFileSync(cliTokenPath, cliToken, { mode: 0o600, flag: 'wx' })
       server = next
       return { socketPath }
     },
@@ -159,6 +193,8 @@ export function createMcpBridgeServer(options: McpBridgeServerOptions): McpBridg
       server = null
       handler = null
       tokens.clear()
+      cliToken = ''
+      rmSync(cliTokenPath, { force: true })
       for (const socket of sockets) socket.destroy()
       sockets.clear()
       if (current) await new Promise<void>((resolve) => current.close(() => resolve()))

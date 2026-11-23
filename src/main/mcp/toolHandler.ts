@@ -18,6 +18,7 @@ import {
   MCP_WAIT_DEFAULT_SECONDS,
   mcpToolInputSchemas,
   type McpCaller,
+  type McpCliTaskInput,
   type McpToolInput,
   type McpToolName,
   type McpToolResult,
@@ -53,8 +54,33 @@ export interface McpToolHandlerDeps {
 }
 
 export interface DisposableMcpToolHandler extends McpToolHandler {
+  startTaskFromCli(input: McpCliTaskInput): Promise<McpToolResult>
   /** Solta quem esta em subtarefas_esperar (fecha com o resultado atual). */
   dispose(): void
+}
+
+/** Escolhe o projeto por id; depois por nome sem caixa. Nome repetido e recusado com os ids. */
+export function findProject<P extends { id: string; name: string }>(
+  projects: readonly P[],
+  wanted: string,
+): P {
+  const lower = wanted.toLowerCase()
+  const byName = projects.filter((p) => p.name.trim().toLowerCase() === lower)
+  const byId = projects.find((p) => p.id === wanted)
+  if (!byId && byName.length > 1) {
+    throw new DomainError(
+      'invalid_input',
+      `o nome "${wanted}" é ambíguo. Use um destes ids: ${byName.map((p) => p.id).join(', ')}`,
+    )
+  }
+  const project = byId ?? byName[0]
+  if (!project) {
+    throw new DomainError(
+      'not_found',
+      `projeto "${wanted}" nao existe. Projetos: ${projects.map((p) => p.name).join(', ')}`,
+    )
+  }
+  return project
 }
 
 /** A subtarefa parou: o Lider tem algo a fazer com ela. */
@@ -81,6 +107,33 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
     if (ids.length > 0) deps.notices?.markSubtasksSeen(taskId, ids)
   }
   const waiters = new Set<() => void>()
+
+  /** Usada pelo tarefa_iniciar (Lider) e pelo comando de linha (token de CLI). */
+  const startTeamTask = async (
+    projeto: string,
+    title: string,
+    description: string | undefined,
+    useWorktree: boolean,
+  ): Promise<McpToolResult> => {
+    const project = findProject(tasks.listProjects(), projeto)
+    const task = await actions.createTask({
+      projectId: project.id,
+      title,
+      description,
+      kind: 'team',
+      useWorktree,
+    })
+    return {
+      text: `Tarefa criada no projeto ${project.name}: "${task.name}". O Líder dela já está abrindo.`,
+      data: {
+        tarefa_id: task.id,
+        projeto_id: project.id,
+        projeto: project.name,
+        nome: task.name,
+        branch: task.branch,
+      },
+    }
+  }
 
   const ownSubtask = (caller: McpCaller, id: SubtaskId): Subtask => {
     const subtask = tasks.getSubtask(id)
@@ -357,39 +410,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       if (caller.role !== 'leader' || caller.subtaskId !== null) {
         throw new DomainError('forbidden', 'so o Lider inicia tarefa em outro projeto')
       }
-      const wanted = input.projeto.toLowerCase()
-      const projects = tasks.listProjects()
-      const byName = projects.filter((p) => p.name.trim().toLowerCase() === wanted)
-      if (!projects.some((p) => p.id === input.projeto) && byName.length > 1) {
-        throw new DomainError(
-          'invalid_input',
-          `o nome "${input.projeto}" é ambíguo. Use um destes ids: ${byName.map((p) => p.id).join(', ')}`,
-        )
-      }
-      const project = projects.find((p) => p.id === input.projeto) ?? byName[0]
-      if (!project) {
-        throw new DomainError(
-          'not_found',
-          `projeto "${input.projeto}" nao existe. Projetos: ${projects.map((p) => p.name).join(', ')}`,
-        )
-      }
-      const task = await actions.createTask({
-        projectId: project.id,
-        title: input.pedido,
-        description: input.descricao,
-        kind: 'team',
-        useWorktree: input.worktree ?? true,
-      })
-      return {
-        text: `Tarefa criada no projeto ${project.name}: "${task.name}". O Líder dela já está abrindo.`,
-        data: {
-          tarefa_id: task.id,
-          projeto_id: project.id,
-          projeto: project.name,
-          nome: task.name,
-          branch: task.branch,
-        },
-      }
+      return startTeamTask(input.projeto, input.pedido, input.descricao, input.worktree ?? true)
     },
   } satisfies {
     [N in McpToolName]: (caller: McpCaller, input: McpToolInput<N>) => Promise<McpToolResult>
@@ -415,6 +436,8 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       const fn = run[name] as (caller: McpCaller, input: unknown) => Promise<McpToolResult>
       return fn(caller, parsed.data)
     },
+    startTaskFromCli: (input) =>
+      startTeamTask(input.projeto, input.titulo, input.descricao, input.worktree),
     dispose() {
       for (const release of [...waiters]) release()
     },

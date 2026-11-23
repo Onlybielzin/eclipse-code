@@ -32,6 +32,7 @@ import { autoUpdater } from 'electron-updater'
 import { attachExternalLinks } from './app/externalLinks'
 import { applyLoginShellPath } from './app/loginShellPath'
 import { DomainError } from '@shared/domain'
+import { parseCliArgs, runCliTask } from './cli/cliTask'
 import { createUpdater, createWhatsNew } from './app/updater'
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
 import { runGit } from './worktree'
@@ -270,7 +271,28 @@ async function runSmoke(services: AppServices, window: BrowserWindow): Promise<v
   app.exit(code)
 }
 
-if (!app.requestSingleInstanceLock()) {
+// Comando de linha (`eclipse-code tarefa ...`): fala com o app aberto e sai. Sem lock, sem janela, sem serviços.
+const cliParse = parseCliArgs(process.argv)
+if (cliParse.kind !== 'none') {
+  // `| head -0` fecha o pipe: EPIPE em stdout/stderr não pode derrubar o comando.
+  process.stdout.on('error', () => {})
+  process.stderr.on('error', () => {})
+  void runCliTask(cliParse, {
+    env: process.env,
+    readStdin: async () => {
+      const chunks: Buffer[] = []
+      for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk as Buffer))
+      return Buffer.concat(chunks).toString('utf8')
+    },
+    stdout: (text) => process.stdout.write(text),
+    stderr: (text) => process.stderr.write(text),
+  })
+    .catch((error: unknown) => {
+      process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
+      return 1
+    })
+    .then((code) => process.stdout.write('', () => process.stderr.write('', () => app.exit(code))))
+} else if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
   let services: AppServices | null = null
