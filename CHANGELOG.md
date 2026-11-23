@@ -2,6 +2,12 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.23 - 2026-11-22
+
+- Nova tarefa tem "Título" e "Descrição". O Líder lê os dois e dá um nome curto à tarefa logo no começo.
+- O Líder pode iniciar uma tarefa com Líder em outro projeto (ferramenta tarefa_iniciar). O Líder da tarefa nova começa sozinho.
+- Nas subtarefas da lista, o botão "N encerradas" / "esconder encerradas" fica no topo. As em andamento vêm primeiro, e a mais recente fica em cima.
+
 ## 0.1.22 - 2026-11-20
 
 - Status novo "Em espera" no menu da tarefa. Ele fecha o Líder e os membros, mas a tarefa continua aberta e a worktree fica. O botão "Retomar" traz o Líder de volta.
