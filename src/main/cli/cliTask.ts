@@ -9,8 +9,9 @@ import { readLines, writeLine } from '../mcp/ndjson'
 
 export const CLI_USAGE = [
   'Uso: eclipse-code tarefa iniciar --projeto <id ou nome> --titulo "<texto>"',
-  '       [--descricao "<texto>" | --descricao -] [--sem-worktree] [--json]',
+  '       [--descricao "<texto>" | --descricao -] [--depois-de <id da tarefa>] [--sem-worktree] [--json]',
   '  --descricao -   lê a descrição do stdin',
+  '  --depois-de     a tarefa nova só começa quando essa tarefa for lançada',
   'Precisa do Eclipse Code aberto nesta sessão gráfica.',
 ].join('\n')
 
@@ -22,6 +23,8 @@ export interface CliTaskArgs {
   /** '-' pede a leitura do stdin. */
   descricao: string | undefined
   worktree: boolean
+  /** Id da tarefa que a nova espera. */
+  depoisDe: string | undefined
   json: boolean
   userDataDir: string | undefined
 }
@@ -33,7 +36,7 @@ export type CliParse =
 const CHROMIUM_FLAG =
   /^--(ozone-|no-sandbox|disable-|enable-|use-|force-|class|gtk-version|js-flags|inspect|remote-debugging|password-store|app-id|disk-cache)/
 
-const VALUE_FLAGS = new Set(['projeto', 'titulo', 'descricao', 'user-data-dir'])
+const VALUE_FLAGS = new Set(['projeto', 'titulo', 'descricao', 'depois-de', 'user-data-dir'])
 
 /**
  * Lê process.argv. 'none' quando o subcomando `tarefa` não aparece (o app abre normal).
@@ -88,6 +91,7 @@ export function parseCliArgs(argv: readonly string[]): CliParse {
       titulo,
       descricao: values.get('descricao'),
       worktree: !semWorktree,
+      depoisDe: values.get('depois-de')?.trim() || undefined,
       json,
       userDataDir: values.get('user-data-dir'),
     },
@@ -110,13 +114,22 @@ interface TaskData {
   projeto: string
   nome: string
   branch: string | null
+  depois_de: string | null
+  /** true = a tarefa nasceu esperando a outra subir; o Líder ainda não abriu. */
+  aguardando: boolean
 }
 
 /** Uma chamada task.create na ponte. Rejeita com Error(message) legível para o terminal. */
 async function callBridge(
   socketPath: string,
   token: string,
-  params: { projeto: string; titulo: string; descricao?: string; worktree: boolean },
+  params: {
+    projeto: string
+    titulo: string
+    descricao?: string
+    worktree: boolean
+    depois_de?: string
+  },
   timeoutMs: number,
 ): Promise<TaskData> {
   return new Promise<TaskData>((resolve, reject) => {
@@ -200,6 +213,7 @@ export async function runCliTask(parse: CliParse, io: CliIo): Promise<number> {
         titulo: args.titulo,
         ...(descricao ? { descricao } : {}),
         worktree: args.worktree,
+        ...(args.depoisDe ? { depois_de: args.depoisDe } : {}),
       },
       io.timeoutMs ?? 120_000,
     )
@@ -208,7 +222,11 @@ export async function runCliTask(parse: CliParse, io: CliIo): Promise<number> {
         ? `${JSON.stringify(data)}\n`
         : `Tarefa criada no projeto ${data.projeto}: ${data.nome} (${data.tarefa_id}), ${
             data.branch ? `branch ${data.branch}` : 'sem worktree'
-          }. O Líder já está abrindo.\n`,
+          }. ${
+            data.aguardando
+              ? 'Ela começa quando a tarefa indicada em --depois-de for lançada.'
+              : 'O Líder já está abrindo.'
+          }\n`,
     )
     return 0
   } catch (error) {

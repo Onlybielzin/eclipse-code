@@ -23,8 +23,9 @@ function setup() {
       branch: input.useWorktree ? 'eclipse/nova' : null,
     })),
   }
-  const handler = createMcpToolHandler({ tasks, actions })
-  return { tasks, actions, handler }
+  const alerts = { publish: vi.fn() }
+  const handler = createMcpToolHandler({ tasks, actions, alerts })
+  return { tasks, actions, handler, alerts }
 }
 
 afterEach(() => vi.useRealTimers())
@@ -42,6 +43,7 @@ describe('autorizacao pelo papel do token', () => {
       'tarefa_concluir',
       'tarefa_renomear',
       'tarefa_iniciar',
+      'avisar',
     ] as const) {
       await expect(handler.callTool(member, name, {})).rejects.toMatchObject({ code: 'forbidden' })
     }
@@ -96,6 +98,43 @@ describe('tarefa_concluir', () => {
   })
 })
 
+describe('avisar', () => {
+  it('Lider avisa e o main publica o texto na tarefa dele', async () => {
+    const { handler, alerts } = setup()
+    const result = await handler.callTool(leader, 'avisar', { texto: '  Build pronto.  ' })
+    expect(result.text).toBe('Aviso enviado.')
+    expect(alerts.publish).toHaveBeenCalledWith('task1', 'Build pronto.')
+  })
+
+  it('membro é recusado', async () => {
+    const { handler, alerts } = setup()
+    await expect(handler.callTool(member, 'avisar', { texto: 'oi' })).rejects.toMatchObject({
+      code: 'forbidden',
+    })
+    expect(alerts.publish).not.toHaveBeenCalled()
+  })
+
+  it('texto vazio, longo ou campo extra são recusados', async () => {
+    const { handler, alerts } = setup()
+    for (const args of [{ texto: '   ' }, { texto: 'a'.repeat(301) }, { texto: 'x', extra: 1 }, {}]) {
+      await expect(handler.callTool(leader, 'avisar', args)).rejects.toMatchObject({
+        code: 'invalid_input',
+      })
+    }
+    await handler.callTool(leader, 'avisar', { texto: 'a'.repeat(300) })
+    expect(alerts.publish).toHaveBeenCalledTimes(1)
+  })
+
+  it('tarefa_concluir gera o aviso automático "foi para Em revisão"', async () => {
+    const { handler, tasks, alerts } = setup()
+    await handler.callTool(leader, 'tarefa_concluir', { resumo: 'pronto' })
+    expect(alerts.publish).toHaveBeenCalledWith(
+      'task1',
+      `${tasks.getTask('task1').name} foi para Em revisão.`,
+    )
+  })
+})
+
 describe('tarefa_renomear', () => {
   it('Lider renomeia e o title fica', async () => {
     const { handler, tasks } = setup()
@@ -144,6 +183,8 @@ describe('tarefa_iniciar', () => {
       projeto: 'Ereemby',
       nome: 'Ajustar o login',
       branch: 'eclipse/nova',
+      depois_de: null,
+      aguardando: false,
     })
   })
 
@@ -177,6 +218,49 @@ describe('tarefa_iniciar', () => {
       expect.objectContaining({ projectId: 'proj1', useWorktree: false }),
     )
     expect(result.data).toMatchObject({ branch: null })
+  })
+
+  it('depois_de valido: repassa o id e avisa que a tarefa espera', async () => {
+    const { handler, actions } = setup()
+    vi.mocked(actions.createTask).mockImplementationOnce(async (input) => ({
+      ...setup().tasks.getTask('task1'),
+      id: 'nova',
+      name: input.title,
+      branch: null,
+      workflowStatus: 'esperando_outra',
+    }))
+    const result = await handler.callTool(leader, 'tarefa_iniciar', {
+      projeto: 'proj1',
+      pedido: 'B',
+      depois_de: 'task1',
+    })
+    expect(actions.createTask).toHaveBeenCalledWith(
+      expect.objectContaining({ waitForTaskId: 'task1' }),
+    )
+    expect(result.text).toContain('Ela começa quando "Tarefa" for lançada.')
+    expect(result.data).toMatchObject({ depois_de: 'task1', aguardando: true })
+  })
+
+  it('depois_de com a outra ja lancada: a tarefa comeca normal', async () => {
+    const { handler } = setup()
+    const result = await handler.callTool(leader, 'tarefa_iniciar', {
+      projeto: 'proj1',
+      pedido: 'B',
+      depois_de: 'task1',
+    })
+    expect(result.text).toContain('O Líder dela já está abrindo.')
+    expect(result.data).toMatchObject({ depois_de: 'task1', aguardando: false })
+  })
+
+  it('depois_de inexistente dá not_found em portugues e nao cria nada', async () => {
+    const { handler, actions } = setup()
+    await expect(
+      handler.callTool(leader, 'tarefa_iniciar', { projeto: 'proj1', pedido: 'B', depois_de: 'zzz' }),
+    ).rejects.toMatchObject({
+      code: 'not_found',
+      message: 'A tarefa indicada em depois_de não existe: zzz.',
+    })
+    expect(actions.createTask).not.toHaveBeenCalled()
   })
 
   it('projeto inexistente dá not_found com os nomes existentes', async () => {

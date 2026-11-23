@@ -51,7 +51,7 @@ import {
   type TurnResult,
   type UserQuestion,
 } from '@shared/domain'
-import type { TerminalAttachResult } from '@shared/ipc'
+import type { TaskWaitInfo, TerminalAttachResult } from '@shared/ipc'
 import type { McpCaller, McpCliTaskInput, McpToolName, McpToolResult } from '@shared/mcp'
 import type {
   AgentLimits,
@@ -62,6 +62,7 @@ import type {
   Unsubscribe,
   WorktreeService,
 } from '@shared/ports'
+import { describeTaskWait, releasesWaitingTasks } from '@shared/taskWorkflow'
 import { claudeSessionIdFor, type LeaderModule } from '../leader'
 import { createMcpToolHandler, type DisposableMcpToolHandler, type McpTeamActions } from '../mcp'
 import {
@@ -119,6 +120,8 @@ export interface TeamCoordinatorDeps {
     notify(taskId: TaskId, text: string, subtaskId?: SubtaskId): void
     markSubtasksSeen(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void
   }
+  /** Aviso rapido ao usuario (ferramenta avisar e tarefa_concluir). */
+  alerts?: { publish(taskId: TaskId, text: string): void }
   /**
    * Saida com erro de um Lider aberto com --resume dentro deste prazo, antes de qualquer
    * sinal de turno, conta como retomada que falhou (padrao 60 s).
@@ -139,6 +142,8 @@ export interface CreateTaskInput {
   soloProvider?: Provider | undefined
   baseBranch?: string | undefined
   useWorktree: boolean
+  /** Espera esta tarefa subir (subiu ou lancado); se ja subiu, a nova comeca normal. */
+  waitForTaskId?: TaskId | undefined
 }
 
 function errorMessage(error: unknown): string {
@@ -176,6 +181,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
   private readonly exitListeners = new Set<
     (event: { sessionId: SessionId; exitCode: number | null; signal: string | null }) => void
   >()
+  private readonly releasing = new Set<TaskId>()
   private shuttingDown = false
 
   constructor(private readonly deps: TeamCoordinatorDeps) {
@@ -192,6 +198,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       tasks: this.tasks,
       actions: this,
       notices: deps.leaderNotices,
+      ...(deps.alerts ? { alerts: deps.alerts } : {}),
     })
 
     this.unsubscribers.push(
@@ -257,6 +264,9 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     if (input.kind === 'team' && !input.leadRoleId && !this.tasks.getLeadRole(project.id)) {
       throw new DomainError('invalid_input', 'o projeto não tem papel de Líder')
     }
+    // Valida antes de criar a worktree. Se a outra ja subiu, a nova nao espera.
+    const waitFor = input.waitForTaskId ? this.tasks.getTask(input.waitForTaskId) : null
+    const waitForTaskId = waitFor && !releasesWaitingTasks(waitFor.workflowStatus) ? waitFor.id : undefined
     const worktree = input.useWorktree
       ? await this.worktrees.create({
           projectRoot: project.rootPath,
@@ -277,6 +287,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         baseBranch: worktree?.baseBranch ?? null,
         leadRoleId: input.leadRoleId ?? null,
         soloProvider: input.soloProvider ?? null,
+        waitForTaskId,
       })
     } catch (error) {
       if (worktree) {
@@ -296,6 +307,13 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     }
     // Terminal (avulso sem agente) so tem o shell: nao abre Lider.
     if (isTerminalTask(task)) return task
+    // Esperando outra: o Lider abre quando a outra subir (releaseWaitingTasks). Se ela subiu
+    // enquanto a worktree era criada, libera agora.
+    if (task.workflowStatus === 'esperando_outra') {
+      if (!this.isReleasable(task.id)) return task
+      await this.releaseOne(task.id)
+      return this.tasks.getTask(task.id)
+    }
     // Abre o Lider em seguida. Erro aqui nao desfaz a tarefa: a tela chama leader.ensure
     // (que entra na mesma fila) e mostra o erro.
     this.track(
@@ -327,6 +345,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
         force: false,
       })
     }
+    if (finalStatus === 'lancado') await this.releaseWaitingTasks()
     return archived
   }
 
@@ -351,8 +370,18 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
    * archiveTask (fecha agentes; worktree fica). Sair deles reabre a tarefa arquivada (C7).
    */
   async setTaskStatus(taskId: TaskId, status: TaskWorkflowStatus): Promise<Task> {
+    const result = await this.applyTaskStatus(taskId, status)
+    if (releasesWaitingTasks(status)) await this.releaseWaitingTasks()
+    return result
+  }
+
+  private async applyTaskStatus(taskId: TaskId, status: TaskWorkflowStatus): Promise<Task> {
     const task = this.tasks.getTask(taskId)
     if (task.workflowStatus === status) return task
+    // So o app escreve esperando_outra (na criacao); nem o usuario escolhe.
+    if (status === 'esperando_outra') {
+      throw new DomainError('invalid_input', 'a tarefa só espera outra desde a criação', { taskId })
+    }
     if (isArchivedWorkflowStatus(status)) {
       // Ja arquivada (lancado <-> cancelado): so troca o rotulo, sem fechar nada de novo.
       if (task.status === 'archived')
@@ -387,25 +416,16 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     for (const project of this.tasks.listProjects()) {
       for (const task of this.tasks.listTasks(project.id, { includeArchived: false })) {
         if (task.status !== 'open' || isTerminalTask(task)) continue
-        if (task.workflowStatus === 'em_espera' || isArchivedWorkflowStatus(task.workflowStatus))
-          continue
-        if (this.now() - task.updatedAt < limit) continue
-        const working =
-          this.tasks
-            .listSubtasks(task.id)
-            .some((s) => s.state === 'working' || s.state === 'submitted') ||
-          this.tasks
-            .listSessions(task.id)
-            .some((s) => s.status !== 'exited' && s.activeTurnId !== null)
-        if (working) continue
-        // A tela de espera esconde a QuestionBox: a pergunta ficaria sem resposta.
+        // subiu: quem cuida dela e completeReleasedTasks. esperando_outra: nao tem agente aberto.
         if (
-          task.workflowStatus === 'pergunta' ||
-          this.tasks.listOpenQuestions(project.id).some((q) => q.taskId === task.id)
+          task.workflowStatus === 'em_espera' ||
+          task.workflowStatus === 'subiu' ||
+          task.workflowStatus === 'esperando_outra' ||
+          isArchivedWorkflowStatus(task.workflowStatus)
         )
           continue
-        const leader = this.tasks.getLiveLeaderSession(task.id)
-        if (leader && this.lastActivity.get(leader.id) === 'working') continue
+        if (this.now() - task.updatedAt < limit) continue
+        if (this.isTaskBusy(task)) continue
         try {
           await this.setTaskStatus(task.id, 'em_espera')
           moved.push(task.id)
@@ -415,6 +435,147 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       }
     }
     return moved
+  }
+
+  /** Turno em andamento (subtarefa, sessao ou Lider), ou pergunta aberta: nao mexer sozinho. */
+  private isTaskBusy(task: Task): boolean {
+    const working =
+      this.tasks.listSubtasks(task.id).some((s) => s.state === 'working' || s.state === 'submitted') ||
+      this.tasks.listSessions(task.id).some((s) => s.status !== 'exited' && s.activeTurnId !== null)
+    if (working) return true
+    // A tela de espera esconde a QuestionBox: a pergunta ficaria sem resposta.
+    if (
+      task.workflowStatus === 'pergunta' ||
+      this.tasks.listOpenQuestions(task.projectId).some((q) => q.taskId === task.id)
+    )
+      return true
+    const leader = this.tasks.getLiveLeaderSession(task.id)
+    return !!leader && this.lastActivity.get(leader.id) === 'working'
+  }
+
+  /**
+   * Conclui sozinha (subiu -> lancado, mesmo caminho do usuario: arquiva e fecha agentes; a
+   * worktree fica) a tarefa Lancada parada ha mais que releasedDoneHours. 0 = nunca.
+   * Pula tarefa com turno em andamento. Devolve as tarefas concluidas.
+   */
+  async completeReleasedTasks(): Promise<TaskId[]> {
+    const hours = this.tasks.getAgentLimitSettings().releasedDoneHours
+    if (hours <= 0 || this.shuttingDown) return []
+    const limit = hours * 3_600_000
+    const moved: TaskId[] = []
+    for (const project of this.tasks.listProjects()) {
+      for (const task of this.tasks.listTasks(project.id, { includeArchived: false })) {
+        if (task.status !== 'open' || task.workflowStatus !== 'subiu') continue
+        if (this.now() - task.updatedAt < limit || this.isTaskBusy(task)) continue
+        try {
+          await this.setTaskStatus(task.id, 'lancado')
+          moved.push(task.id)
+        } catch (error) {
+          this.log.warn('conclusão automática falhou', { taskId: task.id, error: errorMessage(error) })
+        }
+      }
+    }
+    return moved
+  }
+
+  /**
+   * Unico ponto da espera entre tarefas. Para cada tarefa aberta em esperando_outra cuja outra
+   * subiu (subiu ou lancado): traz o codigo da base (ff-only; erro vira aviso no log), vai a
+   * a_fazer e abre o Lider. Roda quando uma tarefa vira subiu/lancado e uma vez na abertura do app.
+   * A outra cancelada ou apagada nao libera. Devolve as tarefas liberadas.
+   */
+  async releaseWaitingTasks(): Promise<TaskId[]> {
+    if (this.shuttingDown) return []
+    const released: TaskId[] = []
+    for (const project of this.tasks.listProjects()) {
+      for (const listed of this.tasks.listTasks(project.id, { includeArchived: false })) {
+        // Le de novo: o await do git de outra tarefa pode ter mudado esta (o usuario a pos em espera).
+        const task = this.findTask(listed.id)
+        if (!task || task.status !== 'open' || !task.waitForTaskId) continue
+        if (task.workflowStatus === 'esperando_outra') {
+          if (await this.releaseOne(task.id)) released.push(task.id)
+        } else if (
+          task.workflowStatus === 'a_fazer' &&
+          !isTerminalTask(task) &&
+          this.tasks.listSessions(task.id).every((session) => session.kind !== 'leader-pty')
+        ) {
+          // Liberada, mas o app fechou antes de abrir o Lider: abre agora.
+          this.track(this.openLeaderAfterRelease(task.id))
+        }
+      }
+    }
+    return released
+  }
+
+  /** A B pode sair da espera agora: aberta, esperando_outra e a A ainda subiu ou lancada. */
+  private isReleasable(taskId: TaskId): boolean {
+    const task = this.findTask(taskId)
+    if (!task || task.status !== 'open' || task.workflowStatus !== 'esperando_outra') return false
+    const other = task.waitForTaskId ? this.findTask(task.waitForTaskId) : null
+    return !!other && releasesWaitingTasks(other.workflowStatus)
+  }
+
+  private openLeaderAfterRelease(taskId: TaskId): Promise<unknown> {
+    return this.ensureLeader(taskId).catch((error: unknown) =>
+      this.log.warn('Líder não abriu ao liberar a tarefa', { taskId, error: errorMessage(error) }),
+    )
+  }
+
+  /**
+   * Libera uma tarefa em espera (uma liberacao por tarefa por vez). Confere de novo depois do
+   * git e do desligamento: o usuario pode ter mudado a tarefa nesse meio. A checagem e a gravacao
+   * sao sincronas, entao nada se mete entre elas. Devolve true se liberou.
+   */
+  private releaseOne(taskId: TaskId): Promise<boolean> {
+    const run = async (): Promise<boolean> => {
+      if (this.shuttingDown || this.releasing.has(taskId) || !this.isReleasable(taskId)) return false
+      this.releasing.add(taskId)
+      try {
+        const task = this.tasks.getTask(taskId)
+        if (task.worktreePath && task.baseBranch) {
+          try {
+            await this.worktrees.fastForwardToBase({
+              worktreePath: task.worktreePath,
+              baseBranch: task.baseBranch,
+            })
+          } catch (error) {
+            this.log.warn('não foi possível trazer o código da base', {
+              taskId,
+              error: errorMessage(error),
+            })
+          }
+        }
+        // Desligando: nao muda nada; a checagem da proxima abertura libera.
+        if (this.shuttingDown || !this.isReleasable(taskId)) return false
+        this.tasks.setTaskWorkflowStatus(taskId, 'a_fazer', 'user')
+        this.track(this.openLeaderAfterRelease(taskId))
+        return true
+      } catch (error) {
+        this.log.warn('liberar tarefa em espera falhou', { taskId, error: errorMessage(error) })
+        return false
+      } finally {
+        this.releasing.delete(taskId)
+      }
+    }
+    const promise = run()
+    this.track(promise)
+    return promise
+  }
+
+  /** A tarefa, ou null se foi apagada. */
+  private findTask(taskId: TaskId): Task | null {
+    try {
+      return this.tasks.getTask(taskId)
+    } catch {
+      return null
+    }
+  }
+
+  /** Linha de espera da tela (tasks.waitInfo); null se a tarefa nao espera nenhuma outra. */
+  getTaskWaitInfo(taskId: TaskId): TaskWaitInfo | null {
+    const task = this.tasks.getTask(taskId)
+    if (!task.waitForTaskId) return null
+    return { message: describeTaskWait(this.findTask(task.waitForTaskId)) }
   }
 
   // -------------------------------------------------------------------------
@@ -444,6 +605,10 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
     if (task.status !== 'open') throw new DomainError('invalid_input', 'tarefa arquivada')
     if (isTerminalTask(task))
       throw new DomainError('invalid_input', 'tarefa de terminal não tem agente')
+    if (task.workflowStatus === 'esperando_outra')
+      throw new DomainError('invalid_input', 'a tarefa espera outra subir antes de abrir o Líder', {
+        taskId,
+      })
 
     const epoch = this.closeEpoch.get(taskId) ?? 0
     const live = this.tasks.getLiveLeaderSession(taskId)

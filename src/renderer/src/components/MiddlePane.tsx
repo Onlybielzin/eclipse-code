@@ -9,6 +9,7 @@ import { DeliveryView, QuestionBox } from './DeliveryView'
 import { LeaderTerminal } from './LeaderTerminal'
 import { ShellTab, StartTab } from './TaskProcessTab'
 import { TaskStatusMenu } from './TaskStatusMenu'
+import { TaskWaiting } from './TaskWaiting'
 
 const LEADER_TABS: { id: MidTab; label: string }[] = [
   { id: 'leader', label: 'Líder' },
@@ -143,6 +144,8 @@ export function MiddlePane() {
                 arquivada. Os agentes foram fechados. Para reabrir, troque o status no ícone da
                 tarefa.
               </div>
+            ) : task.workflowStatus === 'esperando_outra' ? (
+              <TaskWaiting task={task} />
             ) : task.workflowStatus === 'em_espera' && resumedId !== task.id ? (
               <div className="empty" data-testid="task-standby">
                 <p>Tarefa em espera. Os agentes estão fechados.</p>

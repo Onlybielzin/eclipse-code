@@ -80,6 +80,8 @@ export const agentLimitSettingsSchema = z
     maxLiveMembersPerTask: agentLimitSchema,
     // Inteiro de 0 a 720 (30 dias); 0 desliga. Ausente (valor salvo antes do campo) = 0.
     idleStandbyHours: z.number().int().min(0).max(720).default(0),
+    // Inteiro de 0 a 720; 0 = nunca. Ausente (valor salvo antes do campo) = 24.
+    releasedDoneHours: z.number().int().min(0).max(720).default(24),
   })
   .strict()
 
@@ -99,6 +101,10 @@ export interface PickedFolder {
 }
 
 /** Contadores de um projeto para o seletor do topo. */
+export interface TaskWaitInfo {
+  message: string
+}
+
 export interface ProjectSummary {
   projectId: string
   /** Tarefas nao arquivadas. */
@@ -288,6 +294,12 @@ export const ipcCommands = {
     z.object({ taskId: idSchema, status: taskWorkflowStatusSchema }).strict(),
   ),
 
+  /**
+   * Linha de espera da tarefa em esperando_outra, pronta do main ("Esperando: <nome> (<status>)" ou
+   * o aviso de tarefa cancelada/apagada). null quando a tarefa nao espera nenhuma outra.
+   */
+  'tasks.waitInfo': command<TaskWaitInfo | null>()(z.object({ taskId: idSchema }).strict()),
+
   'subtasks.list': command<Subtask[]>()(z.object({ taskId: idSchema }).strict()),
   'subtasks.detail': command<SubtaskDetail>()(z.object({ subtaskId: idSchema }).strict()),
 
@@ -418,6 +430,17 @@ export function parseIpcInvokeRequest(
 // Eventos (main -> tela)
 // ---------------------------------------------------------------------------
 
+/** Aviso rapido ao usuario (ferramenta avisar ou tarefa_concluir). Vive so em memoria no main. */
+export interface UserNotice {
+  id: string
+  taskId: string
+  taskName: string
+  projectId: string
+  projectName: string
+  text: string
+  createdAt: number
+}
+
 export interface IpcEvents {
   /** Mudanca de dominio, ja gravada no SQLite. */
   'domain.event': DomainEventEnvelope
@@ -429,6 +452,10 @@ export interface IpcEvents {
   /** Historico enviado ao abrir o SSE. */
   'brain.history': BrainActivityEvent[]
   'update.state': UpdateState
+  /** Aviso novo para a tela (toast). */
+  'notice.created': UserNotice
+  /** Clique na notificacao do sistema: a tela abre a tarefa do aviso. */
+  'notice.open': { taskId: string; projectId: string }
 }
 
 export type IpcEventChannel = keyof IpcEvents
@@ -445,6 +472,8 @@ export const IPC_EVENT_CHANNELS = [
   'brain.activity',
   'brain.history',
   'update.state',
+  'notice.created',
+  'notice.open',
 ] as const satisfies readonly IpcEventChannel[]
 
 // ---------------------------------------------------------------------------

@@ -124,24 +124,33 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
  * Dono: TaskService. Regras automaticas em taskWorkflow.ts.
  *
  *   a_fazer -> em_andamento -> (pergunta <-> em_andamento) -> em_revisao
- *     -> pronto_lancar -> lancado
+ *     -> pronto_lancar -> subiu -> lancado
+ *   (subiu = "Lancada": o usuario subiu o codigo, mas a tarefa segue aberta e o chat continua
+ *    visivel; nao arquiva)
+ *   (esperando_outra: a tarefa nasceu com waitForTaskId e espera a outra subir; sem Lider)
  *   (cancelado fica depois de lancado: abandona a tarefa, com o mesmo efeito de arquivar)
  *   (em_espera: o usuario deixa a tarefa de lado; fecha os agentes mas a tarefa segue aberta)
  *
  * Invariantes:
- *   W1. pronto_lancar, em_espera, lancado e cancelado so o usuario escolhe (USER_ONLY_TASK_WORKFLOW_STATUSES).
- *       Excecao: com a configuracao "Colocar em espera apos X horas" ligada, o app poe em_espera
- *       a tarefa parada (TeamCoordinator.standbyIdleTasks, mesmo caminho do usuario). Agente via MCP nunca escreve.
+ *   W1. pronto_lancar, subiu, esperando_outra, em_espera, lancado e cancelado so o usuario escolhe
+ *       (USER_ONLY_TASK_WORKFLOW_STATUSES). Agente via MCP nunca escreve. Excecoes do app, sempre
+ *       pelo mesmo caminho do usuario (TeamCoordinator):
+ *       - "Colocar em espera apos X horas": standbyIdleTasks poe em_espera a tarefa parada (pula subiu).
+ *       - "Concluir lancadas apos X horas": completeReleasedTasks move subiu -> lancado.
+ *       - esperando_outra: so o app escreve, na criacao com depois_de (o menu de status nao oferece);
+ *         quando a outra vira subiu ou lancado, o app move a tarefa para a_fazer e abre o Lider.
  *   W2. lancado e cancelado sao finais para a automacao: nada automatico tira a tarefa de la.
  *   W3. status 'archived' <=> workflowStatus em ('lancado','cancelado') (lancar ou cancelar
  *       arquiva; sair dos dois para um status aberto desarquiva).
  */
 export const TASK_WORKFLOW_STATUSES = [
   'a_fazer',
+  'esperando_outra',
   'em_andamento',
   'pergunta',
   'em_revisao',
   'pronto_lancar',
+  'subiu',
   'em_espera',
   'lancado',
   'cancelado',
@@ -150,10 +159,12 @@ export type TaskWorkflowStatus = (typeof TASK_WORKFLOW_STATUSES)[number]
 
 export const TASK_WORKFLOW_STATUS_LABELS: Record<TaskWorkflowStatus, string> = {
   a_fazer: 'A fazer',
+  esperando_outra: 'Esperando outra',
   em_andamento: 'Em andamento',
   pergunta: 'Pergunta para você',
   em_revisao: 'Em revisão',
   pronto_lancar: 'Pronto pra lançar',
+  subiu: 'Lançada',
   em_espera: 'Em espera',
   lancado: 'Concluída',
   cancelado: 'Cancelada',
@@ -165,7 +176,14 @@ export function isArchivedWorkflowStatus(status: TaskWorkflowStatus): boolean {
 }
 
 /** Status que agente e automacao nunca escrevem (W1). */
-export const USER_ONLY_TASK_WORKFLOW_STATUSES = ['pronto_lancar', 'em_espera', 'lancado', 'cancelado'] as const
+export const USER_ONLY_TASK_WORKFLOW_STATUSES = [
+  'pronto_lancar',
+  'subiu',
+  'esperando_outra',
+  'em_espera',
+  'lancado',
+  'cancelado',
+] as const
 
 /** Quem pede a mudanca de status: o usuario (tela) ou um agente (MCP). */
 export type TaskWorkflowActor = 'user' | 'agent'
@@ -204,6 +222,11 @@ export interface Task {
   status: TaskStatus
   /** Status de trabalho mostrado na lista (ver TASK_WORKFLOW_STATUSES). */
   workflowStatus: TaskWorkflowStatus
+  /**
+   * Tarefa que esta precisa esperar (tarefa_iniciar com depois_de). Escrito so na criacao; null =
+   * nao espera. Quem espera nasce em esperando_outra.
+   */
+  waitForTaskId: TaskId | null
   /** Comando da aba Iniciar (ex. `pnpm dev`). null = ainda nao configurado. */
   startCommand: string | null
   /** Subpasta relativa (dentro da pasta base da tarefa) onde o comando roda. */

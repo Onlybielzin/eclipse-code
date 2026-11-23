@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { MiddlePane } from './components/MiddlePane'
+import { NoticeToasts } from './components/NoticeToasts'
 import { SettingsPage } from './components/SettingsPage'
 import { SubtaskPanel } from './components/SubtaskPanel'
 import { TaskList } from './components/TaskList'
@@ -48,6 +49,7 @@ function Shell() {
           {settingsOpen && <SettingsPage />}
         </div>
       )}
+      <NoticeToasts />
     </div>
   )
 }

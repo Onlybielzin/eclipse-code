@@ -11,6 +11,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { DEFAULT_BRANCH_PREFIX, slugify } from '@shared/branch'
 import { DomainError } from '@shared/domain'
 import type { CreateWorktreeRequest, WorktreeInfo, WorktreeService } from '@shared/ports'
+import { fastForwardToBase } from './fastForward'
 import {
   firstLine,
   runGit,
@@ -182,6 +183,10 @@ export class GitWorktreeService implements WorktreeService {
 
     const current = await runGit(['branch', '--show-current'], root, 'observation')
     return current.exitCode === 0 ? firstLine(current.stdout) : null
+  }
+
+  fastForwardToBase(request: { worktreePath: string; baseBranch: string }): Promise<boolean> {
+    return fastForwardToBase(request)
   }
 
   async list(projectRoot: string): Promise<WorktreeInfo[]> {

@@ -47,6 +47,9 @@ export const ENTREGAR_ESTADO_TO_DELIVERY_STATE: Record<EntregarEstado, DeliveryS
 export const MCP_WAIT_DEFAULT_SECONDS = 300
 export const MCP_WAIT_MAX_SECONDS = 1_800
 
+/** Limite do texto da ferramenta avisar. */
+export const MAX_NOTICE_CHARS = 300
+
 export const mcpToolInputSchemas = {
   /** Lider: cria subtarefa "na fila" e abre o membro do papel. */
   subtarefa_criar: z
@@ -123,6 +126,12 @@ export const mcpToolInputSchemas = {
       resumo: textSchema.min(1).describe('O que foi entregue na tarefa, para o usuário revisar.'),
     })
     .strict(),
+  /** Lider ou agente avulso: aviso rapido ao usuario (toast e notificacao do sistema). */
+  avisar: z
+    .object({
+      texto: z.string().trim().min(1).max(MAX_NOTICE_CHARS).describe('O aviso, até 300 letras.'),
+    })
+    .strict(),
   /** Lider: troca o nome curto da tarefa mostrado na lista. O pedido original (title) nao muda. */
   tarefa_renomear: z
     .object({
@@ -155,6 +164,11 @@ export const mcpToolInputSchemas = {
         .boolean()
         .optional()
         .describe('Cria worktree e branch para a tarefa. Padrão true.'),
+      depois_de: idSchema
+        .optional()
+        .describe(
+          'Id de outra tarefa. A nova só começa (e o Líder dela só abre) quando essa subir; se já subiu, começa na hora.',
+        ),
     })
     .strict(),
 } as const
@@ -174,6 +188,7 @@ export const MCP_TOOL_ROLES: Record<McpToolName, readonly McpCallerRole[]> = {
   subtarefas_esperar: ['leader'],
   pergunta_repassar: ['leader'],
   tarefa_concluir: ['leader'],
+  avisar: ['leader'],
   tarefa_renomear: ['leader'],
   tarefa_iniciar: ['leader'],
 }
@@ -193,9 +208,11 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
     'Repassa uma dúvida ao usuário, com 1 a 4 itens e opções de resposta. Uma pergunta nova substitui as que ainda estavam abertas nesta tarefa.',
   tarefa_concluir:
     'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
+  avisar:
+    'Mostra um aviso rápido ao usuário (até 300 letras). Use quando terminar algo que ele precisa ver.',
   tarefa_renomear: 'Troca o nome curto da tarefa mostrado na lista. O pedido original não muda.',
   tarefa_iniciar:
-    'Cria uma tarefa com Líder e time no projeto indicado (id ou nome), com pedido e descrição opcional. O Líder dela começa sozinho e roda o pedido, sem esperar o usuário.',
+    'Cria uma tarefa com Líder e time no projeto indicado (id ou nome), com pedido e descrição opcional. O Líder dela começa sozinho e roda o pedido, sem esperar o usuário. Com depois_de (id de outra tarefa), a nova fica em "Esperando outra" e só começa quando essa tarefa for lançada.',
 }
 
 export function isMcpToolName(value: unknown): value is McpToolName {
@@ -269,6 +286,7 @@ export const mcpBridgeRequestSchema = z.discriminatedUnion('method', [
           titulo: titleSchema,
           descricao: z.string().max(MAX_DESCRIPTION_CHARS).optional(),
           worktree: z.boolean(),
+          depois_de: idSchema.optional(),
         })
         .strict(),
     })

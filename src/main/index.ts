@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  Notification,
   dialog,
   ipcMain,
   Menu,
@@ -29,6 +30,7 @@ import {
   type AppServices,
 } from './app'
 import { autoUpdater } from 'electron-updater'
+import { createNotificationHolder } from './app/electronNotifier'
 import { attachExternalLinks } from './app/externalLinks'
 import { applyLoginShellPath } from './app/loginShellPath'
 import { DomainError } from '@shared/domain'
@@ -104,6 +106,8 @@ function createMainWindow(): BrowserWindow {
   return window
 }
 
+const notifications = createNotificationHolder(Notification)
+
 async function boot(): Promise<AppServices> {
   // Antes de qualquer spawn: aberto pelo menu ou pelo auto-update, o PATH vem sem ~/.local/bin.
   // Testes e smoke não rodam o shell de login (lento e depende do rc do usuário).
@@ -123,6 +127,19 @@ async function boot(): Promise<AppServices> {
             join(homedir(), '.config', 'eclipse-code-dev', 'eclipse-code.db'),
           ],
     brainCipher: safeStorage,
+    // Sem foco na janela, o aviso tambem vira notificacao do sistema (nunca em teste ou smoke).
+    systemNotifier: {
+      isSupported: () => !isTestRun && Notification.isSupported(),
+      isWindowFocused: () => BrowserWindow.getAllWindows().some((w) => w.isFocused()),
+      focusWindow: () => {
+        const [window] = BrowserWindow.getAllWindows()
+        if (!window) return
+        if (window.isMinimized()) window.restore()
+        window.show()
+        window.focus()
+      },
+      show: (title, body, onClick) => notifications.show(title, body, onClick),
+    },
     log,
   })
   releaseWindow = (id) => services.brain.unsubscribe(id)
@@ -333,6 +350,7 @@ if (cliParse.kind !== 'none') {
     event.preventDefault()
     quitting = true
     updater?.dispose()
+    notifications.dispose()
     const current = services
     services = null
     void current

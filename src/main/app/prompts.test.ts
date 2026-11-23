@@ -27,6 +27,7 @@ const task: Task = {
   soloProvider: null,
   status: 'open',
   workflowStatus: 'a_fazer',
+  waitForTaskId: null,
   startCommand: null,
   startDir: null,
   createdAt: 0,
@@ -68,6 +69,12 @@ describe('prompts', () => {
     const semPapel = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
     expect(semPapel).toContain('subtarefa_criar')
     expect(semPapel).toContain('Tarefa: Login novo')
+  })
+
+  it('Líder: as duas listas de ferramentas citam avisar', () => {
+    const sem = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
+    const com = composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere.' })
+    for (const prompt of [sem, com]) expect(prompt).toContain('avisar (texto): mostra um aviso rápido')
   })
 
   it('Líder: descrição entra no prompt e a instrução de renomear vale com e sem descrição', () => {

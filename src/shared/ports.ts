@@ -186,6 +186,8 @@ export interface CreateTaskRecord {
   baseBranch: string | null
   leadRoleId: RoleId | null
   soloProvider: Provider | null
+  /** Tarefa que esta espera: a nova nasce em esperando_outra. Omitido = nao espera. */
+  waitForTaskId?: TaskId | undefined
 }
 
 export interface CreateSubtaskRecord {
@@ -394,6 +396,8 @@ export interface AgentLimitSettings {
   maxLiveAgents: number | null
   /** Horas sem atividade para a tarefa ir sozinha a Em espera; 0 = desligado. */
   idleStandbyHours: number
+  /** Horas em Lancada (subiu) para a tarefa ir sozinha a Concluida; 0 = nunca. */
+  releasedDoneHours: number
 }
 
 /**
@@ -416,6 +420,8 @@ export interface TeamCoordinator extends McpToolHandler {
     soloProvider?: Provider | undefined
     baseBranch?: string | undefined
     useWorktree: boolean
+    /** Espera esta tarefa subir (subiu ou lancado). Se ja subiu, a nova comeca normal. */
+    waitForTaskId?: TaskId | undefined
   }): Promise<Task>
   archiveTask(taskId: TaskId, options: { removeWorktree: boolean }): Promise<Task>
   /** Lider vivo da tarefa: devolve o atual, retoma com resume ou abre novo. */
@@ -670,6 +676,12 @@ export interface WorktreeService {
     force: boolean
   }): Promise<void>
   list(projectRoot: string): Promise<WorktreeInfo[]>
+  /**
+   * Traz o codigo da base para a worktree com `git merge --ff-only <baseBranch>`, so se a branch
+   * nao tem commit proprio. true = rodou o merge; false = a branch tem commit proprio (nada feito).
+   * Erro do git vira DomainError.
+   */
+  fastForwardToBase(request: { worktreePath: string; baseBranch: string }): Promise<boolean>
 }
 
 // ---------------------------------------------------------------------------

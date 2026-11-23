@@ -12,7 +12,7 @@ export function TaskStatusIcon({ status }: { status: TaskWorkflowStatus }) {
 }
 
 /**
- * Icone de status clicavel. Abre um menu com os 6 status; escolher um pede ao main
+ * Icone de status clicavel. Abre um menu com os status que o usuario escolhe (esperando_outra so o app escreve); escolher um pede ao main
  * (tasks.setStatus). A tela nao muda o status sozinha: espera a resposta.
  */
 export function TaskStatusMenu({
@@ -115,7 +115,7 @@ export function TaskStatusMenu({
             items[(next + items.length) % items.length]?.focus()
           }}
         >
-          {TASK_WORKFLOW_STATUSES.map((s) => (
+          {TASK_WORKFLOW_STATUSES.filter((s) => s !== 'esperando_outra').map((s) => (
             <button
               key={s}
               type="button"

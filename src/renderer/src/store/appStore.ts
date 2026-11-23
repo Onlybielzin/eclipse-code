@@ -34,12 +34,16 @@ import type {
   SubtaskDetail,
   UpdateCheck,
   UpdateState,
+  UserNotice,
   WhatsNew,
 } from '@shared/ipc'
 import { upsertById } from './format'
 import { isMotion, isStyle, type Motion, type Style } from '../brain/looks'
 import { readPref, savePref } from '../brain/prefs'
 import { isShape, type Shape } from '../brain/shapes'
+
+/** Máximo de avisos (toast) na tela ao mesmo tempo. */
+export const MAX_TOASTS = 3
 
 /** Efeito do cérebro (pequeno e grande). As chaves eclipse.brain.* já existiam na barra antiga. */
 export interface BrainLook {
@@ -90,6 +94,8 @@ export interface AppState {
   update: UpdateState
   /** Notas da versao atual ainda nao vistas; a janela abre enquanto houver. */
   whatsNew: WhatsNew | null
+  /** Avisos na tela (toast), do mais antigo ao mais novo. */
+  notices: UserNotice[]
   brainLook: BrainLook
   expanded: Record<string, boolean>
   details: Record<string, SubtaskDetail>
@@ -114,6 +120,7 @@ export const initialState: AppState = {
   settingsOpen: false,
   update: { status: 'idle', version: null },
   whatsNew: null,
+  notices: [],
   brainLook: defaultBrainLook,
   expanded: {},
   details: {},
@@ -186,6 +193,7 @@ export class AppStore {
   private readonly lastChat = new Map<string, string | null>()
   private unsubscribe: (() => void) | null = null
   private unsubscribeUpdate: (() => void) | null = null
+  private unsubscribeNotices: (() => void)[] = []
 
   constructor(readonly api: EclipseApi) {
     this.state = { ...initialState, brainLook: readBrainLook() }
@@ -240,6 +248,18 @@ export class AppStore {
     if (this.unsubscribeUpdate === null) {
       this.unsubscribeUpdate = this.api.on('update.state', (update) => this.set({ update }))
     }
+    if (this.unsubscribeNotices.length === 0) {
+      this.unsubscribeNotices = [
+        this.api.on('notice.created', (notice) =>
+          this.set((s) => ({
+            notices: [...s.notices.filter((n) => n.id !== notice.id), notice].slice(-MAX_TOASTS),
+          })),
+        ),
+        this.api.on('notice.open', ({ taskId, projectId }) => {
+          void this.openTaskIn(projectId, taskId)
+        }),
+      ]
+    }
     // Aviso de versao nao pode travar a partida: falha aqui so some em silencio.
     void Promise.all([this.call('update.state', {}), this.call('app.whatsNew', {})])
       .then(([update, whatsNew]) => this.set({ update, whatsNew }))
@@ -259,6 +279,23 @@ export class AppStore {
     this.unsubscribe = null
     this.unsubscribeUpdate?.()
     this.unsubscribeUpdate = null
+    for (const off of this.unsubscribeNotices) off()
+    this.unsubscribeNotices = []
+  }
+
+  dismissNotice(id: string): void {
+    this.set((s) => ({ notices: s.notices.filter((n) => n.id !== id) }))
+  }
+
+  /** Clique no aviso: fecha o toast e abre a tarefa (troca de projeto se precisar). */
+  async openNotice(notice: UserNotice): Promise<void> {
+    this.dismissNotice(notice.id)
+    await this.openTaskIn(notice.projectId, notice.taskId)
+  }
+
+  private async openTaskIn(projectId: string, taskId: string): Promise<void> {
+    if (this.state.projectId !== projectId) await this.openProject(projectId)
+    if (this.state.tasks.some((t) => t.id === taskId)) this.selectTask(taskId, false)
   }
 
   /** Fecha o app e instala a versao baixada (quem confirma com o usuario e a tela). */

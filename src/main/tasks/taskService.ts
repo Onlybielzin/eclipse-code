@@ -247,7 +247,12 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
   /** Limites de agentes gravados; valor ausente ou ilegivel = sem limite. */
   getAgentLimitSettings(): AgentLimitSettings {
     const raw = this.store.getSetting(AGENT_LIMITS_KEY)
-    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0 }
+    const none = {
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+      idleStandbyHours: 0,
+      releasedDoneHours: 24,
+    }
     if (raw === null) return none
     try {
       const parsed = agentLimitSettingsSchema.safeParse(JSON.parse(raw))
@@ -508,7 +513,8 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         leadRoleId,
         soloProvider: record.soloProvider,
         status: 'open',
-        workflowStatus: 'a_fazer',
+        workflowStatus: record.waitForTaskId ? 'esperando_outra' : 'a_fazer',
+        waitForTaskId: record.waitForTaskId ?? null,
         startCommand: null,
         startDir: null,
         createdAt: now,
@@ -1467,7 +1473,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
       )
       for (const taskId of lostLeaderTasks) {
         const task = this.store.getTask(taskId)
-        if (!task || task.status !== 'open' || task.workflowStatus === 'em_espera') continue
+        if (!task || task.status !== 'open' || task.workflowStatus === 'em_espera' || task.workflowStatus === 'esperando_outra') continue
         if (this.getLiveLeaderSession(taskId)) continue
         const latest = this.getLatestLeaderSession(taskId)
         if (latest && latest.providerSessionId) report.leadersToResume.push(latest)

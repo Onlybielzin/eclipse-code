@@ -311,6 +311,22 @@ export const MIGRATIONS: readonly Migration[] = [
     name: 'descricao da tarefa',
     sql: `ALTER TABLE tasks ADD COLUMN description TEXT NOT NULL DEFAULT '';`,
   },
+  {
+    version: 13,
+    name: 'status lancada e esperando outra',
+    // Mesmo metodo das migracoes 10 e 11: o CHECK recusa os status novos, entao troca so a coluna.
+    // wait_for_task_id sem FK: a tarefa esperada pode sumir e a espera continua (so a tela avisa).
+    sql: `
+      ALTER TABLE tasks ADD COLUMN workflow_status_v13 TEXT NOT NULL DEFAULT 'a_fazer'
+        CHECK (workflow_status_v13 IN
+          ('a_fazer', 'esperando_outra', 'em_andamento', 'pergunta', 'em_revisao', 'pronto_lancar',
+           'subiu', 'em_espera', 'lancado', 'cancelado'));
+      UPDATE tasks SET workflow_status_v13 = workflow_status;
+      ALTER TABLE tasks DROP COLUMN workflow_status;
+      ALTER TABLE tasks RENAME COLUMN workflow_status_v13 TO workflow_status;
+      ALTER TABLE tasks ADD COLUMN wait_for_task_id TEXT;
+    `,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

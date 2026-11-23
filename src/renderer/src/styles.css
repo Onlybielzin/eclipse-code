@@ -566,6 +566,9 @@ button.danger {
 .ts-ready {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><circle cx='7' cy='7' r='6.25' fill='%232dd4bf'/><path d='M7 10V4.3M4.6 6.6 7 4.2l2.4 2.4' fill='none' stroke='%2304211d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
+.ts-released {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><circle cx='7' cy='7' r='5.5' fill='none' stroke='%234ade80' stroke-width='1.5'/><path d='M7 9.6V4.6M4.9 6.6 7 4.5l2.1 2.1' fill='none' stroke='%234ade80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
 .st-completed,
 .ts-launched {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><circle cx='7' cy='7' r='6.25' fill='%234ade80'/><path d='m4.4 7.2 1.8 1.8 3.5-3.7' fill='none' stroke='%23052e14' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
@@ -2528,4 +2531,39 @@ button[aria-pressed='true'] > .q-mark {
   .nt-types {
     grid-template-columns: 1fr;
   }
+}
+
+.toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 340px;
+  z-index: 50;
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
+}
+.toast-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--fg);
+  cursor: pointer;
+}
+.toast-close {
+  padding: 6px 10px;
 }

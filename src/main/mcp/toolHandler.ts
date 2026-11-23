@@ -43,6 +43,7 @@ export interface McpTeamActions {
     description?: string | undefined
     kind: 'team'
     useWorktree: boolean
+    waitForTaskId?: TaskId | undefined
   }): Promise<Task>
 }
 
@@ -51,6 +52,8 @@ export interface McpToolHandlerDeps {
   actions: McpTeamActions
   /** Avisos ao Lider: subtarefa parada que o Lider viu nao precisa de aviso. */
   notices?: { markSubtasksSeen(taskId: TaskId, subtaskIds: readonly SubtaskId[]): void }
+  /** Aviso rapido ao usuario (toast e notificacao do sistema). */
+  alerts?: { publish(taskId: TaskId, text: string): void }
 }
 
 export interface DisposableMcpToolHandler extends McpToolHandler {
@@ -114,23 +117,38 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
     title: string,
     description: string | undefined,
     useWorktree: boolean,
+    afterTaskId?: TaskId,
   ): Promise<McpToolResult> => {
     const project = findProject(tasks.listProjects(), projeto)
+    let after: Task | null = null
+    if (afterTaskId !== undefined) {
+      try {
+        after = tasks.getTask(afterTaskId)
+      } catch {
+        throw new DomainError('not_found', `A tarefa indicada em depois_de não existe: ${afterTaskId}.`)
+      }
+    }
     const task = await actions.createTask({
       projectId: project.id,
       title,
       description,
       kind: 'team',
       useWorktree,
+      waitForTaskId: afterTaskId,
     })
+    const waiting = task.workflowStatus === 'esperando_outra'
     return {
-      text: `Tarefa criada no projeto ${project.name}: "${task.name}". O Líder dela já está abrindo.`,
+      text: waiting
+        ? `Tarefa criada no projeto ${project.name}: "${task.name}". Ela começa quando "${after?.name ?? ''}" for lançada.`
+        : `Tarefa criada no projeto ${project.name}: "${task.name}". O Líder dela já está abrindo.`,
       data: {
         tarefa_id: task.id,
         projeto_id: project.id,
         projeto: project.name,
         nome: task.name,
         branch: task.branch,
+        depois_de: afterTaskId ?? null,
+        aguardando: waiting,
       },
     }
   }
@@ -389,10 +407,16 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
         throw new DomainError('forbidden', 'so o Lider conclui a tarefa')
       }
       const task = tasks.concludeTask(caller.taskId)
+      deps.alerts?.publish(task.id, `${task.name} foi para Em revisão.`)
       return {
         text: `Tarefa marcada como "${TASK_WORKFLOW_STATUS_LABELS[task.workflowStatus]}". O usuário revisa e decide quando lançar.`,
         data: { tarefa_id: task.id, status: task.workflowStatus, resumo: input.resumo },
       }
+    },
+
+    async avisar(caller: McpCaller, input: McpToolInput<'avisar'>) {
+      deps.alerts?.publish(caller.taskId, input.texto)
+      return { text: 'Aviso enviado.' }
     },
 
     async tarefa_renomear(caller: McpCaller, input: McpToolInput<'tarefa_renomear'>) {
@@ -410,7 +434,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       if (caller.role !== 'leader' || caller.subtaskId !== null) {
         throw new DomainError('forbidden', 'so o Lider inicia tarefa em outro projeto')
       }
-      return startTeamTask(input.projeto, input.pedido, input.descricao, input.worktree ?? true)
+      return startTeamTask(input.projeto, input.pedido, input.descricao, input.worktree ?? true, input.depois_de)
     },
   } satisfies {
     [N in McpToolName]: (caller: McpCaller, input: McpToolInput<N>) => Promise<McpToolResult>
@@ -437,7 +461,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       return fn(caller, parsed.data)
     },
     startTaskFromCli: (input) =>
-      startTeamTask(input.projeto, input.titulo, input.descricao, input.worktree),
+      startTeamTask(input.projeto, input.titulo, input.descricao, input.worktree, input.depois_de),
     dispose() {
       for (const release of [...waiters]) release()
     },

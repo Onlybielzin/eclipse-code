@@ -54,6 +54,7 @@ export function createFakeTaskService(): FakeTaskService {
     soloProvider: null,
     status: 'open',
     workflowStatus: 'em_andamento',
+    waitForTaskId: null,
     startCommand: null,
     startDir: null,
     createdAt: 1,

@@ -29,6 +29,7 @@ describe('parseCliArgs', () => {
         titulo: 'Ajustar login',
         descricao: undefined,
         worktree: false,
+        depoisDe: undefined,
         json: true,
         userDataDir: undefined,
       },
@@ -97,6 +98,8 @@ describe('runCliTask contra uma ponte de teste', () => {
     projeto: 'Ereemby',
     nome: 'Ajustar login',
     branch: 'eclipse/abc',
+    depois_de: null,
+    aguardando: false,
   }
 
   beforeEach(async () => {
@@ -146,6 +149,30 @@ describe('runCliTask contra uma ponte de teste', () => {
     })
   })
 
+  it('--depois-de chega à ponte como depois_de e o texto avisa da espera', async () => {
+    startTaskFromCli.mockResolvedValueOnce({
+      text: 'ok',
+      data: { ...data, depois_de: 'A1', aguardando: true },
+    })
+    const code = await runCliTask(
+      run('--projeto', 'p', '--titulo', 't', '--depois-de', 'A1'),
+      io(),
+    )
+    expect(code).toBe(0)
+    expect(startTaskFromCli).toHaveBeenCalledWith(expect.objectContaining({ depois_de: 'A1' }))
+    expect(out.join('')).toContain('Ela começa quando a tarefa indicada em --depois-de for lançada.')
+    expect(CLI_USAGE).toContain('--depois-de')
+  })
+
+  it('--depois-de com id inexistente: erro do app no stderr, código 1', async () => {
+    startTaskFromCli.mockRejectedValueOnce(
+      new Error('A tarefa indicada em depois_de não existe: zzz.'),
+    )
+    const code = await runCliTask(run('--projeto', 'p', '--titulo', 't', '--depois-de', 'zzz'), io())
+    expect(code).toBe(1)
+    expect(err.join('')).toContain('não existe: zzz.')
+  })
+
   it('--json imprime o data e --sem-worktree chega à ponte', async () => {
     startTaskFromCli.mockResolvedValueOnce({ text: 'ok', data: { ...data, branch: null } })
     const code = await runCliTask(
@@ -154,6 +181,7 @@ describe('runCliTask contra uma ponte de teste', () => {
     )
     expect(code).toBe(0)
     expect(JSON.parse(out.join(''))).toEqual({ ...data, branch: null })
+    expect(JSON.parse(out.join(''))).toHaveProperty('depois_de', null)
     expect(startTaskFromCli).toHaveBeenCalledWith(expect.objectContaining({ worktree: false }))
   })
 

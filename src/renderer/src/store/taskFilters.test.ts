@@ -74,7 +74,7 @@ describe('presets e normalização', () => {
     const open = applyPreset({ ...EMPTY_TASK_FILTERS, kinds: ['team'] }, 'open')
     expect(open.statuses).not.toContain('lancado')
     expect(open.statuses).not.toContain('cancelado')
-    expect(open.statuses).toHaveLength(6)
+    expect(open.statuses).toHaveLength(8)
     expect(open.statuses).toContain('em_espera')
     expect(open.kinds).toEqual(['team'])
     expect(activePreset(open)).toBe('open')

@@ -747,7 +747,7 @@ describe('TaskService: perguntas ao usuário', () => {
 describe('limites de agentes salvos', () => {
   it('valor corrompido ou fora de 1-100 vira sem limite, sem lançar', () => {
     const { service, store } = createHarness()
-    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0 }
+    const none = { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0, releasedDoneHours: 24 }
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     store.setSetting('agentLimits', '{nao e json')
     expect(service.getAgentLimitSettings()).toEqual(none)
@@ -763,23 +763,23 @@ describe('limites de agentes salvos', () => {
     expect(service.getAgentLimitSettings()).toEqual({
       maxLiveAgents: null,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
     expect(service.getAgentLimits().maxLiveAgents).toBe(Number.POSITIVE_INFINITY)
-    service.saveAgentLimitSettings({ maxLiveAgents: 7, maxLiveMembersPerTask: 2, idleStandbyHours: 6 })
+    service.saveAgentLimitSettings({ maxLiveAgents: 7, maxLiveMembersPerTask: 2, idleStandbyHours: 6, releasedDoneHours: 24 })
     expect(service.getAgentLimitSettings()).toEqual({
       maxLiveAgents: 7,
       maxLiveMembersPerTask: 2,
-      idleStandbyHours: 6,
+      idleStandbyHours: 6, releasedDoneHours: 24,
     })
     expect(service.getAgentLimits()).toEqual({ maxLiveAgents: 7, maxLiveMembersPerTask: 2 })
-    service.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 3, idleStandbyHours: 0 })
+    service.saveAgentLimitSettings({ maxLiveAgents: null, maxLiveMembersPerTask: 3, idleStandbyHours: 0, releasedDoneHours: 24 })
     expect(service.getAgentLimitSettings()).toEqual({
       maxLiveAgents: null,
       maxLiveMembersPerTask: 3,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
-    expect(limitsFromSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0 })).toEqual({
+    expect(limitsFromSettings({ maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0, releasedDoneHours: 24 })).toEqual({
       maxLiveAgents: Number.POSITIVE_INFINITY,
       maxLiveMembersPerTask: Number.POSITIVE_INFINITY,
     })

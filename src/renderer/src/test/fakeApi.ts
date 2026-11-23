@@ -16,6 +16,7 @@ import type {
 } from '@shared/domain'
 import type { WallSnapshot } from '@shared/wall'
 import { isArchivedWorkflowStatus } from '@shared/domain'
+import { describeTaskWait } from '@shared/taskWorkflow'
 import type {
   TaskProcessState,
   EclipseApi,
@@ -68,6 +69,7 @@ export function makeTask(id: string, title: string, extra: Partial<Task> = {}): 
     soloProvider: null,
     status: 'open',
     workflowStatus: 'em_andamento',
+    waitForTaskId: null,
     startCommand: null,
     startDir: null,
     createdAt: T0,
@@ -160,8 +162,10 @@ export class FakeApi implements EclipseApi {
     maxLiveAgents: number | null
     maxLiveMembersPerTask: number | null
     idleStandbyHours: number
+    releasedDoneHours: number
   } = {
     idleStandbyHours: 0,
+    releasedDoneHours: 24,
     maxLiveAgents: null,
     maxLiveMembersPerTask: null,
   }
@@ -422,6 +426,12 @@ export class FakeApi implements EclipseApi {
         })
         d.tasks.push(task)
         return task
+      }
+      case 'tasks.waitInfo': {
+        const current = d.tasks.find((t) => t.id === input.taskId)
+        if (!current?.waitForTaskId) return null
+        const other = d.tasks.find((t) => t.id === current.waitForTaskId)
+        return { message: describeTaskWait(other ?? null) }
       }
       case 'tasks.setStatus': {
         const current = d.tasks.find((t) => t.id === input.taskId)

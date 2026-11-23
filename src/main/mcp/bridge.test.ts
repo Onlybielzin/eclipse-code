@@ -311,6 +311,7 @@ describe('servidor MCP com cliente MCP falso (ponta a ponta sem modelo)', () => 
       const leaderTools = (await lead.client.listTools()).tools
       expect(leaderTools.map((t) => t.name).sort()).toEqual(
         [
+          'avisar',
           'pergunta_repassar',
           'subtarefa_cancelar',
           'subtarefa_criar',

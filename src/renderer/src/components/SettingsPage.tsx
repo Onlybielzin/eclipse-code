@@ -30,6 +30,7 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const [maxAgents, setMaxAgents] = useState('')
   const [maxMembers, setMaxMembers] = useState('')
   const [idleHours, setIdleHours] = useState('0')
+  const [releasedHours, setReleasedHours] = useState('24')
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +42,7 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const [checking, setChecking] = useState(false)
   const [updateMsg, setUpdateMsg] = useState<{ text: string; bad: boolean } | null>(null)
   /** Texto dos limites como estão salvos no main: base do "Descartar" e do aviso de alteração. */
-  const [saved, setSaved] = useState({ agents: '', members: '', idle: '0' })
+  const [saved, setSaved] = useState({ agents: '', members: '', idle: '0', released: '24' })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -63,7 +64,13 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
         setMaxAgents(agents)
         setMaxMembers(members)
         setIdleHours(String(limits.idleStandbyHours))
-        setSaved({ agents, members, idle: String(limits.idleStandbyHours) })
+        setReleasedHours(String(limits.releasedDoneHours))
+        setSaved({
+          agents,
+          members,
+          idle: String(limits.idleStandbyHours),
+          released: String(limits.releasedDoneHours),
+        })
         setLoaded(true)
       })
       .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
@@ -127,11 +134,13 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
   const dirty =
     maxAgents.trim() !== saved.agents ||
     maxMembers.trim() !== saved.members ||
-    idleHours.trim() !== saved.idle
+    idleHours.trim() !== saved.idle ||
+    releasedHours.trim() !== saved.released
   const discard = () => {
     setMaxAgents(saved.agents)
     setMaxMembers(saved.members)
     setIdleHours(saved.idle)
+    setReleasedHours(saved.released)
     setError(null)
   }
 
@@ -148,16 +157,28 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
       setError(IDLE_ERROR)
       return
     }
+    const releasedDoneHours = parseIdleHours(releasedHours)
+    if (releasedDoneHours === undefined) {
+      setError(IDLE_ERROR)
+      return
+    }
     setSaving(true)
     setError(null)
     try {
-      await store.saveAgentLimits({ maxLiveAgents, maxLiveMembersPerTask, idleStandbyHours })
+      await store.saveAgentLimits({
+        maxLiveAgents,
+        maxLiveMembersPerTask,
+        idleStandbyHours,
+        releasedDoneHours,
+      })
       setSaved({
         agents: maxAgents.trim(),
         members: maxMembers.trim(),
         idle: String(idleStandbyHours),
+        released: String(releasedDoneHours),
       })
       setIdleHours(String(idleStandbyHours))
+      setReleasedHours(String(releasedDoneHours))
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -265,6 +286,27 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
                         onChange={(e) => setIdleHours(e.target.value)}
                       />{' '}
                       horas sem atividade
+                    </span>
+                  }
+                />
+                <Row
+                  label="Concluir lançadas após"
+                  hint="0 nunca conclui."
+                  tag="btn"
+                  control={
+                    <span>
+                      <input
+                        className="field num"
+                        type="number"
+                        min={0}
+                        max={720}
+                        step={1}
+                        aria-label="Horas em Lançada para concluir a tarefa"
+                        value={releasedHours}
+                        disabled={!loaded}
+                        onChange={(e) => setReleasedHours(e.target.value)}
+                      />{' '}
+                      horas em Lançada
                     </span>
                   }
                 />

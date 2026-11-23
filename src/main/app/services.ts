@@ -37,6 +37,7 @@ import {
 import { createPtyHost, TaskProcesses, type PtyHostOptions } from '../terminal'
 import { createWorktreeService } from '../worktree'
 import { AppTeamCoordinator, silentLogger, type AppLogger } from './teamCoordinator'
+import { createUserAlerts, type SystemNotifier, type UserAlerts } from './userAlerts'
 import type { McpBridgeServer, PtyHost, WorktreeService } from '@shared/ports'
 
 export interface AppServicesOptions {
@@ -65,10 +66,13 @@ export interface AppServicesOptions {
   log?: AppLogger
   /** Cifra da chave do Cerebro (safeStorage no app). Sem ela, o main recusa salvar a chave. */
   brainCipher?: BrainCipher
+  /** Notificacao do sistema (Electron). Sem ela, o aviso so vira toast. */
+  systemNotifier?: SystemNotifier
 }
 
 export interface AppServices {
   brain: BrainService
+  alerts: UserAlerts
   tasks: SqliteTaskService
   coordinator: AppTeamCoordinator
   ptyHost: PtyHost
@@ -89,6 +93,13 @@ export interface AppServices {
 }
 
 const IDLE_STANDBY_CHECK_MS = 5 * 60_000
+
+const noNotifier: SystemNotifier = {
+  isSupported: () => false,
+  isWindowFocused: () => true,
+  focusWindow: () => undefined,
+  show: () => undefined,
+}
 
 const unavailableCipher: BrainCipher = {
   isEncryptionAvailable: () => false,
@@ -160,6 +171,21 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     ...(options.terminalSize ? { size: options.terminalSize } : {}),
   })
   const worktrees = createWorktreeService()
+  const alerts = createUserAlerts({
+    lookup: (taskId) => {
+      const task = tasks.getTask(taskId)
+      return {
+        taskId: task.id,
+        taskName: task.name,
+        projectId: task.projectId,
+        projectName: tasks.getProject(task.projectId).name,
+      }
+    },
+    // emitUi e definida mais abaixo; o aviso so roda depois da partida.
+    emit: (message) => emitUi(message),
+    notifier: options.systemNotifier ?? noNotifier,
+    now: () => clock.now(),
+  })
   const coordinator = new AppTeamCoordinator({
     tasks,
     ptyHost,
@@ -170,6 +196,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     bridge,
     worktreesRoot: options.paths.worktrees,
     leaderNotices: turnRelay,
+    alerts,
     limits: options.limits ?? (() => tasks.getAgentLimits()),
     now: () => clock.now(),
     ...(options.terminalSize ? { terminalSize: options.terminalSize } : {}),
@@ -199,15 +226,21 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
     leadersToResume: recovery.leadersToResume.length,
   })
 
-  // Espera automatica por inatividade: uma vez apos a recuperacao e a cada 5 minutos.
-  const standbyTick = () =>
-    void coordinator
-      .standbyIdleTasks()
-      .catch((error: unknown) =>
-        log.warn('espera automática falhou', {
-          error: error instanceof Error ? error.message : String(error),
-        }),
-      )
+  // Tarefa esperando outra cuja outra subiu antes do reinicio: libera uma vez na partida.
+  void coordinator.releaseWaitingTasks().catch((error: unknown) =>
+    log.warn('liberar tarefas em espera falhou', {
+      error: error instanceof Error ? error.message : String(error),
+    }),
+  )
+
+  // Espera automatica por inatividade e conclusao das Lancadas: uma vez apos a recuperacao e a
+  // cada 5 minutos.
+  const standbyTick = () => {
+    const warn = (what: string) => (error: unknown) =>
+      log.warn(what, { error: error instanceof Error ? error.message : String(error) })
+    void coordinator.standbyIdleTasks().catch(warn('espera automática falhou'))
+    void coordinator.completeReleasedTasks().catch(warn('conclusão automática falhou'))
+  }
   standbyTick()
   const standbyTimer = setInterval(standbyTick, IDLE_STANDBY_CHECK_MS)
   standbyTimer.unref?.()
@@ -250,6 +283,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
   let disposed: Promise<void> | null = null
   return {
     brain,
+    alerts,
     tasks,
     coordinator,
     ptyHost,

@@ -1,6 +1,6 @@
 // TeamCoordinator com SQLite em memoria e portas falsas (pty, Lider, membros, ponte).
 // Nenhum processo real, nenhum modelo, nenhuma janela.
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   DomainError,
   type Provider,
@@ -47,6 +47,13 @@ function setup(
     members?: MemberRuntime
     limits?: () => AgentLimits
     taskProcesses?: { stopTask(taskId: string): void }
+    /** Cria worktree falsa (padrao: o teste nao deveria criar). */
+    withWorktrees?: boolean
+    /** Faz o fastForwardToBase falhar com esta mensagem. */
+    fastForwardError?: string
+    /** Segura o fastForwardToBase e o create ate o teste resolver. */
+    fastForwardGate?: Promise<void>
+    createGate?: Promise<void>
   } = {},
 ) {
   const { service: tasks, clock } = createHarness()
@@ -135,10 +142,20 @@ function setup(
   } as unknown as McpBridgeServer
   const removedWorktrees: string[] = []
   const createdWorktrees: unknown[] = []
+  const fastForwards: { worktreePath: string; baseBranch: string }[] = []
   const worktrees = {
     create: async (request: unknown) => {
       createdWorktrees.push(request)
-      throw new Error('create não deveria ser chamado')
+      if (!options.withWorktrees) throw new Error('create não deveria ser chamado')
+      await options.createGate
+      const n = createdWorktrees.length
+      return { path: `/wt/novo-${n}`, branch: `eclipse/novo-${n}`, baseBranch: 'main' }
+    },
+    fastForwardToBase: async (request: { worktreePath: string; baseBranch: string }) => {
+      fastForwards.push(request)
+      await options.fastForwardGate
+      if (options.fastForwardError) throw new Error(options.fastForwardError)
+      return true
     },
     remove: async (request: { worktreePath: string }) => {
       removedWorktrees.push(request.worktreePath)
@@ -189,6 +206,7 @@ function setup(
     emitLeader,
     removedWorktrees,
     createdWorktrees,
+    fastForwards,
     launches,
     killed,
     alive,
@@ -781,7 +799,7 @@ describe('em espera automática por inatividade', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: null,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: hours,
+      idleStandbyHours: hours, releasedDoneHours: 24,
     })
     return h
   }
@@ -806,7 +824,7 @@ describe('em espera automática por inatividade', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: null,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
     h.clock.time += 100 * HOUR
     expect(await h.coordinator.standbyIdleTasks()).toEqual([])
@@ -815,7 +833,7 @@ describe('em espera automática por inatividade', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: null,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: 2,
+      idleStandbyHours: 2, releasedDoneHours: 24,
     })
     await h.coordinator.setTaskStatus(h.fx.task.id, 'em_espera')
     const before = h.tasks.getTask(h.fx.task.id).updatedAt
@@ -976,7 +994,7 @@ describe('limites de agentes configuráveis', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: 1,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
     await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
       code: 'unavailable',
@@ -1025,7 +1043,7 @@ describe('limites de agentes configuráveis', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: null,
       maxLiveMembersPerTask: 1,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
     await h.coordinator.createSubtask(caller, input)
     await expect(h.coordinator.createSubtask(caller, input)).rejects.toMatchObject({
@@ -1034,8 +1052,267 @@ describe('limites de agentes configuráveis', () => {
     h.tasks.saveAgentLimitSettings({
       maxLiveAgents: null,
       maxLiveMembersPerTask: null,
-      idleStandbyHours: 0,
+      idleStandbyHours: 0, releasedDoneHours: 24,
     })
     await expect(h.coordinator.createSubtask(caller, input)).resolves.toBeDefined()
+  })
+})
+
+
+describe('Lançada (subiu) e tarefa que espera outra', () => {
+  const HOUR = 3_600_000
+
+  function limits(h: ReturnType<typeof setup>, idle: number, released: number) {
+    h.tasks.saveAgentLimitSettings({
+      maxLiveAgents: null,
+      maxLiveMembersPerTask: null,
+      idleStandbyHours: idle,
+      releasedDoneHours: released,
+    })
+  }
+
+  const createB = (h: ReturnType<typeof setup>, waitForTaskId: string | undefined) =>
+    h.coordinator.createTask({
+      projectId: h.fx.project.id,
+      title: 'B',
+      kind: 'team',
+      useWorktree: true,
+      waitForTaskId,
+    })
+
+  it('B criada com depois_de espera, com worktree e sem Líder', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    await h.settle()
+    expect(b).toMatchObject({
+      workflowStatus: 'esperando_outra',
+      waitForTaskId: h.fx.task.id,
+      worktreePath: '/wt/novo-1',
+    })
+    expect(h.launches).toEqual([])
+    await expect(h.coordinator.ensureLeader(b.id)).rejects.toMatchObject({ code: 'invalid_input' })
+    expect(h.launches).toEqual([])
+  })
+
+  it('se a A já subiu ou foi lançada, a B começa normal', async () => {
+    for (const status of ['subiu', 'lancado'] as const) {
+      const h = setup({ withWorktrees: true })
+      await h.coordinator.setTaskStatus(h.fx.task.id, status)
+      const b = await createB(h, h.fx.task.id)
+      await h.settle()
+      expect(b).toMatchObject({ workflowStatus: 'a_fazer', waitForTaskId: null })
+      expect(h.launches).toHaveLength(1)
+    }
+  })
+
+  it('depois_de inexistente: erro e nada é criado', async () => {
+    const h = setup({ withWorktrees: true })
+    await expect(createB(h, 'nao-existe')).rejects.toMatchObject({ code: 'not_found' })
+    expect(h.createdWorktrees).toEqual([])
+  })
+
+  it('A vai para subiu: a B pega o código da base, vira a_fazer e o Líder abre; A segue aberta', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    const a = await h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    await h.settle()
+    expect(a).toMatchObject({ status: 'open', workflowStatus: 'subiu' })
+    expect(h.fastForwards).toEqual([{ worktreePath: '/wt/novo-1', baseBranch: 'main' }])
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('a_fazer')
+    expect(h.launches).toHaveLength(1)
+    expect(h.launches[0]?.taskId).toBe(b.id)
+  })
+
+  it('A lançada pelo arquivar também libera a B', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    await h.coordinator.archiveTask(h.fx.task.id, { removeWorktree: false })
+    await h.settle()
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('a_fazer')
+    expect(h.launches).toHaveLength(1)
+  })
+
+  it('erro no merge vira aviso: a B é liberada mesmo assim', async () => {
+    const h = setup({ withWorktrees: true, fastForwardError: 'divergiu' })
+    const b = await createB(h, h.fx.task.id)
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    await h.settle()
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('a_fazer')
+  })
+
+  it('A cancelada: a B continua esperando e a linha avisa', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'cancelado')
+    await h.settle()
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('esperando_outra')
+    expect(h.launches).toEqual([])
+    expect(h.coordinator.getTaskWaitInfo(b.id)).toEqual({
+      message: `A tarefa "${h.fx.task.name}" foi cancelada. Inicie esta tarefa ou cancele.`,
+    })
+  })
+
+  it('a linha de espera mostra o nome e o status da A; sem espera devolve null', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    expect(h.coordinator.getTaskWaitInfo(b.id)).toEqual({
+      message: `Esperando: ${h.fx.task.name} (A fazer)`,
+    })
+    expect(h.coordinator.getTaskWaitInfo(h.fx.task.id)).toBeNull()
+  })
+
+  it('o usuário tira a B da espera pelo menu e o Líder abre; esperando_outra não é escolha', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    await expect(h.coordinator.setTaskStatus(h.fx.task.id, 'esperando_outra')).rejects.toMatchObject({
+      code: 'invalid_input',
+    })
+    await h.coordinator.setTaskStatus(b.id, 'a_fazer')
+    await h.coordinator.ensureLeader(b.id)
+    expect(h.launches).toHaveLength(1)
+  })
+
+  it('checagem da abertura libera a B cuja A subiu antes do reinício', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    // A sobe direto no serviço, sem passar pelo coordenador (como antes do reinício).
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('esperando_outra')
+    expect(await h.coordinator.releaseWaitingTasks()).toEqual([b.id])
+    await h.settle()
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('a_fazer')
+    expect(await h.coordinator.releaseWaitingTasks()).toEqual([])
+  })
+
+  it('usuário cancela a B durante o fast-forward: continua cancelada e o Líder não abre', async () => {
+    const gate = deferred<void>()
+    const h = setup({ withWorktrees: true, fastForwardGate: gate.promise })
+    const b = await createB(h, h.fx.task.id)
+    const setA = h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    await vi.waitFor(() => expect(h.fastForwards).toHaveLength(1))
+    await h.coordinator.setTaskStatus(b.id, 'cancelado')
+    gate.resolve()
+    await setA
+    await h.settle()
+    expect(h.tasks.getTask(b.id)).toMatchObject({ status: 'archived', workflowStatus: 'cancelado' })
+    expect(h.launches).toEqual([])
+  })
+
+  it('duas liberações simultâneas da mesma B abrem um único Líder', async () => {
+    const gate = deferred<void>()
+    const h = setup({ withWorktrees: true, fastForwardGate: gate.promise })
+    const b = await createB(h, h.fx.task.id)
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    const first = h.coordinator.releaseWaitingTasks()
+    const second = h.coordinator.releaseWaitingTasks()
+    await vi.waitFor(() => expect(h.fastForwards).toHaveLength(1))
+    gate.resolve()
+    expect([...(await first), ...(await second)]).toEqual([b.id])
+    await h.settle()
+    expect(h.fastForwards).toHaveLength(1)
+    expect(h.launches).toHaveLength(1)
+  })
+
+  it('A sobe durante a criação da worktree da B: a B termina em a_fazer com Líder', async () => {
+    const gate = deferred<void>()
+    const h = setup({ withWorktrees: true, createGate: gate.promise })
+    const pending = createB(h, h.fx.task.id)
+    await vi.waitFor(() => expect(h.createdWorktrees).toHaveLength(1))
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    gate.resolve()
+    const b = await pending
+    await h.settle()
+    expect(b.workflowStatus).toBe('a_fazer')
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('a_fazer')
+    expect(h.launches).toHaveLength(1)
+  })
+
+  it('desligar durante o fast-forward: a B continua esperando_outra', async () => {
+    const gate = deferred<void>()
+    const h = setup({ withWorktrees: true, fastForwardGate: gate.promise })
+    const b = await createB(h, h.fx.task.id)
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    const release = h.coordinator.releaseWaitingTasks()
+    await vi.waitFor(() => expect(h.fastForwards).toHaveLength(1))
+    const down = h.coordinator.shutdown()
+    gate.resolve()
+    await release
+    await down
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('esperando_outra')
+    expect(h.launches).toEqual([])
+  })
+
+  it('abertura com B em a_fazer, waitForTaskId e sem sessão de Líder: o Líder abre', async () => {
+    const h = setup({ withWorktrees: true })
+    const b = await createB(h, h.fx.task.id)
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    h.tasks.setTaskWorkflowStatus(b.id, 'a_fazer', 'user')
+    expect(await h.coordinator.releaseWaitingTasks()).toEqual([])
+    await h.settle()
+    expect(h.launches).toHaveLength(1)
+    expect(h.launches[0]?.taskId).toBe(b.id)
+  })
+
+  it('usuário põe a B em espera durante o fast-forward da C: a varredura não abre o Líder da B', async () => {
+    const gate = deferred<void>()
+    const h = setup({ withWorktrees: true, fastForwardGate: gate.promise })
+    const c = await createB(h, h.fx.task.id)
+    h.clock.time += 1000
+    const b = await createB(h, h.fx.task.id)
+    h.tasks.setTaskWorkflowStatus(b.id, 'a_fazer', 'user')
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    const sweep = h.coordinator.releaseWaitingTasks()
+    await vi.waitFor(() => expect(h.fastForwards).toHaveLength(1))
+    await h.coordinator.setTaskStatus(b.id, 'em_espera')
+    gate.resolve()
+    expect(await sweep).toEqual([c.id])
+    await h.settle()
+    expect(h.tasks.getTask(b.id).workflowStatus).toBe('em_espera')
+    expect(h.launches.map((launch) => launch.taskId)).toEqual([c.id])
+  })
+
+  it('subiu parada além do limite vira lancado (arquiva, fecha o Líder, worktree fica)', async () => {
+    const h = setup()
+    limits(h, 0, 24)
+    await h.coordinator.ensureLeader(h.fx.task.id)
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).not.toBeNull()
+    h.clock.time += 23 * HOUR
+    expect(await h.coordinator.completeReleasedTasks()).toEqual([])
+    h.clock.time += 2 * HOUR
+    expect(await h.coordinator.completeReleasedTasks()).toEqual([h.fx.task.id])
+    expect(h.tasks.getTask(h.fx.task.id)).toMatchObject({ status: 'archived', workflowStatus: 'lancado' })
+    expect(h.tasks.getLiveLeaderSession(h.fx.task.id)).toBeNull()
+    expect(h.removedWorktrees).toEqual([])
+  })
+
+  it('limite 0 não conclui nada; só subiu é concluída', async () => {
+    const h = setup()
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    limits(h, 0, 0)
+    h.clock.time += 1000 * HOUR
+    expect(await h.coordinator.completeReleasedTasks()).toEqual([])
+    limits(h, 0, 1)
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'pronto_lancar')
+    h.clock.time += 1000 * HOUR
+    expect(await h.coordinator.completeReleasedTasks()).toEqual([])
+  })
+
+  it('não conclui a subiu com subtarefa trabalhando', async () => {
+    const h = setup()
+    limits(h, 0, 1)
+    seedWorkingSubtask(h.tasks, h.fx)
+    h.tasks.setTaskWorkflowStatus(h.fx.task.id, 'subiu', 'user')
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.completeReleasedTasks()).toEqual([])
+  })
+
+  it('a espera automática pula a tarefa subiu', async () => {
+    const h = setup()
+    limits(h, 2, 0)
+    await h.coordinator.setTaskStatus(h.fx.task.id, 'subiu')
+    h.clock.time += 100 * HOUR
+    expect(await h.coordinator.standbyIdleTasks()).toEqual([])
+    expect(h.tasks.getTask(h.fx.task.id).workflowStatus).toBe('subiu')
   })
 })

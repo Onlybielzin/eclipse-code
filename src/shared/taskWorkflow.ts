@@ -8,12 +8,19 @@
  *   questions_cleared  Nao ha mais pergunta aberta: pergunta -> em_andamento.
  *   leader_concluded   Lider chamou tarefa_concluir: qualquer -> em_revisao.
  *
+ * subiu (Lancada) e tratada como pronto_lancar: work_started nao mexe; question_opened e
+ * leader_concluded seguem a regra acima. esperando_outra nao tem Lider: work_started nao mexe.
  * Em todos: lancado e cancelado nao mudam (W2). A automacao nunca produz pronto_lancar,
- * em_espera, lancado nem cancelado (W1); a espera automatica por inatividade nao e sinal daqui:
+ * subiu, esperando_outra, em_espera, lancado nem cancelado (W1); a espera automatica por inatividade nao e sinal daqui:
  * e o TeamCoordinator, com a configuracao ligada, no mesmo caminho do usuario.
  * So work_started, question_opened e leader_concluded tiram de em_espera.
  */
-import { isArchivedWorkflowStatus, type TaskWorkflowStatus } from './domain'
+import {
+  isArchivedWorkflowStatus,
+  TASK_WORKFLOW_STATUS_LABELS,
+  type Task,
+  type TaskWorkflowStatus,
+} from './domain'
 
 export type TaskWorkflowSignal =
   'work_started' | 'question_opened' | 'questions_cleared' | 'leader_concluded'
@@ -39,4 +46,18 @@ export function nextTaskWorkflowStatus(
       break
   }
   return next === current ? null : next
+}
+
+/** A tarefa B espera a A: A ja subiu (ou foi lancada) e libera a B. */
+export function releasesWaitingTasks(status: TaskWorkflowStatus): boolean {
+  return status === 'subiu' || status === 'lancado'
+}
+
+/** Linha da tela para a tarefa que espera `other` (null = a outra nao existe mais). */
+export function describeTaskWait(other: Pick<Task, 'name' | 'workflowStatus'> | null): string {
+  if (other === null) return 'A tarefa que esta aguardava foi apagada. Inicie esta tarefa ou cancele.'
+  if (other.workflowStatus === 'cancelado') {
+    return `A tarefa "${other.name}" foi cancelada. Inicie esta tarefa ou cancele.`
+  }
+  return `Esperando: ${other.name} (${TASK_WORKFLOW_STATUS_LABELS[other.workflowStatus]})`
 }

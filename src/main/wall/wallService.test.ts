@@ -23,7 +23,7 @@ function source(tasks: Task[], subs: Subtask[], questions: UserQuestion[] = []):
     listSubtasks: (tid) => subs.filter((s) => s.taskId === tid),
     listOpenQuestions: (pid) =>
       questions.filter((q) => tasks.find((t) => t.id === q.taskId)?.projectId === pid),
-    getAgentLimitSettings: () => ({ maxLiveAgents: 12, maxLiveMembersPerTask: null, idleStandbyHours: 0 }),
+    getAgentLimitSettings: () => ({ maxLiveAgents: 12, maxLiveMembersPerTask: null, idleStandbyHours: 0, releasedDoneHours: 24 }),
   }
 }
 

@@ -142,6 +142,7 @@ function toTask(r: Row): Task {
     soloProvider: strOrNull(r['solo_provider']) as Provider | null,
     status: str(r['status']) as TaskStatus,
     workflowStatus: str(r['workflow_status']) as TaskWorkflowStatus,
+    waitForTaskId: strOrNull(r['wait_for_task_id']),
     startCommand: strOrNull(r['start_command']),
     startDir: strOrNull(r['start_dir']),
     createdAt: num(r['created_at']),
@@ -416,11 +417,11 @@ export class SqliteTaskStore implements TaskStore {
   insertTask(t: Task): void {
     this.run(
       `INSERT INTO tasks (id, project_id, context_id, title, name, description, kind, worktree_path, branch,
-         base_branch, lead_role_id, solo_provider, status, workflow_status, start_command, start_dir,
-         created_at, updated_at, archived_at)
+         base_branch, lead_role_id, solo_provider, status, workflow_status, wait_for_task_id, start_command,
+         start_dir, created_at, updated_at, archived_at)
        VALUES (@id, @projectId, @contextId, @title, @name, @description, @kind, @worktreePath, @branch,
-         @baseBranch, @leadRoleId, @soloProvider, @status, @workflowStatus, @startCommand, @startDir,
-         @createdAt, @updatedAt, @archivedAt)`,
+         @baseBranch, @leadRoleId, @soloProvider, @status, @workflowStatus, @waitForTaskId, @startCommand,
+         @startDir, @createdAt, @updatedAt, @archivedAt)`,
       { ...t },
     )
   }

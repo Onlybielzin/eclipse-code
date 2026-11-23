@@ -70,12 +70,35 @@ describe('regra pura nextTaskWorkflowStatus', () => {
     expect(nextTaskWorkflowStatus('em_espera', 'questions_cleared')).toBeNull()
   })
 
+  it('subiu se comporta como pronto_lancar em cada sinal', () => {
+    for (const signal of signals) {
+      expect(nextTaskWorkflowStatus('subiu', signal)).toBe(
+        nextTaskWorkflowStatus('pronto_lancar', signal),
+      )
+    }
+    expect(nextTaskWorkflowStatus('subiu', 'work_started')).toBeNull()
+    expect(nextTaskWorkflowStatus('subiu', 'question_opened')).toBe('pergunta')
+    expect(nextTaskWorkflowStatus('subiu', 'leader_concluded')).toBe('em_revisao')
+  })
+
+  it('esperando_outra: work_started e questions_cleared não mexem', () => {
+    expect(nextTaskWorkflowStatus('esperando_outra', 'work_started')).toBeNull()
+    expect(nextTaskWorkflowStatus('esperando_outra', 'questions_cleared')).toBeNull()
+    expect(nextTaskWorkflowStatus('esperando_outra', 'question_opened')).toBe('pergunta')
+    expect(nextTaskWorkflowStatus('esperando_outra', 'leader_concluded')).toBe('em_revisao')
+  })
+
   it('automação nunca produz pronto_lancar nem lancado e nunca tira de lancado', () => {
     for (const from of TASK_WORKFLOW_STATUSES) {
       for (const signal of signals) {
         const to = nextTaskWorkflowStatus(from, signal)
         expect(
-          to === 'pronto_lancar' || to === 'lancado' || to === 'cancelado' || to === 'em_espera',
+          to === 'pronto_lancar' ||
+            to === 'subiu' ||
+            to === 'esperando_outra' ||
+            to === 'lancado' ||
+            to === 'cancelado' ||
+            to === 'em_espera',
         ).toBe(false)
         if (from === 'lancado' || from === 'cancelado') expect(to).toBeNull()
       }
@@ -187,7 +210,7 @@ describe('TaskService: status automático da tarefa', () => {
 })
 
 describe('TaskService: quem pode escolher o status', () => {
-  it.each(['pronto_lancar', 'lancado', 'cancelado', 'em_espera'] as const)('agente não marca %s', (to) => {
+  it.each(['pronto_lancar', 'subiu', 'esperando_outra', 'lancado', 'cancelado', 'em_espera'] as const)('agente não marca %s', (to) => {
     const { service, fx } = setup()
     service.markTaskWorkStarted(fx.task.id)
     expect(errorCode(() => service.setTaskWorkflowStatus(fx.task.id, to, 'agent'))).toBe(
@@ -312,6 +335,59 @@ describe('TaskService: em_espera', () => {
     force(service, fx, 'em_espera')
     expect(service.getTask(fx.task.id).status).toBe('open')
     expect(service.markTaskWorkStarted(fx.task.id).workflowStatus).toBe('em_andamento')
+  })
+})
+
+describe('TaskService: Lançada e tarefa que espera outra', () => {
+  it('subiu não arquiva e o usuário sai dela para outro status', () => {
+    const { service, fx } = setup()
+    force(service, fx, 'subiu')
+    expect(service.getTask(fx.task.id)).toMatchObject({ status: 'open', archivedAt: null })
+    force(service, fx, 'em_andamento')
+  })
+
+  it('tarefa criada com waitForTaskId nasce em esperando_outra e guarda o id', () => {
+    const { service, fx } = setup()
+    const waiting = service.createTask({
+      projectId: fx.project.id,
+      title: 'B',
+      kind: 'team',
+      worktreePath: null,
+      branch: null,
+      baseBranch: null,
+      leadRoleId: null,
+      soloProvider: null,
+      waitForTaskId: fx.task.id,
+    })
+    expect(waiting).toMatchObject({ workflowStatus: 'esperando_outra', waitForTaskId: fx.task.id })
+    expect(service.getTask(waiting.id).waitForTaskId).toBe(fx.task.id)
+    expect(fx.task.waitForTaskId).toBeNull()
+  })
+})
+
+describe('migração 13', () => {
+  it('aceita subiu e esperando_outra, cria wait_for_task_id e mantém as tarefas', () => {
+    const db = new Database(':memory:')
+    db.pragma('foreign_keys = ON')
+    for (const m of MIGRATIONS.filter((x) => x.version <= 12)) db.exec(m.sql)
+    db.pragma('user_version = 12')
+    db.exec(`
+      INSERT INTO projects VALUES ('p', 'p', '/p', 1, 1);
+      INSERT INTO tasks (id, project_id, context_id, title, kind, status, created_at, updated_at, archived_at)
+        VALUES ('aberta', 'p', 'c1', 'A', 'solo', 'open', 1, 1, NULL);
+    `)
+    db.exec("UPDATE tasks SET workflow_status = 'em_espera' WHERE id = 'aberta'")
+    expect(migrate(db)).toBeGreaterThanOrEqual(13)
+    const store = new SqliteTaskStore(db)
+    expect(store.getTask('aberta')).toMatchObject({ workflowStatus: 'em_espera', waitForTaskId: null })
+    for (const status of ['subiu', 'esperando_outra']) {
+      db.prepare('UPDATE tasks SET workflow_status = ? WHERE id = ?').run(status, 'aberta')
+      expect(store.getTask('aberta')?.workflowStatus).toBe(status)
+    }
+    expect(() =>
+      db.prepare("UPDATE tasks SET workflow_status = 'feito' WHERE id = 'aberta'").run(),
+    ).toThrow(/CHECK/)
+    expect(db.pragma('foreign_key_check')).toEqual([])
   })
 })
 

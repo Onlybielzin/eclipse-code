@@ -118,7 +118,7 @@ describe('Configurações', () => {
 
   it('abre com os limites atuais e salva vazio como sem limite, sem fechar a página', async () => {
     await renderApp()
-    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null, idleStandbyHours: 0 }
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: null, idleStandbyHours: 0, releasedDoneHours: 24 }
     openSettings()
     const agents = await agentsField()
     await waitFor(() => expect(agents).toHaveProperty('value', '12'))
@@ -134,7 +134,7 @@ describe('Configurações', () => {
       await within(page()).findByText(/Limites salvos: sem limite de agentes, 3 por tarefa/),
     ).toBeTruthy()
     expect(api.callsTo('settings.save')).toEqual([
-      { maxLiveAgents: null, maxLiveMembersPerTask: 3, idleStandbyHours: 0 },
+      { maxLiveAgents: null, maxLiveMembersPerTask: 3, idleStandbyHours: 0, releasedDoneHours: 24 },
     ])
     expect(page()).toBeTruthy()
     expect(save).toHaveProperty('disabled', true)
@@ -155,14 +155,30 @@ describe('Configurações', () => {
     fireEvent.click(save)
     await waitFor(() =>
       expect(api.callsTo('settings.save')).toEqual([
-        { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 24 },
+        { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 24, releasedDoneHours: 24 },
+      ]),
+    )
+  })
+
+  it('salva as horas para concluir lançadas (padrão 24) e 0 vale nunca', async () => {
+    await renderApp()
+    openSettings()
+    const hours = await within(page()).findByLabelText(/Horas em Lançada para concluir a tarefa/)
+    await waitFor(() => expect(hours).toHaveProperty('disabled', false))
+    expect(hours).toHaveProperty('value', '24')
+    expect(within(page()).getByText('0 nunca conclui.')).toBeTruthy()
+    fireEvent.change(hours, { target: { value: '0' } })
+    fireEvent.click(within(page()).getByRole('button', { name: 'Salvar limites' }))
+    await waitFor(() =>
+      expect(api.callsTo('settings.save')).toEqual([
+        { maxLiveAgents: null, maxLiveMembersPerTask: null, idleStandbyHours: 0, releasedDoneHours: 0 },
       ]),
     )
   })
 
   it('Descartar volta aos valores carregados', async () => {
     await renderApp()
-    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: 4, idleStandbyHours: 0 }
+    api.agentLimits = { maxLiveAgents: 12, maxLiveMembersPerTask: 4, idleStandbyHours: 0, releasedDoneHours: 24 }
     openSettings()
     const agents = await agentsField()
     await waitFor(() => expect(agents).toHaveProperty('value', '12'))
@@ -578,7 +594,7 @@ describe('status da tarefa na lista', () => {
     expect(screen.getByTestId('task-t1')).toBeTruthy()
   })
 
-  it('ícone abre menu com os 8 status e a troca vai ao main e atualiza a tarefa', async () => {
+  it('ícone abre menu com os 9 status (sem Esperando outra) e a troca vai ao main e atualiza a tarefa', async () => {
     await renderApp()
     const row = screen.getByTestId('task-t1')
     fireEvent.click(within(row).getByRole('button', { name: /Status de feat-orfer-e-up/ }))
@@ -590,6 +606,7 @@ describe('status da tarefa na lista', () => {
       'Pergunta para você',
       'Em revisão',
       'Pronto pra lançar',
+      'Lançada',
       'Em espera',
       'Concluída',
       'Cancelada',
@@ -1019,16 +1036,18 @@ describe('painéis do rodape da coluna esquerda', () => {
     return screen.getByTestId(`status-row-${status}`)
   }
 
-  it('Status mostra os 8 status na ordem, com 0 nos vazios e o total de abertas', async () => {
+  it('Status mostra os 10 status na ordem, com 0 nos vazios e o total de abertas', async () => {
     await renderApp()
     const panel = screen.getByRole('region', { name: 'Status' })
     const rows = within(panel).getAllByRole('button').slice(1)
     expect(rows.map((r) => r.textContent)).toEqual([
       'A fazer1',
+      'Esperando outra0',
       'Em andamento1',
       'Pergunta para você0',
       'Em revisão0',
       'Pronto pra lançar0',
+      'Lançada0',
       'Em espera0',
       'Concluída1',
       'Cancelada0',
@@ -1352,7 +1371,7 @@ describe('filtros da lista de tarefas', () => {
     fireEvent.click(within(pop).getByLabelText('A fazer'))
     expect(screen.getByTestId('task-solo1')).toBeTruthy()
     expect(screen.queryByTestId('task-t1')).toBeNull()
-    expect(within(pop).getAllByRole('checkbox')).toHaveLength(12)
+    expect(within(pop).getAllByRole('checkbox')).toHaveLength(14)
     fireEvent.click(within(pop).getByRole('button', { name: 'Limpar filtros' }))
     expect(screen.getByTestId('task-t1')).toBeTruthy()
     expect(groupLabels()).toEqual(['Encerradas'])
@@ -1402,7 +1421,7 @@ describe('filtros da lista de tarefas', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(
       JSON.parse(localStorage.getItem('eclipse.taskFilters.p1') ?? '{}').statuses,
-    ).toHaveLength(6)
+    ).toHaveLength(8)
 
     await act(() => store.openProject('p2'))
     expect(screen.queryByTestId('chip-status')).toBeNull()
