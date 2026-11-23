@@ -133,6 +133,7 @@ describe('tarefa_iniciar', () => {
     expect(actions.createTask).toHaveBeenCalledWith({
       projectId: 'proj2',
       title: 'Ajustar o login',
+      description: undefined,
       kind: 'team',
       useWorktree: true,
     })
@@ -144,6 +145,25 @@ describe('tarefa_iniciar', () => {
       nome: 'Ajustar o login',
       branch: 'eclipse/nova',
     })
+  })
+
+  it('repassa a descricao ao createTask e recusa acima do limite', async () => {
+    const { handler, actions } = setup()
+    await handler.callTool(leader, 'tarefa_iniciar', {
+      projeto: 'proj1',
+      pedido: 'x',
+      descricao: 'linha 1\nlinha 2',
+    })
+    expect(actions.createTask).toHaveBeenCalledWith(
+      expect.objectContaining({ description: 'linha 1\nlinha 2' }),
+    )
+    await expect(
+      handler.callTool(leader, 'tarefa_iniciar', {
+        projeto: 'proj1',
+        pedido: 'x',
+        descricao: 'a'.repeat(20_001),
+      }),
+    ).rejects.toMatchObject({ code: 'invalid_input' })
   })
 
   it('acha pelo id e aceita worktree false (branch null)', async () => {
@@ -168,6 +188,24 @@ describe('tarefa_iniciar', () => {
       message: expect.stringContaining('Eclipse Code, Ereemby'),
     })
     expect(actions.createTask).not.toHaveBeenCalled()
+  })
+
+  it('nome repetido em dois projetos é ambíguo; o id resolve', async () => {
+    const { tasks, handler, actions } = setup()
+    const base = tasks.listProjects()
+    tasks.listProjects = () => [
+      ...base,
+      { id: 'proj3', name: 'Ereemby', rootPath: '/tmp/p3', createdAt: 1, updatedAt: 1 },
+    ]
+    await expect(
+      handler.callTool(leader, 'tarefa_iniciar', { projeto: 'ereemby', pedido: 'x' }),
+    ).rejects.toMatchObject({
+      code: 'invalid_input',
+      message: expect.stringMatching(/ambíguo.*proj2.*proj3/),
+    })
+    expect(actions.createTask).not.toHaveBeenCalled()
+    await handler.callTool(leader, 'tarefa_iniciar', { projeto: 'proj3', pedido: 'x' })
+    expect(actions.createTask).toHaveBeenCalledWith(expect.objectContaining({ projectId: 'proj3' }))
   })
 
   it('membro é recusado', async () => {

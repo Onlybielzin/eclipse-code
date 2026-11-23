@@ -407,7 +407,7 @@ describe('tela de 3 colunas', () => {
   it('cria tarefa pelo nome e abre o terminal dela', async () => {
     await renderApp()
     const dialog = openModal()
-    fireEvent.change(within(dialog).getByLabelText('Nome'), {
+    fireEvent.change(within(dialog).getByLabelText('Título'), {
       target: { value: 'relatório por oferta' },
     })
     expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
@@ -423,10 +423,32 @@ describe('tela de 3 colunas', () => {
     expect(screen.queryByRole('dialog', { name: 'Nova tarefa' })).toBeNull()
   })
 
+  it('envia a descrição quando preenchida; Enter na descrição não cria', async () => {
+    await renderApp()
+    const dialog = openModal()
+    fireEvent.change(within(dialog).getByLabelText('Título'), { target: { value: 'login' } })
+    const desc = within(dialog).getByLabelText('Descrição')
+    fireEvent.change(desc, { target: { value: ' usar OAuth\nsem senha ' } })
+    fireEvent.keyDown(desc, { key: 'Enter' })
+    expect(api.callsTo('tasks.create')).toEqual([])
+    fireEvent.keyDown(desc, { key: 'Enter', ctrlKey: true })
+    await waitFor(() =>
+      expect(api.callsTo('tasks.create')).toEqual([
+        {
+          projectId: 'p1',
+          title: 'login',
+          description: 'usar OAuth\nsem senha',
+          kind: 'team',
+          useWorktree: true,
+        },
+      ]),
+    )
+  })
+
   it('avulso na pasta do projeto, com Codex', async () => {
     await renderApp()
     const dialog = openModal()
-    fireEvent.change(within(dialog).getByLabelText('Nome'), {
+    fireEvent.change(within(dialog).getByLabelText('Título'), {
       target: { value: 'pergunta rápida' },
     })
     fireEvent.click(within(dialog).getByRole('radio', { name: /Agente avulso/ }))
@@ -456,9 +478,9 @@ describe('tela de 3 colunas', () => {
     expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
       'Roda em /repo/ereemby, sem worktree',
     )
-    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'shell' } })
+    fireEvent.change(within(dialog).getByLabelText('Título'), { target: { value: 'shell' } })
     // Ctrl+Enter cria.
-    fireEvent.keyDown(within(dialog).getByLabelText('Nome'), { key: 'Enter', ctrlKey: true })
+    fireEvent.keyDown(within(dialog).getByLabelText('Título'), { key: 'Enter', ctrlKey: true })
     await waitFor(() =>
       expect(api.callsTo('tasks.create')).toEqual([
         { projectId: 'p1', title: 'shell', kind: 'solo', useWorktree: false },
@@ -482,7 +504,7 @@ describe('tela de 3 colunas', () => {
     expect(within(dialog).getByTestId('new-task-preview').textContent).toContain(
       'O Líder e os membros mexem direto na branch atual do projeto',
     )
-    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'sem wt' } })
+    fireEvent.change(within(dialog).getByLabelText('Título'), { target: { value: 'sem wt' } })
     fireEvent.click(within(dialog).getByText('Criar tarefa'))
     await waitFor(() =>
       expect(api.callsTo('tasks.create')).toEqual([
@@ -505,7 +527,7 @@ describe('tela de 3 colunas', () => {
   it('Time com Worktree nova: a branch de origem vai no envio', async () => {
     await renderApp()
     const dialog = openModal()
-    fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'x' } })
+    fireEvent.change(within(dialog).getByLabelText('Título'), { target: { value: 'x' } })
     fireEvent.change(within(dialog).getByLabelText('Branch de origem'), {
       target: { value: 'develop' },
     })

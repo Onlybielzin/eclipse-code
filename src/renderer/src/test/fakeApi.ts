@@ -59,6 +59,7 @@ export function makeTask(id: string, title: string, extra: Partial<Task> = {}): 
     contextId: `ctx-${id}`,
     title,
     name: title,
+    description: '',
     kind: 'team',
     worktreePath: `/repo/wt/${id}`,
     branch: id,
@@ -414,6 +415,7 @@ export class FakeApi implements EclipseApi {
       case 'tasks.create': {
         const task = makeTask(`t-new-${d.tasks.length + 1}`, String(input.title), {
           kind: input.kind as Task['kind'],
+          description: typeof input.description === 'string' ? input.description : '',
           leadRoleId: input.kind === 'team' ? 'lead' : null,
           soloProvider: (input.soloProvider as Task['soloProvider']) ?? null,
           createdAt: T0 + 10_000,

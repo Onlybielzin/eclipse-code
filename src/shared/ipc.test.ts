@@ -76,6 +76,16 @@ describe('parseIpcInvokeRequest', () => {
     expect(r.ok).toBe(true)
   })
 
+  it('tasks.create aceita descrição até 20_000 caracteres e recusa acima', () => {
+    const create = (description: string) =>
+      parseIpcInvokeRequest({
+        channel: 'tasks.create',
+        input: { projectId: 'p', title: 'x', description, kind: 'team', useWorktree: true },
+      }).ok
+    expect(create('a'.repeat(20_000))).toBe(true)
+    expect(create('a'.repeat(20_001))).toBe(false)
+  })
+
   it('projects.update exige nome e recusa campo extra; projects.add aceita initGit', () => {
     const update = (input: unknown) =>
       parseIpcInvokeRequest({ channel: 'projects.update', input }).ok

@@ -185,6 +185,8 @@ export interface Task {
   title: string
   /** Nome curto mostrado na tela. Comeca igual ao title; o Lider troca com tarefa_renomear. Nunca vazio. */
   name: string
+  /** Detalhes do pedido, escritos na criacao. Imutavel como o title; '' quando nao ha. */
+  description: string
   kind: TaskKind
   /**
    * Pasta onde o Lider e os membros rodam. null = sem worktree propria, roda na

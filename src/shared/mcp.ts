@@ -17,6 +17,7 @@ import type { DomainErrorPayload, JsonObject, SessionId, SubtaskId, TaskId } fro
 import {
   changedFileSchema,
   idSchema,
+  MAX_DESCRIPTION_CHARS,
   questionItemSchema,
   testRunSchema,
   textSchema,
@@ -145,6 +146,11 @@ export const mcpToolInputSchemas = {
       pedido: titleSchema.describe(
         'Pedido inicial: vira o título da tarefa e o prompt do Líder dela.',
       ),
+      descricao: z
+        .string()
+        .max(MAX_DESCRIPTION_CHARS)
+        .optional()
+        .describe('Detalhes do pedido (opcional). O Líder dela lê junto com o título.'),
       worktree: z
         .boolean()
         .optional()
@@ -189,7 +195,7 @@ export const MCP_TOOL_DESCRIPTIONS: Record<McpToolName, string> = {
     'Declara a tarefa terminada, com um resumo do que foi entregue. A tarefa vai para "Em revisão" do usuário. Chame só quando todo o trabalho estiver pronto.',
   tarefa_renomear: 'Troca o nome curto da tarefa mostrado na lista. O pedido original não muda.',
   tarefa_iniciar:
-    'Cria uma tarefa com Líder e time no projeto indicado (id ou nome). O Líder dela começa sozinho e roda o pedido, sem esperar o usuário.',
+    'Cria uma tarefa com Líder e time no projeto indicado (id ou nome), com pedido e descrição opcional. O Líder dela começa sozinho e roda o pedido, sem esperar o usuário.',
 }
 
 export function isMcpToolName(value: unknown): value is McpToolName {

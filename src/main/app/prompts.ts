@@ -49,6 +49,9 @@ export const LEADER_FINISH_RULE = [
   '"Pronto pra lançar" e "Concluída".',
 ].join(' ')
 
+export const LEADER_NAME_RULE =
+  'Leia o título e a descrição da tarefa e, logo no começo, dê a ela um nome curto com tarefa_renomear (até 80 letras).'
+
 const LEADER_NO_WORKTREE_LINE =
   'Esta tarefa não tem worktree: você e os membros rodam na pasta do projeto, na branch atual. Não crie worktree nem branch sem o vings pedir. Os membros dividem a mesma pasta.'
 
@@ -95,6 +98,8 @@ export function composeLeaderPrompt(input: {
   const rendered = input.template ? renderPromptTemplate(input.template, vars).trim() : ''
   const parts = [rendered || LEADER_TOOLS_HINT]
   if (!rendered.includes(input.task.title)) parts.push(`Tarefa: ${input.task.title}`)
+  if (input.task.description) parts.push(`Descrição: ${input.task.description}`)
+  if (input.task.name === input.task.title) parts.push(LEADER_NAME_RULE)
   if (!rendered.includes('tarefa_concluir')) parts.push(LEADER_FINISH_RULE)
   if (rendered) parts.push(leaderAppContext(input.task.worktreePath !== null))
   else if (input.task.worktreePath === null) parts.push(LEADER_NO_WORKTREE_LINE)
@@ -103,7 +108,9 @@ export function composeLeaderPrompt(input: {
 
 /** Primeira mensagem visivel do Lider Claude; o papel inteiro vai no prompt de sistema. */
 export function composeLeaderKickoff(task: Task): string {
-  return `Tarefa: ${task.title.replace(/\s*[\r\n]+\s*/g, ' ').trim()}. Comece.`
+  const title = task.title.replace(/\s*[\r\n]+\s*/g, ' ').trim()
+  // A descricao tem varias linhas: fica no prompt de sistema, o kickoff so avisa dela.
+  return `Tarefa: ${title}.${task.description ? ' A descrição está no seu prompt.' : ''} Comece.`
 }
 
 /** Prompt de sistema do membro: o prompt do papel com as variaveis da subtarefa. */

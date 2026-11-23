@@ -133,6 +133,7 @@ const DEFAULT_RESUME_FAILURE_WINDOW_MS = 60_000
 export interface CreateTaskInput {
   projectId: string
   title: string
+  description?: string | undefined
   kind: TaskKind
   leadRoleId?: RoleId | undefined
   soloProvider?: Provider | undefined
@@ -265,6 +266,7 @@ export class AppTeamCoordinator implements TeamCoordinator, McpTeamActions {
       task = this.tasks.createTask({
         projectId: project.id,
         title: input.title,
+        description: input.description,
         kind: input.kind,
         worktreePath: worktree?.path ?? null,
         branch: worktree?.branch ?? null,

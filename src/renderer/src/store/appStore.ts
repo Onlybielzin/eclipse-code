@@ -172,6 +172,7 @@ export class CommandError extends Error {
 
 export interface CreateTaskInput {
   title: string
+  description?: string
   kind: 'team' | 'solo'
   soloProvider?: 'claude' | 'codex'
   useWorktree: boolean
@@ -536,6 +537,7 @@ export class AppStore {
       const task = await this.call('tasks.create', {
         projectId,
         title: input.title,
+        ...(input.description ? { description: input.description } : {}),
         kind: input.kind,
         useWorktree: input.useWorktree,
         ...(input.kind === 'solo' && input.soloProvider

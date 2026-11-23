@@ -6,6 +6,7 @@ import {
   composeMemberFirstPrompt,
   composeMemberResumePrompt,
   LEADER_FINISH_RULE,
+  LEADER_NAME_RULE,
   LEADER_APP_CONTEXT,
   composeQuestionNotice,
   renderPromptTemplate,
@@ -17,6 +18,7 @@ const task: Task = {
   contextId: 'c1',
   title: 'Login novo',
   name: 'Login novo',
+  description: '',
   kind: 'team',
   worktreePath: '/wt/login',
   branch: 'feat/login-novo',
@@ -61,11 +63,36 @@ describe('prompts', () => {
 
   it('Líder: prompt do papel renderizado; sem papel usa a dica das ferramentas', () => {
     expect(composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere {{tarefa}}.' })).toBe(
-      `Lidere Login novo.\n\n${LEADER_FINISH_RULE}\n\n${LEADER_APP_CONTEXT}`,
+      `Lidere Login novo.\n\n${LEADER_NAME_RULE}\n\n${LEADER_FINISH_RULE}\n\n${LEADER_APP_CONTEXT}`,
     )
     const semPapel = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
     expect(semPapel).toContain('subtarefa_criar')
     expect(semPapel).toContain('Tarefa: Login novo')
+  })
+
+  it('Líder: descrição entra no prompt e a instrução de renomear vale com e sem descrição', () => {
+    const sem = composeLeaderPrompt({ task, cwd: '/wt/login', template: null })
+    expect(sem).not.toContain('Descrição:')
+    expect(sem).toContain('tarefa_renomear (até 80 letras)')
+    const comDescricao = { ...task, description: 'Usar OAuth.\nSem senha.' }
+    const com = composeLeaderPrompt({ task: comDescricao, cwd: '/wt/login', template: 'Lidere.' })
+    expect(com).toContain('Descrição: Usar OAuth.\nSem senha.')
+    expect(com).toContain('tarefa_renomear (até 80 letras)')
+    expect(composeLeaderKickoff(comDescricao)).toBe(
+      'Tarefa: Login novo. A descrição está no seu prompt. Comece.',
+    )
+    expect(composeLeaderKickoff(task)).toBe('Tarefa: Login novo. Comece.')
+  })
+
+  it('Líder: a regra de nome só entra enquanto a tarefa não foi renomeada', () => {
+    const sem = composeLeaderPrompt({ task, cwd: '/wt/login', template: 'Lidere.' })
+    expect(sem).toContain(LEADER_NAME_RULE)
+    const renomeada = composeLeaderPrompt({
+      task: { ...task, name: 'Login' },
+      cwd: '/wt/login',
+      template: 'Lidere.',
+    })
+    expect(renomeada).not.toContain(LEADER_NAME_RULE)
   })
 
   it('Líder: sempre recebe a regra de chamar tarefa_concluir ao terminar', () => {

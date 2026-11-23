@@ -43,6 +43,7 @@ import {
   taskWorkflowStatusSchema,
   titleSchema,
   textSchema,
+  MAX_DESCRIPTION_CHARS,
 } from './schemas'
 
 // ---------------------------------------------------------------------------
@@ -266,6 +267,7 @@ export const ipcCommands = {
       .object({
         projectId: idSchema,
         title: titleSchema,
+        description: z.string().max(MAX_DESCRIPTION_CHARS).optional(),
         kind: taskKindSchema,
         leadRoleId: idSchema.optional(),
         soloProvider: providerSchema.optional(),

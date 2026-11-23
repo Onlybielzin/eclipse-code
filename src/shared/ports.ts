@@ -172,6 +172,7 @@ export interface SaveRoleInput {
 export interface CreateTaskRecord {
   projectId: ProjectId
   title: string
+  description?: string | undefined
   kind: TaskKind
   worktreePath: string | null
   branch: string | null
@@ -402,6 +403,7 @@ export interface TeamCoordinator extends McpToolHandler {
   createTask(input: {
     projectId: ProjectId
     title: string
+    description?: string | undefined
     kind: TaskKind
     leadRoleId?: RoleId | undefined
     soloProvider?: Provider | undefined

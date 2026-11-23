@@ -500,6 +500,7 @@ export class SqliteTaskService implements TaskService, LeaderNoticeStore {
         contextId: this.ids.newId(),
         title,
         name: title,
+        description: record.description ?? '',
         kind: record.kind,
         worktreePath: record.worktreePath,
         branch: record.branch,

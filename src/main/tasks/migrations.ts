@@ -306,6 +306,11 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE tasks RENAME COLUMN workflow_status_v11 TO workflow_status;
     `,
   },
+  {
+    version: 12,
+    name: 'descricao da tarefa',
+    sql: `ALTER TABLE tasks ADD COLUMN description TEXT NOT NULL DEFAULT '';`,
+  },
 ]
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.at(-1)?.version ?? 0

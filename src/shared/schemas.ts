@@ -22,6 +22,7 @@ import {
 } from './domain'
 
 export const MAX_TITLE_CHARS = 200
+export const MAX_DESCRIPTION_CHARS = 20_000
 export const MAX_TEXT_CHARS = 100_000
 export const MAX_ID_CHARS = 128
 export const MAX_PATH_CHARS = 4_096

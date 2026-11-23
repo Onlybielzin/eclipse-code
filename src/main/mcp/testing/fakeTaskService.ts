@@ -45,6 +45,7 @@ export function createFakeTaskService(): FakeTaskService {
     contextId: 'ctx1',
     title: 'Tarefa',
     name: 'Tarefa',
+    description: '',
     kind: 'team',
     worktreePath: '/tmp/wt',
     branch: 'eclipse/x',

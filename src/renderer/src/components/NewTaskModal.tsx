@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { DEFAULT_BRANCH_PREFIX, slugify } from '@shared/branch'
 import { PROVIDER_LABELS, PROVIDERS, type Provider } from '@shared/domain'
+import { MAX_DESCRIPTION_CHARS } from '@shared/schemas'
 import { useAppState, useStore } from '../store/context'
 
 type Kind = 'team' | 'solo' | 'term'
@@ -26,6 +27,7 @@ export function NewTaskModal({ onClose }: { onClose: () => void }) {
   const worktree = picked ?? kind !== 'term'
   const [provider, setProvider] = useState<Provider>('claude')
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [base, setBase] = useState('')
   const [busy, setBusy] = useState(false)
   const name = title.trim()
@@ -47,6 +49,7 @@ export function NewTaskModal({ onClose }: { onClose: () => void }) {
     try {
       const task = await store.createTask({
         title: name,
+        ...(description.trim() ? { description: description.trim() } : {}),
         kind: kind === 'team' ? 'team' : 'solo',
         useWorktree: worktree,
         ...(kind === 'solo' ? { soloProvider: provider } : {}),
@@ -109,7 +112,7 @@ export function NewTaskModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <label className="modal-field">
-          <span>Nome</span>
+          <span>Título</span>
           <input
             className="field"
             autoFocus
@@ -117,6 +120,18 @@ export function NewTaskModal({ onClose }: { onClose: () => void }) {
             maxLength={200}
             placeholder="ex: relatório por oferta"
             onChange={(e) => setTitle(e.target.value)}
+          />
+        </label>
+
+        <label className="modal-field">
+          <span>Descrição</span>
+          <textarea
+            className="field"
+            rows={4}
+            value={description}
+            maxLength={MAX_DESCRIPTION_CHARS}
+            placeholder="Detalhes do pedido (opcional). O agente lê o título e a descrição para nomear a tarefa."
+            onChange={(e) => setDescription(e.target.value)}
           />
         </label>
 

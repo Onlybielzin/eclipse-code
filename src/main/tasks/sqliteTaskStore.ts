@@ -133,6 +133,7 @@ function toTask(r: Row): Task {
     contextId: str(r['context_id']),
     title: str(r['title']),
     name: str(r['name']),
+    description: str(r['description']),
     kind: str(r['kind']) as TaskKind,
     worktreePath: strOrNull(r['worktree_path']),
     branch: strOrNull(r['branch']),
@@ -414,10 +415,10 @@ export class SqliteTaskStore implements TaskStore {
   }
   insertTask(t: Task): void {
     this.run(
-      `INSERT INTO tasks (id, project_id, context_id, title, name, kind, worktree_path, branch,
+      `INSERT INTO tasks (id, project_id, context_id, title, name, description, kind, worktree_path, branch,
          base_branch, lead_role_id, solo_provider, status, workflow_status, start_command, start_dir,
          created_at, updated_at, archived_at)
-       VALUES (@id, @projectId, @contextId, @title, @name, @kind, @worktreePath, @branch,
+       VALUES (@id, @projectId, @contextId, @title, @name, @description, @kind, @worktreePath, @branch,
          @baseBranch, @leadRoleId, @soloProvider, @status, @workflowStatus, @startCommand, @startDir,
          @createdAt, @updatedAt, @archivedAt)`,
       { ...t },

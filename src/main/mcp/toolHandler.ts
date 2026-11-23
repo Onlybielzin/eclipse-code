@@ -39,6 +39,7 @@ export interface McpTeamActions {
   createTask(input: {
     projectId: string
     title: string
+    description?: string | undefined
     kind: 'team'
     useWorktree: boolean
   }): Promise<Task>
@@ -358,9 +359,14 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       }
       const wanted = input.projeto.toLowerCase()
       const projects = tasks.listProjects()
-      const project = projects.find(
-        (p) => p.id === input.projeto || p.name.trim().toLowerCase() === wanted,
-      )
+      const byName = projects.filter((p) => p.name.trim().toLowerCase() === wanted)
+      if (!projects.some((p) => p.id === input.projeto) && byName.length > 1) {
+        throw new DomainError(
+          'invalid_input',
+          `o nome "${input.projeto}" é ambíguo. Use um destes ids: ${byName.map((p) => p.id).join(', ')}`,
+        )
+      }
+      const project = projects.find((p) => p.id === input.projeto) ?? byName[0]
       if (!project) {
         throw new DomainError(
           'not_found',
@@ -370,6 +376,7 @@ export function createMcpToolHandler(deps: McpToolHandlerDeps): DisposableMcpToo
       const task = await actions.createTask({
         projectId: project.id,
         title: input.pedido,
+        description: input.descricao,
         kind: 'team',
         useWorktree: input.worktree ?? true,
       })
