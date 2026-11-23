@@ -2,6 +2,10 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.24 - 2026-11-23
+
+- Comando de linha novo: `eclipse-code tarefa iniciar --projeto <nome> --titulo "..."`. Ele cria uma tarefa com Líder no app aberto, e o Líder começa sozinho. Aceita `--descricao` (ou `-` para ler do stdin), `--sem-worktree` e `--json`. `--help` mostra a ajuda.
+
 ## 0.1.23 - 2026-11-22
 
 - Nova tarefa tem "Título" e "Descrição". O Líder lê os dois e dá um nome curto à tarefa logo no começo.
