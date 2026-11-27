@@ -2,6 +2,11 @@
 
 Cada versão tem uma seção `## X.Y.Z - AAAA-MM-DD` com itens `- `. O app mostra a seção da versão nova depois de atualizar.
 
+## 0.1.26 - 2026-11-27
+
+- Eclipse no celular: em Configurações > Celular, ligue o acesso e abra o link de pareamento no celular, pela Tailscale (rode uma vez `tailscale serve --bg 47821`). A tela de celular mostra uma coluna por vez (Tarefas, Líder, Subtarefas), com uma barra para digitar no terminal do Líder. No Chrome, "Adicionar à tela inicial" instala como app.
+- Aviso no celular pelo ntfy quando uma tarefa pede você ou quando chega um aviso rápido (desligado por padrão, em Configurações > Celular).
+
 ## 0.1.25 - 2026-11-23
 
 - Status novo "Lançada": o chat continua aberto depois de lançar. Depois de 24 horas sem atividade, a tarefa vai sozinha para "Concluída". O prazo muda em Configurações ("Concluir lançadas após"); 0 desliga.
