@@ -211,7 +211,8 @@ export function createRemoteServer(options: RemoteServerOptions): RemoteServer {
       }
       send(res, 302, 'text/plain; charset=utf-8', '', {
         Location: '/',
-        'Set-Cookie': `${COOKIE}=${options.getToken()}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=31536000`,
+        // Lax: link aberto do WhatsApp é navegação de outro site; com Strict o redirect para / sai sem o cookie.
+        'Set-Cookie': `${COOKIE}=${options.getToken()}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=31536000`,
       })
       return
     }

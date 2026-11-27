@@ -134,7 +134,7 @@ describe('servidor remoto', () => {
     expect(res.headers.get('location')).toBe('/')
     const set = res.headers.get('set-cookie')!
     expect(set).toContain(`eclipse_remote=${TOKEN}`)
-    for (const part of ['HttpOnly', 'Secure', 'SameSite=Strict', 'Path=/', 'Max-Age=']) {
+    for (const part of ['HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/', 'Max-Age=']) {
       expect(set).toContain(part)
     }
   })
