@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import type { Task } from '@shared/domain'
 import { useStore } from '../store/context'
+import { isRemote, useIsPhone } from '../remote'
 import { PtyTerminal } from './PtyTerminal'
+import { TypeBar } from './TypeBar'
 
 type Phase =
   | { kind: 'connecting' }
@@ -17,8 +19,13 @@ export function LeaderTerminal({ task }: { task: Task }) {
   const store = useStore()
   const [phase, setPhase] = useState<Phase>({ kind: 'connecting' })
   const [attempt, setAttempt] = useState(0)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const remote = isRemote()
+  const phone = useIsPhone()
+  const showTypeBar = remote || phone
   const retry = () => {
     setPhase({ kind: 'connecting' })
+    setSessionId(null)
     setAttempt((n) => n + 1)
   }
 
@@ -52,10 +59,18 @@ export function LeaderTerminal({ task }: { task: Task }) {
           const session = await store.call('leader.ensure', { taskId: task.id })
           return store.call('terminal.attach', { sessionId: session.id })
         }}
-        onOpened={(o) => setPhase(o.alive ? { kind: 'live' } : { kind: 'exited', exitCode: null })}
-        onExit={(exitCode) => setPhase({ kind: 'exited', exitCode })}
+        interactive={!remote}
+        onOpened={(o) => {
+          setSessionId(o.alive ? o.sessionId : null)
+          setPhase(o.alive ? { kind: 'live' } : { kind: 'exited', exitCode: null })
+        }}
+        onExit={(exitCode) => {
+          setSessionId(null)
+          setPhase({ kind: 'exited', exitCode })
+        }}
         onError={(message) => setPhase({ kind: 'error', message })}
       />
+      {showTypeBar && <TypeBar sessionId={sessionId} />}
     </div>
   )
 }

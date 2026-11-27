@@ -460,6 +460,24 @@ export class FakeApi implements EclipseApi {
         d.questions = d.questions.map((x) => (x.id === q.id ? next : x))
         return next
       }
+      case 'remote.get':
+      case 'remote.save':
+      case 'remote.rotateToken':
+        return {
+          ntfyEnabled: false,
+          ntfyServer: 'https://ntfy.vings.dev',
+          ntfyTopic: 'eclipse-falso',
+          ntfyTokenSet: false,
+          publicUrl: null,
+          enabled: false,
+          port: 47821,
+          token: 'token-falso',
+          pairUrlPath: '/pair?token=token-falso',
+          running: false,
+          error: null,
+        }
+      case 'remote.testNotify':
+        return undefined
       default:
         throw new Error(`comando sem resposta no fake: ${channel}`)
     }

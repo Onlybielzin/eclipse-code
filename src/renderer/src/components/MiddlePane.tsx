@@ -65,7 +65,7 @@ export function MiddlePane() {
 
   if (!task) {
     return (
-      <section className="col" aria-label="Centro">
+      <section className="col col-mid" aria-label="Centro">
         <div className="colhead">
           {full ? fullTitle : 'Líder'}
           {full && closeBrain}
@@ -89,7 +89,7 @@ export function MiddlePane() {
   const leaderTitle = task.kind === 'team' ? 'Líder · terminal' : 'Terminal'
 
   return (
-    <section className="col" aria-label="Centro">
+    <section className="col col-mid" aria-label="Centro">
       <div className="colhead">
         <span className="mid-title">
           {!full && !subtask && (

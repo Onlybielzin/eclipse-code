@@ -38,6 +38,7 @@ import { parseCliArgs, runCliTask } from './cli/cliTask'
 import { createUpdater, createWhatsNew } from './app/updater'
 import { ensureNodePtySpawnHelperExecutable } from './terminal'
 import { runGit } from './worktree'
+import { createRemoteController, type RemoteController } from './remote'
 
 // Pasta de dados propria: nunca a do app antigo. Precisa vir antes de 'ready'.
 // --user-data-dir (switch do Chromium) troca a pasta inteira, banco e socket inclusive.
@@ -170,6 +171,7 @@ async function boot(): Promise<AppServices> {
     getSeen: () => services.tasks.getLastSeenVersion(),
     setSeen: (version) => services.tasks.saveLastSeenVersion(version),
   })
+  let remote: RemoteController | null = null
   const route = createIpcRouter({
     ...createIpcHandlers(services),
     'projects.pickFolder': async (): Promise<PickedFolder | null> => {
@@ -196,6 +198,10 @@ async function boot(): Promise<AppServices> {
         alreadyAdded: services.tasks.listProjects().some((p) => p.rootPath === root),
       }
     },
+    'remote.get': async () => remote!.get(),
+    'remote.save': async (input) => remote!.save(input),
+    'remote.rotateToken': async () => remote!.rotateToken(),
+    'remote.testNotify': async () => remote!.testNotify(),
     'app.whatsNew': async () => whatsNew.get(),
     'app.whatsNewSeen': async () => whatsNew.markSeen(),
     'update.state': async () => updater?.state() ?? { status: 'idle', version: null },
@@ -219,6 +225,28 @@ async function boot(): Promise<AppServices> {
     }
     return route(raw, { senderId: event.sender.id })
   })
+  // Celular: no app construido serve a tela de out/renderer; em dev responde 503.
+  remote = createRemoteController({
+    storage: services.settings,
+    route,
+    rendererDir: process.env['ELECTRON_RENDERER_URL'] ? null : join(__dirname, '../renderer'),
+    // Em teste e no smoke nunca sai aviso de verdade.
+    ntfyFetch: isTestRun ? null : fetch,
+    lookup: (taskId) => {
+      const task = services.tasks.getTask(taskId)
+      return { taskName: task.name, projectName: services.tasks.getProject(task.projectId).name }
+    },
+    log,
+  })
+  const remoteController = remote
+  const offRemote = services.onUiEvent((message) => remoteController.emit(message))
+  const disposeServices = services.dispose.bind(services)
+  services.dispose = async () => {
+    offRemote()
+    await remoteController.dispose()
+    await disposeServices()
+  }
+  await remoteController.init()
   services.onUiEvent(emitToWindows)
   return services
 }

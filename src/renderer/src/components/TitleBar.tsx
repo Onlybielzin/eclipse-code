@@ -4,6 +4,7 @@ import { WhatsNewModal } from './WhatsNewModal'
 import { ProjectPicker } from './ProjectPicker'
 import { openQuestions } from '../store/format'
 import { useAppState, useStore } from '../store/context'
+import { isRemote } from '../remote'
 
 /** Topo: seletor de projeto (Ctrl+O) e o contador "precisa de você". */
 export function TitleBar() {
@@ -15,6 +16,7 @@ export function TitleBar() {
   const update = useAppState((s) => s.update)
   const whatsNew = useAppState((s) => s.whatsNew)
   const wallOpen = useAppState((s) => s.wallOpen)
+  const remote = isRemote()
 
   const goToQuestion = () => {
     const q = open[0]
@@ -37,9 +39,11 @@ export function TitleBar() {
         Eclipse Code
       </b>
       <ProjectPicker onAddProject={() => setAdding(true)} />
-      {adding && <AddProjectModal onClose={() => setAdding(false)} />}
-      {update.status === 'downloading' && <small className="muted">Baixando atualização</small>}
-      {update.status === 'ready' && (
+      {!remote && adding && <AddProjectModal onClose={() => setAdding(false)} />}
+      {!remote && update.status === 'downloading' && (
+        <small className="muted">Baixando atualização</small>
+      )}
+      {!remote && update.status === 'ready' && (
         <button type="button" className="ghost" data-testid="update-ready" onClick={restart}>
           Versão {update.version} pronta · Fechar e instalar
         </button>
@@ -64,31 +68,41 @@ export function TitleBar() {
         aria-pressed={wallOpen}
         onClick={() => store.setWallOpen(!wallOpen)}
       >
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+        <svg
+          viewBox="0 0 16 16"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          aria-hidden="true"
+        >
           <rect x="2" y="2" width="5" height="5" rx="1" />
           <rect x="9" y="2" width="5" height="5" rx="1" />
           <rect x="2" y="9" width="5" height="5" rx="1" />
           <rect x="9" y="9" width="5" height="5" rx="1" />
         </svg>
       </button>
-      <button
-        type="button"
-        className="icon-btn"
-        aria-label="Configurações"
-        title="Configurações"
-        onClick={() => store.setSettingsOpen(true)}
-      >
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path
-            d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
+      {!remote && (
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label="Configurações"
+          title="Configurações"
+          onClick={() => store.setSettingsOpen(true)}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path
+              d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      )}
       {whatsNew && <WhatsNewModal whatsNew={whatsNew} />}
     </header>
   )

@@ -26,6 +26,10 @@ export function createIpcHandlers(
   | 'update.state'
   | 'update.install'
   | 'update.check'
+  | 'remote.get'
+  | 'remote.save'
+  | 'remote.rotateToken'
+  | 'remote.testNotify'
 > {
   const { tasks, coordinator, brain, taskProcesses, worktrees } = services
   const homeDir = options.homeDir ?? homedir()

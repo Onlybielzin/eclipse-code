@@ -72,6 +72,8 @@ export interface AppServicesOptions {
 
 export interface AppServices {
   brain: BrainService
+  /** app_settings do SQLite (acesso remoto grava aqui). */
+  settings: { getSetting(key: string): string | null; setSetting(key: string, valueJson: string): void }
   alerts: UserAlerts
   tasks: SqliteTaskService
   coordinator: AppTeamCoordinator
@@ -283,6 +285,7 @@ export async function startAppServices(options: AppServicesOptions): Promise<App
   let disposed: Promise<void> | null = null
   return {
     brain,
+    settings: store,
     alerts,
     tasks,
     coordinator,

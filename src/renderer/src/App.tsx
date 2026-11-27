@@ -7,6 +7,8 @@ import { TaskList } from './components/TaskList'
 import { TitleBar } from './components/TitleBar'
 import type { AppStore } from './store/appStore'
 import { StoreProvider, useAppState, useStore } from './store/context'
+import { MobileNav } from './components/MobileNav'
+import { isRemote, useIsPhone } from './remote'
 
 function ErrorBar() {
   const store = useStore()
@@ -26,6 +28,8 @@ function Shell() {
   const status = useAppState((s) => s.status)
   const hasProject = useAppState((s) => s.projectId !== null)
   const settingsOpen = useAppState((s) => s.settingsOpen)
+  const mobileCol = useAppState((s) => s.mobileCol)
+  const phone = useIsPhone()
   return (
     <div className="app">
       <TitleBar />
@@ -38,17 +42,20 @@ function Shell() {
         <div className="empty">Carregando...</div>
       ) : !hasProject ? (
         <div className="empty">
-          Nenhum projeto ainda. Use "+ projeto" e informe a pasta do repositório.
+          {isRemote()
+            ? 'Nenhum projeto ainda. Adicione um projeto no app do computador.'
+            : 'Nenhum projeto ainda. Use "+ projeto" e informe a pasta do repositório.'}
         </div>
       ) : (
         // Com Configurações aberta, o meio e a direita só ficam escondidos: o xterm do Líder continua montado.
-        <div className={`cols ${settingsOpen ? 'settings-open' : ''}`}>
+        <div className={`cols ${settingsOpen ? 'settings-open' : ''}`} data-col={mobileCol}>
           <TaskList />
           <MiddlePane />
           <SubtaskPanel />
           {settingsOpen && <SettingsPage />}
         </div>
       )}
+      {phone && status === 'ready' && hasProject && <MobileNav />}
       <NoticeToasts />
     </div>
   )

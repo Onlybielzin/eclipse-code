@@ -12,6 +12,7 @@ import type { Project } from '@shared/domain'
 import type { ProjectSummary, ProjectsSummary } from '@shared/ipc'
 import { matchesProject, shortenPath } from '../store/projectPicker'
 import { useAppState, useStore } from '../store/context'
+import { isRemote } from '../remote'
 import { ProjectEditModal } from './ProjectEditModal'
 
 function ChevronIcon() {
@@ -71,6 +72,7 @@ function isOpenShortcut(e: KeyboardEvent): boolean {
  */
 export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
   const store = useStore()
+  const remote = isRemote()
   const projects = useAppState((s) => s.projects)
   const projectId = useAppState((s) => s.projectId)
   const [open, setOpen] = useState(false)
@@ -199,7 +201,7 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
         return
       case 'F2':
         e.preventDefault()
-        if (activeProject) edit(activeProject)
+        if (activeProject && !remote) edit(activeProject)
         return
       case 'Enter': {
         e.preventDefault()
@@ -338,20 +340,22 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
                           </span>
                         </span>
                       )}
-                      <button
-                        type="button"
-                        className="proj-edit"
-                        // So atalho de mouse: teclado e leitor de tela usam F2 e o botao do rodape.
-                        tabIndex={-1}
-                        aria-hidden="true"
-                        title="Editar projeto"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          edit(p)
-                        }}
-                      >
-                        <PencilIcon />
-                      </button>
+                      {!remote && (
+                        <button
+                          type="button"
+                          className="proj-edit"
+                          // So atalho de mouse: teclado e leitor de tela usam F2 e o botao do rodape.
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          title="Editar projeto"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            edit(p)
+                          }}
+                        >
+                          <PencilIcon />
+                        </button>
+                      )}
                     </li>
                   )
                 })}
@@ -359,19 +363,21 @@ export function ProjectPicker({ onAddProject }: { onAddProject: () => void }) {
               {filtered.length === 0 && <p className="proj-none">Nenhum projeto encontrado.</p>}
             </>
           )}
-          <div className="proj-foot">
-            <button type="button" className="proj-add" onClick={add}>
-              + Adicionar projeto
-            </button>
-            <button
-              type="button"
-              className="proj-add proj-edit-active"
-              disabled={!activeProject}
-              onClick={() => activeProject && edit(activeProject)}
-            >
-              Editar projeto <kbd className="proj-kbd">F2</kbd>
-            </button>
-          </div>
+          {!remote && (
+            <div className="proj-foot">
+              <button type="button" className="proj-add" onClick={add}>
+                + Adicionar projeto
+              </button>
+              <button
+                type="button"
+                className="proj-add proj-edit-active"
+                disabled={!activeProject}
+                onClick={() => activeProject && edit(activeProject)}
+              >
+                Editar projeto <kbd className="proj-kbd">F2</kbd>
+              </button>
+            </div>
+          )}
         </div>
       )}
       {editing && <ProjectEditModal project={editing} onClose={() => setEditing(null)} />}

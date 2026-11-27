@@ -33,6 +33,7 @@ import {
   type MemoryDetail,
 } from './brain'
 import type { AgentLimitSettings } from './ports'
+import { remoteSaveSchema, type RemoteStatus } from './remote'
 import type { WallSnapshot } from './wall'
 import {
   absolutePathSchema,
@@ -240,6 +241,14 @@ export const ipcCommands = {
   /** Limites de agentes (null = sem limite). */
   'settings.get': command<AgentLimitSettings>()(emptyInput),
   'settings.save': command<AgentLimitSettings>()(agentLimitSettingsSchema),
+
+  /** Acesso pelo celular (servidor remoto no main). So a tela do PC chama; o celular nao. */
+  'remote.get': command<RemoteStatus>()(emptyInput),
+  'remote.save': command<RemoteStatus>()(remoteSaveSchema),
+  /** Token novo; derruba os celulares conectados. */
+  'remote.rotateToken': command<RemoteStatus>()(emptyInput),
+  /** Manda um aviso de teste ao ntfy; falha com a mensagem legivel. */
+  'remote.testNotify': command<void>()(emptyInput),
 
   /** Plugin Cerebro. A chave sbk_ nunca volta para a tela: so brain.status (final da chave). */
   'brain.setKey': command<BrainStatus>()(z.object({ key: brainKeySchema.nullable() }).strict()),

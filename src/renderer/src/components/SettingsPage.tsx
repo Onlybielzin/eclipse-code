@@ -3,6 +3,7 @@ import type { BrainStatus } from '@shared/brain'
 import { MOTIONS, STYLES } from '../brain/looks'
 import { SHAPES } from '../brain/shapes'
 import { useAppState, useStore } from '../store/context'
+import { RemoteSettings } from './RemoteSettings'
 import './settings.css'
 
 const LIMIT_ERROR = 'Informe um número inteiro de 1 a 100, ou deixe vazio para sem limite.'
@@ -403,6 +404,8 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
               </div>
             </section>
 
+            <RemoteSettings api={store.api} />
+
             <section id="atualizacao" aria-labelledby="h-atualizacao">
               <header>
                 <h2 id="h-atualizacao">Atualização</h2>
@@ -537,6 +540,7 @@ export function SettingsPage({ alone = false }: { alone?: boolean }) {
 const SECTIONS = [
   { id: 'agentes', label: 'Agentes' },
   { id: 'second-brain', label: 'Second Brain' },
+  { id: 'celular', label: 'Celular' },
   { id: 'atualizacao', label: 'Atualização' },
   { id: 'cerebro', label: 'Cérebro' },
 ]

@@ -71,6 +71,9 @@ function readBrainLook(): BrainLook {
   }
 }
 
+/** Coluna visivel no layout de celular. */
+export type MobileCol = 'tasks' | 'middle' | 'subtasks'
+
 export type MidTab = 'leader' | 'delivery' | 'activity' | 'start' | 'terminal'
 
 export interface AppState {
@@ -86,6 +89,8 @@ export interface AppState {
   selectedTaskId: string | null
   selectedSubtaskId: string | null
   midTab: MidTab
+  /** Coluna visivel no celular; no desktop nao muda nada. */
+  mobileCol: MobileCol
   /** Cerebro grande aberto no painel do meio (so um motor WebGL por vez). */
   brainOpen: boolean
   /** Parede (todos os projetos) aberta no painel do meio. */
@@ -115,6 +120,7 @@ export const initialState: AppState = {
   selectedTaskId: null,
   selectedSubtaskId: null,
   midTab: 'leader',
+  mobileCol: 'tasks',
   brainOpen: false,
   wallOpen: false,
   settingsOpen: false,
@@ -481,6 +487,7 @@ export class AppStore {
       selectedTaskId: taskId,
       selectedSubtaskId: null,
       midTab: 'leader',
+      mobileCol: 'middle',
       expanded: { ...s.expanded, [taskId]: true },
     }))
   }
@@ -500,10 +507,15 @@ export class AppStore {
       selectedTaskId: subtask?.taskId ?? this.state.selectedTaskId,
       selectedSubtaskId: subtaskId,
       settingsOpen: false,
+      mobileCol: 'middle',
       // Membro ainda trabalhando: abre no que ele esta fazendo. Terminou: abre na entrega.
       midTab: subtask && !isFinalOrWaiting(subtask.state) ? 'activity' : 'delivery',
     })
     await Promise.all([this.loadDetail(subtaskId), this.loadActivity(subtaskId)])
+  }
+
+  setMobileCol(col: MobileCol): void {
+    this.set({ mobileCol: col })
   }
 
   setBrainOpen(open: boolean): void {

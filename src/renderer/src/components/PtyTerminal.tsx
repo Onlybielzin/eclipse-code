@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useStore } from '../store/context'
 import { createXterm } from '../terminal/createXterm'
+import { isRemote } from '../remote'
 
 export interface PtyOpened {
   /** Id usado em terminal.write/resize e nos eventos terminal.data/exit. */
@@ -53,7 +54,10 @@ export function PtyTerminal({ open, onOpened, onExit, onError, interactive = tru
       void api.invoke('terminal.write', { sessionId, data })
     })
 
+    // Remoto: o xterm segue o tamanho do pty e nunca manda terminal.resize (mudaria o pty no PC).
+    const remote = isRemote()
     const syncSize = () => {
+      if (remote) return
       const size = term.fit()
       if (!size || sessionId === null || !interactive) return
       if (size.cols === lastSize.cols && size.rows === lastSize.rows) return
@@ -73,7 +77,8 @@ export function PtyTerminal({ open, onOpened, onExit, onError, interactive = tru
         if (opened.scrollback) term.write(opened.scrollback)
         lastSize = { cols: opened.cols, rows: opened.rows }
         latest.current.onOpened?.(opened)
-        syncSize()
+        if (remote) term.resize(opened.cols, opened.rows)
+        else syncSize()
         if (interactive) term.focus()
       } catch (error) {
         if (!disposed)
@@ -91,5 +96,5 @@ export function PtyTerminal({ open, onOpened, onExit, onError, interactive = tru
     }
   }, [store, interactive])
 
-  return <div className="term-host" ref={hostRef} />
+  return <div className={`term-host${isRemote() ? ' remote' : ''}`} ref={hostRef} />
 }

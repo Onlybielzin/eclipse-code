@@ -15,6 +15,8 @@ export interface XtermHandle {
   onData(listener: (data: string) => void): () => void
   /** Ajusta ao tamanho do container. Devolve o tamanho novo, ou null se nao deu. */
   fit(): { cols: number; rows: number } | null
+  /** Tamanho fixo em colunas/linhas (modo remoto: acompanha o pty sem mexer nele). */
+  resize(cols: number, rows: number): void
   focus(): void
   dispose(): void
 }
@@ -143,6 +145,7 @@ export function createXterm(container: HTMLElement): XtermHandle {
         return null
       }
     },
+    resize: (cols, rows) => term.resize(cols, rows),
     focus: () => term.focus(),
     dispose: () => term.dispose(),
   }
