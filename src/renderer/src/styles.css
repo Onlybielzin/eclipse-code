@@ -2625,7 +2625,7 @@ button[aria-pressed='true'] > .q-mark {
     display: flex;
     flex-direction: column;
   }
-  .cols > .col-tasks,
+  .cols > .col-left,
   .cols > .col-mid,
   .cols > .col-subs {
     flex: 1;
@@ -2633,7 +2633,7 @@ button[aria-pressed='true'] > .q-mark {
     min-width: 0;
     border-left: 0;
   }
-  .cols[data-col='tasks'] > :not(.col-tasks):not(.settings-page),
+  .cols[data-col='tasks'] > :not(.col-left):not(.settings-page),
   .cols[data-col='middle'] > :not(.col-mid):not(.settings-page),
   .cols[data-col='subtasks'] > :not(.col-subs):not(.settings-page) {
     display: none;
@@ -2643,8 +2643,18 @@ button[aria-pressed='true'] > .q-mark {
     padding: 0 8px;
   }
   .brand,
-  .proj-kbd {
+  .proj-kbd,
+  .col-left .side-panel {
     display: none;
+  }
+  .titlebar .proj-btn {
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+  }
+  .titlebar .need {
+    flex: none;
+    white-space: nowrap;
   }
   .proj-pop {
     max-width: calc(100vw - 16px);
